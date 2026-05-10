@@ -1,0 +1,2011 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>JINs Bible</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2d4a3e">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="JINs Bible">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+    <style>
+        :root {
+            --ink: #1a1815; --ink-soft: #4a4740; --paper: #f6f2e9; --paper-white: #ffffff;
+            --rule: #d9d2c1; --accent: #2d4a3e; --font-main: 'Pretendard Variable', sans-serif;
+            --font-size-text: 1.6rem; --line-height-text: 1.7; --padding-val: 18px;
+        }
+        * { box-sizing: border-box; }
+        body { margin: 0; background-color: var(--paper); color: var(--ink); font-family: var(--font-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { width: 100%; max-width: 680px; background-color: var(--paper-white); padding: 40px; border-radius: 12px; border: 1px solid var(--rule); box-shadow: 0 10px 40px rgba(0,0,0,0.06); position: relative; }
+
+        .header { margin-bottom: 20px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end; position: sticky; top: 0; z-index: 30; background: var(--paper-white); }
+        .title { font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--accent); }
+
+        .settings-bar { display: flex; flex-wrap: nowrap; align-items: center; gap: 10px; background: #f8f7f2; padding: 10px 12px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--rule); font-size: 0.82rem; }
+        .settings-group { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
+        .settings-bar .btn-action { padding: 5px 10px; font-size: 0.82rem; height: 30px; line-height: 1; }
+        .settings-bar .btn-action:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+        .settings-bar .nav-select { height: 30px; font-size: 0.82rem; padding: 0 6px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+        .settings-bar .nav-select:hover { border-color: var(--accent); background: #f2f8f5; }
+
+        .file-upload-container {
+            margin-bottom: 14px; padding: 40px 20px; border: 1px dashed var(--rule);
+            border-radius: 8px; background-color: #fcfbf8; text-align: center; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .file-upload-container { transition: background 0.15s, border-color 0.15s, transform 0.15s, box-shadow 0.15s; } .file-upload-container.dragover { background-color: #e9f5ef; border-color: var(--accent); transform: scale(1.01); box-shadow: 0 0 0 3px rgba(45,74,62,0.15); }
+        #file-input { display: none; }
+
+        .file-upload-container.loaded {
+            padding: 10px 20px; background-color: #f2f8f5; border-color: #a0c4b4; cursor: default; transform: none;
+        }
+
+        /* 진행률 접힘 디자인 */
+        .progress-collapsed { display: flex; flex-direction: column; gap: 5px; }
+        .progress-collapsed-row { display: flex; align-items: center; justify-content: space-between; }
+        .progress-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .progress-chip { font-size: 0.75rem; color: var(--ink-soft); }
+        .progress-chip strong { color: var(--accent); font-weight: 600; }
+        .progress-mini-bar { height: 1px; background: var(--rule); border-radius: 1px; overflow: hidden; margin-top: 4px; }
+        .progress-mini-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; width: 0%; }
+        .progress-expand-btn { font-size: 0.72rem; color: #aaa; background: none; border: none; cursor: pointer; padding: 0; white-space: nowrap; }
+        .progress-expand-btn:hover { color: var(--accent); }
+        .progress-container { border-top: 1px solid var(--rule); padding: 6px 0; margin-bottom: 12px; }
+        .freewrite-box { margin-bottom: 25px; padding: 9px 20px; border: 1px dashed #a0c4b4; border-radius: 8px; background-color: #f2f8f5; text-align: center; cursor: pointer; transition: all 0.2s ease; }
+        .freewrite-box:hover { background-color: #e4f2ec; border-color: var(--accent); }
+        .freewrite-box strong { color: var(--accent); font-size: 0.95rem; }
+        .freewrite-box p { font-size: 0.78rem; color: #888; margin: 5px 0 0; }
+        .freewrite-btn { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 14px; padding: 5px 12px; border: 1px solid #a0c4b4; border-radius: 4px; background: #f2f8f5; color: var(--accent); font-size: 0.82rem; font-family: var(--font-main); cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+        .freewrite-btn:hover { background: #e4f2ec; border-color: var(--accent); }
+
+        .nav-bar { display: none; gap: 6px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+        .nav-bar.visible { display: flex; }
+        .nav-select { border: 1px solid var(--rule); border-radius: 4px; padding: 4px 8px; font-size: 0.85rem; background-color: #fff; outline: none; }
+
+        /* contenteditable 입력창 */
+        #user-input[contenteditable] { display: block; border: none; outline: none; color: var(--ink); background-color: #ffffff; width: 100%; padding: var(--padding-val); min-height: 140px; max-height: 200px; overflow-y: auto; font-family: var(--font-main); font-size: var(--font-size-text); line-height: var(--line-height-text); word-break: break-all; white-space: pre-wrap; }
+        #user-input[contenteditable]:empty::before { content: attr(data-placeholder); color: #c0bdb6; pointer-events: none; }
+        #user-input.correct { background-color: #e9f5ef; }
+        .inline-tag { border-radius: 3px; padding: 1px 5px; font-size: 0.88em; font-style: normal; font-weight: 500; cursor: default; }
+        .inline-j-tag { color: #d0342c; }
+
+        .progress-container { margin-bottom: 20px; }
+        .progress-bar-bg { height: 6px; background-color: #f0ede6; border-radius: 3px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background-color: #9ab8ac; width: 0%; transition: width 0.3s ease; }
+        .progress-text { font-size: 0.85rem; color: var(--ink-soft); margin-top: 6px; text-align: right; }
+
+        .mode-select { display: flex; gap: 18px; align-items: center; margin-bottom: 15px; font-size: 0.9rem; }
+        .mode-select label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
+
+        .typing-frame { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background-color: var(--paper-white); }
+        .verse-box { background-color: #f8f7f2; color: #5a5750; border-bottom: 1px solid var(--rule); border-radius: 10px 10px 0 0; }
+        .fmt-toolbar { display:flex; align-items:center; justify-content:space-between; padding:4px 8px; border-top:1px solid var(--rule); background:#faf9f6; gap:2px; border-radius: 0 0 10px 10px; }
+        .text-common { font-family: var(--font-main); font-size: var(--font-size-text); line-height: var(--line-height-text); padding: var(--padding-val); width: 100%; word-break: break-all; white-space: pre-wrap; height: 140px; overflow-y: auto; }
+        /* verse-box defined above with border-radius */
+        #user-input.correct { background-color: #e9f5ef; }
+
+        .btn-action { background: none; border: 1px solid var(--rule); cursor: pointer; padding: 0 12px; height: 30px; border-radius: 4px; font-size: 0.82rem; color: var(--ink-soft); font-family: var(--font-main); transition: background 0.12s, border-color 0.12s, color 0.12s; white-space: nowrap; }
+        .btn-action:hover { background: #f0ece3; border-color: #b0a898; color: var(--ink); }
+        .btn-apply { background: var(--accent); color: #fff; border: 1px solid var(--accent); cursor: pointer; padding: 0 14px; height: 30px; border-radius: 4px; font-size: 0.82rem; font-family: var(--font-main); transition: background 0.12s; white-space: nowrap; }
+        .btn-apply:hover { background: #1e3329; border-color: #1e3329; }
+        .btn-nav { background: none; border: 1px solid var(--rule); cursor: pointer; padding: 0 12px; height: 30px; border-radius: 4px; font-size: 0.82rem; color: var(--ink-soft); font-family: var(--font-main); transition: background 0.12s, border-color 0.12s, color 0.12s; white-space: nowrap; }
+        .btn-nav:hover { background: #f0ece3; border-color: #b0a898; color: var(--ink); }
+
+        .load-area { margin-top: 10px; padding-top: 10px; border-top: 1px dotted var(--rule); }
+        .btn-home, .btn-chart { background: none; border: none; cursor: pointer; color: var(--ink-soft); padding: 6px; border-radius: 6px; line-height: 1; transition: background 0.15s, color 0.15s; display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; }
+        .btn-home:hover, .btn-chart:hover { background: #f0ece3; color: var(--accent); }
+        .btn-chart { margin-right: 2px; }
+        .date-pos-btn.active, .btn-date-toggle.active { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; }
+
+        /* ── 서식 툴바 ── */
+        /* fmt-toolbar defined above with border-radius */
+        .fmt-left { display:flex; align-items:center; gap:1px; flex-wrap:wrap; }
+        .fmt-right { display:flex; align-items:center; gap:1px; }
+        .fmt-btn { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; padding:0; border:none; border-radius:7px; background:transparent; cursor:pointer; font-size:0.88rem; font-weight:700; color:var(--ink-soft); font-family:var(--font-main); white-space:nowrap; transition:background 0.12s, color 0.12s; }
+        .fmt-btn:hover { background:#f0ece3; color:var(--ink); }
+        .fmt-btn:active { transform:scale(0.93); }
+        .fmt-btn-italic { font-style:italic; }
+        .fmt-btn-underline { text-decoration:underline; }
+        .fmt-btn-strike { text-decoration:line-through; }
+        .fmt-clear-btn { width:auto; padding:0 8px; gap:4px; color:#c0a898; }
+        .fmt-clear-btn:hover { background:#f7f0ec; color:#a07060; }
+        .date-del-btn { color:#c0a898 !important; border-color:#e0d4cc !important; }
+        .date-del-btn:hover { background:#f7f0ec !important; color:#a07060 !important; border-color:#c0a898 !important; }
+        .fmt-divider { width:1px; height:20px; background:var(--rule); margin:0 4px; }
+        .fmt-tag-btn { gap:4px; font-size:0.78rem; font-weight:600; width:auto; padding:0 10px; }
+        .fmt-tag-wrap { position:relative; }
+        .fmt-date-btn { font-size:0.78rem; font-weight:600; width:auto; padding:0 8px; }
+        .fmt-color-btn { flex-direction:column; gap:2px; }
+        /* ── 날짜 / 각주 입력 영역 ── */
+        .date-row { display:flex; align-items:center; gap:8px; padding:5px 12px; background:#faf9f6; border-top:1px solid var(--rule); font-size:0.78rem; color:var(--ink-soft); }
+        .date-row label { white-space:nowrap; font-size:0.72rem; color:#aaa; }
+        .date-position-toggle { display:flex; gap:4px; }
+        .date-pos-btn { border:1px solid var(--rule); background:#fff; border-radius:4px; padding:0 8px; height:24px; line-height:1; font-size:0.72rem; color:var(--ink-soft); cursor:pointer; transition:all 0.12s; font-family:var(--font-main); display:inline-flex; align-items:center; }
+        .date-pos-btn.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+        #date-display { font-size:0.78rem; color:#aaa; font-style:italic; flex:1; }
+        #footnote-input { display:block; border:none; border-top:1px dashed #e8e4da; outline:none; color:#333; background:#fffdf8; width:100%; padding:8px 14px; min-height:52px; height:80px; overflow-y:auto; font-family:'Georgia', 'Nanum Myeongjo', serif; font-size:calc(var(--font-size-text) * 0.65); line-height:1.65; word-break:break-all; white-space:pre-wrap; box-sizing:border-box; }
+        #footnote-input:empty::before { content:attr(data-placeholder); color:#c0bdb6; pointer-events:none; }
+        .footnote-label { font-size:0.68rem; color:#bbb; padding:3px 14px 1px; background:#fffdf8; border-top:1px dashed #e8e4da; font-style:italic; }
+        .fn-resize-handle { height:20px; background:#fffdf8; display:flex; align-items:center; justify-content:center; gap:10px; border-top:1px solid #ede9e0; }
+        .fn-sz-btn { border:none; background:none; cursor:pointer; font-size:0.9rem; color:#bbb; padding:0 8px; line-height:1; transition:color 0.12s; user-select:none; }
+        .fn-sz-btn:hover { color:var(--accent); }
+        .fn-sz-reset { font-size:0.78rem; color:#ccc; }
+        .inline-date-stamp { display: inline; color: #aaa; font-size: 0.72em; font-style: italic; }
+        .fmt-date-btn.active { background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; }
+
+        /* 태그 팝업 */
+        .tag-popup { position:absolute; bottom:40px; left:0; background:#fff; border:1px solid var(--rule); border-radius:8px; padding:14px 16px; width:300px; z-index:200; box-shadow:0 4px 16px rgba(0,0,0,0.10); }
+        .tag-input-row { display:flex; gap:6px; margin-bottom:8px; }
+        .tag-input-field { flex:1; height:28px; border:1px solid var(--rule); border-radius:99px; padding:0 10px; font-size:0.8rem; font-family:var(--font-main); outline:none; color:var(--ink); background:#f8f7f2; }
+        .tag-input-field:focus { border-color:var(--accent); background:#fff; }
+        .tag-input-btn { height:28px; padding:0 12px; border:none; background:var(--accent); color:#fff; border-radius:99px; font-size:0.8rem; cursor:pointer; font-family:var(--font-main); }
+        .tag-input-btn:hover { background:#1e3329; }
+        .saved-tags-list { display:flex; flex-wrap:wrap; gap:5px; }
+        .saved-tag-chip { display:inline-flex; align-items:center; gap:3px; padding:6px 16px; border-radius:6px; font-size:0.9rem; cursor:pointer; border:1px solid rgba(0,0,0,0.08); transition:filter 0.1s; font-weight:600; min-width:32px; justify-content:center; }
+        .saved-tag-chip:hover { filter:brightness(0.93); }
+
+        /* 컬러 피커 */
+        .fmt-color-wrap { position:relative; }
+        .fmt-color-btn { flex-direction:column; gap:1px; padding:0 8px; height:28px; }
+        .color-indicator { display:block; width:14px; height:3px; border-radius:2px; }
+        .color-picker-pop { position:absolute; bottom:34px; left:50%; transform:translateX(-50%); background:#fff; border:1px solid var(--rule); border-radius:8px; padding:8px; display:flex; flex-wrap:wrap; gap:6px; width:140px; z-index:200; box-shadow:0 4px 16px rgba(0,0,0,0.10); }
+        .c-swatch { width:20px; height:20px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform 0.1s; }
+        .c-swatch:hover { transform:scale(1.2); }
+        .c-swatch.sel { border-color:var(--ink); }
+
+        .special-picker-pop { position:absolute; bottom:40px; left:0; background:#fff; border:1px solid var(--rule); border-radius:8px; padding:0; width:535px; z-index:200; box-shadow:0 4px 20px rgba(0,0,0,0.13); overflow:visible; }
+        .sp-tabs { display:flex; flex-wrap:wrap; gap:0; border-bottom:1px solid var(--rule); padding:8px 10px 0; background:#faf9f6; border-radius:8px 8px 0 0; }
+        .sp-tab { font-size:0.72rem; padding:4px 0; border:1px solid transparent; border-radius:4px 4px 0 0; cursor:pointer; color:var(--ink-soft); background:none; font-family:var(--font-main); margin-bottom:-1px; white-space:nowrap; flex:1; text-align:center; }
+        .sp-tab.active { background:#fff; border-color:var(--rule); border-bottom-color:#fff; color:var(--accent); font-weight:600; }
+        .sp-body { padding:12px; height:350px; overflow-y:auto; }
+        .sp-body::-webkit-scrollbar { width:4px; } .sp-body::-webkit-scrollbar-thumb { background:#ddd; border-radius:2px; }
+        .sp-custom-area { padding:10px 12px; border-top:1px solid var(--rule); background:#faf9f6; border-radius:0 0 8px 8px; }
+        .special-grid { display:flex; flex-wrap:wrap; gap:4px; }
+        .special-char-btn { width:30px; height:30px; border:1px solid var(--rule); border-radius:5px; background:#fff; cursor:pointer; font-size:0.95rem; display:flex; align-items:center; justify-content:center; transition:background 0.1s, border-color 0.1s; position:relative; }
+        .special-char-btn:hover { background:#f2f8f5; border-color:var(--accent); }
+        .special-char-btn .del-x { display:none; position:absolute; top:-5px; right:-5px; width:14px; height:14px; border-radius:50%; background:#e05; color:#fff; font-size:0.6rem; align-items:center; justify-content:center; line-height:1; }
+        .special-char-btn:hover .del-x { display:flex; }
+        .book-nav-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+        .book-nav-row:last-child { margin-bottom: 0; }
+        .book-cat-label { font-size: 0.65rem; color: var(--ink-soft); white-space: nowrap; min-width: 36px; font-weight: 600; }
+        .book-nav-chips-justify { display: flex; flex-wrap: nowrap; gap: 2px; }
+        .book-nav-chip { width: 36px; flex-shrink: 0; padding: 3px 0; border: 1px solid var(--rule); border-radius: 4px; font-size: 0.67rem; color: var(--ink-soft); cursor: pointer; background: #fff; transition: background 0.12s, border-color 0.12s, color 0.12s; text-align: center; display: inline-block; box-sizing: border-box; }
+        .book-nav-chip:hover { background: #f2f8f5; border-color: var(--accent); color: var(--accent); }
+        .book-nav-chip.has-progress { border-color: #a0c4b4; color: var(--accent); font-weight: 600; }
+
+        /* 우측 플로팅 네비 */
+        .chart-float-nav { display: flex; flex-direction: column; gap: 6px; position: sticky; top: 16px; flex-shrink: 0; width: 32px; }
+        .chart-float-btn { width: 32px; height: 32px; border: 1px solid var(--rule); border-radius: 6px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--ink-soft); transition: background 0.12s, border-color 0.12s, color 0.12s; }
+        .chart-float-btn:hover { background: #f2f8f5; border-color: var(--accent); color: var(--accent); }
+
+        /* 읽기표 뷰 */
+        #chart-view { display: none; }
+        #chart-view::-webkit-scrollbar { display: none; }
+        #chart-view { scrollbar-width: none; -ms-overflow-style: none; }
+        .chart-book { margin-bottom: 20px; }
+        .chart-book-name { font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; border-bottom: 1px solid var(--rule); padding-bottom: 4px; }
+        .chart-circles { display: flex; flex-wrap: wrap; gap: 6px; }
+        .chart-circle {
+            width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 600; cursor: default;
+            flex-shrink: 0; position: relative;
+            background: conic-gradient(var(--accent) 0%, #e8e4da 0%);
+            transition: background 0.3s;
+        }
+        .chart-circle::after {
+            content: attr(data-ch);
+            position: absolute; width: 26px; height: 26px; border-radius: 50%;
+            background: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; color: var(--ink-soft);
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            line-height: 26px; text-align: center;
+        }
+        .chart-circle.done::after { background: var(--accent); color: #fff; }
+        .chart-circle:hover::after { background: #e9f5ef; color: var(--accent); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div style="display:flex; align-items:baseline; gap:8px;">
+            <h1 class="title" id="verse-title">My Bible</h1>
+            <span id="header-mode-label" style="font-size:0.75rem; color:#aaa; font-weight:400; display:none;"></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:2px;">
+            <button class="btn-chart" id="btn-chart" onclick="toggleChart()" title="작업진행표" style="display:none;"><i class="ti ti-list-check" style="font-size:18px;"></i></button>
+            <button class="btn-home" id="btn-to-input" onclick="toggleChart()" title="입력창으로" style="display:none;"><i class="ti ti-pencil" style="font-size:17px;"></i></button>
+            <button class="btn-home" id="btn-home" onclick="location.reload()" title="홈"><i class="ti ti-home" style="font-size:18px;"></i></button>
+        </div>
+    </div>
+
+    <!-- 읽기표 뷰 -->
+    <div id="chart-view">
+        <!-- sticky 헤더 -->
+        <div id="chart-sticky-top" style="position:sticky; top:0; z-index:21; background:var(--paper-white); padding-bottom:10px; margin-bottom:0;">
+            <div id="book-nav" style="margin-bottom:8px; border:1px solid var(--rule); border-radius:8px; padding:10px 12px; background:#faf9f6;">
+                <div id="book-nav-ot-section"></div>
+                <div style="height:1px; background:var(--rule); margin:8px 0;"></div>
+                <div id="book-nav-nt-section"></div>
+            </div>
+            <p style="font-size:0.78rem; color:var(--accent); background:#f2f8f5; border-radius:6px; padding:8px 12px; margin:0; box-shadow:0 2px 6px rgba(0,0,0,0.05);">
+                ▶ <b>장 번호</b>를 클릭하면 해당 장으로 이동해 바로 작업할 수 있습니다.
+            </p>
+        </div>
+        <!-- 페이드 오버레이: 헤더 밖에서 콘텐츠 위에 겹침 -->
+        <div id="fade-overlay" style="position:sticky; top:0; z-index:20; height:40px; background:linear-gradient(to bottom, var(--paper-white) 0%, transparent 100%); pointer-events:none; margin-bottom:-40px;"></div>
+        <!-- 스크롤 콘텐츠 + 배너 -->
+        <div style="display:flex; gap:10px; align-items:flex-start; margin-top:40px;">
+            <div style="flex:1; min-width:0;">
+                <div id="chart-content"></div>
+                <p style="font-size:0.75rem; color:#bbb; text-align:center; margin-top:12px; margin-bottom:40px;">진행률만큼 원이 채워지고, 완료 시 전체 색이 채워집니다.</p>
+            </div>
+            <div class="chart-float-nav" id="chart-float-nav-el">
+                <button class="chart-float-btn" onclick="document.getElementById('chart-view').scrollTo({top:0,behavior:'smooth'})" title="상단">
+                    <i class="ti ti-arrow-up" style="font-size:16px;"></i>
+                </button>
+                <button class="chart-float-btn" onclick="scrollToBook('마')" title="신약">
+                    <i class="ti ti-bookmark" style="font-size:16px;"></i>
+                </button>
+                <button class="chart-float-btn" onclick="document.getElementById('chart-view').scrollTo({top:document.getElementById('chart-view').scrollHeight,behavior:'smooth'})" title="하단">
+                    <i class="ti ti-arrow-down" style="font-size:16px;"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- 하단 페이드 오버레이: chart-view 바깥에서 아래쪽에 겹침 -->
+    <div id="chart-fade-bottom" style="display:none; position:relative; z-index:25; height:60px; background:linear-gradient(to top, var(--paper-white) 0%, transparent 100%); pointer-events:none; margin-top:-60px;"></div>
+
+    <div class="settings-bar" id="settings-bar" style="display:none;">
+        <div class="settings-group">
+            <strong>한글 보정:</strong>
+            <select id="encoding-selector" class="nav-select">
+                <option value="UTF-8">UTF-8 (기본)</option>
+                <option value="EUC-KR">EUC-KR (깨짐 발생 시)</option>
+            </select>
+        </div>
+        <div class="settings-group" style="margin-left:auto;">
+            <strong>저장 포맷:</strong>
+            <select id="save-format" class="nav-select">
+                <option value="txt">TXT</option>
+                <option value="aab">AAB</option>
+            </select>
+            <button class="btn-action" onclick="saveData()">저장</button>
+            <button class="btn-action" id="btn-resume" onclick="document.getElementById('resume-input').click()">이어하기</button>
+            <input type="file" id="resume-input" accept=".txt" style="display:none;">
+            <button class="btn-action" onclick="location.reload()">초기화</button>
+        </div>
+    </div>
+
+    <div class="file-upload-container" id="drop-zone">
+        <div id="drop-text">
+            <strong style="color: var(--accent);">참고할 성경 역본 파일을<br>이곳에 끌어다 놓거나 클릭하여 불러오세요</strong>
+        </div>
+        <input type="file" id="file-input" accept=".txt">
+    </div>
+
+    <div class="freewrite-box" id="freewrite-box" onclick="startFreeWrite()">
+        <strong>✍️ 성경 본문 참고 없이 작성하기</strong>
+        <p>책·장·절을 직접 선택하고 자유롭게 작성합니다.</p>
+    </div>
+
+    <div class="nav-bar" id="nav-bar">
+        <select class="nav-select" id="nav-book"><option value="">책 선택</option></select>
+        <select class="nav-select" id="nav-chapter"><option value="">장 선택</option></select>
+        <select class="nav-select" id="nav-verse"><option value="">절 선택</option></select>
+        <button class="btn-nav" onclick="jumpTo()" style="padding:4px 12px;">이동</button>
+    </div>
+
+    <div id="exercise-ui" style="display:none;">
+        <div class="progress-container" id="progress-container">
+            <!-- 항상 보이는 요약 행 -->
+            <div class="progress-collapsed">
+                <div class="progress-collapsed-row">
+                    <div class="progress-chips">
+                        <span class="progress-chip">전체 <strong id="progress-text-total">0%</strong></span>
+                        <span style="color:#ddd;font-size:0.7rem;">│</span>
+                        <span class="progress-chip"><span id="progress-label-book">책</span> <strong id="progress-text-book">0%</strong></span>
+                        <span style="color:#ddd;font-size:0.7rem;">│</span>
+                        <span class="progress-chip"><span id="progress-label-ch">장</span> <strong id="progress-text-ch">0%</strong></span>
+                    </div>
+                    <button class="progress-expand-btn" id="progress-expand-btn" onclick="toggleProgress()">자세히 ▾</button>
+                </div>
+                <div class="progress-mini-bar">
+                    <div class="progress-mini-fill" id="progress-bar-total"></div>
+                </div>
+            </div>
+            <!-- 펼쳐지는 상세 바 -->
+            <div id="progress-body" style="display:none; margin-top:10px;">
+                <div style="display:flex; flex-direction:column; gap:7px;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--ink-soft); margin-bottom:3px;">
+                            <span>성경전체</span><span id="progress-text-total-d">0%</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar-total-d"></div></div>
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--ink-soft); margin-bottom:3px;">
+                            <span>구약</span><span id="progress-text-ot">0%</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar-ot"></div></div>
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--ink-soft); margin-bottom:3px;">
+                            <span>신약</span><span id="progress-text-nt">0%</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar-nt"></div></div>
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--ink-soft); margin-bottom:3px;">
+                            <span id="progress-label-book-d">책</span><span id="progress-text-book-d">0%</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar-book"></div></div>
+                    </div>
+                    <div>
+                        <div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--ink-soft); margin-bottom:3px;">
+                            <span id="progress-label-ch-d">장</span><span id="progress-text-ch-d">0%</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar-ch"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mode-select" id="mode-select-normal">
+            <label><input type="radio" name="typing-mode" value="strict"> 따라쓰기(필사) 모드</label>
+            <label><input type="radio" name="typing-mode" value="free" checked> 자유 작성 모드</label>
+            <div id="free-tools" style="margin-left:auto; display:flex; gap:5px;">
+                <button class="btn-apply" onclick="applySameText()">본문 자동 채움</button>
+                <button class="btn-action" onclick="forcePrev()">이전 절</button>
+                <button class="btn-action" onclick="forceNext()">다음 절 (Enter)</button>
+            </div>
+        </div>
+
+        <div class="mode-select" id="mode-select-freewrite" style="display:none;">
+            <button class="btn-action" onclick="exitFreeWrite()">← 돌아가기</button>
+            <span style="color:var(--accent); font-weight:600; margin-left:8px;">✍️ 자유 입력 모드</span>
+            <div style="margin-left:auto; display:flex; gap:5px;">
+                <button class="btn-action" onclick="forcePrev()">이전 절</button>
+                <button class="btn-action" onclick="forceNext()">다음 절 (Enter)</button>
+            </div>
+        </div>
+
+        <div class="typing-frame">
+            <div id="reference-text" class="verse-box text-common">문장이 여기에 표시됩니다.</div>
+            <!-- 날짜 위치: 상단 -->
+            <div id="user-input" contenteditable="true"
+                data-placeholder="원문 수정 및 필사를 자유롭게 하세요"
+                spellcheck="false"
+                data-free-placeholder="원문 수정 및 필사를 자유롭게 하세요"></div>
+
+            <div id="footnote-input" contenteditable="true"
+                data-placeholder="각주 내용을 입력하세요"
+                spellcheck="false"></div>
+            <div class="fn-resize-handle" id="fn-resize-handle">
+                <button class="fn-sz-btn" id="fn-sz-up2" title="많이 줄이기">««</button>
+                <button class="fn-sz-btn" id="fn-sz-up" title="줄이기">«</button>
+                <button class="fn-sz-btn fn-sz-reset" id="fn-sz-reset" title="초기 크기로">↺</button>
+                <button class="fn-sz-btn" id="fn-sz-down" title="늘리기">»</button>
+                <button class="fn-sz-btn" id="fn-sz-down2" title="많이 늘리기">»»</button>
+            </div>
+            <!-- 날짜 row: 항상 하단 -->
+            <div class="date-row" id="date-row-bottom">
+                <label>날짜</label>
+                <span id="date-display-bottom" style="margin-left:6px;"></span>
+                <div style="margin-left:auto; display:flex; align-items:center; gap:6px;">
+                    <button class="date-pos-btn btn-date-toggle" id="btn-date-toggle" onclick="toggleDateStamp()" title="저장마다 날짜 자동 추가">자동</button>
+                    <button class="date-pos-btn" onclick="insertDateStampOnce()" title="날짜 한 번 삽입">1회</button>
+                    <div style="width:1px; height:14px; background:var(--rule); margin:0 2px;"></div>
+                    <button class="date-pos-btn active" id="fn-top-btn" onclick="setDateInFootnote('top')" title="날짜를 각주 맨 위에 삽입">각주상단</button>
+                    <button class="date-pos-btn" id="fn-bottom-btn" onclick="setDateInFootnote('bottom')" title="날짜를 각주 맨 아래에 삽입">각주하단</button>
+                    <div style="width:1px; height:14px; background:var(--rule); margin:0 2px;"></div>
+                    <button class="date-pos-btn date-del-btn" onclick="clearAllDates()" title="본문·각주 날짜 태그 전체 삭제">날짜삭제</button>
+                </div>
+            </div>
+            <div class="fmt-toolbar">
+                <div class="fmt-left">
+                    <div class="fmt-tag-wrap" id="fmt-tag-wrap">
+                        <button class="fmt-btn fmt-tag-btn" id="fmt-tag-btn" onclick="toggleTagPopup()" title="선택 영역에 태그 삽입">
+                            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1h6l7 7-6 6-7-7V1z"/><circle cx="4.5" cy="4.5" r="1" fill="currentColor" stroke="none"/></svg>
+                            태그
+                        </button>
+                        <div class="tag-popup" id="tag-popup" style="display:none;">
+                            <div style="font-size:0.75rem;color:#888;margin-bottom:6px;">커서 위치 삽입 · 블록 선택 시 앞뒤 삽입</div>
+                            <div class="tag-input-row">
+                                <input class="tag-input-field" id="tag-input-field" placeholder="태그 이름 입력..." onkeydown="if(event.key==='Enter'){insertTag();event.preventDefault();}">
+                                <button class="tag-input-btn" onclick="insertTag()">삽입</button>
+                            </div>
+                            <div id="saved-tags-list" class="saved-tags-list"></div>
+                        </div>
+                    </div>
+                    <div class="fmt-divider"></div>
+                    <!-- 특수문자 입력기 -->
+                    <div class="fmt-color-wrap" id="fmt-special-wrap">
+                        <button class="fmt-btn" id="fmt-special-btn" onclick="toggleSpecialPicker()" title="특수문자 삽입">특수</button>
+                        <div class="special-picker-pop" id="special-picker-pop" style="display:none;">
+                            <div class="sp-tabs" id="sp-tabs"></div>
+                            <div class="sp-body">
+                                <div style="font-size:0.68rem;color:#bbb;margin-bottom:8px;">더블클릭으로 삽입</div>
+                                <div id="special-preset-grid" class="special-grid"></div>
+                            </div>
+                            <div class="sp-custom-area">
+                                <div style="font-size:0.72rem;color:#888;margin-bottom:6px;">▶ 나만의 특수문자 추가</div>
+                                <div class="tag-input-row">
+                                    <input class="tag-input-field" id="special-custom-input" placeholder="문자 입력 후 Enter..." maxlength="5" onkeydown="if(event.key==='Enter'){addCustomSpecial();event.preventDefault();}">
+                                    <button class="tag-input-btn" onclick="addCustomSpecial()">추가</button>
+                                </div>
+                                <div id="special-custom-grid" class="special-grid" style="margin-top:8px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fmt-divider"></div>
+                    <button class="fmt-btn" onclick="fmtCmd('bold')" title="굵게 (Bold)">B</button>
+                    <button class="fmt-btn fmt-btn-italic" onclick="fmtCmd('italic')" title="기울임 (Italic)">I</button>
+                    <button class="fmt-btn fmt-btn-underline" onclick="fmtCmd('underline')" title="밑줄 (Underline)">U</button>
+                    <button class="fmt-btn fmt-btn-strike" onclick="fmtCmd('strikeThrough')" title="취소선">S</button>
+                    <button class="fmt-btn" onclick="insertJTag()" title="&lt;J&gt;...&lt;/J&gt; 태그 삽입" style="font-style:italic;">J</button>
+                    <div class="fmt-color-wrap" id="fmt-color-wrap">
+                        <button class="fmt-btn fmt-color-btn" id="fmt-color-btn" onclick="toggleColorPicker()" title="글자 색상">
+                            <span style="line-height:1;">A</span>
+                            <span class="color-indicator" id="color-indicator" style="background:#E24B4A;"></span>
+                        </button>
+                        <div class="color-picker-pop" id="color-picker-pop" style="display:none;"></div>
+                    </div>
+                </div>
+                <div class="fmt-right">
+                    <div class="fmt-divider"></div>
+                    <button class="fmt-btn fmt-clear-btn" onclick="clearTagsFrom('user-input')" title="본문 태그 전체 삭제">
+                        <span style="font-size:0.72rem;">본문태그↺</span>
+                    </button>
+                    <button class="fmt-btn fmt-clear-btn" onclick="clearTagsFrom('footnote-input')" title="각주 태그 전체 삭제">
+                        <span style="font-size:0.72rem;">각주태그↺</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div style="text-align:right; font-size:0.72rem; color:#ccc; margin-top:18px; padding-top:10px; border-top:1px solid var(--rule); position:relative; z-index:10000;">
+        <span id="ver-tag" style="cursor:default; user-select:none;">JINs v3.1</span>
+    </div>
+
+    <!-- 이스터에그 오버레이 -->
+    <div id="easter-overlay" style="display:none; position:absolute; inset:0; z-index:9999; background:linear-gradient(to bottom, #000 0%, #000 72%, transparent 100%); overflow:hidden; cursor:pointer; border-radius:12px;" onclick="(function(e){const r=e.currentTarget.getBoundingClientRect();if((e.clientY-r.top)/r.height>0.72)return;closeEaster();})(event)">
+        <canvas id="easter-canvas" style="position:absolute;inset:0; -webkit-mask-image:linear-gradient(to bottom, black 0%, black 72%, transparent 100%); mask-image:linear-gradient(to bottom, black 0%, black 72%, transparent 100%);"></canvas>
+        <div id="easter-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fff; text-align:center; padding:40px; pointer-events:none;">
+            <div style="font-size:0.75rem; letter-spacing:0.3em; color:#aaa; margin-bottom:24px; opacity:0; animation: fadeUp 0.8s 0.3s forwards;">✦ HIDDEN ✦</div>
+            <div style="font-family:'Georgia',serif; font-size:clamp(1.4rem,4vw,2.2rem); font-weight:400; line-height:1.9; max-width:560px; opacity:0; animation: fadeUp 0.8s 0.7s forwards;">
+                읽는 <em style="color:#e8b86d; font-style:normal;">말씀</em>에서<br>남는 <em style="color:#e8b86d; font-style:normal;">말씀</em>으로
+            </div>
+            <div style="width:40px; height:1px; background:#555; margin:28px auto; opacity:0; animation: fadeUp 0.8s 1.1s forwards;"></div>
+            <div style="font-size:0.95rem; color:#888; letter-spacing:0.18em; opacity:0; animation: fadeUp 0.8s 1.4s forwards;">
+                JINs
+            </div>
+            <div style="margin-top:48px; font-size:0.68rem; color:#444; opacity:0; animation: fadeUp 0.8s 2.2s forwards; letter-spacing:0.05em;">
+                클릭하면 닫힙니다
+            </div>
+        </div>
+        <style>
+            @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+        </style>
+    </div>
+
+    <script>
+    (function() {
+        let clicks = 0, timer = null;
+        document.getElementById('ver-tag').addEventListener('click', function(e) {
+            e.stopPropagation(); // 오버레이로 전파 차단
+            clicks++;
+            clearTimeout(timer);
+            timer = setTimeout(() => { clicks = 0; }, 1200);
+            if (clicks >= 5) {
+                clicks = 0;
+                openEaster();
+            }
+        });
+
+        function openEaster() {
+            const overlay = document.getElementById('easter-overlay');
+            overlay.style.display = 'block';
+            // 별 canvas
+            const canvas = document.getElementById('easter-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = overlay.offsetWidth;
+            canvas.height = overlay.offsetHeight;
+
+            const stars = Array.from({length: 220}, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 1.4 + 0.2,
+                speed: Math.random() * 0.25 + 0.05,
+                alpha: Math.random() * 0.7 + 0.3,
+                drift: (Math.random() - 0.5) * 0.3
+            }));
+
+            let running = true;
+            overlay._stopAnim = () => { running = false; };
+
+            function draw() {
+                if (!running) return;
+                ctx.fillStyle = 'rgba(0,0,0,0.18)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                stars.forEach(s => {
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,240,${s.alpha})`;
+                    ctx.fill();
+                    s.y -= s.speed;
+                    s.x += s.drift;
+                    if (s.y < -2) { s.y = canvas.height + 2; s.x = Math.random() * canvas.width; }
+                });
+                requestAnimationFrame(draw);
+            }
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            draw();
+        }
+
+        window.closeEaster = function() {
+            const overlay = document.getElementById('easter-overlay');
+            if (overlay._stopAnim) overlay._stopAnim();
+            overlay.style.opacity = '0';
+            overlay.style.transition = 'opacity 0.5s';
+            setTimeout(() => { overlay.style.display = 'none'; overlay.style.opacity = ''; overlay.style.transition = ''; }, 500);
+        };
+    })();
+    </script>
+</div>
+
+<script>
+    let bibleData = [];
+    let typedData = [];
+    let currentIndex = 0;
+    let currentRawFile = null;
+    let fileNameBase = "MyBIBLE";
+    let freeWriteMode = false;
+    let freeCurrentKey = "";
+    let dateStampEnabled = false;
+    let activeEditor = 'main';  // 'main' | 'footnote'
+    let savedSelection = null;  // 태그 팝업 열기 전 커서 위치 저장
+    let dateInFootnote = 'top';  // 날짜를 각주 상단/하단 중 어디에 삽입할지
+
+    function setDateInFootnote(pos) {
+        dateInFootnote = pos;
+        document.getElementById('fn-top-btn').classList.toggle('active', pos === 'top');
+        document.getElementById('fn-bottom-btn').classList.toggle('active', pos === 'bottom');
+    }
+
+    function updateDateDisplay() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth()+1).padStart(2,'0');
+        const d = String(now.getDate()).padStart(2,'0');
+        document.getElementById('date-display-bottom').textContent = `${y}.${m}.${d}`;
+    }
+    updateDateDisplay();
+
+    // ── 활성 에디터 포커스 추적 ───────────────────────────────────────────
+    document.getElementById('user-input').addEventListener('focus', () => {
+        activeEditor = 'main';
+        setFootnoteToolbarMode(false);
+    });
+    document.getElementById('footnote-input').addEventListener('focus', () => {
+        activeEditor = 'footnote';
+        setFootnoteToolbarMode(true);
+    });
+
+    function setFootnoteToolbarMode(isFn) {
+        // 각주 포커스 시: U, 취소선, 색상, 태그 버튼 흐리게
+        const limitedCmds = document.querySelectorAll('.fmt-btn[onclick*="underline"], .fmt-btn[onclick*="strike"], .fmt-color-btn');
+        limitedCmds.forEach(el => { el.style.opacity = isFn ? '0.25' : ''; el.style.pointerEvents = isFn ? 'none' : ''; });
+    }
+
+    // ── 각주: 붙여넣기 시 서식 제거 (볼드/이탤릭만 유지) ─────────────────
+    document.getElementById('footnote-input').addEventListener('paste', e => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+        document.execCommand('insertText', false, text);
+    });
+
+    // ── 각주 높이 단계 조절 ────────────────────────────────────────────────
+    (function() {
+        const fnBox   = document.getElementById('footnote-input');
+        const STEP    = 60;   // 한 번 클릭당 변화량(px)
+        const DEFAULT = 80;   // 초기 높이
+        const MIN     = 40;   // 최소 높이
+        let curH = DEFAULT;
+
+        function applyH(h) {
+            curH = Math.max(MIN, h);
+            fnBox.style.transition = 'height 0.15s ease';
+            fnBox.style.height = curH + 'px';
+        }
+
+        document.getElementById('fn-sz-down').addEventListener('click',  () => applyH(curH + STEP));
+        document.getElementById('fn-sz-down2').addEventListener('click', () => applyH(curH + STEP * 3));
+        document.getElementById('fn-sz-up').addEventListener('click',    () => applyH(curH - STEP));
+        document.getElementById('fn-sz-up2').addEventListener('click',   () => applyH(curH - STEP * 3));
+        document.getElementById('fn-sz-reset').addEventListener('click', () => applyH(DEFAULT));
+    })();
+
+    // ── 서식 툴바 ──────────────────────────────────────────────────────────
+    const FMT_COLORS = [
+        {hex:'#E24B4A',label:'빨강'},{hex:'#D85A30',label:'주황'},{hex:'#BA7517',label:'노랑'},
+        {hex:'#639922',label:'초록'},{hex:'#378ADD',label:'파랑'},{hex:'#7F77DD',label:'보라'},
+        {hex:'#D4537E',label:'분홍'},{hex:'#888780',label:'회색'},{hex:'#1a1815',label:'검정'}
+    ];
+    const TAG_PALETTE = [
+        {bg:'#EEEDFE',text:'#3C3489'},{bg:'#E1F5EE',text:'#085041'},
+        {bg:'#FAECE7',text:'#712B13'},{bg:'#E6F1FB',text:'#0C447C'},
+        {bg:'#EAF3DE',text:'#27500A'},{bg:'#FAEEDA',text:'#633806'},
+        {bg:'#FBEAF0',text:'#72243E'},{bg:'#F1EFE8',text:'#5F5E5A'}
+    ];
+    let savedTags = JSON.parse(localStorage.getItem('savedTags') || '[]');
+    function persistSavedTags() { localStorage.setItem('savedTags', JSON.stringify(savedTags)); }
+    let activeColor = '#E24B4A';
+
+    // ── 특수문자 입력기 ────────────────────────────────────────────────────
+const SPECIAL_CATEGORIES = [
+    { label:'기호', chars:['"',"'",'“','”','‘','’','″','′','〈','〉','《','》','「','」','『','』','【','】','±','×','÷','≠','≤','≥','∞','…','‥','°','○','●','◎','□','■','△','▲','▽','▼','◇','◆','◈','▣','◐','◑','▒','▤','▥','▨','▧','▦','▩','→','←','↑','↓','↔','↗','↙','⇒','⇔','≒','≡','∫','∮','∑','√','⊥','∠','∟','⊿','∵','∴','∩','∪','∧','∨','¬','∀','∃','§','¦','☆','★','♤','♠','♡','♥','♧','♣','⊙','♬','♩','♭','♪','♫','☞','☜','※','◁','▷','▶','◀','☎','☏','☺','☻','·','ㆍ','•','◦','▪','—','–','†','‡','™','®','©','№','✓','✔','✕','✖','✚','¶','µ','¢','€','£','¥','₽'] },
+
+    { label:'원·괄호', chars:['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳','⒜','⒝','⒞','⒟','⒠','⒡','⒢','⒣','⒤','⒥','⒦','⒧','⒨','⒩','⒪','⒫','⒬','⒭','⒮','⒯','⒰','⒱','⒲','⒳','⒴','⒵','⑴','⑵','⑶','⑷','⑸','⑹','⑺','⑻','⑼','⑽','⑾','⑿','⒀','⒁','⒂'] },
+
+    { label:'로마', chars:['Ⅰ','Ⅱ','Ⅲ','Ⅳ','Ⅴ','Ⅵ','Ⅶ','Ⅷ','Ⅸ','Ⅹ','Ⅺ','Ⅻ','ⅰ','ⅱ','ⅲ','ⅳ','ⅴ','ⅵ','ⅶ','ⅷ','ⅸ','ⅹ'] },
+
+    { label:'그리스', chars:['Α','Β','Γ','Δ','Ε','Ζ','Η','Θ','Ι','Κ','Λ','Μ','Ν','Ξ','Ο','Π','Ρ','Σ','Τ','Υ','Φ','Χ','Ψ','Ω','α','β','γ','δ','ε','ζ','η','θ','ι','κ','λ','μ','ν','ξ','ο','π','ρ','σ','ς','τ','υ','φ','χ','ψ','ω'] },
+
+    { label:'러시아', chars:['А','Б','В','Г','Д','Е','Ё','Ж','З','И','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ъ','Ы','Э','Ю','Я','а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','э','ю','я'] },
+
+    { label:'선', chars:['─','│','┌','┐','└','┘','├','┤','┬','┴','┼','━','┃','┏','┓','┗','┛','┠','┨','┯','┷','╋','╂','╀','┿','┽','┾','╃','╄','╅','╆','╇','╈','╉','╊','╔','╗','╚','╝','╞','╟','╠','╡','╢','╣','╤','╥','╦','╧','╨','╩','╪','╫','╬','═','║'] },
+
+    { label:'단위', chars:['㎛','㎜','㎝','㎞','㎟','㎠','㎡','㎢','㎣','㎤','㎥','㎦','℃','℉','㎎','㎏','㏄','㏎','㏍','ℓ','㎐','㎑','㎒','㎓','㎔','㎕','㎖','㎗','㎘','㎙','㎚','㎩','㎪','㎫','㎬','㎭','㎮','㎯','㎰','㎱','㎲','㎳','㎴','㎵','㎶','㎷','㎸','㎹','㎺','㎻','㎼','㎽','㎾','㎿','㏀','㏁'] },
+];
+    let specialCatIdx = 0;
+    let customSpecials = JSON.parse(localStorage.getItem('customSpecials') || '[]');
+
+    function renderSpecialGrid() {
+        const tabsEl = document.getElementById('sp-tabs');
+        if (tabsEl) {
+            tabsEl.innerHTML = SPECIAL_CATEGORIES.map((cat, i) =>
+                `<button class="sp-tab${i===specialCatIdx?' active':''}" onmousedown="event.preventDefault();event.stopPropagation();specialCatIdx=${i};renderSpecialGrid();">${cat.label}</button>`
+            ).join('');
+        }
+        const preset = document.getElementById('special-preset-grid');
+        if (preset) {
+            const chars = SPECIAL_CATEGORIES[specialCatIdx].chars;
+            preset.innerHTML = chars.map(ch => {
+                const safe = ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+                return `<button class="special-char-btn" ondblclick="insertSpecialChar('${safe}');" title="${ch}">${ch}</button>`;
+            }).join('');
+        }
+        const custom = document.getElementById('special-custom-grid');
+        if (!custom) return;
+        custom.innerHTML = customSpecials.length
+            ? customSpecials.map((ch, i) => {
+                const safe = ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+                return `<button class="special-char-btn" ondblclick="insertSpecialChar('${safe}');" title="${ch}">
+                    ${ch}<span class="del-x" onmousedown="event.stopPropagation();removeCustomSpecial(${i});">×</span>
+                </button>`;
+              }).join('')
+            : '<span style="font-size:0.72rem;color:#ccc;">아직 없음</span>';
+    }
+
+    function getActiveEditor() {
+        return activeEditor === 'footnote'
+            ? document.getElementById('footnote-input')
+            : document.getElementById('user-input');
+    }
+
+    function insertSpecialChar(ch) {
+        const input = getActiveEditor();
+        if (!input) return;
+        input.focus();
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount) {
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            range.insertNode(document.createTextNode(ch));
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        } else {
+            document.execCommand('insertText', false, ch);
+        }
+    }
+
+    function addCustomSpecial() {
+        const inp = document.getElementById('special-custom-input');
+        const val = inp.value.trim();
+        if (!val || customSpecials.includes(val)) { inp.value=''; return; }
+        customSpecials.push(val);
+        localStorage.setItem('customSpecials', JSON.stringify(customSpecials));
+        inp.value = '';
+        renderSpecialGrid();
+    }
+
+    function removeCustomSpecial(i) {
+        customSpecials.splice(i, 1);
+        localStorage.setItem('customSpecials', JSON.stringify(customSpecials));
+        renderSpecialGrid();
+    }
+
+    function toggleSpecialPicker() {
+        const pop = document.getElementById('special-picker-pop');
+        const isOpen = pop.style.display !== 'none';
+        // 다른 팝업 닫기
+        document.getElementById('tag-popup').style.display = 'none';
+        document.getElementById('color-picker-pop').style.display = 'none';
+        pop.style.display = isOpen ? 'none' : 'block';
+        if (!isOpen) renderSpecialGrid();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('mousedown', e => {
+            const sw = document.getElementById('fmt-special-wrap');
+            if (sw && !sw.contains(e.target)) {
+                const pop = document.getElementById('special-picker-pop');
+                if (pop) pop.style.display = 'none';
+            }
+        });
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const pop = document.getElementById('color-picker-pop');
+        if (!pop) return;
+        FMT_COLORS.forEach(c => {
+            const s = document.createElement('div');
+            s.className = 'c-swatch' + (c.hex === activeColor ? ' sel' : '');
+            s.style.background = c.hex;
+            s.title = c.label;
+            s.onmousedown = (e) => {
+                e.preventDefault(); // 선택 유지
+                activeColor = c.hex;
+                document.getElementById('color-indicator').style.background = c.hex;
+                pop.querySelectorAll('.c-swatch').forEach(x => x.classList.remove('sel'));
+                s.classList.add('sel');
+                document.execCommand('foreColor', false, c.hex);
+                pop.style.display = 'none';
+            };
+            pop.appendChild(s);
+        });
+    });
+
+    function fmtCmd(cmd) {
+        // 각주 활성 시 bold/italic만 허용
+        if (activeEditor === 'footnote') {
+            if (cmd !== 'bold' && cmd !== 'italic') return;
+            document.getElementById('footnote-input').focus();
+        } else {
+            document.getElementById('user-input').focus();
+        }
+        document.execCommand(cmd, false, null);
+    }
+
+    function toggleColorPicker() {
+        const pop = document.getElementById('color-picker-pop');
+        pop.style.display = pop.style.display === 'none' ? 'flex' : 'none';
+        document.getElementById('tag-popup').style.display = 'none';
+    }
+
+    function toggleTagPopup() {
+        const pop = document.getElementById('tag-popup');
+        const isOpen = pop.style.display !== 'none';
+        pop.style.display = isOpen ? 'none' : 'block';
+        document.getElementById('color-picker-pop').style.display = 'none';
+        if (!isOpen) {
+            // 팝업 열기 전 커서/선택 위치 저장
+            const sel = window.getSelection();
+            if (sel && sel.rangeCount > 0) {
+                savedSelection = sel.getRangeAt(0).cloneRange();
+            }
+            renderSavedTags();
+            setTimeout(() => document.getElementById('tag-input-field').focus(), 50);
+        }
+    }
+
+    function renderSavedTags() {
+        const list = document.getElementById('saved-tags-list');
+        if (!list) return;
+        list.innerHTML = '';
+        if (!savedTags.length) {
+            list.innerHTML = '<span style="font-size:0.75rem;color:#bbb;">저장된 태그 없음</span>';
+            return;
+        }
+        savedTags.forEach((t, i) => {
+            const c = TAG_PALETTE[i % TAG_PALETTE.length];
+            const wrap = document.createElement('span');
+            wrap.style.cssText = `display:inline-flex;align-items:center;gap:3px;background:${c.bg};color:${c.text};border-radius:6px;padding:4px 10px 4px 12px;font-size:0.88rem;font-weight:600;border:1px solid rgba(0,0,0,0.08);`;
+            const label = document.createElement('span');
+            label.textContent = t;
+            label.style.cursor = 'pointer';
+            label.onmousedown = (e) => { e.preventDefault(); applyTagByName(t); };
+            const del = document.createElement('span');
+            del.textContent = '×';
+            del.title = '태그 삭제';
+            del.style.cssText = 'cursor:pointer;font-size:1em;opacity:0.5;margin-left:2px;line-height:1;';
+            del.onmousedown = (e) => {
+                e.preventDefault();
+                savedTags.splice(i, 1);
+                persistSavedTags();
+                renderSavedTags();
+            };
+            wrap.appendChild(label);
+            wrap.appendChild(del);
+            list.appendChild(wrap);
+        });
+    }
+
+    function clearTagsFrom(id) {
+        const label = id === 'user-input' ? '본문' : '각주';
+        if (!confirm(`${label}의 태그를 모두 삭제할까요?`)) return;
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.querySelectorAll('.inline-tag').forEach(span => {
+            span.replaceWith(document.createTextNode(span.textContent));
+        });
+    }
+
+    function clearAllDates() {
+        if (!confirm('본문과 각주의 날짜 태그를 모두 삭제할까요?')) return;
+        ['user-input', 'footnote-input'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.querySelectorAll('.inline-date-stamp').forEach(span => {
+                // 인접한 <br> 도 함께 제거 (앞 또는 뒤)
+                const next = span.nextSibling;
+                const prev = span.previousSibling;
+                if (next && next.nodeName === 'BR') next.remove();
+                else if (prev && prev.nodeName === 'BR') prev.remove();
+                span.remove();
+            });
+        });
+    }
+
+    function insertJTag() {
+        const editor = getActiveEditor();
+        editor.focus();
+        const sel = window.getSelection();
+        if (savedSelection && editor.contains(savedSelection.commonAncestorContainer)) {
+            sel.removeAllRanges();
+            sel.addRange(savedSelection);
+        }
+        if (!sel || sel.rangeCount === 0) return;
+        const range = sel.getRangeAt(0);
+        if (!editor.contains(range.commonAncestorContainer)) return;
+        const selectedText = range.toString();
+        const span = document.createElement('span');
+        span.className = 'inline-j-tag';
+        if (selectedText) {
+            range.surroundContents(span);
+            const r = document.createRange();
+            r.setStartAfter(span);
+            r.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(r);
+        } else {
+            span.textContent = '\u200b'; // 빈 span 자리 확보
+            range.insertNode(span);
+            const r = document.createRange();
+            r.setStart(span, 1);
+            r.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(r);
+        }
+    }
+
+    function insertTag() {
+        const inp = document.getElementById('tag-input-field');
+        const name = inp.value.trim().replace(/^#/, '');
+        if (!name) return;
+        if (!savedTags.includes(name)) { savedTags.push(name); persistSavedTags(); }
+        applyTagByName(name);
+        inp.value = '';
+        document.getElementById('tag-popup').style.display = 'none';
+    }
+
+    function applyTagByName(name) {
+        const idx = savedTags.indexOf(name);
+        const c = TAG_PALETTE[Math.max(0, idx) % TAG_PALETTE.length];
+        // 활성 에디터(본문 or 각주) 사용
+        const editor = getActiveEditor();
+        editor.focus();
+        // 저장된 selection 복원
+        const sel = window.getSelection();
+        if (savedSelection && editor.contains(savedSelection.commonAncestorContainer)) {
+            sel.removeAllRanges();
+            sel.addRange(savedSelection);
+        }
+        if (!sel || sel.rangeCount === 0) return;
+        const range = sel.getRangeAt(0);
+        if (!editor.contains(range.commonAncestorContainer)) return;
+
+        function makeTag(isClose = false) {
+            const span = document.createElement('span');
+            span.className = 'inline-tag';
+            const baseCss = `background:${c.bg};color:${c.text};border-radius:3px;padding:1px 6px;font-size:0.87em;font-weight:500;`;
+            span.style.cssText = isClose ? baseCss + 'opacity:0.75;' : baseCss;
+            span.dataset.tag  = isClose ? '/' + name : name;
+            span.dataset.close = isClose ? 'true' : 'false';
+            span.contentEditable = 'false';
+            span.textContent = isClose ? '</' + name + '>' : '<' + name + '>';
+            return span;
+        }
+
+        const selectedText = range.toString();
+        if (selectedText) {
+            // 블록 선택: 앞에 <tag>, 뒤에 </tag>
+            const tagStart = makeTag(false);
+            const tagEnd   = makeTag(true);
+            const endRange = range.cloneRange();
+            endRange.collapse(false);
+            endRange.insertNode(tagEnd);
+            range.collapse(true);
+            range.insertNode(tagStart);
+            const r = document.createRange();
+            r.setStartAfter(tagEnd);
+            r.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(r);
+        } else {
+            // 커서 위치에 여는 태그만 삽입
+            const tag = makeTag(false);
+            range.insertNode(tag);
+            const r = document.createRange();
+            r.setStartAfter(tag);
+            r.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(r);
+        }
+        document.getElementById('tag-popup').style.display = 'none';
+    }
+
+    // 팝업 외부 클릭 시 닫기
+    document.addEventListener('click', e => {
+        const tagWrap   = document.getElementById('fmt-tag-wrap');
+        const colorWrap = document.getElementById('fmt-color-wrap');
+        if (tagWrap   && !tagWrap.contains(e.target))   document.getElementById('tag-popup').style.display = 'none';
+        if (colorWrap && !colorWrap.contains(e.target)) { const p = document.getElementById('color-picker-pop'); if(p) p.style.display = 'none'; }
+    });
+
+    let progressOpen = false;
+    function toggleProgress() {
+        progressOpen = !progressOpen;
+        document.getElementById('progress-body').style.display = progressOpen ? 'block' : 'none';
+        document.getElementById('progress-expand-btn').textContent = progressOpen ? '접기 ▴' : '자세히 ▾';
+    }
+
+    function updateProgressSummary() {
+        // 상세 바 동기화 (성경전체, 해당 책, 해당 장)
+        const sync = [
+            ['progress-text-total','progress-text-total-d'],
+            ['progress-label-book','progress-label-book-d'],
+            ['progress-text-book','progress-text-book-d'],
+            ['progress-label-ch','progress-label-ch-d'],
+            ['progress-text-ch','progress-text-ch-d'],
+        ];
+        sync.forEach(([src, dst]) => {
+            const s = document.getElementById(src), d = document.getElementById(dst);
+            if (s && d) d.innerText = s.innerText;
+        });
+        // 미니 바 연동
+        const totalBar = document.getElementById('progress-bar-total');
+        if (totalBar) {
+            const totalDetailBar = document.getElementById('progress-bar-total-d');
+            if (totalDetailBar) totalDetailBar.style.width = totalBar.style.width;
+        }
+        // 구약 / 신약 진행도
+        const OT_BOOKS = new Set(BOOK_NUM.slice(1, 40));
+        const NT_BOOKS = new Set(BOOK_NUM.slice(40));
+        const otAll  = bibleData.filter(d => OT_BOOKS.has(d.book)).length;
+        const ntAll  = bibleData.filter(d => NT_BOOKS.has(d.book)).length;
+        const doneKeys = new Set(typedData.map(d => d.k));
+        const otDone = bibleData.filter(d => OT_BOOKS.has(d.book) && doneKeys.has(d.title)).length;
+        const ntDone = bibleData.filter(d => NT_BOOKS.has(d.book) && doneKeys.has(d.title)).length;
+        if (otAll > 0) {
+            const otPct = (otDone / otAll * 100).toFixed(1);
+            const otBar = document.getElementById('progress-bar-ot');
+            const otTxt = document.getElementById('progress-text-ot');
+            if (otBar) otBar.style.width = otPct + '%';
+            if (otTxt) otTxt.innerText = `${otPct}% (${otDone}/${otAll}절)`;
+        }
+        if (ntAll > 0) {
+            const ntPct = (ntDone / ntAll * 100).toFixed(1);
+            const ntBar = document.getElementById('progress-bar-nt');
+            const ntTxt = document.getElementById('progress-text-nt');
+            if (ntBar) ntBar.style.width = ntPct + '%';
+            if (ntTxt) ntTxt.innerText = `${ntPct}% (${ntDone}/${ntAll}절)`;
+        }
+    }
+
+    function toggleDateStamp() {
+        dateStampEnabled = !dateStampEnabled;
+        document.getElementById('btn-date-toggle').classList.toggle('active', dateStampEnabled);
+    }
+
+    function getDateStamp() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        return `<br>▷${y}.${m}.${d}`;  // 저장 포맷
+    }
+
+    function getDateStampHtml() {
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        const date = `${y}.${m}.${d}`;
+        return `<br>▷${date}`;
+    }
+
+    function insertDateStampOnce() {
+        const fn = document.getElementById('footnote-input');
+        fn.focus();
+        const now = new Date();
+        const y = now.getFullYear();
+        const m = String(now.getMonth() + 1).padStart(2, '0');
+        const d = String(now.getDate()).padStart(2, '0');
+        const date = `${y}.${m}.${d}`;
+        const span = document.createElement('span');
+        span.className = 'inline-date-stamp';
+        span.dataset.date = date;
+        span.textContent = `${date}`;
+        const br = document.createElement('br');
+        if (dateInFootnote === 'top') {
+            fn.prepend(br);
+            fn.prepend(span);
+        } else {
+            fn.appendChild(br);
+            fn.appendChild(span);
+        }
+        const sel = window.getSelection();
+        const range = document.createRange();
+        if (dateInFootnote === 'top') {
+            range.setStartAfter(br);
+        } else {
+            range.setStartAfter(span);
+        }
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+    }
+
+    const ABBR_ALIAS = {'요일':'요1','요이':'요2','요삼':'요3'};
+    const BOOK_NUM = ['','창','출','레','민','신','수','삿','룻','삼상','삼하','왕상','왕하','대상','대하','스','느','에','욥','시','잠','전','아','사','렘','애','겔','단','호','욜','암','옵','욘','미','나','합','습','학','슥','말','마','막','눅','요','행','롬','고전','고후','갈','엡','빌','골','살전','살후','딤전','딤후','딛','몬','히','약','벧전','벧후','요1','요2','요3','유','계'];
+    const BOOK_NAMES = {'창':'창세기','출':'출애굽기','레':'레위기','민':'민수기','신':'신명기','수':'여호수아','삿':'사사기','룻':'룻기','삼상':'사무엘상','삼하':'사무엘하','왕상':'열왕기상','왕하':'열왕기하','대상':'역대상','대하':'역대하','스':'에스라','느':'느헤미야','에':'에스더','욥':'욥기','시':'시편','잠':'잠언','전':'전도서','아':'아가','사':'이사야','렘':'예레미야','애':'예레미야애가','겔':'에스겔','단':'다니엘','호':'호세아','욜':'요엘','암':'아모스','옵':'오바댜','욘':'요나','미':'미가','나':'나훔','합':'하박국','습':'스바냐','학':'학개','슥':'스가랴','말':'말라기','마':'마태복음','막':'마가복음','눅':'누가복음','요':'요한복음','행':'사도행전','롬':'로마서','고전':'고린도전서','고후':'고린도후서','갈':'갈라디아서','엡':'에베소서','빌':'빌립보서','골':'골로새서','살전':'데살로니가전서','살후':'데살로니가후서','딤전':'디모데전서','딤후':'디모데후서','딛':'디도서','몬':'빌레몬서','히':'히브리서','약':'야고보서','벧전':'베드로전서','벧후':'베드로후서','요1':'요한1서','요2':'요한2서','요3':'요한3서','요일':'요한1서','요이':'요한2서','요삼':'요한3서','유':'유다서','계':'요한계시록'};
+
+    // ── 개역개정4판 실제 장/절 데이터 ──────────────────────────────────
+    const MAX_CHAPTERS = {'창':50,'출':40,'레':27,'민':36,'신':34,'수':24,'삿':21,'룻':4,'삼상':31,'삼하':24,'왕상':22,'왕하':25,'대상':29,'대하':36,'스':10,'느':13,'에':10,'욥':42,'시':150,'잠':31,'전':12,'아':8,'사':66,'렘':52,'애':5,'겔':48,'단':12,'호':14,'욜':3,'암':9,'옵':1,'욘':4,'미':7,'나':3,'합':3,'습':3,'학':2,'슥':14,'말':4,'마':28,'막':16,'눅':24,'요':21,'행':28,'롬':16,'고전':16,'고후':13,'갈':6,'엡':6,'빌':4,'골':4,'살전':5,'살후':3,'딤전':6,'딤후':4,'딛':3,'몬':1,'히':13,'약':5,'벧전':5,'벧후':3,'요1':5,'요2':1,'요3':1,'유':1,'계':22};
+    // MAX_VERSES[권][장-1] = 해당 장의 최대 절 수
+    const MAX_VERSES = {
+        '창':[31,25,24,26,32,22,24,22,29,32,32,20,18,24,21,16,27,33,38,18,34,24,20,67,34,35,46,22,35,43,55,32,20,31,29,43,36,30,23,23,57,38,34,34,28,34,31,22,33,26],
+        '출':[22,25,22,31,23,30,25,32,35,29,10,51,22,31,27,36,16,27,25,26,36,31,33,18,40,37,21,43,46,38,18,35,23,35,35,38,29,31,43,38],
+        '레':[17,16,17,35,19,30,38,36,24,20,47,8,59,57,33,34,16,30,37,27,24,33,44,23,55,46,34],
+        '민':[54,34,51,49,31,27,89,26,23,36,35,16,33,45,41,50,13,32,22,29,35,41,30,25,18,65,23,31,40,16,54,42,56,29,34,13],
+        '신':[46,37,29,49,33,25,26,20,29,22,32,32,18,29,23,22,20,22,21,20,23,30,25,22,19,19,26,68,29,20,30,52,29,12],
+        '수':[18,24,17,24,15,27,26,35,27,43,23,24,33,15,63,10,18,28,51,9,45,34,16,33],
+        '삿':[36,23,31,24,31,40,25,35,57,18,40,15,25,20,20,31,13,31,30,48,25],
+        '룻':[22,23,18,22],
+        '삼상':[28,36,21,22,12,21,17,22,27,27,15,25,23,52,35,23,58,30,24,42,15,23,29,22,44,25,12,25,11,31,13],
+        '삼하':[27,32,39,12,25,23,29,18,13,19,27,31,39,33,37,23,29,33,43,26,22,51,39,25],
+        '왕상':[53,46,28,34,18,38,51,66,28,29,43,33,34,31,34,34,24,46,21,43,29,53],
+        '왕하':[18,25,27,44,27,33,20,29,37,36,21,21,25,29,38,20,41,37,37,21,26,20,37,20,30],
+        '대상':[54,55,24,43,26,81,40,40,44,14,47,40,14,17,29,43,27,17,19,8,30,19,32,31,31,32,34,21,30],
+        '대하':[17,18,17,22,14,42,22,18,31,19,23,16,22,15,19,14,19,34,11,37,20,12,21,27,28,23,9,27,36,27,21,33,25,33,27,23],
+        '스':[11,70,13,24,17,22,28,36,15,44],
+        '느':[11,20,32,23,19,19,73,18,38,39,36,47,31],
+        '에':[22,23,15,17,14,14,10,17,32,3],
+        '욥':[22,13,26,21,27,30,21,22,35,22,20,25,28,22,35,22,16,21,29,29,34,30,17,25,6,14,23,28,25,31,40,22,33,37,16,33,24,41,30,24,34,17],
+        '시':[6,12,8,8,12,10,17,9,20,18,7,8,6,7,5,11,15,50,14,9,13,31,6,10,22,12,14,9,11,12,24,11,22,22,28,12,40,22,13,17,13,11,5,26,17,11,9,14,20,23,19,9,6,7,23,13,11,11,17,12,8,12,11,10,13,20,7,35,36,5,24,20,28,23,10,12,20,72,13,19,16,8,18,12,13,17,7,18,52,17,16,15,5,23,11,13,12,9,9,5,8,28,22,35,45,48,43,13,31,7,10,10,9,8,18,19,2,29,176,7,8,9,4,8,5,6,5,6,8,8,3,18,3,3,21,26,9,8,24,13,10,7,12,15,21,10,20,14,9,6],
+        '잠':[33,22,35,27,23,35,27,36,18,32,31,28,25,35,33,33,28,24,29,30,31,29,35,34,28,28,27,28,27,33,31],
+        '전':[18,26,22,16,20,12,29,17,18,20,10,14],
+        '아':[17,17,11,16,16,13,13,14],
+        '사':[31,22,26,6,30,13,25,22,21,34,16,6,22,32,9,14,14,7,25,6,17,25,18,23,12,21,13,29,24,33,9,20,24,17,10,22,38,22,8,31,29,25,28,28,25,13,15,22,26,11,23,15,12,17,13,12,21,14,21,22,11,12,19,12,25,24],
+        '렘':[19,37,25,31,31,30,34,22,26,25,23,17,27,22,21,21,27,23,15,18,14,30,40,10,38,24,22,17,32,24,40,44,26,22,19,32,21,28,18,16,18,22,13,30,5,28,7,47,39,46,64,34],
+        '애':[22,22,66,22,22],
+        '겔':[28,10,27,17,17,14,27,18,11,22,25,28,23,23,8,63,24,32,14,49,32,31,49,27,17,21,36,26,21,26,18,32,33,31,15,38,28,23,29,49,26,20,27,31,25,24,23,35],
+        '단':[21,49,30,37,31,28,28,27,27,21,45,13],
+        '호':[11,23,5,19,15,11,16,14,17,15,12,14,16,9],
+        '욜':[20,32,21],
+        '암':[15,16,15,13,27,14,17,14,15],
+        '옵':[21],
+        '욘':[17,10,10,11],
+        '미':[16,13,12,13,15,16,20],
+        '나':[15,13,19],
+        '합':[17,20,19],
+        '습':[18,15,20],
+        '학':[15,23],
+        '슥':[21,13,10,14,11,15,14,23,17,12,17,14,9,21],
+        '말':[14,17,18,6],
+        '마':[25,23,17,25,48,34,29,34,38,42,30,50,58,36,39,28,27,35,30,34,46,46,39,51,46,75,66,20],
+        '막':[45,28,35,41,43,56,37,38,50,52,33,44,37,72,47,20],
+        '눅':[80,52,38,44,39,49,50,56,62,42,54,59,35,35,32,31,37,43,48,47,38,71,56,53],
+        '요':[51,25,36,54,47,71,53,59,41,42,57,50,38,31,27,33,26,40,42,31,25],
+        '행':[26,47,26,37,42,15,60,40,43,48,30,25,52,28,41,40,34,28,41,38,40,30,35,27,27,32,44,31],
+        '롬':[32,29,31,25,21,23,25,39,33,21,36,21,14,23,33,27],
+        '고전':[31,16,23,21,13,20,40,13,27,33,34,31,13,40,58,24],
+        '고후':[24,17,18,18,21,18,16,24,15,18,33,21,13],
+        '갈':[24,21,29,31,26,18],
+        '엡':[23,22,21,32,33,24],
+        '빌':[30,30,21,23],
+        '골':[29,23,25,18],
+        '살전':[10,20,13,18,28],
+        '살후':[12,17,18],
+        '딤전':[20,15,16,16,25,21],
+        '딤후':[18,26,17,22],
+        '딛':[16,15,15],
+        '몬':[25],
+        '히':[14,18,19,16,14,20,28,13,28,39,40,29,25],
+        '약':[27,26,18,17,20],
+        '벧전':[25,25,22,19,14],
+        '벧후':[21,22,18],
+        '요1':[10,29,24,21,21],
+        '요2':[13],
+        '요3':[15],
+        '유':[25],
+        '계':[20,29,22,11,14,17,17,13,21,11,19,17,18,20,8,21,18,24,21,15,27,21]
+    };
+    // ────────────────────────────────────────────────────────────────────
+
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const encodingSelector = document.getElementById('encoding-selector');
+
+    dropZone.onclick = () => fileInput.click();
+    fileInput.onchange = (e) => { handleFile(e.target.files[0]); };
+    encodingSelector.onchange = () => {
+        if (!currentRawFile) return;
+        // 수동 선택 시 자동 감지 없이 선택한 인코딩으로 직접 처리
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const text = new TextDecoder(encodingSelector.value).decode(e.target.result);
+            const lines = text.split(/\r?\n/);
+            bibleData = lines.filter(l => l.includes('|')).map(l => {
+                const pipeIdx = l.indexOf('|');
+                const k = l.slice(0, pipeIdx);
+                const t = l.slice(pipeIdx + 1);
+                const m = k.match(/^(.+?)\s+(\d+):(\d+)/);
+                return { title: k.trim().replace(/\s+/g, ' '), text: t ? t.trim() : "", book: (ABBR_ALIAS[m?.[1].trim()] || m?.[1].trim()), ch: parseInt(m?.[2]), vs: parseInt(m?.[3]) };
+            }).filter(d => d.book);
+            if (bibleData.length) { buildBookNav(); loadVerse(currentIndex); }
+        };
+        reader.readAsArrayBuffer(currentRawFile);
+    };
+    document.getElementById('resume-input').onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!bibleData.length) {
+            alert('먼저 원본 성경 파일(TXT)을 드롭해서 로드해주세요.');
+            e.target.value = '';
+            return;
+        }
+        processResultFile(file);
+        e.target.value = '';
+    };
+
+    dropZone.ondragover  = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+    dropZone.ondragleave = () => { dropZone.classList.remove('dragover'); };
+    dropZone.ondrop      = (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); };
+
+    function handleFile(file) {
+        if(!file) return;
+        if (bibleData.length > 0) {
+            // 원본이 이미 로드된 상태 → 결과 파일로 처리
+            processResultFile(file);
+        } else {
+            // 원본 파일 로드
+            currentRawFile = file;
+            processBibleFile();
+        }
+    }
+
+    function detectEncoding(buffer) {
+        // UTF-8 BOM 체크 (EF BB BF)
+        const head = new Uint8Array(buffer, 0, 3);
+        if (head[0] === 0xEF && head[1] === 0xBB && head[2] === 0xBF) return 'UTF-8';
+
+        // fatal:true로 UTF-8 디코딩 시도
+        // EUC-KR 한글 바이트(예: 0xB0, 0xC0 등)는 UTF-8 규격 위반 → 예외 발생 → EUC-KR 확정
+        try {
+            new TextDecoder('UTF-8', { fatal: true }).decode(buffer);
+            return 'UTF-8';
+        } catch (e) {
+            return 'EUC-KR';
+        }
+    }
+
+    function processBibleFile() {
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const buffer = e.target.result;
+            const bytes = new Uint8Array(buffer);
+
+            // 바이트 패턴으로 인코딩 자동 판별
+            const encoding = detectEncoding(buffer);
+            encodingSelector.value = encoding;
+
+            const text = new TextDecoder(encoding).decode(buffer);
+
+                const lines = text.split(/\r?\n/);
+                bibleData = lines.filter(l => l.includes('|')).map(l => {
+                    const pipeIdx = l.indexOf('|');
+                    const k = l.slice(0, pipeIdx);
+                    const t = l.slice(pipeIdx + 1);
+                    const m = k.match(/^(.+?)\s+(\d+):(\d+)/);
+                    return { title: k.trim().replace(/\s+/g, ' '), text: t ? t.trim() : "", book: (ABBR_ALIAS[m?.[1].trim()] || m?.[1].trim()), ch: parseInt(m?.[2]), vs: parseInt(m?.[3]) };
+                }).filter(d => d.book);
+
+                if (bibleData.length) {
+                    // 드롭존 → 완료 메시지로 교체 (원본 스타일 유지)
+                    const dz = document.getElementById('drop-zone');
+                    dz.classList.add('loaded');
+                    dz.onclick = null;
+                    dz.innerHTML = `
+                        <div id="drop-text">
+                            <strong style="color:var(--accent)">✅ 성경 로드 완료: ${currentRawFile.name}</strong>
+                            <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 저장된 결과 파일(TXT)을 이곳에 드롭하세요.</p>
+                        </div>
+                        <input type="file" id="file-input" accept=".txt" style="display:none;">`;
+                    dz.ondragover  = e => { e.preventDefault(); dz.classList.add('dragover'); };
+                    dz.ondragleave = () => { dz.classList.remove('dragover'); };
+                    dz.ondrop      = e => { e.preventDefault(); dz.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); };
+
+                    document.getElementById('nav-bar').classList.add('visible');
+                    document.getElementById('exercise-ui').style.display = 'block';
+                    document.getElementById('settings-bar').style.display = 'flex';
+                    document.getElementById('btn-chart').style.display = 'inline-block';
+                    buildBookNav();
+                    loadVerse(0);
+                }
+        };
+        reader.readAsArrayBuffer(currentRawFile);
+    }
+
+    function processResultFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const lines = e.target.result.split(/\r?\n/);
+            let lastFoundIndex = -1;
+            const tempTypedData = [];
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed || !trimmed.includes('|')) return;
+
+                const pipeIdx = trimmed.indexOf('|');
+                const key  = trimmed.slice(0, pipeIdx).trim();   // "창 1:1"
+                const text = trimmed.slice(pipeIdx + 1).trim();  // "<천지 창조> 태초에..."
+
+                // key가 "책약자 장:절" 형태인지 확인 (공백 정규화, 유연하게)
+                const normalizedKey = key.replace(/\s+/g, ' ').trim();
+                // 책 약자 + 공백 + 숫자:숫자 형태면 OK (소제목 태그 등 불필요한 부분 제거)
+                const keyMatch = normalizedKey.match(/^([ㄱ-ㅎ가-힣a-zA-Z0-9]+)\s+(\d+:\d+)/);
+                if (!keyMatch) return;
+                const cleanKey = `${keyMatch[1]} ${keyMatch[2]}`;
+
+                tempTypedData.push({ k: cleanKey, t: text });
+
+                // bibleData title과 매칭 (공백 정규화 + 앞부분만 비교)
+                const foundIdx = bibleData.findIndex(d => {
+                    const t = d.title.replace(/\s+/g, ' ').trim();
+                    return t === cleanKey || t.startsWith(cleanKey);
+                });
+                if (foundIdx !== -1) lastFoundIndex = foundIdx;
+            });
+
+            if (lastFoundIndex === -1) {
+                alert("결과 파일에서 일치하는 구절을 찾지 못했습니다.\n원본 성경 파일과 같은 역본의 결과 파일인지 확인해주세요.");
+                return;
+            }
+
+            typedData = tempTypedData;
+            const resumeIdx = Math.min(lastFoundIndex + 1, bibleData.length - 1);
+            const lastTitle = bibleData[lastFoundIndex].title;
+            alert(`✅ ${typedData.length}개 구절을 불러왔습니다.\n마지막 작업: ${lastTitle}\n다음 절부터 이어서 시작합니다.`);
+            // 이어하기 후 화면 정상 복원
+            dropZone.style.display = 'none';
+            document.getElementById('freewrite-box').style.display = 'none';
+            document.getElementById('exercise-ui').style.display = 'block';
+            document.getElementById('settings-bar').style.display = 'flex';
+            document.getElementById('btn-chart').style.display = 'inline-block';
+            loadVerse(resumeIdx);
+        };
+        reader.readAsText(file, 'UTF-8');
+    }
+
+    function updateHeaderMode() {
+        const label = document.getElementById('header-mode-label');
+        if (!label) return;
+        const checked = document.querySelector('input[name="typing-mode"]:checked');
+        if (!checked) { label.style.display = 'none'; return; }
+        label.textContent = checked.value === 'free' ? '자유 작성 모드' : '따라쓰기(필사) 모드';
+        label.style.display = 'block';
+    }
+
+    document.querySelectorAll('input[name="typing-mode"]').forEach(r => {
+        r.onchange = (e) => {
+            const isFree = e.target.value === 'free';
+            document.getElementById('free-tools').style.display = isFree ? 'flex' : 'none';
+            const input = document.getElementById('user-input');
+            input.setAttribute('data-placeholder', isFree ? (input.dataset.freePlaceholder || '원문 수정 및 필사를 자유롭게 하세요') : '위와 동일하게 입력 시 다음 절로 자동 이동됩니다.');
+            input.focus();
+            updateHeaderMode();
+        };
+    });
+
+    function applySameText() {
+        const input = document.getElementById('user-input');
+        input.innerHTML = document.getElementById('reference-text').innerText;
+        input.focus();
+    }
+
+    // ── 자유 작성 모드 진입 ──────────────────────────────────────────────
+    function startFreeWrite() {
+        freeWriteMode = true;
+        fileNameBase = "나만의성경_자유작성";
+        document.getElementById('drop-zone').style.display = 'none';
+        document.getElementById('freewrite-box').style.display = 'none';
+        document.getElementById('mode-select-normal').style.display = 'none';
+        document.getElementById('mode-select-freewrite').style.display = 'flex';
+        document.getElementById('reference-text').style.display = 'none';
+        document.getElementById('progress-container').style.display = 'none';
+        document.getElementById('nav-bar').classList.add('visible');
+        document.getElementById('exercise-ui').style.display = 'block';
+        document.getElementById('settings-bar').style.display = 'flex';
+        document.getElementById('btn-chart').style.display = 'inline-block';
+        buildFreeNav();
+        const input = document.getElementById('user-input');
+        input.dataset.placeholder = '원문 수정 및 필사를 자유롭게 하세요';
+        input.setAttribute('data-placeholder', '원문 수정 및 필사를 자유롭게 하세요');
+        input.innerHTML = '';
+        document.getElementById('verse-title').innerText = '자유 입력 모드';
+        const lbl = document.getElementById('header-mode-label'); if(lbl){ lbl.textContent=''; lbl.style.display='none'; }
+        input.focus();
+    }
+
+    // ── 자유 작성 모드 종료 → 초기 화면으로 ────────────────────────────
+    function exitFreeWrite() {
+        freeWriteMode = false;
+        freeCurrentKey = "";
+        document.getElementById('mode-select-freewrite').style.display = 'none';
+        document.getElementById('nav-bar').classList.remove('visible');
+        document.getElementById('exercise-ui').style.display = 'none';
+        document.getElementById('settings-bar').style.display = 'none';
+        document.getElementById('drop-zone').style.display = 'block';
+        document.getElementById('freewrite-box').style.display = 'block';
+        document.getElementById('btn-chart').style.display = 'none';
+        document.getElementById('verse-title').innerText = 'My Bible';
+        const lbl2 = document.getElementById('header-mode-label'); if(lbl2){ lbl2.textContent=''; lbl2.style.display='none'; }
+        document.getElementById('user-input').innerHTML = '';
+        document.getElementById('user-input').setAttribute('data-placeholder', '위와 동일하게 입력 시 다음 절로 자동 이동됩니다.');
+    }
+
+    // ── 파일 로드용 네비 ─────────────────────────────────────────────────
+    function syncNavToVerse(data, idx) {
+        const nb = document.getElementById('nav-book');
+        const nc = document.getElementById('nav-chapter');
+        const nv = document.getElementById('nav-verse');
+        if (!nb || !nc || !nv) return;
+        // 책 선택
+        nb.value = data.book;
+        // 장 목록 채우기
+        const chapters = [...new Set(bibleData.filter(d => d.book === data.book).map(d => d.ch))].sort((a,b) => a-b);
+        nc.innerHTML = '<option value="">장 선택</option>' + chapters.map(c => `<option value="${c}">${c}장</option>`).join('');
+        nc.value = data.ch;
+        // 절 목록 채우기
+        const verses = bibleData.filter(d => d.book === data.book && d.ch === data.ch);
+        nv.innerHTML = '<option value="">절 선택</option>' + verses.map(v => `<option value="${bibleData.indexOf(v)}">${v.vs}절</option>`).join('');
+        nv.value = idx;
+    }
+
+    function buildBookNav() {
+        const books = [...new Set(bibleData.map(d => d.book))];
+        const nb = document.getElementById('nav-book');
+        nb.innerHTML = '<option value="">책 선택</option>' + books.map(b => `<option value="${b}">${BOOK_NAMES[b] || b}</option>`).join('');
+        nb.onchange = () => {
+            const chapters = [...new Set(bibleData.filter(d => d.book === nb.value).map(d => d.ch))].sort((a,b) => a-b);
+            document.getElementById('nav-chapter').innerHTML = '<option value="">장 선택</option>' + chapters.map(c => `<option value="${c}">${c}장</option>`).join('');
+            document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>';
+        };
+        document.getElementById('nav-chapter').onchange = () => {
+            const verses = bibleData.filter(d => d.book === nb.value && d.ch === parseInt(document.getElementById('nav-chapter').value));
+            document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>' + verses.map(v => `<option value="${bibleData.indexOf(v)}">${v.vs}절</option>`).join('');
+        };
+    }
+
+    // ── 자유작성용 네비 (개역개정4판 실제 데이터 기준) ──────────────────
+    function buildFreeNav() {
+        const nb = document.getElementById('nav-book');
+        nb.innerHTML = '<option value="">책 선택</option>' + BOOK_NUM.slice(1).map(b => `<option value="${b}">${BOOK_NAMES[b] || b}</option>`).join('');
+        nb.onchange = () => {
+            const maxCh = MAX_CHAPTERS[nb.value] || 1;
+            document.getElementById('nav-chapter').innerHTML = '<option value="">장 선택</option>' +
+                Array.from({length: maxCh}, (_, i) => `<option value="${i+1}">${i+1}장</option>`).join('');
+            document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>';
+        };
+        document.getElementById('nav-chapter').onchange = () => {
+            const book = nb.value, ch = parseInt(document.getElementById('nav-chapter').value);
+            const maxVs = (MAX_VERSES[book] && MAX_VERSES[book][ch - 1]) || 30;
+            document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>' +
+                Array.from({length: maxVs}, (_, i) => `<option value="${i+1}">${i+1}절</option>`).join('');
+        };
+    }
+
+    // ── 이동 ─────────────────────────────────────────────────────────────
+    function jumpTo() {
+        if (freeWriteMode) {
+            const book = document.getElementById('nav-book').value;
+            const ch   = document.getElementById('nav-chapter').value;
+            const vs   = document.getElementById('nav-verse').value;
+            if (!book || !ch || !vs) return alert('책·장·절을 모두 선택하세요.');
+            saveCurrentFreeVerse();
+            freeCurrentKey = `${book} ${ch}:${vs}`;
+            document.getElementById('verse-title').innerText = freeCurrentKey; (function(){ const l=document.getElementById('header-mode-label'); if(l){l.textContent='자유 작성 모드';l.style.display='block';} })();
+            const existing = typedData.find(d => d.k === freeCurrentKey);
+            const input = document.getElementById('user-input');
+            input.innerHTML = existing ? fromSaveFormat(existing.t) : '';
+            input.focus();
+        } else {
+            const idx = parseInt(document.getElementById('nav-verse').value);
+            if (!isNaN(idx)) { dropZone.style.display = 'none'; loadVerse(idx); }
+        }
+    }
+
+    function loadVerse(idx) {
+        if(idx >= bibleData.length) return alert("성경 끝까지 완료했습니다!");
+        currentIndex = idx;
+        const data = bibleData[idx];
+        document.getElementById('verse-title').innerText = data.title;
+        updateHeaderMode();
+        document.getElementById('reference-text').innerText = data.text;
+        const input = document.getElementById('user-input');
+        const existing = typedData.find(d => d.k === data.title);
+        // 저장된 데이터에서 본문/각주 분리 복원
+        if (existing) {
+            const saved = existing.t;
+            // <br>▷각주 패턴 추출 (날짜 이외의 ▷ 태그)
+            // 본문 / 각주 분리: <br>▷ 첫 등장 기준
+            const fnIdx = saved.indexOf('<br>▷');
+            let mainPart, fnPart;
+            if (fnIdx !== -1) {
+                mainPart = saved.slice(0, fnIdx);
+                fnPart   = saved.slice(fnIdx + 5);
+            } else {
+                mainPart = saved; fnPart = '';
+            }
+            input.innerHTML = fromSaveFormat(mainPart);
+            const fnEl2 = document.getElementById('footnote-input');
+            fnEl2.innerHTML = fromSaveFormat(fnPart.replace(/^(<br>)+/i, ''));
+            // DOM 레벨에서 선두 BR 노드 제거 (브라우저가 자동 추가하는 경우 방어)
+            while (fnEl2.firstChild && fnEl2.firstChild.nodeName === 'BR') fnEl2.removeChild(fnEl2.firstChild);
+        } else {
+            input.innerHTML = '';
+            document.getElementById('footnote-input').innerHTML = '';
+        }
+        input.classList.remove('correct');
+        const p = (idx / bibleData.length * 100).toFixed(1);
+        document.getElementById('progress-bar-total').style.width = p + "%";
+        document.getElementById('progress-text-total').innerText = `${p}% (${idx + 1}/${bibleData.length})`;
+
+        // 책 진행도
+        const curBook = data.book;
+        const bookVerses = bibleData.filter(d => d.book === curBook);
+        const bookDone  = bibleData.slice(0, idx + 1).filter(d => d.book === curBook).length;
+        const bookPct   = (bookDone / bookVerses.length * 100).toFixed(1);
+        document.getElementById('progress-label-book').innerText = BOOK_NAMES[curBook] || curBook;
+        document.getElementById('progress-bar-book').style.width = bookPct + "%";
+        document.getElementById('progress-text-book').innerText = `${bookPct}% (${bookDone}/${bookVerses.length}절)`;
+
+        // 장 진행도
+        const curCh = data.ch;
+        const chVerses = bibleData.filter(d => d.book === curBook && d.ch === curCh);
+        const chDone   = bibleData.slice(0, idx + 1).filter(d => d.book === curBook && d.ch === curCh).length;
+        const chPct    = (chDone / chVerses.length * 100).toFixed(1);
+        document.getElementById('progress-label-ch').innerText = `${BOOK_NAMES[curBook] || curBook} ${curCh}장`;
+        document.getElementById('progress-bar-ch').style.width = chPct + "%";
+        document.getElementById('progress-text-ch').innerText = `${chPct}% (${chDone}/${chVerses.length}절)`;
+        updateProgressSummary();
+        syncNavToVerse(data, idx);
+        input.focus();
+    }
+
+    // ── 저장 포맷 변환 ────────────────────────────────────────────────────
+    // hex / rgb → 한글 색상명 매핑
+    const COLOR_TO_NAME = {
+        '#e24b4a':'빨강','#d85a30':'주황','#ba7517':'노랑',
+        '#639922':'초록','#378add':'파랑','#7f77dd':'보라',
+        '#d4537e':'분홍','#888780':'회색','#1a1815':'검정'
+    };
+    const RGB_TO_NAME = {
+        'rgb(226,75,74)':'빨강','rgb(216,90,48)':'주황','rgb(186,117,23)':'노랑',
+        'rgb(99,153,34)':'초록','rgb(55,138,221)':'파랑','rgb(127,119,221)':'보라',
+        'rgb(212,83,126)':'분홍','rgb(136,135,128)':'회색','rgb(26,24,21)':'검정'
+    };
+    // 한글 색상명 → hex (로드 시 렌더링용)
+    const NAME_TO_HEX = {
+        '빨강':'#E24B4A','주황':'#D85A30','노랑':'#BA7517',
+        '초록':'#639922','파랑':'#378ADD','보라':'#7F77DD',
+        '분홍':'#D4537E','회색':'#888780','검정':'#1a1815'
+    };
+
+    // DOM → 저장 포맷 (브라우저 innerHTML → 깔끔한 태그)
+    function toSaveFormat(html) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        function walk(node) {
+            if (node.nodeType === 3) return node.textContent; // 텍스트
+            if (node.nodeType !== 1) return '';
+            const tag = node.tagName.toLowerCase();
+            const kids = Array.from(node.childNodes).map(walk).join('');
+
+            // 날짜 스탬프 → //YYYY.MM.DD (저장 포맷)
+            if (node.classList && node.classList.contains('inline-date-stamp')) {
+                const dt = node.dataset.date || node.textContent.replace(/^†?/,'');
+                return dateInFootnote === 'top' ? `${dt}` : `<br>${dt}`;
+            }
+
+            // 인라인 태그 chip → [#태그명]
+            if (node.classList && node.classList.contains('inline-tag')) {
+                const tagName = node.dataset.tag || '';
+                if (node.dataset.close === 'true' || tagName.startsWith('/'))
+                    return `[/#${tagName.replace(/^\//, '')}]`;
+                return `[#${tagName}]`;
+            }
+
+            // J 태그 → <J>...</J>
+            if (node.classList && node.classList.contains('inline-j-tag')) {
+                return `<J>${kids}</J>`;
+            }
+
+            if (tag === 'b' || tag === 'strong') return `<b>${kids}</b>`;
+            if (tag === 'i' || tag === 'em')     return `<i>${kids}</i>`;
+            if (tag === 'u')                      return `<u>${kids}</u>`;
+            if (tag === 's' || tag === 'strike' || tag === 'del') return `<s>${kids}</s>`;
+
+            // <font color="#hex"> 또는 <span style="color:...">
+            if (tag === 'font') {
+                const raw = (node.getAttribute('color') || '').toLowerCase().replace(/\s/g,'');
+                const name = COLOR_TO_NAME[raw] || raw;
+                return `<font color='${name}'>${kids}</font>`;
+            }
+            if (tag === 'span') {
+                const m = (node.getAttribute('style') || '').match(/color\s*:\s*([^;]+)/i);
+                if (m) {
+                    const raw = m[1].trim().toLowerCase().replace(/\s/g,'');
+                    const name = COLOR_TO_NAME[raw] || RGB_TO_NAME[raw] || raw;
+                    return `<font color='${name}'>${kids}</font>`;
+                }
+                return kids;
+            }
+            if (tag === 'br')  return '\n';
+            if (tag === 'div' || tag === 'p') return kids + (kids.endsWith('\n') ? '' : '\n');
+            return kids;
+        }
+        return Array.from(tmp.childNodes).map(walk).join('').replace(/\n+$/,'').trim();
+    }
+
+    // 저장 포맷 → 렌더링 가능한 HTML (<font color='빨강'> → <font color='#E24B4A'>)
+    function makeTagChipHtml(name, isClose) {
+        const idx = savedTags.indexOf(name);
+        const c = TAG_PALETTE[Math.max(0, idx) % TAG_PALETTE.length];
+        const display = isClose ? '&lt;/' + name + '&gt;' : '&lt;' + name + '&gt;';
+        return `<span class="inline-tag" style="background:${c.bg};color:${c.text};border-radius:3px;padding:1px 6px;font-size:0.87em;font-weight:500;${isClose?'opacity:0.75;':''}" data-tag="${isClose?'/'+name:name}" data-close="${isClose}" contenteditable="false">${display}</span>`;
+    }
+
+    function fromSaveFormat(text) {
+        return text
+            .replace(/\[\/#([^\]]+)\]/g, (_, name) => makeTagChipHtml(name, true))
+            .replace(/\[#([^\]]+)\]/g,   (_, name) => makeTagChipHtml(name, false))
+            // J 태그 → 빨간색 span
+            .replace(/<J>([\s\S]*?)<\/J>/g, (_, inner) =>
+                `<span class="inline-j-tag">${inner}</span>`)
+            // 구형 포맷 호환: <br>▷<i>날짜</i> 또는 <i>날짜</i>
+            .replace(/<br>▷<i>(\d{4}\.\d{2}\.\d{2})<\/i>/g, (_, date) =>
+                `<span class="inline-date-stamp" data-date="${date}">${date}</span>`)
+            .replace(/<i>(\d{4}\.\d{2}\.\d{2})<\/i>/g, (_, date) =>
+                `<span class="inline-date-stamp" data-date="${date}">${date}</span>`)
+            // 구형 포맷 호환: †YYYY.MM.DD
+            .replace(/†(\d{4}\.\d{2}\.\d{2})/g, (_, date) =>
+                `<span class="inline-date-stamp" data-date="${date}">${date}</span>`)
+            // 신형 포맷: YYYY.MM.DD (순수 텍스트) — 단, 앞에 이미 처리된 span 내용은 제외
+            .replace(/(?<!data-date=")(\d{4}\.\d{2}\.\d{2})(?!<\/span>)/g, (_, date) =>
+                `<span class="inline-date-stamp" data-date="${date}">${date}</span>`)
+            .replace(/<font color='([^']+)'>/g, (_, name) => {
+                const hex = NAME_TO_HEX[name] || name;
+                return `<font color='${hex}'>`;
+            });
+    }
+
+    function getCleanHtml() {
+        const main = toSaveFormat(document.getElementById('user-input').innerHTML);
+        const fn   = document.getElementById('footnote-input').innerText.trim();
+        const fnTag = fn ? `<br>▷${fn}` : '';
+        const dateTag = dateStampEnabled ? getDateStamp() : '';
+        if (datePosition === 'top') {
+            // 날짜는 이미 맨 앞(저장 시 타이틀 뒤 본문 앞) — 여기선 본문+각주+날짜 구조로
+            // 실제로 날짜는 저장 함수에서 붙이므로 여기선 main+각주만
+            return main + fnTag;
+        } else {
+            return main + fnTag;
+        }
+    }
+
+    // ── 현재 절 입력 저장 ─────────────────────────────────────────────────
+    function buildSaveContent() {
+        const input = document.getElementById('user-input');
+        const fnEl  = document.getElementById('footnote-input');
+        const main  = toSaveFormat(input.innerHTML);
+        // 날짜 자동: 각주 상단/하단에 오늘 날짜 스탬프 삽입 (중복 방지)
+        if (dateStampEnabled) {
+            const now = new Date();
+            const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0'), d = String(now.getDate()).padStart(2,'0');
+            const date = `${y}.${m}.${d}`;
+            if (!fnEl.querySelector(`[data-date="${date}"]`)) {
+                const span = document.createElement('span');
+                span.className = 'inline-date-stamp';
+                span.dataset.date = date;
+                span.textContent = `${date}`;
+                if (dateInFootnote === 'top') fnEl.prepend(span);
+                else fnEl.appendChild(span);
+            }
+        }
+        const fnContent = toSaveFormat(fnEl.innerHTML).trim()
+            .replace(/<font color='[^']*'>(.*?)<\/font>/gs, '$1')  // 각주 기본 색상 태그 제거
+            .replace(/\n/g, '<br>')
+            .replace(/^(<br>)+/, '');  // 선두 빈줄 제거
+        // 날짜의 선두 <br>을 제외하고 실제 줄 수 판단
+        const fnStripped = fnContent.startsWith('<br>') ? fnContent.slice(4) : fnContent;
+        const fnMultiLine = fnStripped.includes('<br>');
+        // 상단 날짜면 날짜에 <br>이 이미 붙으므로 ▷ 뒤 추가 <br> 불필요
+        const hasTopDate = /^\d{4}\.\d{2}\.\d{2}/.test(fnContent);
+        const fnTag = fnContent ? `<br>▷${fnMultiLine && !hasTopDate ? '<br>' : ''}${fnContent}` : '';
+        return main + fnTag;
+    }
+
+    function saveCurrentFreeVerse() {
+        if (!freeCurrentKey) return;
+        const input = document.getElementById('user-input');
+        if (!input.innerText.trim()) return;
+        const clean = buildSaveContent();
+        const idx = typedData.findIndex(d => d.k === freeCurrentKey);
+        if (idx !== -1) typedData[idx].t = clean;
+        else typedData.push({ k: freeCurrentKey, t: clean });
+    }
+
+    // ── 현재 절 입력 저장 (upsert) ───────────────────────────────────────
+    function saveCurrentVerse() {
+        if (freeWriteMode || !bibleData.length) return;
+        const input = document.getElementById('user-input');
+        if (!input.innerText.trim()) return;
+        const key = bibleData[currentIndex].title;
+        const clean = buildSaveContent();
+        const idx = typedData.findIndex(d => d.k === key);
+        if (idx !== -1) typedData[idx].t = clean;
+        else typedData.push({ k: key, t: clean });
+    }
+
+    // ── 다음 절 ──────────────────────────────────────────────────────────
+    function forceNext() {
+        if (freeWriteMode) {
+            saveCurrentFreeVerse();
+            refreshChartIfVisible();
+            if (!freeCurrentKey) return alert('먼저 책·장·절을 선택하세요.');
+            const m = freeCurrentKey.match(/^(.+)\s+(\d+):(\d+)$/);
+            if (!m) return;
+            const book = m[1], ch = parseInt(m[2]), vs = parseInt(m[3]);
+            const maxVs = (MAX_VERSES[book] && MAX_VERSES[book][ch - 1]) || 30;
+            let nextBook = book, nextCh = ch, nextVs = vs + 1;
+            if (nextVs > maxVs) {
+                nextVs = 1; nextCh = ch + 1;
+                if (nextCh > (MAX_CHAPTERS[book] || 1)) {
+                    const bookIdx = BOOK_NUM.indexOf(book);
+                    if (bookIdx > 0 && bookIdx < BOOK_NUM.length - 1) { nextBook = BOOK_NUM[bookIdx + 1]; nextCh = 1; }
+                    else { alert('성경 마지막 절입니다!'); return; }
+                }
+            }
+            freeCurrentKey = `${nextBook} ${nextCh}:${nextVs}`;
+            document.getElementById('verse-title').innerText = freeCurrentKey; (function(){ const l=document.getElementById('header-mode-label'); if(l){l.textContent='자유 작성 모드';l.style.display='block';} })();
+            const nbEl = document.getElementById('nav-book');
+            nbEl.value = nextBook; nbEl.dispatchEvent(new Event('change'));
+            setTimeout(() => {
+                const ncEl = document.getElementById('nav-chapter');
+                ncEl.value = String(nextCh); ncEl.dispatchEvent(new Event('change'));
+                setTimeout(() => { document.getElementById('nav-verse').value = String(nextVs); }, 20);
+            }, 20);
+            const existing = typedData.find(d => d.k === freeCurrentKey);
+            const input = document.getElementById('user-input');
+            input.innerHTML = existing ? fromSaveFormat(existing.t) : '';
+            input.focus();
+            return;
+        }
+        saveCurrentVerse();
+        loadVerse(currentIndex + 1);
+        refreshChartIfVisible();
+    }
+
+    // ── 이전 절 ──────────────────────────────────────────────────────────
+    function forcePrev() {
+        if (freeWriteMode) {
+            saveCurrentFreeVerse();
+            if (!freeCurrentKey) return alert('먼저 책·장·절을 선택하세요.');
+            const m = freeCurrentKey.match(/^(.+)\s+(\d+):(\d+)$/);
+            if (!m) return;
+            const book = m[1], ch = parseInt(m[2]), vs = parseInt(m[3]);
+            let prevBook = book, prevCh = ch, prevVs = vs - 1;
+            if (prevVs < 1) {
+                prevCh = ch - 1;
+                if (prevCh < 1) {
+                    const bookIdx = BOOK_NUM.indexOf(book);
+                    if (bookIdx > 1) {
+                        prevBook = BOOK_NUM[bookIdx - 1];
+                        prevCh = MAX_CHAPTERS[prevBook] || 1;
+                    } else { alert('성경 첫 번째 절입니다!'); return; }
+                }
+                prevVs = (MAX_VERSES[prevBook] && MAX_VERSES[prevBook][prevCh - 1]) || 1;
+            }
+            freeCurrentKey = `${prevBook} ${prevCh}:${prevVs}`;
+            document.getElementById('verse-title').innerText = freeCurrentKey; (function(){ const l=document.getElementById('header-mode-label'); if(l){l.textContent='자유 작성 모드';l.style.display='block';} })();
+            const nbEl = document.getElementById('nav-book');
+            nbEl.value = prevBook; nbEl.dispatchEvent(new Event('change'));
+            setTimeout(() => {
+                const ncEl = document.getElementById('nav-chapter');
+                ncEl.value = String(prevCh); ncEl.dispatchEvent(new Event('change'));
+                setTimeout(() => { document.getElementById('nav-verse').value = String(prevVs); }, 20);
+            }, 20);
+            const existing = typedData.find(d => d.k === freeCurrentKey);
+            const input = document.getElementById('user-input');
+            input.innerHTML = existing ? fromSaveFormat(existing.t) : '';
+            input.focus();
+            return;
+        }
+        if (currentIndex <= 0) return alert('첫 번째 절입니다!');
+        saveCurrentVerse();
+        loadVerse(currentIndex - 1);
+    }
+
+    document.getElementById('user-input').oninput = function() {
+        if (freeWriteMode) {
+            autoSaveDebounced();
+            return;
+        }
+        const mode = document.querySelector('input[name="typing-mode"]:checked').value;
+        if (mode === 'strict' && this.innerText.trim() === bibleData[currentIndex].text.trim()) {
+            this.classList.add('correct');
+            setTimeout(() => {
+                typedData.push({k: bibleData[currentIndex].title, t: buildSaveContent()});
+                loadVerse(currentIndex + 1);
+                refreshChartIfVisible();
+            }, 200);
+        } else {
+            autoSaveDebounced();
+        }
+    };
+
+    document.getElementById('footnote-input').addEventListener('input', () => {
+        autoSaveDebounced();
+    });
+
+    let _autoSaveTimer = null;
+    function autoSaveDebounced() {
+        clearTimeout(_autoSaveTimer);
+        _autoSaveTimer = setTimeout(() => {
+            if (freeWriteMode) saveCurrentFreeVerse();
+            else saveCurrentVerse();
+        }, 600);
+    }
+
+    async function saveData() {
+        if (freeWriteMode) saveCurrentFreeVerse();
+        if (!typedData.length) return alert("저장할 데이터가 없습니다.");
+        const fmt = freeWriteMode ? 'txt' : document.getElementById('save-format').value;
+        if (fmt === 'aab') {
+            try {
+                const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+                const db = new SQL.Database();
+                db.run("CREATE TABLE Bible (book INTEGER, chapter INTEGER, verse INTEGER, btext TEXT)");
+                const stmt = db.prepare("INSERT INTO Bible VALUES (?, ?, ?, ?)");
+                typedData.forEach(d => {
+                    const m = d.k.match(/^(.+?)\s+(\d+):(\d+)/);
+                    if (m) { const raw = m[1].trim(); const bIdx = BOOK_NUM.indexOf(ABBR_ALIAS[raw] || raw); if (bIdx > 0) stmt.run([bIdx, parseInt(m[2]), parseInt(m[3]), d.t]); }
+                });
+                stmt.free();
+                const res = new Uint8Array(8 + db.export().length);
+                res.set([0x41,0x41,0x42,0x42,0x01,0x01,0x00,0x00]);
+                res.set(db.export(), 8);
+                const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([res])); a.download = fileNameBase + ".aab"; a.click();
+            } catch (e) { alert("AAB 저장 실패"); }
+        } else if (fmt === 'tsv') {
+            const rows = typedData.map(d => {
+                // HTML 태그 제거 함수
+                const stripHtml = s => s.replace(/<[^>]+>/g, '').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').trim();
+                // 본문 / 각주 분리
+                const fnIdx = d.t.indexOf('<br>▷');
+                const main = stripHtml(fnIdx !== -1 ? d.t.slice(0, fnIdx) : d.t);
+                const fn   = fnIdx !== -1 ? stripHtml(d.t.slice(fnIdx + 5)) : '';
+                return fn ? `${d.k}\t${main}\t${fn}` : `${d.k}\t${main}`;
+            });
+            // 헤더 포함
+            const tsv = '구절\t본문\t각주\n' + rows.join('\n');
+            const blob = new Blob([tsv], { type: 'text/tab-separated-values' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fileNameBase + '_결과.tsv'; a.click();
+        } else {
+            const blob = new Blob([typedData.map(d => `${d.k} | ${d.t}`).join('\n')], { type: 'text/plain' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fileNameBase + "_결과.txt"; a.click();
+        }
+    }
+
+    // ── 읽기표 ───────────────────────────────────────────────────────────
+    let chartVisible = false;
+    function toggleChart() {
+        chartVisible = !chartVisible;
+        const chartView = document.getElementById('chart-view');
+        const btnHome    = document.getElementById('btn-home');
+        const btnToInput = document.getElementById('btn-to-input');
+        const title      = document.getElementById('verse-title');
+        if (chartVisible) {
+            buildChart();
+            chartView.style.display = 'block';
+            chartView.style.height = 'calc(100vh - 160px)';
+            chartView.style.overflowY = 'auto';
+            chartView.style.paddingBottom = '40px';
+            chartView.style.marginBottom = '0';
+            document.getElementById('chart-fade-bottom').style.display = 'block';
+            // float nav top = sticky header height
+            requestAnimationFrame(() => {
+                const floatNav  = document.getElementById('chart-float-nav-el');
+                const firstLine = document.querySelector('.chart-book-name');
+                const chartView = document.getElementById('chart-view');
+                const stickyTop = document.getElementById('chart-sticky-top');
+                const fadeOverlay = document.getElementById('fade-overlay');
+                if (stickyTop && fadeOverlay) {
+                    fadeOverlay.style.top = stickyTop.offsetHeight + 'px';
+                }
+                if (floatNav && firstLine && chartView) {
+                    const cvTop   = chartView.getBoundingClientRect().top;
+                    const lineBot = firstLine.getBoundingClientRect().bottom;
+                    floatNav.style.top = (lineBot - cvTop) + 'px';
+                }
+            });
+            if (btnHome)    btnHome.style.display    = 'none';
+            if (btnToInput) btnToInput.style.display = 'inline-flex';
+            if (title) { title.dataset.prev = title.innerText; title.innerText = 'My BIBLE 진행표'; }
+        } else {
+            chartView.style.display = 'none';
+            chartView.style.height = '';
+            chartView.style.overflowY = '';
+            document.getElementById('chart-fade-bottom').style.display = 'none';
+            if (btnHome)    btnHome.style.display    = 'inline-flex';
+            if (btnToInput) btnToInput.style.display = 'none';
+            if (title && title.dataset.prev) title.innerText = title.dataset.prev;
+            document.getElementById('exercise-ui')?.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+    }
+
+    function scrollToBook(bookId) {
+        const cv = document.getElementById('chart-view');
+        const target = document.getElementById('book-' + bookId);
+        const stickyTop = document.getElementById('chart-sticky-top');
+        if (!cv || !target) return;
+        const stickyH = stickyTop ? stickyTop.offsetHeight : 0;
+        const cvRect = cv.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        const scrollOffset = cv.scrollTop + (targetRect.top - cvRect.top) - stickyH - 26;
+        cv.scrollTo({ top: scrollOffset, behavior: 'smooth' });
+    }
+
+    function buildChart() {
+        const doneVerses = {};
+        typedData.forEach(d => {
+            const m = d.k.match(/^(.+?)\s+(\d+):(\d+)/);
+            if (!m) return;
+            const book = m[1].trim(), ch = parseInt(m[2]);
+            if (!doneVerses[book]) doneVerses[book] = {};
+            doneVerses[book][ch] = (doneVerses[book][ch] || 0) + 1;
+        });
+
+        const canJump = bibleData.length > 0;
+
+        // ── 카테고리별 책 바로가기 네비 ─────────────────────
+        const BOOK_GROUPS = {
+            ot: [
+                { label: '모세오경', books: ['창','출','레','민','신'] },
+                { label: '역사서',   books: ['수','삿','룻','삼상','삼하','왕상','왕하','대상','대하','스','느','에'] },
+                { label: '시문서',   books: ['욥','시','잠','전','아'] },
+                { label: '대선지서', books: ['사','렘','애','겔','단'] },
+                { label: '소선지서', books: ['호','욜','암','옵','욘','미','나','합','습','학','슥','말'] }
+            ],
+            nt: [
+                { label: '사복음서', books: ['마','막','눅','요'] },
+                { label: '역사서',   books: ['행'] },
+                { label: '바울서신', books: ['롬','고전','고후','갈','엡','빌','골','살전','살후','딤전','딤후','딛','몬'] },
+                { label: '일반서신', books: ['히','약','벧전','벧후','요1','요2','요3','유'] },
+                { label: '예언서',   books: ['계'] }
+            ]
+        };
+
+        function buildCategoryNav(groups, targetEl) {
+            const el = document.getElementById(targetEl);
+            if (!el) return;
+            el.innerHTML = groups.map(g => {
+                const chips = g.books.map((b, i) => {
+                    const hasP = doneVerses[b] && Object.keys(doneVerses[b]).length > 0;
+                    return `<span class="book-nav-chip${hasP ? ' has-progress' : ''}"
+                        onclick="scrollToBook('${b}')"
+                        title="${BOOK_NAMES[b]}">${b}</span>`;
+                }).join('');
+                return `<div class="book-nav-row">
+                    <span class="book-cat-label">${g.label}</span>
+                    <div class="book-nav-chips-justify">${chips}</div>
+                </div>`;
+            }).join('');
+        }
+        buildCategoryNav(BOOK_GROUPS.ot, 'book-nav-ot-section');
+        buildCategoryNav(BOOK_GROUPS.nt, 'book-nav-nt-section');
+
+        // ── 챕터 원 그리기 ────────────────────────────────
+        const content = document.getElementById('chart-content');
+        content.innerHTML = BOOK_NUM.slice(1).map(book => {
+            const maxCh = MAX_CHAPTERS[book] || 0;
+            if (!maxCh) return '';
+            const circles = Array.from({length: maxCh}, (_, i) => {
+                const ch = i + 1;
+                const maxVs = (MAX_VERSES[book] && MAX_VERSES[book][ch-1]) || 1;
+                const done = (doneVerses[book] && doneVerses[book][ch]) || 0;
+                const pct = Math.min(done / maxVs * 100, 100);
+                const isDone = pct >= 100;
+                const style = `background: conic-gradient(var(--accent) ${pct}%, #e8e4da ${pct}%)`;
+                const tooltip = `${BOOK_NAMES[book]} ${ch}장 (${done}/${maxVs}절 · ${Math.round(pct)}%)`;
+                const clickable = canJump ? `onclick="goToChapter('${book}',${ch})" style="${style}; cursor:pointer;"` : `style="${style}"`;
+                return `<div class="chart-circle${isDone ? ' done' : ''}" data-ch="${ch}" ${clickable} title="${tooltip}"></div>`;
+            }).join('');
+            return `<div class="chart-book" id="book-${book}">
+                <div class="chart-book-name">${BOOK_NAMES[book]} <span style="font-weight:400;font-size:0.8rem;color:#aaa;">${book}</span></div>
+                <div class="chart-circles">${circles}</div>
+            </div>`;
+        }).join('');
+    }
+
+    function goToChapter(book, ch) {
+        // 해당 장의 첫 번째 절 인덱스 찾기
+        const idx = bibleData.findIndex(d => d.book === book && d.ch === ch);
+        if (idx === -1) return alert(`${BOOK_NAMES[book]} ${ch}장을 찾을 수 없습니다.\n원본 성경 파일을 먼저 로드해주세요.`);
+
+        // 읽기표 닫기
+        chartVisible = false;
+        document.getElementById('chart-view').style.display = 'none';
+        const bh = document.getElementById('btn-home'); if(bh) bh.style.display = 'inline-flex';
+        const bi = document.getElementById('btn-to-input'); if(bi) bi.style.display = 'none';
+
+        // 작업 UI 표시 확인
+        document.getElementById('drop-zone').style.display = 'none';
+        document.getElementById('exercise-ui').style.display = 'block';
+        document.getElementById('settings-bar').style.display = 'flex';
+        document.getElementById('btn-chart').style.display = 'inline-block';
+
+        loadVerse(idx);
+    }
+
+    // 차트가 열려있으면 타이핑/저장 후 자동 갱신
+    function refreshChartIfVisible() {
+        if (chartVisible) buildChart();
+    }
+</script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(r => console.log('SW 등록:', r.scope))
+                .catch(e => console.log('SW 실패:', e));
+        });
+    }
+    </script>
+</body>
+</html>
