@@ -1820,7 +1820,7 @@ const SPECIAL_CATEGORIES = [
                 const res = new Uint8Array(8 + db.export().length);
                 res.set([0x41,0x41,0x42,0x42,0x01,0x01,0x00,0x00]);
                 res.set(db.export(), 8);
-                const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([res])); a.download = fileNameBase + ".aab"; a.click();
+                const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([res], {type: 'application/octet-stream'})); a.download = fileNameBase + ".aab"; a.click();
             } catch (e) { alert("AAB 저장 실패"); }
         } else if (fmt === 'tsv') {
             const rows = typedData.map(d => {
