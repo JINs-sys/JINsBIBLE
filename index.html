@@ -211,6 +211,131 @@
         }
         .chart-circle.done::after { background: var(--accent); color: #fff; }
         .chart-circle:hover::after { background: #e9f5ef; color: var(--accent); }
+
+        /* ── 모바일 반응형 ─────────────────────────────────────────── */
+        @media (max-width: 600px) {
+            :root {
+                --font-size-text: 1.25rem;
+                --padding-val: 12px;
+            }
+            body {
+                padding: 0;
+                align-items: flex-start;
+                background-color: var(--paper-white);
+            }
+            .container {
+                padding: 14px 14px 80px;
+                border-radius: 0;
+                border: none;
+                box-shadow: none;
+                min-height: 100vh;
+            }
+            .header {
+                padding-bottom: 10px;
+                margin-bottom: 14px;
+            }
+            .title { font-size: 1.2rem; }
+
+            /* 설정 바 */
+            .settings-bar {
+                flex-wrap: wrap;
+                gap: 8px;
+                padding: 8px 10px;
+                font-size: 0.78rem;
+                overflow-x: auto;
+            }
+            .settings-group { flex-shrink: 0; }
+            .settings-bar .btn-action,
+            .settings-bar .btn-resume {
+                height: 36px;
+                font-size: 0.82rem;
+                padding: 0 12px;
+            }
+            .settings-bar .nav-select { height: 36px; font-size: 0.82rem; }
+
+            /* 파일 업로드 */
+            .file-upload-container { padding: 28px 16px; }
+
+            /* 내비 바 */
+            .nav-bar { gap: 6px; }
+            .nav-bar .nav-select { flex: 1; font-size: 0.9rem; height: 40px; }
+            .btn-nav { height: 40px; font-size: 0.9rem; padding: 0 14px; }
+
+            /* 모드 선택 */
+            .mode-select {
+                flex-wrap: wrap;
+                gap: 8px;
+                font-size: 0.85rem;
+            }
+            .mode-select #free-tools {
+                width: 100%;
+                margin-left: 0;
+                justify-content: flex-end;
+            }
+            .mode-select .btn-apply,
+            .mode-select .btn-action { height: 38px; font-size: 0.82rem; }
+
+            /* 본문 박스 */
+            .text-common {
+                height: auto;
+                min-height: 100px;
+                max-height: 200px;
+            }
+            #user-input[contenteditable] {
+                min-height: 120px;
+                max-height: 220px;
+            }
+
+            /* 날짜 행 - 가로 스크롤 */
+            .date-row {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+                gap: 4px;
+                padding: 5px 10px;
+            }
+            .date-pos-btn { white-space: nowrap; height: 30px; }
+
+            /* 툴바 - 터치 영역 확대 */
+            .fmt-toolbar { padding: 6px 8px; gap: 4px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .fmt-left { flex-wrap: nowrap; }
+            .fmt-btn { width: 40px; height: 40px; font-size: 0.95rem; flex-shrink: 0; }
+            .fmt-tag-btn { width: auto; padding: 0 10px; }
+
+            /* 특수문자 팝업 - 전체 너비 */
+            .special-picker-pop {
+                width: calc(100vw - 28px);
+                left: 0;
+                right: 0;
+            }
+            .sp-body { height: 260px; }
+
+            /* 태그 팝업 */
+            .tag-popup {
+                width: calc(100vw - 56px);
+                left: 0;
+            }
+
+            /* 색상 팝업 */
+            .color-picker-pop { left: auto; right: 0; transform: none; }
+
+            /* 진행표 */
+            .book-nav-chip { width: 32px; font-size: 0.62rem; }
+            .chart-circle { width: 30px; height: 30px; }
+            .chart-circle::after { width: 22px; height: 22px; font-size: 0.62rem; line-height: 22px; }
+
+            /* 각주 */
+            #footnote-input { font-size: calc(var(--font-size-text) * 0.7); }
+
+            /* 버튼들 기본 터치 크기 */
+            .btn-action, .btn-nav, .btn-apply {
+                min-height: 38px;
+            }
+
+            /* 자유입력 모드 선택 행 */
+            #mode-select-freewrite { flex-wrap: wrap; gap: 8px; }
+            #mode-select-freewrite > div { margin-left: 0 !important; }
+        }
     </style>
 </head>
 <body>
