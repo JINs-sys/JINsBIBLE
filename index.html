@@ -271,16 +271,6 @@
 
         /* 본문+입력 프레임 */
         .com-frame { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background: var(--paper-white); }
-        #com-ref-text {
-            background: #f8f7f2; color: #5a5750;
-            border-bottom: 1px solid var(--rule);
-            font-family: var(--font-main); font-size: var(--font-size-text);
-            line-height: var(--line-height-text);
-            padding: var(--padding-val);
-            min-height: 52px; word-break: break-all; white-space: pre-wrap;
-            border-radius: 10px 10px 0 0;
-        }
-        #com-ref-text.no-bible { color: #c8c4bc; font-style: italic; font-size: 0.82rem; min-height: 36px; padding: 10px 18px; }
 
         /* 입력창 — contenteditable */
         #com-content {
@@ -295,16 +285,34 @@
         #com-content:empty::before { content: attr(data-placeholder); color: #d0cdc6; font-size: 0.82rem; line-height: 1.65; pointer-events: none; }
         #com-content:focus { outline: none; }
 
-        /* 주석 모드 내 성경 파일 불러오기 바 */
-        .com-bible-bar {
-            display: flex; align-items: center; gap: 8px;
-            padding: 8px 12px; margin-bottom: 10px;
-            border: 1px dashed #b8d0c6; border-radius: 7px;
-            background: #f2f8f5; font-size: 0.8rem;
+        /* 주석 본문 박스 — 불러오기 버튼 오버레이 */
+        .com-ref-wrap { position: relative; overflow: hidden; }
+        #com-ref-text {
+            background: #f8f7f2; color: #5a5750;
+            border-bottom: 1px solid var(--rule);
+            font-family: var(--font-main); font-size: 1rem;
+            line-height: 1.65;
+            padding: var(--padding-val);
+            min-height: 52px; word-break: break-all; white-space: pre-wrap;
+            border-radius: 10px 10px 0 0;
         }
-        .com-bible-bar.loaded { border-style: solid; border-color: #a0c4b4; background: #eaf4ef; }
-        .com-bible-loaded-name { color: var(--accent); font-weight: 600; font-size: 0.8rem; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .com-bible-hint { color: #9ab8ac; font-size: 0.78rem; flex: 1; }
+        #com-ref-text.no-bible { color: #c8c4bc; font-style: italic; font-size: 0.82rem; min-height: 36px; padding: 10px 18px; }
+        .com-bible-load-btn {
+            position: absolute; top: 0; right: 0; bottom: 0;
+            display: flex; align-items: center;
+            padding: 0 14px;
+            background: linear-gradient(to right, transparent, rgba(242,248,245,0.96) 28%);
+            color: var(--accent); font-size: 0.74rem; font-family: var(--font-main);
+            font-weight: 600; cursor: pointer; white-space: nowrap; border: none;
+            transform: translateX(100%);
+            transition: transform 0.25s ease;
+            z-index: 5; gap: 5px;
+        }
+        .com-ref-wrap:hover .com-bible-load-btn,
+        .com-ref-wrap:not(.loaded) .com-bible-load-btn { transform: translateX(0); }
+        /* 로드 후 기본은 숨김, hover 시 스르륵 */
+        .com-ref-wrap.loaded .com-bible-load-btn { transform: translateX(100%); }
+        .com-ref-wrap.loaded:hover .com-bible-load-btn { transform: translateX(0); }
 
         /* 주석 편집 툴바 */
         .com-fmt-toolbar {
@@ -614,8 +622,6 @@
         <div style="display:flex; align-items:center; gap:4px;">
             <!-- 주석 모드 전용 버튼 (기본 숨김) -->
             <button class="btn-home" id="btn-com-back" style="display:none; width:auto; padding:0 10px; font-size:0.75rem; color:var(--ink-soft);" onclick="exitCommentaryMode()" title="처음으로">← 처음</button>
-            <button class="btn-home" id="btn-com-load-txt" style="display:none; width:auto; padding:0 10px; font-size:0.75rem; color:var(--ink-soft);" onclick="document.getElementById('com-resume-input').click()" title="이전에 저장한 TXT 주석 불러오기">↑ 불러오기</button>
-            <input type="file" id="com-resume-input" accept=".txt" style="display:none;">
             <button class="btn-chart" id="btn-chart" onclick="toggleChart()" title="작업진행표" style="display:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/><path d="M9 12h6"/><path d="M9 16h4"/></svg></button>
             <button class="btn-home" id="btn-to-input" onclick="toggleChart()" title="입력창으로" style="display:none;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>
             <button class="btn-home" id="btn-home" onclick="location.reload()" title="홈"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></button>
@@ -893,22 +899,14 @@
             </div>
             <div class="com-bar-right">
                 <span class="com-bar-label">파일 이름</span>
-                <input class="com-collection-name" id="com-collection-name" type="text" placeholder="나만의주석" value="나만의주석">
+                <input class="com-collection-name" id="com-collection-name" type="text" placeholder="나만의주석" value="나만의주석" title="JSON 내보내기 시 파일 ID로 사용됩니다. 영문을 포함해 입력하면 좋습니다.">
                 <span class="com-count-badge" id="com-count-badge">0개</span>
-                <select class="nav-select" id="com-save-format" style="height:28px; font-size:0.78rem; flex-shrink:0;">
+                <select class="nav-select" id="com-save-format" style="height:28px; font-size:0.78rem; flex-shrink:0;" title="AAB: 바이너리 · TXT: 서식 포함 백업/이어하기">
                     <option value="aab">AAB</option>
-                    <option value="json">JSON</option>
                     <option value="txt">TXT</option>
                 </select>
                 <button class="btn-apply" onclick="exportCommentary()" style="height:28px; padding:0 12px; font-size:0.8rem; flex-shrink:0;">↓ 내보내기</button>
             </div>
-        </div>
-
-        <!-- 성경 본문 불러오기 -->
-        <div class="com-bible-bar" id="com-bible-bar">
-            <span class="com-bible-hint">📖 성경 본문 파일을 불러오면 절마다 원문이 표시됩니다.</span>
-            <button class="btn-action" style="height:26px; padding:0 10px; font-size:0.78rem; flex-shrink:0;" onclick="document.getElementById('com-bible-input').click()">본문 불러오기</button>
-            <input type="file" id="com-bible-input" accept=".txt,.bdb" style="display:none;">
         </div>
 
         <!-- 네비게이션 -->
@@ -934,7 +932,15 @@
 
         <!-- 본문 + 입력창 -->
         <div class="com-frame">
-            <div id="com-ref-text" class="no-bible">성경 파일을 불러오면 본문이 여기에 표시됩니다.</div>
+            <div class="com-ref-wrap" id="com-ref-wrap">
+                <div id="com-ref-text" class="no-bible">성경 파일을 불러오면 본문이 여기에 표시됩니다.</div>
+                <button class="com-bible-load-btn" id="com-bible-load-btn"
+                    onclick="document.getElementById('com-bible-input').click()"
+                    title="성경 본문 파일 불러오기 (.txt / .bdb)">
+                    📖 본문 불러오기
+                </button>
+                <input type="file" id="com-bible-input" accept=".txt,.bdb" style="display:none;">
+            </div>
             <div id="com-content" contenteditable="true" spellcheck="false"
                 data-placeholder="주석 내용을 여기에 입력하세요.&#10;&#10;절 주석: 해당 절에 대한 원어, 신학적 해설 등&#10;장 개요: 장 전체의 흐름과 구조 요약&#10;책 개론: 저자, 배경, 주제 등 책 전체 소개"></div>
 
@@ -952,7 +958,11 @@
                 <button class="com-fmt-btn" style="font-size:0.72rem; width:auto; padding:0 8px; color:#c0a898;" onmousedown="event.preventDefault(); comClearFormat()" title="서식 초기화">T↺</button>
             </div>
             <div class="com-bottom-bar">
-                <button class="btn-action" onclick="comSave(true)">💾 저장</button>
+                <button class="btn-action" onclick="comSave(true)" title="현재 절 주석을 메모리에 저장">현재 위치 임시 저장
+
+</button>
+                <button class="btn-action" onclick="document.getElementById('com-resume-input').click()" title="이전에 TXT로 내보낸 주석 파일 이어하기">작업 불러오기</button>
+                <input type="file" id="com-resume-input" accept=".txt" style="display:none;">
                 <button class="btn-action" onclick="comPrev()">◀ 이전 절</button>
                 <button class="btn-action" onclick="comNext()">다음 절 ▶</button>
                 <button class="btn-action" onclick="comDeleteCurrent()" style="color:#c0a898;" title="현재 위치 주석 삭제">삭제</button>
@@ -962,7 +972,7 @@
     </div>
 
     <div style="text-align:right; font-size:0.72rem; color:#ccc; margin-top:18px; padding-top:10px; border-top:1px solid var(--rule); position:relative; z-index:10000;">
-        <span id="ver-tag" style="cursor:default; user-select:none;">JINs v4.0</span>
+        <span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.1</span>
     </div>
 
     <!-- 이스터에그 오버레이 -->
@@ -2633,14 +2643,11 @@ const SPECIAL_CATEGORIES = [
                 const d = bibleData[0];
                 comBook = d.book; comChapter = d.ch; comVerse = d.vs;
                 comLoadCurrent();
-                // 바 상태 업데이트
-                const bar = document.getElementById('com-bible-bar');
-                bar.classList.add('loaded');
-                bar.innerHTML = `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2d4a3e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    <span class="com-bible-loaded-name">✅ ${file.name}</span>
-                    <button class="btn-action" style="height:26px;padding:0 10px;font-size:0.78rem;flex-shrink:0;"
-                        onclick="document.getElementById('com-bible-input').click()">다른 파일</button>`;
+                // 버튼/래퍼 상태 업데이트
+                const wrap = document.getElementById('com-ref-wrap');
+                const btn  = document.getElementById('com-bible-load-btn');
+                if (wrap) wrap.classList.add('loaded');
+                if (btn)  btn.innerHTML = '📂 다른 파일';
             };
 
             if (file.name.toLowerCase().endsWith('.bdb')) {
@@ -2775,7 +2782,6 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('verse-title').innerText = '나만의 주석';
         // 헤더 버튼 전환
         document.getElementById('btn-com-back').style.display     = 'inline-flex';
-        document.getElementById('btn-com-load-txt').style.display = 'inline-flex';
         document.getElementById('btn-home').style.display         = 'none';
         buildComNav();
         comLoadCurrent();
@@ -2792,7 +2798,6 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('verse-title').innerText = 'JINs Bible';
         // 헤더 버튼 복원
         document.getElementById('btn-com-back').style.display     = 'none';
-        document.getElementById('btn-com-load-txt').style.display = 'none';
         document.getElementById('btn-home').style.display         = 'inline-flex';
         if (bibleData.length) {
             document.getElementById('nav-bar').classList.add('visible');
@@ -3075,9 +3080,8 @@ const SPECIAL_CATEGORIES = [
     function exportCommentary() {
         comSave(false);
         const fmt = document.getElementById('com-save-format').value;
-        if      (fmt === 'aab')  exportCommentaryAAB();
-        else if (fmt === 'json') exportCommentaryJSON();
-        else                     exportCommentaryTxt();
+        if (fmt === 'aab') exportCommentaryAAB();
+        else               exportCommentaryTxt();
     }
 
     // ── AAB 내보내기 (SQLite + 8바이트 헤더) ─────────────────────────
@@ -3133,40 +3137,7 @@ const SPECIAL_CATEGORIES = [
         }
     }
 
-    // ── JSON 내보내기 (AllAbout Bible Commentary Format v1) ───────────
-    function exportCommentaryJSON() {
-        if (!commentaryWritingData.length) { alert('작성된 주석이 없습니다.'); return; }
-        const collectionName = document.getElementById('com-collection-name').value.trim() || '나만의주석';
-        const collectionId   = collectionName.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,'').toLowerCase() || 'my_commentary';
-
-        // _key 제거 + 스펙 순서 정렬
-        const cleanItems = commentaryWritingData.map(({ _key, bookCode, startChapter, endChapter, verse, refer, content, chapterMap }) => ({
-            bookCode, startChapter, endChapter, verse: verse ?? null,
-            refer, content, chapterMap
-        }));
-
-        const output = {
-            _spec: "AllAbout Bible Commentary Format v1",
-            _description: `${collectionName} — JINs Bible에서 작성`,
-            collection: {
-                id:     collectionId,
-                name:   collectionName,
-                type:   "commentary",
-                isHtml: true
-            },
-            items: cleanItems
-        };
-
-        const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `${collectionId}.json`;
-        a.click();
-        URL.revokeObjectURL(a.href);
-        showComStatus(`✓ ${cleanItems.length}개 → ${collectionId}.json`);
-    }
-
-    // ── TXT 내보내기 (불러오기용 백업) ───────────────────────────────
+    // ── TXT 내보내기 (HTML 서식 보존 — 불러오기 완전 복원) ──────────
     function exportCommentaryTxt() {
         if (!commentaryWritingData.length) { alert('작성된 주석이 없습니다.'); return; }
         const collectionName = document.getElementById('com-collection-name').value.trim() || '나만의주석';
@@ -3187,9 +3158,9 @@ const SPECIAL_CATEGORIES = [
         });
 
         for (const item of sorted) {
-            const tmp = document.createElement('div');
-            tmp.innerHTML = item.content || '';
-            lines.push(`${item.refer}|${tmp.innerText.trim()}`);
+            // HTML을 한 줄로 압축해서 그대로 저장 (개행 → 공백)
+            const htmlOneLine = (item.content || '').replace(/\r?\n/g, ' ').trim();
+            lines.push(`${item.refer}|${htmlOneLine}`);
         }
 
         const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
