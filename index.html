@@ -229,7 +229,6 @@
         }
         .com-bar-label {
             font-size: 0.72rem; color: #999; white-space: nowrap;
-            border-right: 1px solid var(--rule); padding-right: 10px; margin-right: 2px;
             flex-shrink: 0;
         }
         .com-collection-name {
@@ -245,7 +244,18 @@
         }
 
         /* 주석 유형 탭 */
-        .com-type-bar { display: flex; gap: 0; margin-bottom: 12px; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+        .com-type-bar { display: flex; gap: 0; margin-bottom: 12px; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; align-items: stretch; }
+        .com-type-bar .com-refer-inline {
+            display: flex; align-items: center; gap: 6px;
+            padding: 0 10px; border-left: 1px solid var(--rule);
+            background: #faf9f6; flex: 1.5; min-width: 0;
+        }
+        .com-type-bar .com-refer-inline label { font-size: 0.68rem; color: #bbb; white-space: nowrap; flex-shrink: 0; }
+        .com-type-bar .com-refer-inline input {
+            flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+            font-size: 0.82rem; font-family: var(--font-main); color: var(--ink);
+            padding: 0;
+        }
         .com-type-label { display: none; }
         .com-type-btn {
             flex: 1; border: none; border-right: 1px solid var(--rule);
@@ -255,12 +265,12 @@
         }
         .com-type-btn:last-child { border-right: none; }
         .com-type-btn:hover { background: #f0ece3; color: var(--ink); }
-        .com-type-btn.active {
-            background: var(--accent); color: #fff; font-weight: 700;
-        }
+        .com-type-btn.active { background: var(--accent); color: #fff; font-weight: 700; }
+        .com-type-key { font-size: 1.05rem; font-weight: 800; color: #c0392b; }
+        .com-type-btn.active .com-type-key { color: #ffb3ae; }
 
         /* 표시 제목 */
-        .com-refer-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .com-refer-row { display: none; }
         .com-refer-row label { font-size: 0.72rem; color: #999; white-space: nowrap; }
         #com-refer {
             flex: 1; height: 28px; border: 1px solid var(--rule); border-radius: 4px;
@@ -270,7 +280,10 @@
         #com-refer:focus { border-color: var(--accent); background: #fff; }
 
         /* 본문+입력 프레임 */
-        .com-frame { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background: var(--paper-white); }
+        .com-frame { border: 1px solid var(--rule); border-radius: 10px; overflow: visible; background: var(--paper-white); }
+        .com-ref-wrap { border-radius: 10px 10px 0 0; overflow: hidden; }
+        .com-fmt-toolbar { border-radius: 0; }
+        .com-bottom-bar { border-radius: 0 0 10px 10px; }
 
         /* 입력창 — contenteditable */
         #com-content {
@@ -285,40 +298,163 @@
         #com-content:empty::before { content: attr(data-placeholder); color: #d0cdc6; font-size: 0.82rem; line-height: 1.65; pointer-events: none; }
         #com-content:focus { outline: none; }
 
-        /* 주석 본문 박스 — 불러오기 버튼 오버레이 */
-        .com-ref-wrap { position: relative; overflow: hidden; }
-        #com-ref-text {
-            background: #f8f7f2; color: #5a5750;
-            border-bottom: 1px solid var(--rule);
-            font-family: var(--font-main); font-size: 1rem;
-            line-height: 1.65;
-            padding: var(--padding-val);
-            min-height: 52px; word-break: break-all; white-space: pre-wrap;
-            border-radius: 10px 10px 0 0;
+        /* 주석 본문 박스 래퍼 */
+        .com-ref-wrap { border-bottom: 1px solid var(--rule); transition: background 0.15s, box-shadow 0.15s; position: relative; }
+        .com-ref-wrap.dragover { background: #eaf5f0; box-shadow: inset 0 0 0 2px var(--accent); }
+        .com-ref-wrap.dragover::after {
+            content: '📂 여기에 놓으면 불러옵니다';
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 700; color: var(--accent);
+            background: rgba(234,245,240,0.88);
+            pointer-events: none; z-index: 10;
+            letter-spacing: 0.02em;
         }
-        #com-ref-text.no-bible { color: #c8c4bc; font-style: italic; font-size: 0.82rem; min-height: 36px; padding: 10px 18px; }
-        .com-bible-load-btn {
-            position: absolute; top: 0; right: 0; bottom: 0;
-            display: flex; align-items: center;
-            padding: 0 14px;
-            background: linear-gradient(to right, transparent, rgba(242,248,245,0.96) 28%);
-            color: var(--accent); font-size: 0.74rem; font-family: var(--font-main);
-            font-weight: 600; cursor: pointer; white-space: nowrap; border: none;
-            transform: translateX(100%);
-            transition: transform 0.25s ease;
-            z-index: 5; gap: 5px;
-        }
-        .com-ref-wrap:hover .com-bible-load-btn,
-        .com-ref-wrap:not(.loaded) .com-bible-load-btn { transform: translateX(0); }
-        /* 로드 후 기본은 숨김, hover 시 스르륵 */
-        .com-ref-wrap.loaded .com-bible-load-btn { transform: translateX(100%); }
-        .com-ref-wrap.loaded:hover .com-bible-load-btn { transform: translateX(0); }
 
-        /* 주석 편집 툴바 */
+        /* ── 멀티 본문 탭 ─────────────────────────────────────────── */
+        .com-ref-tabs {
+            display: flex; align-items: stretch; flex-wrap: nowrap;
+            border-bottom: 1px solid var(--rule);
+            background: #f2f0ea; gap: 0; overflow: hidden;
+        }
+        /* 탭바 오른쪽 모드 토글 */
+        .com-ref-tab-mode-group {
+            display: flex; align-items: center; gap: 0;
+            margin-left: auto; border-left: 1px solid var(--rule);
+            flex-shrink: 0;
+        }
+        .com-ref-mode-btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border: none; background: none;
+            cursor: pointer; color: #b0a898; font-size: 0.8rem;
+            transition: background 0.12s, color 0.12s; flex-shrink: 0;
+        }
+        .com-ref-mode-btn:hover { background: #e8e4da; color: var(--ink); }
+        .com-ref-mode-btn.active { background: #e8e4da; color: var(--accent); }
+        .com-ref-tab {
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 0 8px 0 10px; height: 32px; font-size: 0.74rem;
+            font-family: var(--font-main); font-weight: 500; color: #7a7060;
+            cursor: pointer; border: none; background: none;
+            border-right: 1px solid var(--rule); position: relative;
+            transition: background 0.12s, color 0.12s;
+            flex: 1 1 0; min-width: 0; max-width: 160px;
+        }
+        .com-ref-tab > span {
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            min-width: 0; flex: 1;
+        }
+        .com-ref-tab:hover { background: #e8e4da; color: var(--ink); }
+        .com-ref-tab.active { background: #f8f7f2; color: var(--accent); font-weight: 700; }
+        .com-ref-tab[draggable="true"] { cursor: grab; }
+        .com-ref-tab.dragging { opacity: 0.35; background: #e8e4da; cursor: grabbing; }
+        .com-ref-tab.drag-over { background: #dff0e8; border-right-color: var(--accent); }
+        .com-ref-tab-del {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 14px; height: 14px; border-radius: 50%; border: none;
+            background: transparent; color: #aaa; font-size: 0.7rem;
+            cursor: pointer; line-height: 1; padding: 0; flex-shrink: 0;
+            transition: background 0.1s, color 0.1s;
+        }
+        .com-ref-tab-del:hover { background: #d0c8b8; color: var(--ink); }
+        .com-ref-tab-add {
+            display: inline-flex; align-items: center;
+            padding: 0 10px; height: 32px; font-size: 0.74rem;
+            font-family: var(--font-main); color: #9a9080; cursor: pointer;
+            border: none; background: none; white-space: nowrap; flex-shrink: 0;
+            transition: color 0.12s;
+        }
+        .com-ref-tab-add:hover { color: var(--accent); }
+        /* 역본명 숨김 */
+        .com-ref-panels.hide-labels .com-ref-label { display: none; }
+
+        /* 패널 컨테이너 — 기본은 자동 높이, 리사이즈 시 고정+스크롤 */
+        .com-ref-panels { background: #ffffff; overflow-y: hidden; }
+        .com-ref-panels.is-resized { overflow-y: auto; }
+        .com-ref-panel-wrap { position: relative; border-bottom: 1px solid var(--rule); overflow: hidden; }
+        .com-ref-panel-wrap:last-child { border-bottom: none; }
+
+        /* 역본별 패널 배경 그라디언트 — 아래에서 올라오는 느낌 */
+        .com-ref-panels::before, .com-ref-panels::after { display: none; }
+        .com-ref-panel-wrap[data-slot="0"] { --ref-color: #7aab94; }
+        .com-ref-panel-wrap[data-slot="1"] { --ref-color: #7a8aab; }
+        .com-ref-panel-wrap[data-slot="2"] { --ref-color: #ab8a7a; }
+        .com-ref-panel-wrap[data-slot="3"] { --ref-color: #8aab7a; }
+        .com-ref-panel-wrap[data-slot="4"] { --ref-color: #ab7a8a; }
+        .com-ref-panel-wrap[data-slot] {
+            background: linear-gradient(to bottom, color-mix(in srgb, var(--ref-color) 8%, #ffffff) 0%, #ffffff 55%);
+        }
+
+        /* 역본 이름 레이블 */
+        .com-ref-label {
+            display: inline-block;
+            font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em;
+            padding: 2px 7px; border-radius: 3px; margin: 7px 14px 0;
+            opacity: 0.75;
+        }
+        .com-ref-panel-wrap[data-slot="0"] .com-ref-label { background: #e4f0eb; color: #2d6b52; }
+        .com-ref-panel-wrap[data-slot="1"] .com-ref-label { background: #e4e8f0; color: #2d3f6b; }
+        .com-ref-panel-wrap[data-slot="2"] .com-ref-label { background: #f0ebe4; color: #6b3f2d; }
+        .com-ref-panel-wrap[data-slot="3"] .com-ref-label { background: #ebf0e4; color: #3f6b2d; }
+        .com-ref-panel-wrap[data-slot="4"] .com-ref-label { background: #f0e4eb; color: #6b2d3f; }
+
+        .com-ref-panel {
+            display: block; padding: 5px var(--padding-val) 9px;
+            font-family: var(--font-main); font-size: 1rem; line-height: 1.65;
+            color: #5a5750; word-break: break-all; white-space: pre-wrap;
+            min-height: 32px;
+        }
+        .com-ref-panel.no-bible { color: #c8c4bc; font-style: italic; font-size: 0.82rem; min-height: 32px; padding: 7px 18px; }
+        /* RTL (히브리어 등) */
+        .com-ref-panel[dir="rtl"] { text-align: right; font-family: 'SBL Hebrew', 'Ezra SIL', 'Times New Roman', serif; letter-spacing: 0.02em; }
+        #com-content[dir="rtl"] { text-align: right; direction: rtl; }
+        .com-rtl-btn.active { background: #e4f0eb !important; color: var(--accent) !important; }
+
+        /* 패널 드래그 상태 */
+        .com-ref-panel-wrap.panel-dragging { opacity: 0.35; }
+        .com-ref-panel-wrap.panel-drag-over-top    { box-shadow: inset 0 2px 0 var(--accent); }
+        .com-ref-panel-wrap.panel-drag-over-bottom { box-shadow: inset 0 -2px 0 var(--accent); }
+        /* 드래그 고스트 */
+        #com-panel-ghost {
+            position: fixed; z-index: 9999; pointer-events: none;
+            background: var(--paper-white); border: 1px solid var(--accent);
+            border-radius: 6px; padding: 6px 14px; font-size: 0.82rem;
+            font-family: var(--font-main); color: var(--accent); font-weight: 700;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.14); opacity: 0.92;
+            transform: translate(-50%, -120%); white-space: nowrap;
+        }
+        .com-ref-reload-btn {
+            position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+            opacity: 0; pointer-events: none;
+            display: inline-flex; align-items: center; gap: 4px;
+            padding: 4px 10px; border-radius: 5px; border: 1px solid #b8d9cd;
+            background: rgba(248,247,242,0.95); color: var(--accent);
+            font-size: 0.72rem; font-family: var(--font-main); font-weight: 600;
+            cursor: pointer; white-space: nowrap;
+            transition: opacity 0.15s, background 0.12s;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+        }
+        .com-ref-panel-wrap:hover .com-ref-reload-btn { opacity: 1; pointer-events: auto; }
+        .com-ref-reload-btn:hover { background: #eaf4ef; border-color: var(--accent); }
+
+        /* 리사이즈 바 */
+        .com-ref-resize-bar {
+            height: 20px; background: #f0ede6;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            border-top: 1px solid var(--rule); cursor: default;
+        }
+        .com-ref-sz-btn {
+            border: none; background: none; cursor: pointer;
+            font-size: 0.82rem; color: #c0b8a8; padding: 0 6px;
+            line-height: 1; transition: color 0.12s; user-select: none;
+            font-family: var(--font-main);
+        }
+        .com-ref-sz-btn:hover { color: var(--accent); }
+        .com-ref-sz-reset { font-size: 0.72rem; color: #ccc; }
         .com-fmt-toolbar {
             display: flex; align-items: center; gap: 1px;
             padding: 4px 8px; border-top: 1px solid var(--rule);
-            background: #faf9f6;
+            background: #faf9f6; flex-wrap: nowrap; overflow-x: auto;
         }
         .com-fmt-btn {
             display: inline-flex; align-items: center; justify-content: center;
@@ -326,15 +462,26 @@
             background: transparent; cursor: pointer;
             font-size: 0.88rem; font-weight: 700; color: var(--ink-soft);
             font-family: var(--font-main); transition: background 0.12s, color 0.12s;
+            flex-shrink: 0;
         }
         .com-fmt-btn:hover { background: #ede9e0; color: var(--ink); }
         .com-fmt-btn:active { transform: scale(0.93); }
-        .com-fmt-divider { width: 1px; height: 20px; background: var(--rule); margin: 0 4px; }
+        .com-fmt-divider { width: 1px; height: 20px; background: var(--rule); margin: 0 4px; flex-shrink: 0; }
         .com-fmt-italic { font-style: italic; }
         .com-fmt-under { text-decoration: underline; }
         .com-fmt-strike { text-decoration: line-through; }
         .com-special-wrap { position: relative; }
         .com-special-wrap .special-picker-pop { bottom: 38px; left: 0; top: auto; }
+        /* 주석 색상 버튼 */
+        .com-color-wrap { position: relative; }
+        .com-color-btn { flex-direction: column; gap: 1px; }
+        .com-color-indicator { display: block; width: 14px; height: 3px; border-radius: 2px; }
+        .com-color-picker-pop {
+            position: absolute; bottom: 38px; left: 50%; transform: translateX(-50%);
+            background: #fff; border: 1px solid var(--rule); border-radius: 8px;
+            padding: 8px; display: flex; flex-wrap: wrap; gap: 6px;
+            width: 140px; z-index: 9999; box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        }
 
         /* 하단 버튼바 */
         .com-bottom-bar {
@@ -618,6 +765,7 @@
         <div style="display:flex; align-items:baseline; gap:8px;">
             <h1 class="title" id="verse-title">JINs Bible</h1>
             <span id="header-mode-label" style="font-size:0.75rem; color:#aaa; font-weight:400; display:none;"></span>
+            <span id="com-header-verse" style="display:none; font-size:0.82rem; font-weight:400; color:var(--ink-soft); margin-left:2px;"></span>
         </div>
         <div style="display:flex; align-items:center; gap:4px;">
             <!-- 주석 모드 전용 버튼 (기본 숨김) -->
@@ -894,10 +1042,7 @@
 
         <!-- 상단 설정바 -->
         <div class="com-settings-bar">
-            <div class="com-bar-left">
-                <span class="com-bar-title">📝 주석 작성</span>
-            </div>
-            <div class="com-bar-right">
+            <div class="com-bar-right" style="flex:1;">
                 <span class="com-bar-label">파일 이름</span>
                 <input class="com-collection-name" id="com-collection-name" type="text" placeholder="나만의주석" value="나만의주석" title="JSON 내보내기 시 파일 ID로 사용됩니다. 영문을 포함해 입력하면 좋습니다.">
                 <span class="com-count-badge" id="com-count-badge">0개</span>
@@ -919,43 +1064,98 @@
 
         <!-- 주석 유형 선택 -->
         <div class="com-type-bar">
-            <button class="com-type-btn"         id="com-type-intro"   onclick="setComType('intro')">📖 책 개론</button>
-            <button class="com-type-btn"         id="com-type-chapter" onclick="setComType('chapter')">📄 장 개요</button>
-            <button class="com-type-btn active"  id="com-type-verse"   onclick="setComType('verse')">📌 절 주석</button>
+            <button class="com-type-btn"         id="com-type-intro"   onclick="setComType('intro')"><span class="com-type-key">책</span> 개론</button>
+            <button class="com-type-btn"         id="com-type-chapter" onclick="setComType('chapter')"><span class="com-type-key">장</span> 개요</button>
+            <button class="com-type-btn active"  id="com-type-verse"   onclick="setComType('verse')"><span class="com-type-key">절</span> 주석</button>
+            <div class="com-refer-inline">
+                <label>제목</label>
+                <input id="com-refer" type="text" placeholder="자동 입력 · 직접 수정 가능">
+            </div>
         </div>
 
-        <!-- 표시 제목 -->
+        <!-- 표시 제목 (숨김 — 위 타입바에 통합) -->
         <div class="com-refer-row">
             <label>앱 표시 제목</label>
-            <input id="com-refer" type="text" placeholder="자동 입력 · 직접 수정 가능">
+            <input id="com-refer-legacy" type="text" style="display:none;">
         </div>
 
         <!-- 본문 + 입력창 -->
         <div class="com-frame">
+            <!-- 멀티 본문 영역 -->
             <div class="com-ref-wrap" id="com-ref-wrap">
-                <div id="com-ref-text" class="no-bible">성경 파일을 불러오면 본문이 여기에 표시됩니다.</div>
-                <button class="com-bible-load-btn" id="com-bible-load-btn"
-                    onclick="document.getElementById('com-bible-input').click()"
-                    title="성경 본문 파일 불러오기 (.txt / .bdb)">
-                    📖 본문 불러오기
-                </button>
-                <input type="file" id="com-bible-input" accept=".txt,.bdb" style="display:none;">
+                <!-- 탭 헤더 -->
+                <div class="com-ref-tabs" id="com-ref-tabs"></div>
+                <!-- 패널들 (JS로 생성) -->
+                <div class="com-ref-panels hide-labels" id="com-ref-panels"></div>
             </div>
             <div id="com-content" contenteditable="true" spellcheck="false"
                 data-placeholder="주석 내용을 여기에 입력하세요.&#10;&#10;절 주석: 해당 절에 대한 원어, 신학적 해설 등&#10;장 개요: 장 전체의 흐름과 구조 요약&#10;책 개론: 저자, 배경, 주제 등 책 전체 소개"></div>
 
+            <!-- 입력창 리사이즈 바 -->
+            <div class="com-ref-resize-bar" id="com-ref-resize-bar">
+                <button class="com-ref-sz-btn" id="com-ref-sz-up2" title="많이 줄이기">««</button>
+                <button class="com-ref-sz-btn" id="com-ref-sz-up"  title="줄이기">«</button>
+                <button class="com-ref-sz-btn com-ref-sz-reset" id="com-ref-sz-reset" title="기본 크기로">↺</button>
+                <button class="com-ref-sz-btn" id="com-ref-sz-down"  title="늘리기">»</button>
+                <button class="com-ref-sz-btn" id="com-ref-sz-down2" title="많이 늘리기">»»</button>
+            </div>
+
             <!-- 주석 편집 툴바 -->
             <div class="com-fmt-toolbar">
+                <!-- 특수문자 (독립 팝업) -->
+                <div class="com-special-wrap" id="com-special-wrap">
+                    <button class="com-fmt-btn" style="font-size:0.78rem; width:auto; padding:0 8px;"
+                        onmousedown="event.preventDefault(); comToggleSpecialPicker()" title="특수문자 삽입">특수</button>
+                </div>
+                <div class="com-fmt-divider"></div>
+                <!-- 서식 -->
                 <button class="com-fmt-btn" style="font-weight:900;" onmousedown="event.preventDefault(); comFmt('bold')" title="굵게">B</button>
                 <button class="com-fmt-btn com-fmt-italic"  onmousedown="event.preventDefault(); comFmt('italic')"        title="기울임">I</button>
                 <button class="com-fmt-btn com-fmt-under"   onmousedown="event.preventDefault(); comFmt('underline')"     title="밑줄">U</button>
                 <button class="com-fmt-btn com-fmt-strike"  onmousedown="event.preventDefault(); comFmt('strikeThrough')" title="취소선">S</button>
                 <div class="com-fmt-divider"></div>
-                <div class="com-special-wrap" id="com-special-wrap">
-                    <button class="com-fmt-btn" style="font-size:0.78rem; width:auto; padding:0 8px;" onmousedown="event.preventDefault(); comToggleSpecialPicker()" title="특수문자 삽입">특수</button>
+                <!-- 색상 5개 인라인 -->
+                <div class="com-color-wrap" id="com-color-wrap" style="display:flex; align-items:center; gap:3px; position:relative;">
+                    <button class="com-fmt-btn" style="font-size:0.72rem; width:auto; padding:0 5px; color:#888;" onmousedown="event.preventDefault(); comApplyColor(null)" title="색상 제거">A↺</button>
+                    <div id="com-color-swatches" style="display:flex; gap:3px;"></div>
+                    <button class="com-fmt-btn" style="width:16px; height:16px; border-radius:50%; border:1px solid #ddd; padding:0; overflow:hidden; flex-shrink:0;" id="com-custom-color-btn" onmousedown="event.preventDefault(); document.getElementById('com-custom-color-input').click()" title="커스텀 색상">
+                        <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="#aaa" stroke-width="1.2"/><line x1="6" y1="2" x2="6" y2="10" stroke="#aaa" stroke-width="1.2"/><line x1="2" y1="6" x2="10" y2="6" stroke="#aaa" stroke-width="1.2"/></svg>
+                    </button>
+                    <input type="color" id="com-custom-color-input" style="position:absolute; opacity:0; width:0; height:0; pointer-events:none;">
                 </div>
                 <div class="com-fmt-divider"></div>
-                <button class="com-fmt-btn" style="font-size:0.72rem; width:auto; padding:0 8px; color:#c0a898;" onmousedown="event.preventDefault(); comClearFormat()" title="서식 초기화">T↺</button>
+                <!-- 들여쓰기 + 목록 기호 -->
+                <button class="com-fmt-btn" onmousedown="event.preventDefault(); comFmt('insertUnorderedList')" title="목록">
+                    <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><circle cx="1.5" cy="2" r="1.5" fill="currentColor"/><rect x="4" y="1" width="10" height="2" rx="1" fill="currentColor"/><circle cx="1.5" cy="6" r="1.5" fill="currentColor"/><rect x="4" y="5" width="10" height="2" rx="1" fill="currentColor"/><circle cx="1.5" cy="10" r="1.5" fill="currentColor"/><rect x="4" y="9" width="10" height="2" rx="1" fill="currentColor"/></svg>
+                </button>
+                <button class="com-fmt-btn" onmousedown="event.preventDefault(); comFmt('insertOrderedList')" title="번호 목록">
+                    <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><text x="0" y="4" font-size="4.5" fill="currentColor" font-family="sans-serif">1.</text><rect x="5" y="1" width="9" height="2" rx="1" fill="currentColor"/><text x="0" y="8.5" font-size="4.5" fill="currentColor" font-family="sans-serif">2.</text><rect x="5" y="5.5" width="9" height="2" rx="1" fill="currentColor"/><text x="0" y="12.5" font-size="4.5" fill="currentColor" font-family="sans-serif">3.</text><rect x="5" y="9.5" width="9" height="2" rx="1" fill="currentColor"/></svg>
+                </button>
+                <div class="com-color-wrap" style="position:relative; display:inline-flex;">
+                    <button class="com-fmt-btn" onmousedown="event.preventDefault(); comToggleListStyle()" title="목록 기호 선택" id="com-list-style-btn">
+                        <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><rect x="0" y="0.5" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="4" y="1" width="10" height="2" rx="1" fill="currentColor"/><rect x="0" y="4.5" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="4" y="5" width="10" height="2" rx="1" fill="currentColor"/><rect x="0" y="8.5" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="4" y="9" width="10" height="2" rx="1" fill="currentColor"/></svg>
+                    </button>
+                    <div id="com-list-style-pop" style="display:none; position:absolute; bottom:38px; left:0; background:#fff; border:1px solid var(--rule); border-radius:8px; padding:6px; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,0.10); white-space:nowrap;">
+                        <div style="font-size:0.7rem; color:#999; margin-bottom:5px; padding:0 2px;">목록 기호 선택</div>
+                        <div style="display:flex; flex-direction:column; gap:3px;" id="com-list-style-options"></div>
+                    </div>
+                </div>
+                <button class="com-fmt-btn" onmousedown="event.preventDefault(); comFmt('indent')" title="들여쓰기">
+                    <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><rect x="0" y="0.5" width="14" height="2" rx="1" fill="currentColor"/><rect x="4" y="4.5" width="10" height="2" rx="1" fill="currentColor"/><rect x="4" y="8.5" width="10" height="2" rx="1" fill="currentColor"/><path d="M0 5l3 1.5L0 8V5z" fill="currentColor"/></svg>
+                </button>
+                <button class="com-fmt-btn" onmousedown="event.preventDefault(); comFmt('outdent')" title="내어쓰기">
+                    <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><rect x="0" y="0.5" width="14" height="2" rx="1" fill="currentColor"/><rect x="0" y="4.5" width="10" height="2" rx="1" fill="currentColor"/><rect x="0" y="8.5" width="10" height="2" rx="1" fill="currentColor"/><path d="M14 5l-3 1.5 3 1.5V5z" fill="currentColor"/></svg>
+                </button>
+                <div class="com-fmt-divider"></div>
+                <!-- RTL 토글 -->
+                <button class="com-fmt-btn com-rtl-btn" id="com-rtl-btn"
+                    onmousedown="event.preventDefault(); comToggleRTL()"
+                    title="우→좌 방향 전환 (히브리어 입력)"
+                    style="font-size:0.72rem; width:auto; padding:0 8px; letter-spacing:-0.02em;">RTL</button>
+                <div class="com-fmt-divider"></div>
+                <!-- 초기화 -->
+                <button class="com-fmt-btn" style="font-size:0.72rem; width:auto; padding:0 8px; color:#c0a898;"
+                    onmousedown="event.preventDefault(); comClearFormat()" title="서식 초기화">T↺</button>
             </div>
             <div class="com-bottom-bar">
                 <button class="btn-action" onclick="comSave(true)" title="현재 절 주석을 메모리에 저장">현재 위치 임시 저장
@@ -972,7 +1172,7 @@
     </div>
 
     <div style="text-align:right; font-size:0.72rem; color:#ccc; margin-top:18px; padding-top:10px; border-top:1px solid var(--rule); position:relative; z-index:10000;">
-        <span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.1</span>
+        <span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.5</span>
     </div>
 
     <!-- 이스터에그 오버레이 -->
@@ -1063,7 +1263,16 @@
 </div>
 
 <script>
-    let bibleData = [];
+    let bibleData = [];   // 기존 읽기 기능용 (슬롯 0과 동기화)
+
+    // ── 멀티 본문 슬롯 (주석 모드 전용) ──────────────────────────────
+    // 각 슬롯: { name: string, data: array }
+    // 최대 5개, 슬롯 0이 기본(비어있으면 hint 표시)
+    const MAX_BIBLE_SLOTS = 5;
+    let bibleDataSets = [];          // 로드된 슬롯 배열
+    let activeRefTab  = 0;           // 현재 표시 중인 탭 인덱스
+    let refViewMode   = 'stack';     // 'stack' | 'tab'
+    let refPanelH     = null;        // null = 자동, 숫자 = 고정 px
     let typedData = [];
     let currentIndex = 0;
     let currentRawFile = null;
@@ -1120,6 +1329,17 @@
         document.execCommand('insertText', false, text);
     });
 
+    // ── 주석 입력창: 붙여넣기 시 태그/서식 전부 제거, 순수 텍스트만 삽입 ──
+    document.addEventListener('DOMContentLoaded', () => {
+        const comEd = document.getElementById('com-content');
+        if (!comEd) return;
+        comEd.addEventListener('paste', e => {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            document.execCommand('insertText', false, text);
+        });
+    });
+
     // ── 각주 높이 단계 조절 ────────────────────────────────────────────────
     (function() {
         const fnBox   = document.getElementById('footnote-input');
@@ -1139,6 +1359,46 @@
         document.getElementById('fn-sz-up').addEventListener('click',    () => applyH(curH - STEP));
         document.getElementById('fn-sz-up2').addEventListener('click',   () => applyH(curH - STEP * 3));
         document.getElementById('fn-sz-reset').addEventListener('click', () => applyH(DEFAULT));
+    })();
+
+    // ── 본문 패널 높이 조절 ────────────────────────────────────────────────
+    (function() {
+        const STEP    = 60;
+        const MIN     = 80;
+        const DEFAULT = 200; // #com-content min-height과 맞춤
+
+        function getBox() { return document.getElementById('com-content'); }
+
+        function getCurH() {
+            const box = getBox();
+            if (!box) return DEFAULT;
+            return box.offsetHeight || DEFAULT;
+        }
+
+        function doResize(delta) {
+            const box = getBox();
+            if (!box) return;
+            const next = Math.max(MIN, getCurH() + delta);
+            box.style.transition = 'height 0.15s ease';
+            box.style.height = next + 'px';
+            box.style.maxHeight = next + 'px';
+        }
+
+        function doReset() {
+            const box = getBox();
+            if (!box) return;
+            box.style.transition = 'height 0.15s ease';
+            box.style.height = '';
+            box.style.maxHeight = '';
+        }
+
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'com-ref-sz-down')  doResize(+STEP);
+            if (e.target.id === 'com-ref-sz-down2') doResize(+STEP * 3);
+            if (e.target.id === 'com-ref-sz-up')    doResize(-STEP);
+            if (e.target.id === 'com-ref-sz-up2')   doResize(-STEP * 3);
+            if (e.target.id === 'com-ref-sz-reset')  doReset();
+        });
     })();
 
     // ── 서식 툴바 ──────────────────────────────────────────────────────────
@@ -1188,7 +1448,7 @@ const SPECIAL_CATEGORIES = [
             const chars = SPECIAL_CATEGORIES[specialCatIdx].chars;
             preset.innerHTML = chars.map(ch => {
                 const safe = ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-                return `<button class="special-char-btn" ondblclick="insertSpecialChar('${safe}');" title="${ch}">${ch}</button>`;
+                return `<button class="special-char-btn" onclick="insertSpecialChar('${safe}');" title="${ch}">${ch}</button>`;
             }).join('');
         }
         const custom = document.getElementById('special-custom-grid');
@@ -1196,7 +1456,7 @@ const SPECIAL_CATEGORIES = [
         custom.innerHTML = customSpecials.length
             ? customSpecials.map((ch, i) => {
                 const safe = ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-                return `<button class="special-char-btn" ondblclick="insertSpecialChar('${safe}');" title="${ch}">
+                return `<button class="special-char-btn" onclick="insertSpecialChar('${safe}');" title="${ch}">
                     ${ch}<span class="del-x" onmousedown="event.stopPropagation();removeCustomSpecial(${i});">×</span>
                 </button>`;
               }).join('')
@@ -1225,6 +1485,9 @@ const SPECIAL_CATEGORIES = [
         } else {
             document.execCommand('insertText', false, ch);
         }
+        // 삽입 후 팝업 닫기
+        const pop = document.getElementById('special-picker-pop');
+        if (pop) pop.style.display = 'none';
     }
 
     function addCustomSpecial() {
@@ -1588,6 +1851,17 @@ const SPECIAL_CATEGORIES = [
     const ABBR_ALIAS = {'요일':'요1','요이':'요2','요삼':'요3'};
     const BOOK_NUM = ['','창','출','레','민','신','수','삿','룻','삼상','삼하','왕상','왕하','대상','대하','스','느','에','욥','시','잠','전','아','사','렘','애','겔','단','호','욜','암','옵','욘','미','나','합','습','학','슥','말','마','막','눅','요','행','롬','고전','고후','갈','엡','빌','골','살전','살후','딤전','딤후','딛','몬','히','약','벧전','벧후','요1','요2','요3','유','계'];
     const BOOK_NAMES = {'창':'창세기','출':'출애굽기','레':'레위기','민':'민수기','신':'신명기','수':'여호수아','삿':'사사기','룻':'룻기','삼상':'사무엘상','삼하':'사무엘하','왕상':'열왕기상','왕하':'열왕기하','대상':'역대상','대하':'역대하','스':'에스라','느':'느헤미야','에':'에스더','욥':'욥기','시':'시편','잠':'잠언','전':'전도서','아':'아가','사':'이사야','렘':'예레미야','애':'예레미야애가','겔':'에스겔','단':'다니엘','호':'호세아','욜':'요엘','암':'아모스','옵':'오바댜','욘':'요나','미':'미가','나':'나훔','합':'하박국','습':'스바냐','학':'학개','슥':'스가랴','말':'말라기','마':'마태복음','막':'마가복음','눅':'누가복음','요':'요한복음','행':'사도행전','롬':'로마서','고전':'고린도전서','고후':'고린도후서','갈':'갈라디아서','엡':'에베소서','빌':'빌립보서','골':'골로새서','살전':'데살로니가전서','살후':'데살로니가후서','딤전':'디모데전서','딤후':'디모데후서','딛':'디도서','몬':'빌레몬서','히':'히브리서','약':'야고보서','벧전':'베드로전서','벧후':'베드로후서','요1':'요한1서','요2':'요한2서','요3':'요한3서','요일':'요한1서','요이':'요한2서','요삼':'요한3서','유':'유다서','계':'요한계시록'};
+
+    // 시편은 '장' 대신 '편' 사용
+    function chUnit(book) { return book === '시' ? '편' : '장'; }
+    function chLabel(book, n) { return `${n}${chUnit(book)}`; }
+    function chSelectPlaceholder(book) { return `${chUnit(book)} 선택`; }
+    function chOptions(book, chapters) {
+        return chapters.map(c => `<option value="${c}">${chLabel(book, c)}</option>`).join('');
+    }
+    function chOptionsRange(book, maxCh) {
+        return Array.from({length: maxCh}, (_, i) => `<option value="${i+1}">${chLabel(book, i+1)}</option>`).join('');
+    }
 
     // 한글 약어 → AllAbout 주석 JSON 3자리 영문 코드
     const BOOK_TO_CODE = {
@@ -2027,7 +2301,7 @@ const SPECIAL_CATEGORIES = [
         nb.value = data.book;
         // 장 목록 채우기
         const chapters = [...new Set(bibleData.filter(d => d.book === data.book).map(d => d.ch))].sort((a,b) => a-b);
-        nc.innerHTML = '<option value="">장 선택</option>' + chapters.map(c => `<option value="${c}">${c}장</option>`).join('');
+        nc.innerHTML = `<option value="">${chSelectPlaceholder(data.book)}</option>` + chOptions(data.book, chapters);
         nc.value = data.ch;
         // 절 목록 채우기
         const verses = bibleData.filter(d => d.book === data.book && d.ch === data.ch);
@@ -2041,7 +2315,7 @@ const SPECIAL_CATEGORIES = [
         nb.innerHTML = '<option value="">책 선택</option>' + books.map(b => `<option value="${b}">${BOOK_NAMES[b] || b}</option>`).join('');
         nb.onchange = () => {
             const chapters = [...new Set(bibleData.filter(d => d.book === nb.value).map(d => d.ch))].sort((a,b) => a-b);
-            document.getElementById('nav-chapter').innerHTML = '<option value="">장 선택</option>' + chapters.map(c => `<option value="${c}">${c}장</option>`).join('');
+            document.getElementById('nav-chapter').innerHTML = `<option value="">${chSelectPlaceholder(nb.value)}</option>` + chOptions(nb.value, chapters);
             document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>';
         };
         document.getElementById('nav-chapter').onchange = () => {
@@ -2056,8 +2330,7 @@ const SPECIAL_CATEGORIES = [
         nb.innerHTML = '<option value="">책 선택</option>' + BOOK_NUM.slice(1).map(b => `<option value="${b}">${BOOK_NAMES[b] || b}</option>`).join('');
         nb.onchange = () => {
             const maxCh = MAX_CHAPTERS[nb.value] || 1;
-            document.getElementById('nav-chapter').innerHTML = '<option value="">장 선택</option>' +
-                Array.from({length: maxCh}, (_, i) => `<option value="${i+1}">${i+1}장</option>`).join('');
+            document.getElementById('nav-chapter').innerHTML = `<option value="">${chSelectPlaceholder(nb.value)}</option>` + chOptionsRange(nb.value, maxCh);
             document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>';
         };
         document.getElementById('nav-chapter').onchange = () => {
@@ -2545,147 +2818,198 @@ const SPECIAL_CATEGORIES = [
     // ── 주석 편집 툴바 기능 ───────────────────────────────────────────
     function comFmt(cmd) {
         const ed = document.getElementById('com-content');
+        if (!ed) return;
         ed.focus();
         document.execCommand(cmd, false, null);
     }
 
+    function comToggleRTL() {
+        const ed = document.getElementById('com-content');
+        const btn = document.getElementById('com-rtl-btn');
+        if (!ed) return;
+        const isRTL = ed.getAttribute('dir') === 'rtl';
+        if (isRTL) {
+            ed.removeAttribute('dir');
+            ed.style.textAlign = '';
+            ed.style.direction = '';
+            btn && btn.classList.remove('active');
+        } else {
+            ed.setAttribute('dir', 'rtl');
+            btn && btn.classList.add('active');
+        }
+        ed.focus();
+    }
+
     function comClearFormat() {
         const ed = document.getElementById('com-content');
+        if (!ed) return;
         ed.focus();
         document.execCommand('removeFormat', false, null);
     }
 
+    // ── 색상 스와치 5개 + 커스텀 ─────────────────────────────────────
+    const COM_COLORS = ['#E24B4A','#378ADD','#639922','#D85A30','#7F77DD'];
+    let comActiveColor = COM_COLORS[0];
     let comSavedSel = null;
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const comEd = document.getElementById('com-content');
-        if (comEd) {
-            comEd.addEventListener('focus', () => {
-                // 주석 편집기 포커스 시 특수문자 팝업이 올바르게 삽입되도록 저장
+    function comApplyColor(hex) {
+        const ed = document.getElementById('com-content');
+        if (!ed) return;
+        ed.focus();
+        if (comSavedSel) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(comSavedSel); }
+        if (hex) document.execCommand('foreColor', false, hex);
+        else      document.execCommand('removeFormat', false, null);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        // 색상 스와치 렌더
+        const swatchWrap = document.getElementById('com-color-swatches');
+        const customInput = document.getElementById('com-custom-color-input');
+        if (swatchWrap) {
+            COM_COLORS.forEach(hex => {
+                const s = document.createElement('button');
+                s.className = 'com-fmt-btn';
+                s.style.cssText = `width:14px;height:14px;border-radius:50%;background:${hex};border:2px solid transparent;padding:0;flex-shrink:0;`;
+                s.title = hex;
+                s.onmousedown = (e) => {
+                    e.preventDefault();
+                    comActiveColor = hex;
+                    swatchWrap.querySelectorAll('button').forEach(b => b.style.borderColor = 'transparent');
+                    s.style.borderColor = '#555';
+                    comApplyColor(hex);
+                };
+                swatchWrap.appendChild(s);
             });
-            comEd.addEventListener('mouseup', () => {
-                const sel = window.getSelection();
-                if (sel && sel.rangeCount) comSavedSel = sel.getRangeAt(0).cloneRange();
-            });
-            comEd.addEventListener('keyup', () => {
-                const sel = window.getSelection();
-                if (sel && sel.rangeCount) comSavedSel = sel.getRangeAt(0).cloneRange();
+        }
+        if (customInput) {
+            customInput.value = comActiveColor;
+            customInput.addEventListener('input', () => {
+                comActiveColor = customInput.value;
+                const btn = document.getElementById('com-custom-color-btn');
+                if (btn) btn.style.background = comActiveColor;
+                comApplyColor(comActiveColor);
             });
         }
 
-        // 주석 특수문자 팝업: com-special-wrap 안으로 이동
-        const comWrap = document.getElementById('com-special-wrap');
-        if (comWrap) {
-            const pop = document.getElementById('special-picker-pop');
-            if (pop) {
-                // 팝업을 com-special-wrap 안으로 복제하지 않고 z-index만 높여서 사용
-            }
+        // com-content 커서 추적
+        const ed = document.getElementById('com-content');
+        if (ed) {
+            ed.addEventListener('mouseup', () => { const s = window.getSelection(); if (s?.rangeCount) comSavedSel = s.getRangeAt(0).cloneRange(); });
+            ed.addEventListener('keyup',   () => { const s = window.getSelection(); if (s?.rangeCount) comSavedSel = s.getRangeAt(0).cloneRange(); });
         }
+
+        // 목록 기호 선택 팝업 렌더
+        const listOpts = document.getElementById('com-list-style-options');
+        if (listOpts) {
+            [
+                { label: '● 원형 (disc)',    style: 'disc' },
+                { label: '○ 빈 원 (circle)', style: 'circle' },
+                { label: '■ 사각 (square)',  style: 'square' },
+                { label: '─ 없음 (none)',    style: 'none' },
+            ].forEach(opt => {
+                const btn = document.createElement('button');
+                btn.style.cssText = 'border:none;background:none;cursor:pointer;padding:4px 8px;font-size:0.8rem;font-family:var(--font-main);color:var(--ink);text-align:left;border-radius:4px;display:block;width:100%;';
+                btn.textContent = opt.label;
+                btn.onmousedown = (e) => {
+                    e.preventDefault();
+                    document.getElementById('com-content')?.querySelectorAll('ul,ol').forEach(ul => ul.style.listStyleType = opt.style);
+                    document.getElementById('com-list-style-pop').style.display = 'none';
+                };
+                btn.onmouseover = () => btn.style.background = '#f0ece3';
+                btn.onmouseout  = () => btn.style.background = 'none';
+                listOpts.appendChild(btn);
+            });
+        }
+
+        // 외부 클릭 시 팝업 닫기
+        document.addEventListener('mousedown', (e) => {
+            const lsp = document.getElementById('com-list-style-pop');
+            const lsBtn = document.getElementById('com-list-style-btn');
+            if (lsp && lsBtn && !lsBtn.closest('div').contains(e.target)) lsp.style.display = 'none';
+            const csp = document.getElementById('com-special-picker-pop');
+            const csw = document.getElementById('com-special-wrap');
+            if (csp && csw && !csw.contains(e.target)) csp.style.display = 'none';
+        });
     });
 
+    function comToggleListStyle() {
+        const pop = document.getElementById('com-list-style-pop');
+        if (pop) pop.style.display = pop.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // ── 주석 특수문자 팝업 (독립) ────────────────────────────────────
+    let comSpecialCatIdx = 0;
+
     function comToggleSpecialPicker() {
-        const comWrap = document.getElementById('com-special-wrap');
-        const pop = document.getElementById('special-picker-pop');
-        if (!pop || !comWrap) return;
-
-        // 팝업을 com-special-wrap 자식으로 이동
-        if (pop.parentElement !== comWrap) {
-            comWrap.appendChild(pop);
-            pop.style.position = 'absolute';
-            pop.style.bottom = '38px';
-            pop.style.left = '0';
-            pop.style.top = 'auto';
-            pop.style.zIndex = '9999';
-        }
-
+        const pop = document.getElementById('com-special-picker-pop');
+        const btn = document.querySelector('#com-special-wrap button');
+        if (!pop) return;
         const isOpen = pop.style.display !== 'none';
         pop.style.display = isOpen ? 'none' : 'block';
         if (!isOpen) {
-            renderSpecialGrid();
-            // 커서 위치 저장
-            const ed = document.getElementById('com-content');
-            if (ed) {
-                ed.focus();
-                const sel = window.getSelection();
-                if (sel && sel.rangeCount) comSavedSel = sel.getRangeAt(0).cloneRange();
+            // 버튼 위치 기준으로 fixed 포지션 계산
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                pop.style.position = 'fixed';
+                pop.style.bottom = 'auto';
+                pop.style.top  = (rect.top - pop.offsetHeight - 6) + 'px';
+                pop.style.left = rect.left + 'px';
+                pop.style.zIndex = '99999';
+                // 렌더 후 재계산 (높이가 0일 수 있음)
+                requestAnimationFrame(() => {
+                    const r = btn.getBoundingClientRect();
+                    pop.style.top = (r.top - pop.offsetHeight - 6) + 'px';
+                    pop.style.left = r.left + 'px';
+                });
             }
+            comRenderSpecialGrid();
+            const ed = document.getElementById('com-content');
+            if (ed) { ed.focus(); const s = window.getSelection(); if (s?.rangeCount) comSavedSel = s.getRangeAt(0).cloneRange(); }
         }
-
-        // 외부 클릭 시 닫기
-        setTimeout(() => {
-            const close = (e) => {
-                if (!comWrap.contains(e.target)) {
-                    pop.style.display = 'none';
-                    document.removeEventListener('mousedown', close);
-                }
-            };
-            if (pop.style.display !== 'none') document.addEventListener('mousedown', close);
-        }, 0);
     }
 
-    // insertSpecialChar가 com-content에 삽입하도록: getActiveEditor 이미 처리됨.
-    // 단, 커서 저장된 경우 복원
-    const _origInsertSpecial = window.insertSpecialChar;
+    function comRenderSpecialGrid() {
+        const tabsEl = document.getElementById('com-sp-tabs');
+        const gridEl = document.getElementById('com-special-preset-grid');
+        const custEl = document.getElementById('com-special-custom-grid');
+        if (!tabsEl || !gridEl) return;
+        tabsEl.innerHTML = SPECIAL_CATEGORIES.map((cat, i) =>
+            `<button class="sp-tab${i===comSpecialCatIdx?' active':''}" onmousedown="event.preventDefault();event.stopPropagation();comSpecialCatIdx=${i};comRenderSpecialGrid();">${cat.label}</button>`
+        ).join('');
+        const cat = SPECIAL_CATEGORIES[comSpecialCatIdx];
+        gridEl.innerHTML = cat.chars.map(ch => {
+            const safe = ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+            if (ch.length > 1 && /^[\u0000-\u007F]*$/.test(ch))
+                return `<button class="special-char-btn" onclick="comInsertSpecial('${safe}');" title="${ch}" style="font-size:0.65rem;min-width:44px;">${ch}</button>`;
+            return `<button class="special-char-btn" onclick="comInsertSpecial('${safe}');" title="${ch}">${ch}</button>`;
+        }).join('');
+        if (custEl) {
+            custEl.innerHTML = customSpecials.map((ch, i) =>
+                `<button class="special-char-btn" onclick="comInsertSpecial('${ch}');">${ch}</button>
+                 <button onclick="removeCustomSpecial(${i})" style="font-size:0.6rem;color:#ccc;border:none;background:none;cursor:pointer;padding:1px 3px;">✕</button>`
+            ).join('');
+        }
+    }
 
-    // ── 주석 모드 내 성경 파일 불러오기 ──────────────────────────────
-    document.addEventListener('DOMContentLoaded', () => {
-        const comBibleInput = document.getElementById('com-bible-input');
-        if (!comBibleInput) return;
-        comBibleInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            currentRawFile = file;
+    function comInsertSpecial(ch) {
+        const ed = document.getElementById('com-content');
+        if (!ed) return;
+        ed.focus();
+        if (comSavedSel) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(comSavedSel); }
+        document.execCommand('insertText', false, ch);
+        const s = window.getSelection();
+        if (s?.rangeCount) comSavedSel = s.getRangeAt(0).cloneRange();
+    }
 
-            const onLoaded = () => {
-                if (!bibleData.length) return;
-                buildComNav();
-                comBibleIndex = 0;
-                const d = bibleData[0];
-                comBook = d.book; comChapter = d.ch; comVerse = d.vs;
-                comLoadCurrent();
-                // 버튼/래퍼 상태 업데이트
-                const wrap = document.getElementById('com-ref-wrap');
-                const btn  = document.getElementById('com-bible-load-btn');
-                if (wrap) wrap.classList.add('loaded');
-                if (btn)  btn.innerHTML = '📂 다른 파일';
-            };
-
-            if (file.name.toLowerCase().endsWith('.bdb')) {
-                const reader = new FileReader();
-                reader.onload = async (ev) => {
-                    try {
-                        const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
-                        const db  = new SQL.Database(new Uint8Array(ev.target.result));
-                        const res = db.exec("SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse");
-                        db.close();
-                        if (!res.length || !res[0].values.length) { alert('성경 데이터를 찾지 못했습니다.'); return; }
-                        bibleData = res[0].values.map(([book, chapter, verse, btext]) => {
-                            const bookAbbr = BOOK_NUM[book] || ''; if (!bookAbbr) return null;
-                            return { title: `${bookAbbr} ${chapter}:${verse}`, text: btext ? btext.trim() : '', book: bookAbbr, ch: parseInt(chapter), vs: parseInt(verse) };
-                        }).filter(d => d && d.book);
-                        onLoaded();
-                    } catch (err) { alert('BDB 파일 오류: ' + err.message); }
-                };
-                reader.readAsArrayBuffer(file);
-            } else {
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    const buffer = ev.target.result;
-                    const encoding = detectEncoding(buffer);
-                    const text = new TextDecoder(encoding).decode(buffer);
-                    bibleData = text.split(/\r?\n/).filter(l => l.includes('|')).map(l => {
-                        const pipeIdx = l.indexOf('|');
-                        const k = l.slice(0, pipeIdx), t = l.slice(pipeIdx + 1);
-                        const m = k.match(/^(.+?)\s+(\d+):(\d+)/);
-                        return { title: k.trim().replace(/\s+/g, ' '), text: t ? t.trim() : '', book: (ABBR_ALIAS[m?.[1].trim()] || m?.[1].trim()), ch: parseInt(m?.[2]), vs: parseInt(m?.[3]) };
-                    }).filter(d => d.book);
-                    onLoaded();
-                };
-                reader.readAsArrayBuffer(file);
-            }
-            e.target.value = '';
-        });
-    });
+    function comAddCustomSpecial() {
+        const inp = document.getElementById('com-special-custom-input');
+        const val = inp?.value.trim();
+        if (!val || customSpecials.includes(val)) { if(inp) inp.value=''; return; }
+        customSpecials.push(val);
+        localStorage.setItem('customSpecials', JSON.stringify(customSpecials));
+        if(inp) inp.value = '';
+        comRenderSpecialGrid();
+    }
 
     // ── 주석 TXT 불러오기 ─────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
@@ -2779,10 +3103,19 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('exercise-ui').style.display    = 'none';
         document.getElementById('settings-bar').style.display   = 'none';
         document.getElementById('commentary-write-ui').style.display = 'block';
-        document.getElementById('verse-title').innerText = '나만의 주석';
+        document.getElementById('verse-title').innerText = '주석 작성';
+        document.getElementById('com-header-verse').style.display = 'inline';
         // 헤더 버튼 전환
         document.getElementById('btn-com-back').style.display     = 'inline-flex';
         document.getElementById('btn-home').style.display         = 'none';
+        // 드롭존 바인딩 (UI 표시 후)
+        setTimeout(initRefDropZone, 0);
+        // 이미 로드된 파일이 있으면 슬롯 동기화
+        if (bibleData.length && bibleDataSets.length === 0) {
+            bibleDataSets.push({ name: '본문1', data: bibleData });
+            activeRefTab = 0;
+        }
+        renderRefTabs();
         buildComNav();
         comLoadCurrent();
     }
@@ -2796,6 +3129,8 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('drop-zone').style.display      = 'block';
         document.getElementById('action-grid').style.display    = 'grid';
         document.getElementById('verse-title').innerText = 'JINs Bible';
+        document.getElementById('com-header-verse').style.display = 'none';
+        document.getElementById('com-header-verse').textContent = '';
         // 헤더 버튼 복원
         document.getElementById('btn-com-back').style.display     = 'none';
         document.getElementById('btn-home').style.display         = 'inline-flex';
@@ -2804,6 +3139,586 @@ const SPECIAL_CATEGORIES = [
             document.getElementById('exercise-ui').style.display = 'block';
             document.getElementById('settings-bar').style.display = 'flex';
             document.getElementById('drop-zone').style.display = 'none';
+        }
+    }
+
+    // ── 멀티 본문 탭 렌더링 ───────────────────────────────────────────
+    function renderRefTabs() {
+        // 드래그 고스트 잔상 제거
+        const oldGhost = document.getElementById('com-panel-ghost');
+        if (oldGhost) oldGhost.remove();
+        // 드래그 중인 패널 상태 초기화
+        document.querySelectorAll('.com-ref-panel-wrap.panel-dragging').forEach(w => w.classList.remove('panel-dragging'));
+        document.querySelectorAll('.com-ref-panel-wrap.panel-drag-over-top, .com-ref-panel-wrap.panel-drag-over-bottom').forEach(w => {
+            w.classList.remove('panel-drag-over-top', 'panel-drag-over-bottom');
+        });
+
+        const tabBar   = document.getElementById('com-ref-tabs');
+        const panelBox = document.getElementById('com-ref-panels');
+        if (!tabBar || !panelBox) return;
+
+        tabBar.innerHTML = '';
+        panelBox.innerHTML = '';
+
+        if (bibleDataSets.length === 0) {
+            tabBar.innerHTML = `<button class="com-ref-tab-add" onclick="triggerBibleSlotLoad()" style="font-weight:600; color:#5a5750; gap:5px; display:inline-flex; align-items:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M6 1v7M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>본문 불러오기</button>`;
+            panelBox.innerHTML = `<div class="com-ref-panel no-bible">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요 · TXT · BDB · AAB</div>`;
+            return;
+        }
+
+        // 탭 생성
+        let dragSrcIdx = null;
+
+        bibleDataSets.forEach((slot, i) => {
+            const tab = document.createElement('button');
+            const isActive = refViewMode === 'tab' ? (i === activeRefTab) : false;
+            tab.className = 'com-ref-tab' + (isActive ? ' active' : '');
+            tab.id = `com-ref-tab-${i}`;
+            tab.draggable = true;
+            tab.dataset.idx = i;
+            tab.innerHTML = `<span>${slot.name}</span><button class="com-ref-tab-del" onclick="event.stopPropagation(); removeBibleSlot(${i})" title="이 본문 제거">✕</button>`;
+
+            // 클릭
+            tab.addEventListener('click', () => {
+                if (refViewMode === 'tab') {
+                    activeRefTab = i;
+                    tabBar.querySelectorAll('.com-ref-tab').forEach((t, ti) => t.classList.toggle('active', ti === i));
+                    panelBox.querySelectorAll('.com-ref-panel-wrap').forEach((w, wi) => w.style.display = wi === i ? '' : 'none');
+                } else {
+                    const w = document.getElementById(`com-ref-panel-wrap-${i}`);
+                    if (w) w.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            });
+
+            // 드래그 앤 드롭
+            tab.addEventListener('dragstart', (e) => {
+                dragSrcIdx = i;
+                tab.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            tab.addEventListener('dragend', () => {
+                tab.classList.remove('dragging');
+                tabBar.querySelectorAll('.com-ref-tab').forEach(t => t.classList.remove('drag-over'));
+                dragSrcIdx = null;
+            });
+            tab.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (dragSrcIdx !== null && dragSrcIdx !== i) {
+                    tabBar.querySelectorAll('.com-ref-tab').forEach(t => t.classList.remove('drag-over'));
+                    tab.classList.add('drag-over');
+                }
+            });
+            tab.addEventListener('dragleave', () => tab.classList.remove('drag-over'));
+            tab.addEventListener('drop', (e) => {
+                e.preventDefault();
+                tab.classList.remove('drag-over');
+                if (dragSrcIdx === null || dragSrcIdx === i) return;
+                // 배열 순서 변경
+                const moved = bibleDataSets.splice(dragSrcIdx, 1)[0];
+                bibleDataSets.splice(i, 0, moved);
+                // activeRefTab 추적
+                if (refViewMode === 'tab') {
+                    if (activeRefTab === dragSrcIdx) activeRefTab = i;
+                    else if (dragSrcIdx < activeRefTab && i >= activeRefTab) activeRefTab--;
+                    else if (dragSrcIdx > activeRefTab && i <= activeRefTab) activeRefTab++;
+                }
+                renderRefTabs();
+                updateRefPanels();
+            });
+
+            tabBar.appendChild(tab);
+        });
+
+        // + 추가 탭
+        if (bibleDataSets.length < MAX_BIBLE_SLOTS) {
+            const addBtn = document.createElement('button');
+            addBtn.className = 'com-ref-tab-add';
+            addBtn.textContent = '+ 본문 추가';
+            addBtn.title = `최대 ${MAX_BIBLE_SLOTS}개까지 추가 가능`;
+            addBtn.onclick = triggerBibleSlotLoad;
+            tabBar.appendChild(addBtn);
+        }
+
+        // 오른쪽 끝 — 모드 토글 버튼 그룹
+        const modeGroup = document.createElement('div');
+        modeGroup.className = 'com-ref-tab-mode-group';
+        modeGroup.title = '보기 방식 전환';
+
+        const btnStack = document.createElement('button');
+        btnStack.className = 'com-ref-mode-btn' + (refViewMode === 'stack' ? ' active' : '');
+        btnStack.title = '적층 (모두 보기)';
+        // 가로 선 세 개 아이콘
+        btnStack.innerHTML = `<svg width="14" height="12" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="14" height="3" rx="1" fill="currentColor"/><rect x="0" y="4.5" width="14" height="3" rx="1" fill="currentColor"/><rect x="0" y="9" width="14" height="3" rx="1" fill="currentColor"/></svg>`;
+        btnStack.addEventListener('click', () => setRefViewMode('stack'));
+
+        const btnTab = document.createElement('button');
+        btnTab.className = 'com-ref-mode-btn' + (refViewMode === 'tab' ? ' active' : '');
+        btnTab.title = '탭 (하나씩 보기)';
+        // 탭 아이콘
+        btnTab.innerHTML = `<svg width="14" height="12" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="6" height="4" rx="1" fill="currentColor" opacity="0.4"/><rect x="7" y="0" width="7" height="4" rx="1" fill="currentColor"/><rect x="0" y="5" width="14" height="7" rx="1" fill="currentColor"/></svg>`;
+        btnTab.addEventListener('click', () => setRefViewMode('tab'));
+
+        // 역본명 표시 토글 버튼 (첫 번째)
+        const labelsHidden = panelBox.classList.contains('hide-labels');
+        const btnLabel = document.createElement('button');
+        btnLabel.className = 'com-ref-mode-btn' + (labelsHidden ? '' : ' active');
+        btnLabel.title = '역본명 표시/숨기기';
+        btnLabel.innerHTML = `<svg width="13" height="11" viewBox="0 0 13 11" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="5" height="3" rx="1" fill="currentColor" opacity="0.5"/><rect x="6.5" y="0" width="6.5" height="3" rx="1" fill="currentColor"/><rect x="0" y="4" width="13" height="3" rx="1" fill="currentColor" opacity="0.3"/><rect x="0" y="8" width="13" height="3" rx="1" fill="currentColor" opacity="0.3"/></svg>`;
+        btnLabel.addEventListener('click', () => {
+            panelBox.classList.toggle('hide-labels');
+            btnLabel.classList.toggle('active', !panelBox.classList.contains('hide-labels'));
+        });
+        modeGroup.appendChild(btnLabel);
+
+        modeGroup.appendChild(btnStack);
+        modeGroup.appendChild(btnTab);
+        tabBar.appendChild(modeGroup);
+
+        // 패널 생성
+        bibleDataSets.forEach((slot, i) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'com-ref-panel-wrap';
+            wrap.id = `com-ref-panel-wrap-${i}`;
+            wrap.dataset.slot = i;
+            // 탭 모드면 활성 탭만 표시
+            if (refViewMode === 'tab' && i !== activeRefTab) wrap.style.display = 'none';
+
+            // 역본 이름 레이블
+            const label = document.createElement('span');
+            label.className = 'com-ref-label';
+            label.textContent = slot.name;
+
+            const panel = document.createElement('div');
+            panel.className = 'com-ref-panel';
+            panel.id = `com-ref-panel-${i}`;
+
+            const reloadBtn = document.createElement('button');
+            reloadBtn.className = 'com-ref-reload-btn';
+            reloadBtn.innerHTML = '↺ 다시 불러오기';
+            reloadBtn.title = `${slot.name} 파일 다시 불러오기`;
+            reloadBtn.addEventListener('click', () => reloadBibleSlot(i));
+
+            wrap.appendChild(label);
+            wrap.appendChild(panel);
+            wrap.appendChild(reloadBtn);
+
+            // ── 패널 long-press → 드래그 순서 변경 (터치 + 마우스) ──
+            addPanelDrag(wrap, i);
+
+            panelBox.appendChild(wrap);
+        });
+
+        // 저장된 높이 복원
+        applyRefPanelH(refPanelH);
+    }
+
+    // 패널 드래그 핸들러
+    function addPanelDrag(wrap, idx) {
+        const LONG_MS = 400;
+        let pressTimer = null;
+        let dragging = false;
+        let ghost = null;
+        let panelDragSrc = null;
+
+        function getWrapAt(y) {
+            const box = document.getElementById('com-ref-panels');
+            if (!box) return null;
+            const wraps = [...box.querySelectorAll('.com-ref-panel-wrap')];
+            return wraps.find(w => {
+                const r = w.getBoundingClientRect();
+                return y >= r.top && y <= r.bottom;
+            }) || null;
+        }
+
+        function clearHints() {
+            document.querySelectorAll('.com-ref-panel-wrap').forEach(w => {
+                w.classList.remove('panel-drag-over-top', 'panel-drag-over-bottom');
+            });
+        }
+
+        function startDrag(srcWrap) {
+            dragging = true;
+            panelDragSrc = srcWrap;
+            srcWrap.classList.add('panel-dragging');
+            // 고스트 레이블
+            ghost = document.createElement('div');
+            ghost.id = 'com-panel-ghost';
+            const lbl = srcWrap.querySelector('.com-ref-label');
+            ghost.textContent = (lbl ? lbl.textContent : '') + ' ↕';
+            document.body.appendChild(ghost);
+        }
+
+        function moveGhost(x, y) {
+            if (!ghost) return;
+            ghost.style.left = x + 'px';
+            ghost.style.top  = y + 'px';
+        }
+
+        function endDrag(targetWrap) {
+            dragging = false;
+            if (ghost) { ghost.remove(); ghost = null; }
+            clearHints();
+            if (panelDragSrc) panelDragSrc.classList.remove('panel-dragging');
+
+            if (targetWrap && targetWrap !== panelDragSrc) {
+                const srcI = parseInt(panelDragSrc.dataset.slot);
+                const dstI = parseInt(targetWrap.dataset.slot);
+                if (!isNaN(srcI) && !isNaN(dstI)) {
+                    const moved = bibleDataSets.splice(srcI, 1)[0];
+                    bibleDataSets.splice(dstI, 0, moved);
+                    if (refViewMode === 'tab') {
+                        if (activeRefTab === srcI) activeRefTab = dstI;
+                        else if (srcI < activeRefTab && dstI >= activeRefTab) activeRefTab--;
+                        else if (srcI > activeRefTab && dstI <= activeRefTab) activeRefTab++;
+                    }
+                    renderRefTabs();
+                    updateRefPanels();
+                }
+            }
+            panelDragSrc = null;
+        }
+
+        // ── 터치 ──
+        wrap.addEventListener('touchstart', (e) => {
+            pressTimer = setTimeout(() => {
+                if (e.touches.length !== 1) return;
+                navigator.vibrate && navigator.vibrate(30);
+                startDrag(wrap);
+            }, LONG_MS);
+        }, { passive: true });
+
+        wrap.addEventListener('touchmove', (e) => {
+            if (!dragging) { clearTimeout(pressTimer); return; }
+            e.preventDefault();
+            const t = e.touches[0];
+            moveGhost(t.clientX, t.clientY);
+            clearHints();
+            const over = getWrapAt(t.clientY);
+            if (over && over !== panelDragSrc) {
+                const r = over.getBoundingClientRect();
+                over.classList.add(t.clientY < r.top + r.height / 2 ? 'panel-drag-over-top' : 'panel-drag-over-bottom');
+            }
+        }, { passive: false });
+
+        wrap.addEventListener('touchend', (e) => {
+            clearTimeout(pressTimer);
+            if (!dragging) return;
+            const t = e.changedTouches[0];
+            endDrag(getWrapAt(t.clientY));
+        }, { passive: true });
+
+        wrap.addEventListener('touchcancel', () => {
+            clearTimeout(pressTimer);
+            if (dragging) endDrag(null);
+        }, { passive: true });
+
+        // ── 마우스 (데스크탑) ──
+        wrap.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            pressTimer = setTimeout(() => {
+                startDrag(wrap);
+                document.body.style.userSelect = 'none';
+            }, LONG_MS);
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!dragging || panelDragSrc !== wrap) return;
+            moveGhost(e.clientX, e.clientY);
+            clearHints();
+            const over = getWrapAt(e.clientY);
+            if (over && over !== panelDragSrc) {
+                const r = over.getBoundingClientRect();
+                over.classList.add(e.clientY < r.top + r.height / 2 ? 'panel-drag-over-top' : 'panel-drag-over-bottom');
+            }
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            clearTimeout(pressTimer);
+            document.body.style.userSelect = '';
+            if (!dragging || panelDragSrc !== wrap) return;
+            endDrag(getWrapAt(e.clientY));
+        });
+
+        wrap.addEventListener('mouseleave', () => {
+            if (!dragging) clearTimeout(pressTimer);
+        });
+    }
+
+    // 보기 모드 전환
+    function setRefViewMode(mode) {
+        refViewMode = mode;
+        renderRefTabs();
+        updateRefPanels();
+    }
+
+    // 패널 높이 적용
+    function applyRefPanelH(h) {
+        const panelBox = document.getElementById('com-ref-panels');
+        if (!panelBox) return;
+        if (h === null) {
+            panelBox.style.height = '';
+            panelBox.classList.remove('is-resized');
+        } else {
+            panelBox.style.height = h + 'px';
+            panelBox.classList.add('is-resized');
+        }
+        refPanelH = h;
+    }
+
+    // 모든 슬롯 패널 텍스트 업데이트
+    // 히브리어 유니코드 범위 감지
+    function isHebrew(text) {
+        return /[\u0590-\u05FF\uFB1D-\uFB4F]/.test(text);
+    }
+
+    function updateRefPanels() {
+        bibleDataSets.forEach((slot, i) => {
+            const panel = document.getElementById(`com-ref-panel-${i}`);
+            if (!panel) return;
+            const d = slot.data.find(d => d.book === comBook && d.ch === comChapter && d.vs === comVerse);
+            const text = d ? (d.text || '') : '이 절의 본문이 없습니다.';
+            panel.textContent = text;
+            // 히브리어 자동 RTL
+            if (isHebrew(text)) {
+                panel.setAttribute('dir', 'rtl');
+            } else {
+                panel.removeAttribute('dir');
+            }
+            const wrap = document.getElementById(`com-ref-panel-wrap-${i}`);
+            if (wrap) wrap.style.display = (refViewMode === 'tab' && i !== activeRefTab) ? 'none' : '';
+        });
+    }
+
+    // 파일 선택 트리거 (hidden input)
+    function triggerBibleSlotLoad() {
+        let input = document.getElementById('com-bible-slot-input');
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'file'; input.id = 'com-bible-slot-input';
+            input.accept = '.txt,.bdb,.aab'; input.style.display = 'none';
+            input.addEventListener('change', onBibleSlotFileSelected);
+            document.body.appendChild(input);
+        }
+        input.value = ''; // 같은 파일 재선택 허용
+        input.click();
+    }
+
+    // ── 본문 영역 드래그앤드롭 ────────────────────────────────────────
+    // ── 성경 파일 파싱 공통 함수 ─────────────────────────────────────
+    function parseBibleFile(file, onParsed) {
+        const ext = file.name.toLowerCase().split('.').pop();
+        const slotName = file.name.replace(/\.[^.]+$/, '');
+        if (ext === 'bdb' || ext === 'aab') {
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                try {
+                    const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+                    const rawBuf = ev.target.result;
+                    const sqliteBuf = ext === 'aab' ? rawBuf.slice(8) : rawBuf;
+                    const db = new SQL.Database(new Uint8Array(sqliteBuf));
+                    const res = db.exec("SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse");
+                    db.close();
+                    if (!res.length || !res[0].values.length) { alert(`${slotName}: 성경 데이터를 찾지 못했습니다.`); return; }
+                    const data = res[0].values.map(([book, chapter, verse, btext]) => {
+                        const bookAbbr = BOOK_NUM[book] || ''; if (!bookAbbr) return null;
+                        return { title: `${bookAbbr} ${chapter}:${verse}`, text: btext ? btext.trim() : '', book: bookAbbr, ch: parseInt(chapter), vs: parseInt(verse) };
+                    }).filter(d => d && d.book);
+                    onParsed(slotName, data);
+                } catch (err) { alert(`${slotName} 오류: ` + err.message); }
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const buffer = ev.target.result;
+                const encoding = detectEncoding(buffer);
+                const text = new TextDecoder(encoding).decode(buffer);
+                const data = text.split(/\r?\n/).filter(l => l.includes('|')).map(l => {
+                    const pipeIdx = l.indexOf('|');
+                    const k = l.slice(0, pipeIdx), t = l.slice(pipeIdx + 1);
+                    const m = k.match(/^(.+?)\s+(\d+):(\d+)/);
+                    return { title: k.trim().replace(/\s+/g, ' '), text: t ? t.trim() : '', book: (ABBR_ALIAS[m?.[1].trim()] || m?.[1].trim()), ch: parseInt(m?.[2]), vs: parseInt(m?.[3]) };
+                }).filter(d => d.book);
+                onParsed(slotName, data);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+    }
+
+    function initRefDropZone() {
+        const wrap = document.getElementById('com-ref-wrap');
+        if (!wrap || wrap._dropReady) return;
+        wrap._dropReady = true;
+
+        wrap.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            wrap.classList.add('dragover');
+        });
+        wrap.addEventListener('dragleave', (e) => {
+            if (!wrap.contains(e.relatedTarget)) wrap.classList.remove('dragover');
+        });
+        wrap.addEventListener('drop', (e) => {
+            e.preventDefault();
+            wrap.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (!files || !files.length) return;
+
+            const allowed = ['.txt', '.bdb', '.aab'];
+            const validFiles = [...files].filter(f => allowed.some(ext => f.name.toLowerCase().endsWith(ext)));
+            if (!validFiles.length) return alert('TXT · BDB · AAB 파일만 지원합니다.');
+
+            const remaining = MAX_BIBLE_SLOTS - bibleDataSets.length;
+            if (remaining <= 0) return alert(`최대 ${MAX_BIBLE_SLOTS}개까지 추가할 수 있습니다.`);
+
+            const toLoad = validFiles.slice(0, remaining);
+            if (validFiles.length > remaining) alert(`슬롯이 ${remaining}개 남아 ${toLoad.length}개만 불러옵니다.`);
+
+            let loaded = 0;
+            toLoad.forEach(file => {
+                parseBibleFile(file, (slotName, data) => {
+                    if (!data.length) return;
+                    bibleDataSets.push({ name: slotName, data });
+                    if (bibleDataSets.length === 1) bibleData = data;
+                    loaded++;
+                    // 모두 로드된 후 한 번만 UI 갱신
+                    if (loaded === toLoad.length) {
+                        activeRefTab = bibleDataSets.length - 1;
+                        buildComNav();
+                        renderRefTabs();
+                        comLoadCurrent();
+                    }
+                });
+            });
+        });
+    }
+    document.addEventListener('DOMContentLoaded', initRefDropZone);
+
+    function removeBibleSlot(idx) {
+        bibleDataSets.splice(idx, 1);
+        activeRefTab = Math.min(activeRefTab, Math.max(0, bibleDataSets.length - 1));
+        bibleData = bibleDataSets[0]?.data || [];
+        buildComNav();
+        renderRefTabs();
+        comLoadCurrent();
+    }
+
+    function reloadBibleSlot(idx) {
+        let input = document.getElementById('com-bible-slot-reload-input');
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'file'; input.id = 'com-bible-slot-reload-input';
+            input.accept = '.txt,.bdb,.aab'; input.style.display = 'none';
+        }
+        input.value = '';
+        input._reloadIdx = idx;
+        input.onchange = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const slotName = file.name.replace(/\.[^.]+$/, '');
+            const reloadIdx = input._reloadIdx;
+            const onParsed = (data) => {
+                if (!data.length) { alert('본문 데이터를 찾을 수 없습니다.'); return; }
+                bibleDataSets[reloadIdx] = { name: slotName, data };
+                if (reloadIdx === 0) bibleData = data;
+                buildComNav();
+                renderRefTabs();
+                comLoadCurrent();
+            };
+            const ext2 = file.name.toLowerCase().split('.').pop();
+            if (ext2 === 'bdb' || ext2 === 'aab') {
+                const reader = new FileReader();
+                reader.onload = async (ev) => {
+                    try {
+                        const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+                        const rawBuf = ev.target.result;
+                        const sqliteBuf = ext2 === 'aab' ? rawBuf.slice(8) : rawBuf;
+                        const db = new SQL.Database(new Uint8Array(sqliteBuf));
+                        const res = db.exec("SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse");
+                        db.close();
+                        if (!res.length || !res[0].values.length) { alert('성경 데이터를 찾지 못했습니다.'); return; }
+                        const data = res[0].values.map(([book, chapter, verse, btext]) => {
+                            const bookAbbr = BOOK_NUM[book] || ''; if (!bookAbbr) return null;
+                            return { title: `${bookAbbr} ${chapter}:${verse}`, text: btext ? btext.trim() : '', book: bookAbbr, ch: parseInt(chapter), vs: parseInt(verse) };
+                        }).filter(d => d && d.book);
+                        onParsed(data);
+                    } catch (err) { alert(ext2.toUpperCase() + ' 파일 오류: ' + err.message); }
+                };
+                reader.readAsArrayBuffer(file);
+            } else {
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const buffer = ev.target.result;
+                    const encoding = detectEncoding(buffer);
+                    const text = new TextDecoder(encoding).decode(buffer);
+                    const data = text.split(/\r?\n/).filter(l => l.includes('|')).map(l => {
+                        const pipeIdx = l.indexOf('|');
+                        const k = l.slice(0, pipeIdx), t = l.slice(pipeIdx + 1);
+                        const m = k.match(/^(.+?)\s+(\d+):(\d+)/);
+                        return { title: k.trim().replace(/\s+/g, ' '), text: t ? t.trim() : '', book: (ABBR_ALIAS[m?.[1].trim()] || m?.[1].trim()), ch: parseInt(m?.[2]), vs: parseInt(m?.[3]) };
+                    }).filter(d => d.book);
+                    onParsed(data);
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        };
+        input.click();
+    }
+
+    function onBibleSlotFileSelected(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const slotName = file.name.replace(/\.[^.]+$/, ''); // 확장자 제거
+
+        const onParsed = (data) => {
+            if (!data.length) { alert('본문 데이터를 찾을 수 없습니다.'); return; }
+            bibleDataSets.push({ name: slotName, data });
+            activeRefTab = bibleDataSets.length - 1;
+            // 슬롯 0이면 기존 bibleData도 동기화 (네비 등 호환)
+            if (activeRefTab === 0) bibleData = data;
+            buildComNav();
+            renderRefTabs();
+            comLoadCurrent();
+        };
+
+        const ext = file.name.toLowerCase().split('.').pop();
+        if (ext === 'bdb' || ext === 'aab') {
+            const reader = new FileReader();
+            reader.onload = async (ev) => {
+                try {
+                    const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+                    // AAB: 앞 8바이트 헤더 건너뜀, BDB: 그대로
+                    const rawBuf = ev.target.result;
+                    const sqliteBuf = ext === 'aab' ? rawBuf.slice(8) : rawBuf;
+                    const db  = new SQL.Database(new Uint8Array(sqliteBuf));
+                    const res = db.exec("SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse");
+                    db.close();
+                    if (!res.length || !res[0].values.length) { alert('성경 데이터를 찾지 못했습니다.'); return; }
+                    const data = res[0].values.map(([book, chapter, verse, btext]) => {
+                        const bookAbbr = BOOK_NUM[book] || ''; if (!bookAbbr) return null;
+                        return { title: `${bookAbbr} ${chapter}:${verse}`, text: btext ? btext.trim() : '', book: bookAbbr, ch: parseInt(chapter), vs: parseInt(verse) };
+                    }).filter(d => d && d.book);
+                    onParsed(data);
+                } catch (err) { alert((ext.toUpperCase()) + ' 파일 오류: ' + err.message); }
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const buffer = ev.target.result;
+                const encoding = detectEncoding(buffer);
+                const text = new TextDecoder(encoding).decode(buffer);
+                const data = text.split(/\r?\n/).filter(l => l.includes('|')).map(l => {
+                    const pipeIdx = l.indexOf('|');
+                    const k = l.slice(0, pipeIdx), t = l.slice(pipeIdx + 1);
+                    const m = k.match(/^(.+?)\s+(\d+):(\d+)/);
+                    return { title: k.trim().replace(/\s+/g, ' '), text: t ? t.trim() : '', book: (ABBR_ALIAS[m?.[1].trim()] || m?.[1].trim()), ch: parseInt(m?.[2]), vs: parseInt(m?.[3]) };
+                }).filter(d => d.book);
+                onParsed(data);
+            };
+            reader.readAsArrayBuffer(file);
         }
     }
 
@@ -2821,7 +3736,7 @@ const SPECIAL_CATEGORIES = [
             nb.onchange = () => {
                 comBook = nb.value;
                 const chs = [...new Set(bibleData.filter(d => d.book === comBook).map(d => d.ch))].sort((a,b) => a-b);
-                nc.innerHTML = '<option value="">장 선택</option>' + chs.map(c => `<option value="${c}">${c}장</option>`).join('');
+                nc.innerHTML = `<option value="">${chSelectPlaceholder(comBook)}</option>` + chOptions(comBook, chs);
                 nv.innerHTML = '<option value="">절 선택</option>';
             };
             nc.onchange = () => {
@@ -2836,8 +3751,7 @@ const SPECIAL_CATEGORIES = [
             nb.onchange = () => {
                 comBook = nb.value;
                 const maxCh = MAX_CHAPTERS[comBook] || 1;
-                nc.innerHTML = '<option value="">장 선택</option>' +
-                    Array.from({length: maxCh}, (_, i) => `<option value="${i+1}">${i+1}장</option>`).join('');
+                nc.innerHTML = `<option value="">${chSelectPlaceholder(comBook)}</option>` + chOptionsRange(comBook, maxCh);
                 nv.innerHTML = '<option value="">절 선택</option>';
             };
             nc.onchange = () => {
@@ -2886,22 +3800,30 @@ const SPECIAL_CATEGORIES = [
 
     // ── 현재 위치 주석 로드 ───────────────────────────────────────────
     function comLoadCurrent() {
-        // 참조 본문 표시
-        const refEl = document.getElementById('com-ref-text');
-        if (bibleData.length) {
-            const d = bibleData[comBibleIndex];
+        const verseSubtitle = document.getElementById('com-header-verse');
+
+        if (bibleDataSets.length > 0) {
+            const slot0 = bibleDataSets[0].data;
+            const d = slot0.find(d => d.book === comBook && d.ch === comChapter && d.vs === comVerse)
+                   || slot0[comBibleIndex] || slot0[0];
             if (d) {
                 comBook = d.book; comChapter = d.ch; comVerse = d.vs;
-                refEl.className = '';
-                refEl.textContent = d.text || '';
-                document.getElementById('verse-title').innerText = d.title;
+                if (verseSubtitle) verseSubtitle.textContent = d.title;
                 syncComNav(d.book, d.ch, d.vs);
             }
+            updateRefPanels();
         } else {
-            refEl.className = 'no-bible';
-            refEl.textContent = '성경 파일을 불러오면 본문이 여기에 표시됩니다.';
-            document.getElementById('verse-title').innerText = comBook ? `${comBook} ${comChapter}:${comVerse}` : '나만의 주석 작성';
+            renderRefTabs();
+            if (verseSubtitle) verseSubtitle.textContent = comBook ? `${comBook} ${comChapter}:${comVerse}` : '';
         }
+
+        // 장/편 버튼 레이블 갱신
+        const chBtn = document.getElementById('com-type-chapter');
+        if (chBtn) {
+            const u = chUnit(comBook);
+            chBtn.innerHTML = `<span class="com-type-key">${u}</span> 개요`;
+        }
+
         // 저장된 주석 내용 불러오기
         const key = comItemKey(comBook, comChapter, comVerse, currentComType);
         const existing = commentaryWritingData.find(it => it._key === key);
@@ -2923,16 +3845,23 @@ const SPECIAL_CATEGORIES = [
 
     // ── 주석 유형 전환 ────────────────────────────────────────────────
     function setComType(type) {
-        comSave(false); // 현재 내용 저장
+        comSave(false);
         currentComType = type;
         ['verse','chapter','intro'].forEach(t => {
             document.getElementById('com-type-' + t).classList.toggle('active', t === type);
         });
+        // 장/편 버튼 레이블 갱신
+        const chBtn = document.getElementById('com-type-chapter');
+        if (chBtn) {
+            const u = chUnit(comBook);
+            chBtn.innerHTML = `<span class="com-type-key">${u}</span> 개${u === '편' ? '요' : '요'}`;
+        }
         // placeholder 갱신
         const ed = document.getElementById('com-content');
+        const u = chUnit(comBook);
         const placeholders = {
             verse:   '이 구절에 대한 주석을 작성하세요.\n\n원어 분석, 신학적 의미, 적용 등을 자유롭게 기술합니다.',
-            chapter: '이 장 전체의 흐름과 구조, 핵심 주제를 요약합니다.',
+            chapter: `이 ${u} 전체의 흐름과 구조, 핵심 주제를 요약합니다.`,
             intro:   '이 책의 저자, 기록 연대, 배경, 주요 주제 등 개론을 작성합니다.'
         };
         ed.dataset.placeholder = placeholders[type];
@@ -2950,7 +3879,7 @@ const SPECIAL_CATEGORIES = [
         const bookName = BOOK_NAMES[comBook] || comBook;
         const short = comBook;
         if (currentComType === 'intro')   return `${bookName} 개론`;
-        if (currentComType === 'chapter') return `${short} ${comChapter}장 개요`;
+        if (currentComType === 'chapter') return `${short} ${comChapter}${chUnit(short)} 개요`;
         return `${short} ${comChapter}:${comVerse}`;
     }
 
@@ -3011,10 +3940,11 @@ const SPECIAL_CATEGORIES = [
     // ── 이전/다음 절 이동 (절 주석 모드 기준) ────────────────────────
     function comNext() {
         comSave(false);
-        if (bibleData.length) {
-            if (comBibleIndex < bibleData.length - 1) {
+        const slot0 = bibleDataSets[0]?.data || [];
+        if (slot0.length) {
+            if (comBibleIndex < slot0.length - 1) {
                 comBibleIndex++;
-                const d = bibleData[comBibleIndex];
+                const d = slot0[comBibleIndex];
                 comBook = d.book; comChapter = d.ch; comVerse = d.vs;
             }
         } else {
@@ -3031,10 +3961,11 @@ const SPECIAL_CATEGORIES = [
 
     function comPrev() {
         comSave(false);
-        if (bibleData.length) {
+        const slot0 = bibleDataSets[0]?.data || [];
+        if (slot0.length) {
             if (comBibleIndex > 0) {
                 comBibleIndex--;
-                const d = bibleData[comBibleIndex];
+                const d = slot0[comBibleIndex];
                 comBook = d.book; comChapter = d.ch; comVerse = d.vs;
             }
         } else {
@@ -3347,5 +4278,22 @@ const SPECIAL_CATEGORIES = [
         });
     })();
     </script>
+    <!-- 주석 특수문자 팝업 (body 레벨 — overflow 클리핑 방지) -->
+    <div class="special-picker-pop" id="com-special-picker-pop" style="display:none; position:fixed; z-index:99999;">
+        <div class="sp-tabs" id="com-sp-tabs"></div>
+        <div class="sp-body">
+            <div style="font-size:0.68rem;color:#bbb;margin-bottom:8px;">더블클릭으로 삽입</div>
+            <div id="com-special-preset-grid" class="special-grid"></div>
+        </div>
+        <div class="sp-custom-area">
+            <div style="font-size:0.72rem;color:#888;margin-bottom:6px;">▶ 나만의 특수문자 추가</div>
+            <div class="tag-input-row">
+                <input class="tag-input-field" id="com-special-custom-input" placeholder="문자 입력 후 Enter..." maxlength="5"
+                    onkeydown="if(event.key==='Enter'){comAddCustomSpecial();event.preventDefault();}">
+                <button class="tag-input-btn" onclick="comAddCustomSpecial()">추가</button>
+            </div>
+            <div id="com-special-custom-grid" class="special-grid" style="margin-top:8px;"></div>
+        </div>
+    </div>
 </body>
 </html>
