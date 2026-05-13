@@ -1139,7 +1139,7 @@
 
         <!-- 네비게이션 + 주석 유형 선택 (너비 통일) -->
         <div style="display:flex; flex-direction:column; align-items:flex-start; gap:0;">
-            <div class="nav-bar visible" id="com-nav-bar" style="margin-bottom:6px;">
+            <div class="nav-bar visible" id="com-nav-bar" style="margin-bottom:6px; width:100%;">
                 <select class="nav-select" id="com-nav-book"><option value="">책 선택</option></select>
                 <select class="nav-select" id="com-nav-chapter"><option value="">장 선택</option></select>
                 <select class="nav-select" id="com-nav-verse"><option value="">절 선택</option></select>
@@ -1564,7 +1564,7 @@ const SPECIAL_CATEGORIES = [
             const chars = SPECIAL_CATEGORIES[specialCatIdx].chars;
             preset.innerHTML = chars.map(ch => {
                 const safe = ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-                return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" ondblclick="event.stopPropagation();insertSpecialChar('${safe}');" ontouchend="event.stopPropagation();handleTouchSpecial(this,'${safe}',event);" title="더블클릭으로 삽입: ${ch}">${ch}</button>`;
+                return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" onclick="insertSpecialChar('${safe}');" ontouchend="event.stopPropagation();handleTouchSpecial(this,'${safe}',event);" title="${ch}">${ch}</button>`;
             }).join('');
         }
         const custom = document.getElementById('special-custom-grid');
@@ -1572,7 +1572,7 @@ const SPECIAL_CATEGORIES = [
         custom.innerHTML = customSpecials.length
             ? customSpecials.map((ch, i) => {
                 const safe = ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-                return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" ondblclick="event.stopPropagation();insertSpecialChar('${safe}');" ontouchend="event.stopPropagation();handleTouchSpecial(this,'${safe}',event);" title="더블클릭으로 삽입: ${ch}">
+                return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" onclick="insertSpecialChar('${safe}');" ontouchend="event.stopPropagation();handleTouchSpecial(this,'${safe}',event);" title="${ch}">
                     ${ch}<span class="del-x" onmousedown="event.stopPropagation();removeCustomSpecial(${i});">×</span>
                 </button>`;
               }).join('')
@@ -1589,7 +1589,7 @@ const SPECIAL_CATEGORIES = [
     function insertSpecialChar(ch) {
         const input = getActiveEditor();
         if (!input) return;
-        input.focus();
+        // focus 없이 커서 위치에 삽입 (키보드 안 올라오게)
         const sel = window.getSelection();
         if (sel && sel.rangeCount) {
             const range = sel.getRangeAt(0);
@@ -1601,26 +1601,15 @@ const SPECIAL_CATEGORIES = [
         } else {
             document.execCommand('insertText', false, ch);
         }
-        // 삽입 후 팝업 닫지 않음 (더블클릭 방식이므로 유지)
     }
 
-    // 일반 모드 터치 더블탭 처리
-    const _touchTapMap = new WeakMap();
+    // 한 번 터치로 입력 (키보드 올라오지 않게 e.preventDefault 유지)
     function handleTouchSpecial(btn, ch, e) {
         e.preventDefault();
-        const now = Date.now();
-        const last = _touchTapMap.get(btn) || 0;
-        if (now - last < 400) {
-            _touchTapMap.set(btn, 0);
-            insertSpecialChar(ch);
-            btn.style.background = '#c8ead8';
-            setTimeout(() => { btn.style.background = ''; }, 200);
-        } else {
-            _touchTapMap.set(btn, now);
-            btn.style.borderColor = 'var(--accent)';
-            btn.style.background = '#f2f8f5';
-            setTimeout(() => { btn.style.borderColor = ''; btn.style.background = ''; }, 350);
-        }
+        e.stopPropagation();
+        insertSpecialChar(ch);
+        btn.style.background = '#c8ead8';
+        setTimeout(() => { btn.style.background = ''; }, 200);
     }
 
     function addCustomSpecial() {
@@ -3401,12 +3390,12 @@ const SPECIAL_CATEGORIES = [
         gridEl.innerHTML = cat.chars.map(ch => {
             const safe = ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
             if (ch.length > 1 && /^[\u0000-\u007F]*$/.test(ch))
-                return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" ondblclick="event.stopPropagation();comInsertSpecial('${safe}');" ontouchend="event.stopPropagation();comHandleTouchSpecial(this,'${safe}',event);" title="더블클릭으로 삽입: ${ch}" style="font-size:0.65rem;min-width:44px;">${ch}</button>`;
-            return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" ondblclick="event.stopPropagation();comInsertSpecial('${safe}');" ontouchend="event.stopPropagation();comHandleTouchSpecial(this,'${safe}',event);" title="더블클릭으로 삽입: ${ch}">${ch}</button>`;
+                return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" onclick="comInsertSpecial('${safe}');" ontouchend="event.stopPropagation();comHandleTouchSpecial(this,'${safe}',event);" title="${ch}" style="font-size:0.65rem;min-width:44px;">${ch}</button>`;
+            return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" onclick="comInsertSpecial('${safe}');" ontouchend="event.stopPropagation();comHandleTouchSpecial(this,'${safe}',event);" title="${ch}">${ch}</button>`;
         }).join('');
         if (custEl) {
             custEl.innerHTML = customSpecials.map((ch, i) =>
-                `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" ondblclick="event.stopPropagation();comInsertSpecial('${ch}');" ontouchend="event.stopPropagation();comHandleTouchSpecial(this,'${ch}',event);" title="더블클릭으로 삽입: ${ch}">${ch}</button>
+                `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" onclick="comInsertSpecial('${ch}');" ontouchend="event.stopPropagation();comHandleTouchSpecial(this,'${ch}',event);" title="${ch}">${ch}</button>
                  <button onmousedown="event.preventDefault();" onclick="removeCustomSpecial(${i})" style="font-size:0.6rem;color:#ccc;border:none;background:none;cursor:pointer;padding:1px 3px;">✕</button>`
             ).join('');
         }
@@ -3415,32 +3404,20 @@ const SPECIAL_CATEGORIES = [
     function comInsertSpecial(ch) {
         const ed = document.getElementById('com-content');
         if (!ed) return;
-        ed.focus();
+        // 저장된 커서 위치 복원 후 삽입 (focus 없이 — 키보드 안 올라오게)
         if (comSavedSel) { const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(comSavedSel); }
         document.execCommand('insertText', false, ch);
         const s = window.getSelection();
         if (s?.rangeCount) comSavedSel = s.getRangeAt(0).cloneRange();
     }
 
-    // 터치 더블탭 처리 (모바일에서 더블클릭이 미발생하는 경우 대비)
-    const _comTouchTapMap = new WeakMap();
+    // 한 번 터치로 입력 (키보드 올라오지 않게 e.preventDefault 유지)
     function comHandleTouchSpecial(btn, ch, e) {
         e.preventDefault();
-        const now = Date.now();
-        const last = _comTouchTapMap.get(btn) || 0;
-        if (now - last < 400) {
-            // 더블탭 → 삽입
-            _comTouchTapMap.set(btn, 0);
-            comInsertSpecial(ch);
-            btn.style.background = '#c8ead8';
-            setTimeout(() => { btn.style.background = ''; }, 200);
-        } else {
-            // 첫 탭 → 기록
-            _comTouchTapMap.set(btn, now);
-            btn.style.borderColor = 'var(--accent)';
-            btn.style.background = '#f2f8f5';
-            setTimeout(() => { btn.style.borderColor = ''; btn.style.background = ''; }, 350);
-        }
+        e.stopPropagation();
+        comInsertSpecial(ch);
+        btn.style.background = '#c8ead8';
+        setTimeout(() => { btn.style.background = ''; }, 200);
     }
 
     function comAddCustomSpecial() {
