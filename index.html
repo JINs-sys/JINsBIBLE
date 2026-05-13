@@ -757,6 +757,35 @@
             /* ── 진행률 요약 ── */
             .progress-chip { font-size: 0.8rem; }
             .progress-expand-btn { font-size: 0.78rem; }
+
+            /* ── 주석 모드 — 내보내기 버튼 높이 ── */
+            .com-bar-right .btn-apply {
+                min-height: unset;
+                height: 32px;
+            }
+
+            /* ── 주석 모드 — 네비바 (책/장/절/이동) 크기 축소 ── */
+            #com-nav-bar.nav-bar .nav-select {
+                height: 36px;
+                font-size: 0.84rem;
+            }
+            #com-nav-bar.nav-bar .btn-nav {
+                height: 36px;
+                font-size: 0.84rem;
+                padding: 0 12px;
+            }
+
+            /* ── 주석 모드 — 탭+제목 행 가로 스크롤 ── */
+            #com-tab-row {
+                overflow-x: auto;
+                overflow-y: hidden;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            #com-tab-row::-webkit-scrollbar { display: none; }
+            #com-tab-row .com-type-bar { flex-shrink: 0; }
+            #com-tab-row .com-refer-inline { flex-shrink: 0; min-width: 160px; }
         }
     </style>
 </head>
@@ -1066,7 +1095,7 @@
             </div>
 
             <!-- 주석 유형 탭 + 제목 입력 (가로 배치) -->
-            <div style="display:flex; align-items:stretch; gap:8px; margin-bottom:12px; width:100%;">
+            <div id="com-tab-row" style="display:flex; align-items:stretch; gap:8px; margin-bottom:12px; width:100%;">
                 <!-- 탭 3개: 너비 = 이동 버튼 끝까지 (JS로 동기화) -->
                 <div class="com-type-bar" id="com-type-bar" style="margin-bottom:0; flex-shrink:0;">
                     <button class="com-type-btn"         id="com-type-intro"   onclick="setComType('intro')"><span class="com-type-key">책</span> 개론</button>
@@ -1189,7 +1218,7 @@
     </div>
 
     <div style="text-align:right; font-size:0.72rem; color:#ccc; margin-top:18px; padding-top:10px; border-top:1px solid var(--rule); position:relative; z-index:10000;">
-        <span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.5.1</span>
+        <span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.2.0</span>
     </div>
 
     <!-- 이스터에그 오버레이 -->
