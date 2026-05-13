@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         :root {
             --ink: #1a1815; --ink-soft: #4a4740; --paper: #f6f2e9; --paper-white: #ffffff;
@@ -175,13 +176,13 @@
         .c-swatch:hover { transform:scale(1.2); }
         .c-swatch.sel { border-color:var(--ink); }
 
-        .special-picker-pop { position:absolute; bottom:40px; left:0; background:#fff; border:1px solid var(--rule); border-radius:8px; padding:0; width:535px; z-index:200; box-shadow:0 4px 20px rgba(0,0,0,0.13); overflow:visible; }
-        .sp-tabs { display:flex; flex-wrap:wrap; gap:0; border-bottom:1px solid var(--rule); padding:8px 10px 0; background:#faf9f6; border-radius:8px 8px 0 0; }
+        .special-picker-pop { position:absolute; bottom:40px; left:0; background:rgba(255,255,255,0.82); backdrop-filter:blur(14px) saturate(1.4); -webkit-backdrop-filter:blur(14px) saturate(1.4); border:1px solid rgba(217,210,193,0.7); border-radius:8px; padding:0; width:535px; z-index:2147483647; box-shadow:0 8px 32px rgba(0,0,0,0.16); overflow:visible; }
+        .sp-tabs { display:flex; flex-wrap:wrap; gap:0; border-bottom:1px solid rgba(217,210,193,0.6); padding:8px 10px 0; background:rgba(250,249,246,0.75); border-radius:8px 8px 0 0; }
         .sp-tab { font-size:0.72rem; padding:4px 0; border:1px solid transparent; border-radius:4px 4px 0 0; cursor:pointer; color:var(--ink-soft); background:none; font-family:var(--font-main); margin-bottom:-1px; white-space:nowrap; flex:1; text-align:center; }
-        .sp-tab.active { background:#fff; border-color:var(--rule); border-bottom-color:#fff; color:var(--accent); font-weight:600; }
+        .sp-tab.active { background:rgba(255,255,255,0.9); border-color:rgba(217,210,193,0.7); border-bottom-color:rgba(255,255,255,0.9); color:var(--accent); font-weight:600; }
         .sp-body { padding:12px; height:350px; overflow-y:auto; }
         .sp-body::-webkit-scrollbar { width:4px; } .sp-body::-webkit-scrollbar-thumb { background:#ddd; border-radius:2px; }
-        .sp-custom-area { padding:10px 12px; border-top:1px solid var(--rule); background:#faf9f6; border-radius:0 0 8px 8px; }
+        .sp-custom-area { padding:10px 12px; border-top:1px solid rgba(217,210,193,0.6); background:rgba(250,249,246,0.75); border-radius:0 0 8px 8px; }
         .special-grid { display:flex; flex-wrap:wrap; gap:4px; }
         .special-char-btn { width:30px; height:30px; border:1px solid var(--rule); border-radius:5px; background:#fff; cursor:pointer; font-size:0.95rem; display:flex; align-items:center; justify-content:center; transition:background 0.1s, border-color 0.1s; position:relative; }
         .special-char-btn:hover { background:#f2f8f5; border-color:var(--accent); }
@@ -245,30 +246,30 @@
 
         /* 주석 유형 탭 */
         .com-type-bar { display: flex; gap: 0; margin-bottom: 12px; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; align-items: stretch; }
-        .com-type-bar .com-refer-inline {
+        .com-refer-inline {
             display: flex; align-items: center; gap: 6px;
-            padding: 0 10px; border-left: 1px solid var(--rule);
-            background: #faf9f6; flex: 1.5; min-width: 0;
+            padding: 0 12px; border: 1px solid var(--rule); border-radius: 6px;
+            background: #faf9f6; flex: 1 1 auto; min-width: 0;
         }
-        .com-type-bar .com-refer-inline label { font-size: 0.68rem; color: #bbb; white-space: nowrap; flex-shrink: 0; }
-        .com-type-bar .com-refer-inline input {
-            flex: 1; min-width: 0; border: none; outline: none; background: transparent;
+        .com-refer-inline label { font-size: 0.68rem; color: #bbb; white-space: nowrap; flex-shrink: 0; }
+        .com-refer-inline #com-refer {
+            flex: 1; min-width: 0; border: none; outline: none;
+            background: transparent; height: 100%; padding: 0 4px;
             font-size: 0.82rem; font-family: var(--font-main); color: var(--ink);
-            padding: 0;
         }
         .com-type-label { display: none; }
         .com-type-btn {
             flex: 1; border: none; border-right: 1px solid var(--rule);
-            background: #faf9f6; padding: 7px 4px; font-size: 0.8rem;
+            background: #faf9f6; padding: 5px 4px; font-size: 0.8rem;
             color: var(--ink-soft); cursor: pointer; font-family: var(--font-main);
             transition: background 0.12s, color 0.12s; font-weight: 500; line-height: 1.3;
+            white-space: nowrap;
         }
         .com-type-btn:last-child { border-right: none; }
         .com-type-btn:hover { background: #f0ece3; color: var(--ink); }
         .com-type-btn.active { background: var(--accent); color: #fff; font-weight: 700; }
         .com-type-key { font-size: 1.05rem; font-weight: 800; color: #c0392b; }
         .com-type-btn.active .com-type-key { color: #ffb3ae; }
-
         /* 표시 제목 */
         .com-refer-row { display: none; }
         .com-refer-row label { font-size: 0.72rem; color: #999; white-space: nowrap; }
@@ -297,6 +298,7 @@
         }
         #com-content:empty::before { content: attr(data-placeholder); color: #d0cdc6; font-size: 0.82rem; line-height: 1.65; pointer-events: none; }
         #com-content:focus { outline: none; }
+        #com-content blockquote { margin: 6px 0 6px 12px; padding: 4px 12px; border-left: 3px solid #b8c9c4; color: #6a6560; font-style: italic; }
 
         /* 주석 본문 박스 래퍼 */
         .com-ref-wrap { border-bottom: 1px solid var(--rule); transition: background 0.15s, box-shadow 0.15s; position: relative; }
@@ -837,7 +839,7 @@
     <div class="file-upload-container" id="drop-zone">
         <div id="drop-text">
             <strong style="color: var(--accent);">참고할 성경 역본 파일을<br>이곳에 끌어다 놓거나 클릭하여 불러오세요</strong>
-            <p style="font-size:0.8rem; color:#8aab9e; margin:10px 0 0; letter-spacing:0.02em;">✦ TXT · BDB 파일 사용 가능 ✦</p>
+            <p style="font-size:0.8rem; color:#8aab9e; margin:10px 0 0; letter-spacing:0.02em;">✦ TXT · BDB · ZIP 파일 사용 가능 ✦</p>
         </div>
         <input type="file" id="file-input" accept=".txt,.bdb">
     </div>
@@ -997,7 +999,7 @@
                         <div class="special-picker-pop" id="special-picker-pop" style="display:none;">
                             <div class="sp-tabs" id="sp-tabs"></div>
                             <div class="sp-body">
-                                <div style="font-size:0.68rem;color:#bbb;margin-bottom:8px;">더블클릭으로 삽입</div>
+                                <div style="font-size:0.68rem;color:#bbb;margin-bottom:8px;">더블클릭 (모바일: 두 번 탭)으로 삽입</div>
                                 <div id="special-preset-grid" class="special-grid"></div>
                             </div>
                             <div class="sp-custom-area">
@@ -1050,26 +1052,32 @@
                     <option value="aab">AAB</option>
                     <option value="txt">TXT</option>
                 </select>
-                <button class="btn-apply" onclick="exportCommentary()" style="height:28px; padding:0 12px; font-size:0.8rem; flex-shrink:0;">↓ 내보내기</button>
+                <button class="btn-apply" onclick="exportCommentary()" style="height:28px; padding:0 12px; font-size:0.8rem; flex-shrink:0; align-self:center;">↓ 내보내기</button>
             </div>
         </div>
 
-        <!-- 네비게이션 -->
-        <div class="nav-bar visible" id="com-nav-bar" style="margin-bottom:10px;">
-            <select class="nav-select" id="com-nav-book"><option value="">책 선택</option></select>
-            <select class="nav-select" id="com-nav-chapter"><option value="">장 선택</option></select>
-            <select class="nav-select" id="com-nav-verse"><option value="">절 선택</option></select>
-            <button class="btn-nav" onclick="comJumpTo()">이동</button>
-        </div>
+        <!-- 네비게이션 + 주석 유형 선택 (너비 통일) -->
+        <div style="display:flex; flex-direction:column; align-items:flex-start; gap:0;">
+            <div class="nav-bar visible" id="com-nav-bar" style="margin-bottom:6px;">
+                <select class="nav-select" id="com-nav-book"><option value="">책 선택</option></select>
+                <select class="nav-select" id="com-nav-chapter"><option value="">장 선택</option></select>
+                <select class="nav-select" id="com-nav-verse"><option value="">절 선택</option></select>
+                <button class="btn-nav" onclick="comJumpTo()">이동</button>
+            </div>
 
-        <!-- 주석 유형 선택 -->
-        <div class="com-type-bar">
-            <button class="com-type-btn"         id="com-type-intro"   onclick="setComType('intro')"><span class="com-type-key">책</span> 개론</button>
-            <button class="com-type-btn"         id="com-type-chapter" onclick="setComType('chapter')"><span class="com-type-key">장</span> 개요</button>
-            <button class="com-type-btn active"  id="com-type-verse"   onclick="setComType('verse')"><span class="com-type-key">절</span> 주석</button>
-            <div class="com-refer-inline">
-                <label>제목</label>
-                <input id="com-refer" type="text" placeholder="자동 입력 · 직접 수정 가능">
+            <!-- 주석 유형 탭 + 제목 입력 (가로 배치) -->
+            <div style="display:flex; align-items:stretch; gap:8px; margin-bottom:12px; width:100%;">
+                <!-- 탭 3개: 너비 = 이동 버튼 끝까지 (JS로 동기화) -->
+                <div class="com-type-bar" id="com-type-bar" style="margin-bottom:0; flex-shrink:0;">
+                    <button class="com-type-btn"         id="com-type-intro"   onclick="setComType('intro')"><span class="com-type-key">책</span> 개론</button>
+                    <button class="com-type-btn"         id="com-type-chapter" onclick="setComType('chapter')"><span class="com-type-key">장</span> 개요</button>
+                    <button class="com-type-btn active"  id="com-type-verse"   onclick="setComType('verse')"><span class="com-type-key">절</span> 주석</button>
+                </div>
+                <!-- 제목 입력: 남은 공간 전체 채움 -->
+                <div class="com-refer-inline">
+                    <label>제목</label>
+                    <input id="com-refer" type="text" placeholder="자동 입력 · 직접 수정 가능">
+                </div>
             </div>
         </div>
 
@@ -1102,66 +1110,75 @@
 
             <!-- 주석 편집 툴바 -->
             <div class="com-fmt-toolbar">
-                <!-- 특수문자 (독립 팝업) -->
-                <div class="com-special-wrap" id="com-special-wrap">
-                    <button class="com-fmt-btn" style="font-size:0.78rem; width:auto; padding:0 8px;"
-                        onmousedown="event.preventDefault(); comToggleSpecialPicker()" title="특수문자 삽입">특수</button>
-                </div>
-                <div class="com-fmt-divider"></div>
-                <!-- 서식 -->
+                <!-- B I U S -->
                 <button class="com-fmt-btn" style="font-weight:900;" onmousedown="event.preventDefault(); comFmt('bold')" title="굵게">B</button>
                 <button class="com-fmt-btn com-fmt-italic"  onmousedown="event.preventDefault(); comFmt('italic')"        title="기울임">I</button>
                 <button class="com-fmt-btn com-fmt-under"   onmousedown="event.preventDefault(); comFmt('underline')"     title="밑줄">U</button>
                 <button class="com-fmt-btn com-fmt-strike"  onmousedown="event.preventDefault(); comFmt('strikeThrough')" title="취소선">S</button>
                 <div class="com-fmt-divider"></div>
-                <!-- 색상 5개 인라인 -->
+                <!-- 폰트 크기 (tT) -->
+                <div style="position:relative; display:inline-flex;" id="com-size-wrap">
+                    <button class="com-fmt-btn" id="com-size-btn"
+                        onmousedown="event.preventDefault(); comToggleFontSize()"
+                        title="글자 크기"
+                        style="flex-direction:column; gap:1px; width:auto; padding:0 6px; line-height:1;">
+                        <span style="font-size:0.95rem; font-weight:800; line-height:1;">T</span>
+                        <span style="font-size:0.58rem; font-weight:700; line-height:1;">T</span>
+                    </button>
+                    <div id="com-size-pop" style="display:none; position:fixed; background:rgba(255,255,255,0.92); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(217,210,193,0.7); border-radius:8px; padding:6px 4px; z-index:2147483647; box-shadow:0 4px 16px rgba(0,0,0,0.12); min-width:80px;">
+                        <div style="font-size:0.62rem; color:#bbb; margin-bottom:4px; padding:0 6px;">글자 크기</div>
+                    </div>
+                </div>
+                <!-- 글자색 (A) -->
                 <div class="com-color-wrap" id="com-color-wrap" style="display:flex; align-items:center; gap:3px; position:relative;">
                     <button class="com-fmt-btn" style="font-size:0.72rem; width:auto; padding:0 5px; color:#888;" onmousedown="event.preventDefault(); comApplyColor(null)" title="색상 제거">A↺</button>
                     <div id="com-color-swatches" style="display:flex; gap:3px;"></div>
-                    <button class="com-fmt-btn" style="width:16px; height:16px; border-radius:50%; border:1px solid #ddd; padding:0; overflow:hidden; flex-shrink:0;" id="com-custom-color-btn" onmousedown="event.preventDefault(); document.getElementById('com-custom-color-input').click()" title="커스텀 색상">
-                        <svg width="12" height="12" viewBox="0 0 12 12"><circle cx="6" cy="6" r="5" fill="none" stroke="#aaa" stroke-width="1.2"/><line x1="6" y1="2" x2="6" y2="10" stroke="#aaa" stroke-width="1.2"/><line x1="2" y1="6" x2="10" y2="6" stroke="#aaa" stroke-width="1.2"/></svg>
-                    </button>
+                    <button class="com-fmt-btn" style="width:auto; padding:0 6px; font-size:0.72rem; color:#888;" id="com-custom-color-btn" onmousedown="event.preventDefault(); document.getElementById('com-custom-color-input').click()" title="커스텀 색상">+색</button>
                     <input type="color" id="com-custom-color-input" style="position:absolute; opacity:0; width:0; height:0; pointer-events:none;">
                 </div>
+                <!-- 형광펜 (채우기색) -->
+                <div style="position:relative; display:inline-flex;" id="com-hl-wrap">
+                    <button class="com-fmt-btn com-fmt-btn-hl" id="com-hl-btn"
+                        onmousedown="event.preventDefault(); comToggleHighlight()"
+                        title="형광펜 (배경 색상)"
+                        style="flex-direction:column; gap:2px; padding:0 6px; width:auto;">
+                        <svg width="13" height="11" viewBox="0 0 13 11" fill="none">
+                            <path d="M2 8.5L5.5 1.5l5 2.5-3.5 7H2z" fill="currentColor" opacity="0.3" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/>
+                            <rect x="1" y="9.5" width="11" height="1.5" rx="0.75" fill="currentColor"/>
+                        </svg>
+                        <span class="color-indicator" id="com-hl-indicator" style="background:#FFE066; width:18px; height:3px; border-radius:2px; display:block;"></span>
+                    </button>
+                    <div id="com-hl-pop" style="display:none; position:fixed; background:rgba(255,255,255,0.92); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid rgba(217,210,193,0.7); border-radius:8px; padding:8px; z-index:2147483647; box-shadow:0 4px 16px rgba(0,0,0,0.12); display:none; flex-wrap:wrap; gap:5px; width:128px;"></div>
+                </div>
                 <div class="com-fmt-divider"></div>
-                <!-- 들여쓰기 + 목록 기호 -->
+                <!-- 인용 -->
+                <button class="com-fmt-btn" onmousedown="event.preventDefault(); comInsertBlockquote()" title="인용구">
+                    <svg width="13" height="11" viewBox="0 0 13 11" fill="none">
+                        <path d="M1 1h3.5v3.5H3C3 6.5 3.8 7.5 5.5 7.5V9C2 9 1 6.5 1 4.5V1zm6.5 0H11v3.5H9.5C9.5 6.5 10.3 7.5 12 7.5V9C8.5 9 7.5 6.5 7.5 4.5V1z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <!-- 목록 -->
                 <button class="com-fmt-btn" onmousedown="event.preventDefault(); comFmt('insertUnorderedList')" title="목록">
                     <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><circle cx="1.5" cy="2" r="1.5" fill="currentColor"/><rect x="4" y="1" width="10" height="2" rx="1" fill="currentColor"/><circle cx="1.5" cy="6" r="1.5" fill="currentColor"/><rect x="4" y="5" width="10" height="2" rx="1" fill="currentColor"/><circle cx="1.5" cy="10" r="1.5" fill="currentColor"/><rect x="4" y="9" width="10" height="2" rx="1" fill="currentColor"/></svg>
                 </button>
-                <button class="com-fmt-btn" onmousedown="event.preventDefault(); comFmt('insertOrderedList')" title="번호 목록">
-                    <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><text x="0" y="4" font-size="4.5" fill="currentColor" font-family="sans-serif">1.</text><rect x="5" y="1" width="9" height="2" rx="1" fill="currentColor"/><text x="0" y="8.5" font-size="4.5" fill="currentColor" font-family="sans-serif">2.</text><rect x="5" y="5.5" width="9" height="2" rx="1" fill="currentColor"/><text x="0" y="12.5" font-size="4.5" fill="currentColor" font-family="sans-serif">3.</text><rect x="5" y="9.5" width="9" height="2" rx="1" fill="currentColor"/></svg>
+                <!-- 수평선 -->
+                <button class="com-fmt-btn" onmousedown="event.preventDefault(); comInsertHR()" title="수평선" style="font-size:1rem; font-weight:300; letter-spacing:-1px;">—</button>
+                <div class="com-fmt-divider"></div>
+                <!-- 서식 초기화 -->
+                <button class="com-fmt-btn" style="font-size:0.72rem; width:auto; padding:0 7px; color:#c0a898;"
+                    onmousedown="event.preventDefault(); comClearFormat()" title="서식 초기화">
+                    <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><text x="1" y="10" font-size="10" font-weight="700" fill="currentColor" font-family="sans-serif" font-style="italic">T</text><line x1="8.5" y1="2.5" x2="12" y2="11.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><line x1="8.5" y1="11.5" x2="12" y2="2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
                 </button>
-                <div class="com-color-wrap" style="position:relative; display:inline-flex;">
-                    <button class="com-fmt-btn" onmousedown="event.preventDefault(); comToggleListStyle()" title="목록 기호 선택" id="com-list-style-btn">
-                        <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><rect x="0" y="0.5" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="4" y="1" width="10" height="2" rx="1" fill="currentColor"/><rect x="0" y="4.5" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="4" y="5" width="10" height="2" rx="1" fill="currentColor"/><rect x="0" y="8.5" width="3" height="3" rx="0.5" fill="currentColor"/><rect x="4" y="9" width="10" height="2" rx="1" fill="currentColor"/></svg>
-                    </button>
-                    <div id="com-list-style-pop" style="display:none; position:absolute; bottom:38px; left:0; background:#fff; border:1px solid var(--rule); border-radius:8px; padding:6px; z-index:9999; box-shadow:0 4px 16px rgba(0,0,0,0.10); white-space:nowrap;">
-                        <div style="font-size:0.7rem; color:#999; margin-bottom:5px; padding:0 2px;">목록 기호 선택</div>
-                        <div style="display:flex; flex-direction:column; gap:3px;" id="com-list-style-options"></div>
-                    </div>
+                <!-- 특수문자 (우측 끝) -->
+                <div class="com-fmt-divider"></div>
+                <div class="com-special-wrap" id="com-special-wrap">
+                    <button class="com-fmt-btn" style="font-size:0.72rem; width:auto; padding:0 7px;"
+                        onmousedown="event.preventDefault(); comToggleSpecialPicker()" title="특수문자 삽입">특수</button>
                 </div>
-                <button class="com-fmt-btn" onmousedown="event.preventDefault(); comFmt('indent')" title="들여쓰기">
-                    <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><rect x="0" y="0.5" width="14" height="2" rx="1" fill="currentColor"/><rect x="4" y="4.5" width="10" height="2" rx="1" fill="currentColor"/><rect x="4" y="8.5" width="10" height="2" rx="1" fill="currentColor"/><path d="M0 5l3 1.5L0 8V5z" fill="currentColor"/></svg>
-                </button>
-                <button class="com-fmt-btn" onmousedown="event.preventDefault(); comFmt('outdent')" title="내어쓰기">
-                    <svg width="14" height="12" viewBox="0 0 14 12" fill="none"><rect x="0" y="0.5" width="14" height="2" rx="1" fill="currentColor"/><rect x="0" y="4.5" width="10" height="2" rx="1" fill="currentColor"/><rect x="0" y="8.5" width="10" height="2" rx="1" fill="currentColor"/><path d="M14 5l-3 1.5 3 1.5V5z" fill="currentColor"/></svg>
-                </button>
-                <div class="com-fmt-divider"></div>
-                <!-- RTL 토글 -->
-                <button class="com-fmt-btn com-rtl-btn" id="com-rtl-btn"
-                    onmousedown="event.preventDefault(); comToggleRTL()"
-                    title="우→좌 방향 전환 (히브리어 입력)"
-                    style="font-size:0.72rem; width:auto; padding:0 8px; letter-spacing:-0.02em;">RTL</button>
-                <div class="com-fmt-divider"></div>
-                <!-- 초기화 -->
-                <button class="com-fmt-btn" style="font-size:0.72rem; width:auto; padding:0 8px; color:#c0a898;"
-                    onmousedown="event.preventDefault(); comClearFormat()" title="서식 초기화">T↺</button>
             </div>
             <div class="com-bottom-bar">
-                <button class="btn-action" onclick="comSave(true)" title="현재 절 주석을 메모리에 저장">현재 위치 임시 저장
-
-</button>
-                <button class="btn-action" onclick="document.getElementById('com-resume-input').click()" title="이전에 TXT로 내보낸 주석 파일 이어하기">작업 불러오기</button>
+                <button class="btn-action" onclick="comSave(true)" title="현재 절 주석을 메모리에 저장">임시 저장</button>
+                <button class="btn-action" onclick="document.getElementById('com-resume-input').click()" title="이전에 TXT로 내보낸 주석 파일 이어하기">불러오기</button>
                 <input type="file" id="com-resume-input" accept=".txt" style="display:none;">
                 <button class="btn-action" onclick="comPrev()">◀ 이전 절</button>
                 <button class="btn-action" onclick="comNext()">다음 절 ▶</button>
@@ -1172,7 +1189,7 @@
     </div>
 
     <div style="text-align:right; font-size:0.72rem; color:#ccc; margin-top:18px; padding-top:10px; border-top:1px solid var(--rule); position:relative; z-index:10000;">
-        <span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.5</span>
+        <span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.2.0</span>
     </div>
 
     <!-- 이스터에그 오버레이 -->
@@ -1448,7 +1465,7 @@ const SPECIAL_CATEGORIES = [
             const chars = SPECIAL_CATEGORIES[specialCatIdx].chars;
             preset.innerHTML = chars.map(ch => {
                 const safe = ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-                return `<button class="special-char-btn" onclick="insertSpecialChar('${safe}');" title="${ch}">${ch}</button>`;
+                return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" ondblclick="event.stopPropagation();insertSpecialChar('${safe}');" ontouchend="event.stopPropagation();handleTouchSpecial(this,'${safe}',event);" title="더블클릭으로 삽입: ${ch}">${ch}</button>`;
             }).join('');
         }
         const custom = document.getElementById('special-custom-grid');
@@ -1456,7 +1473,7 @@ const SPECIAL_CATEGORIES = [
         custom.innerHTML = customSpecials.length
             ? customSpecials.map((ch, i) => {
                 const safe = ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-                return `<button class="special-char-btn" onclick="insertSpecialChar('${safe}');" title="${ch}">
+                return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" ondblclick="event.stopPropagation();insertSpecialChar('${safe}');" ontouchend="event.stopPropagation();handleTouchSpecial(this,'${safe}',event);" title="더블클릭으로 삽입: ${ch}">
                     ${ch}<span class="del-x" onmousedown="event.stopPropagation();removeCustomSpecial(${i});">×</span>
                 </button>`;
               }).join('')
@@ -1485,9 +1502,26 @@ const SPECIAL_CATEGORIES = [
         } else {
             document.execCommand('insertText', false, ch);
         }
-        // 삽입 후 팝업 닫기
-        const pop = document.getElementById('special-picker-pop');
-        if (pop) pop.style.display = 'none';
+        // 삽입 후 팝업 닫지 않음 (더블클릭 방식이므로 유지)
+    }
+
+    // 일반 모드 터치 더블탭 처리
+    const _touchTapMap = new WeakMap();
+    function handleTouchSpecial(btn, ch, e) {
+        e.preventDefault();
+        const now = Date.now();
+        const last = _touchTapMap.get(btn) || 0;
+        if (now - last < 400) {
+            _touchTapMap.set(btn, 0);
+            insertSpecialChar(ch);
+            btn.style.background = '#c8ead8';
+            setTimeout(() => { btn.style.background = ''; }, 200);
+        } else {
+            _touchTapMap.set(btn, now);
+            btn.style.borderColor = 'var(--accent)';
+            btn.style.background = '#f2f8f5';
+            setTimeout(() => { btn.style.borderColor = ''; btn.style.background = ''; }, 350);
+        }
     }
 
     function addCustomSpecial() {
@@ -1508,20 +1542,51 @@ const SPECIAL_CATEGORIES = [
 
     function toggleSpecialPicker() {
         const pop = document.getElementById('special-picker-pop');
+        const btn = document.getElementById('fmt-special-btn');
         const isOpen = pop.style.display !== 'none';
         // 다른 팝업 닫기
         document.getElementById('tag-popup').style.display = 'none';
         document.getElementById('color-picker-pop').style.display = 'none';
         pop.style.display = isOpen ? 'none' : 'block';
-        if (!isOpen) renderSpecialGrid();
+        if (!isOpen) {
+            // fixed 포지션으로 전환 — 입력창 뒤에 숨지 않도록
+            pop.style.position = 'fixed';
+            pop.style.zIndex = '2147483647';
+            if (btn) {
+                const positionPop = () => {
+                    const rect = btn.getBoundingClientRect();
+                    const popH = pop.offsetHeight || 460;
+                    const popW = pop.offsetWidth || 535;
+                    const vw = window.innerWidth;
+                    const vh = window.innerHeight;
+
+                    let top = rect.top - popH - 6;
+                    if (top < 8) top = rect.bottom + 6;
+                    if (top + popH > vh - 8) top = Math.max(8, vh - popH - 8);
+
+                    let left = rect.left;
+                    if (left + popW > vw - 8) left = Math.max(8, vw - popW - 8);
+                    if (left < 8) left = 8;
+
+                    pop.style.top  = top + 'px';
+                    pop.style.left = left + 'px';
+                    pop.style.bottom = 'auto';
+                    pop.style.right  = 'auto';
+                };
+                positionPop();
+                requestAnimationFrame(positionPop);
+            }
+            renderSpecialGrid();
+        }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('mousedown', e => {
             const sw = document.getElementById('fmt-special-wrap');
-            if (sw && !sw.contains(e.target)) {
-                const pop = document.getElementById('special-picker-pop');
-                if (pop) pop.style.display = 'none';
+            const pop = document.getElementById('special-picker-pop');
+            // 팝업 내부 또는 버튼 클릭이면 닫지 않음
+            if (pop && sw && !sw.contains(e.target) && !pop.contains(e.target)) {
+                pop.style.display = 'none';
             }
         });
     });
@@ -1991,6 +2056,10 @@ const SPECIAL_CATEGORIES = [
 
     function handleFile(file) {
         if(!file) return;
+        if (file.name.toLowerCase().endsWith('.zip')) {
+            processZipFile(file, (extracted) => handleFile(extracted));
+            return;
+        }
         if (bibleData.length > 0) {
             // 원본이 이미 로드된 상태 → 결과 파일로 처리
             processResultFile(file);
@@ -2003,6 +2072,95 @@ const SPECIAL_CATEGORIES = [
                 processBibleFile();
             }
         }
+    }
+
+    // ── ZIP 압축 파일 처리 ────────────────────────────────────────────
+    const ZIP_SUPPORTED = ['.txt', '.bdb', '.aab'];
+
+    async function processZipFile(zipFile, onFilePicked) {
+        let zip;
+        try { zip = await JSZip.loadAsync(zipFile); }
+        catch(e) { alert('ZIP 파일을 읽을 수 없습니다.\n' + e.message); return; }
+
+        const entries = [];
+        zip.forEach((path, entry) => {
+            if (entry.dir) return;
+            const name = path.split('/').pop();
+            if (!name || name.startsWith('.') || name.startsWith('__MACOSX')) return;
+            if (ZIP_SUPPORTED.some(ext => name.toLowerCase().endsWith(ext)))
+                entries.push({ path, entry, name });
+        });
+
+        if (!entries.length) {
+            alert('ZIP 안에 지원 파일(.txt · .bdb · .aab)이 없습니다.'); return;
+        }
+
+        const pick = async ({ name, entry }) => {
+            const buf = await entry.async('arraybuffer');
+            onFilePicked(new File([buf], name));
+        };
+
+        if (entries.length === 1) { await pick(entries[0]); return; }
+        showZipPickerPopup(entries, pick);
+    }
+
+    // ZIP 안에서 여러 지원 파일 추출 (ref 드롭존용 — 여러 파일 반환)
+    async function expandZip(zipFile) {
+        let zip;
+        try { zip = await JSZip.loadAsync(zipFile); }
+        catch(e) { alert('ZIP 파일을 읽을 수 없습니다.\n' + e.message); return []; }
+
+        const entries = [];
+        zip.forEach((path, entry) => {
+            if (entry.dir) return;
+            const name = path.split('/').pop();
+            if (!name || name.startsWith('.') || name.startsWith('__MACOSX')) return;
+            if (ZIP_SUPPORTED.some(ext => name.toLowerCase().endsWith(ext)))
+                entries.push({ name, entry });
+        });
+
+        if (!entries.length) { alert('ZIP 안에 지원 파일(.txt · .bdb · .aab)이 없습니다.'); return []; }
+
+        const files = await Promise.all(
+            entries.map(async ({ name, entry }) => {
+                const buf = await entry.async('arraybuffer');
+                return new File([buf], name);
+            })
+        );
+        return files;
+    }
+
+    function showZipPickerPopup(entries, onPick) {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:99999;display:flex;align-items:center;justify-content:center;';
+        const box = document.createElement('div');
+        box.style.cssText = `background:#fff;border-radius:12px;padding:22px 20px;min-width:300px;max-width:460px;
+            box-shadow:0 8px 32px rgba(0,0,0,0.18);font-family:'Pretendard Variable',sans-serif;`;
+        box.innerHTML = `
+            <div style="font-size:0.92rem;font-weight:700;margin-bottom:6px;color:#1a1815;">📦 ZIP 안의 파일 선택</div>
+            <div style="font-size:0.78rem;color:#999;margin-bottom:14px;">불러올 파일 하나를 선택하세요</div>
+            <div id="zip-pick-list" style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;"></div>
+            <button id="zip-cancel-btn" style="margin-top:14px;width:100%;border:1px solid #d9d2c1;background:none;
+                border-radius:6px;padding:7px;font-size:0.82rem;cursor:pointer;color:#888;font-family:inherit;">취소</button>`;
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        const list = box.querySelector('#zip-pick-list');
+        entries.forEach(e => {
+            const btn = document.createElement('button');
+            const icon = e.name.toLowerCase().endsWith('.txt') ? '📄' : '🗄️';
+            btn.style.cssText = `display:flex;align-items:center;gap:10px;text-align:left;width:100%;
+                border:1px solid #d9d2c1;border-radius:6px;padding:9px 12px;background:#faf9f6;
+                cursor:pointer;font-size:0.83rem;font-family:inherit;color:#1a1815;transition:background 0.12s;`;
+            btn.innerHTML = `<span>${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.name}</span>`;
+            btn.onmouseover  = () => btn.style.background = '#f2f8f5';
+            btn.onmouseleave = () => btn.style.background = '#faf9f6';
+            btn.onclick = async () => { overlay.remove(); await onPick(e); };
+            list.appendChild(btn);
+        });
+
+        box.querySelector('#zip-cancel-btn').onclick = () => overlay.remove();
+        overlay.onclick = (ev) => { if (ev.target === overlay) overlay.remove(); };
     }
 
     function detectEncoding(buffer) {
@@ -2847,6 +3005,153 @@ const SPECIAL_CATEGORIES = [
         document.execCommand('removeFormat', false, null);
     }
 
+    // ── 인용구 삽입 ──────────────────────────────────────────────────
+    function comInsertBlockquote() {
+        const ed = document.getElementById('com-content');
+        if (!ed) return;
+        ed.focus();
+        document.execCommand('formatBlock', false, 'blockquote');
+    }
+
+    // ── 수평선 삽입 ──────────────────────────────────────────────────
+    function comInsertHR() {
+        const ed = document.getElementById('com-content');
+        if (!ed) return;
+        ed.focus();
+        document.execCommand('insertHTML', false, '<hr style="border:none;border-top:1px solid #d9d2c1;margin:10px 0;">');
+    }
+
+    // ── 폰트 크기 팝업 ───────────────────────────────────────────────
+    const COM_FONT_SIZES = [
+        { label: '작게', size: '0.85rem' },
+        { label: '보통', size: '1rem' },
+        { label: '크게', size: '1.2rem' },
+        { label: '매우 크게', size: '1.5rem' },
+    ];
+    function comToggleFontSize() {
+        const pop = document.getElementById('com-size-pop');
+        const btn = document.getElementById('com-size-btn');
+        if (!pop) return;
+        const isOpen = pop.style.display !== 'none';
+        pop.style.display = isOpen ? 'none' : 'block';
+        if (!isOpen) {
+            // 팝업 항목 빌드
+            const existing = pop.querySelector('#com-size-list');
+            if (!existing) {
+                const list = document.createElement('div');
+                list.id = 'com-size-list';
+                list.style.cssText = 'display:flex;flex-direction:column;gap:2px;';
+                COM_FONT_SIZES.forEach(({ label, size }) => {
+                    const b = document.createElement('button');
+                    b.style.cssText = 'border:none;background:none;cursor:pointer;padding:5px 10px;font-family:var(--font-main);color:var(--ink);text-align:left;border-radius:5px;white-space:nowrap;';
+                    b.style.fontSize = size;
+                    b.textContent = label;
+                    b.onmousedown = (e) => {
+                        e.preventDefault();
+                        const ed = document.getElementById('com-content');
+                        if (ed) {
+                            ed.focus();
+                            if (comSavedSel) { const s = window.getSelection(); s.removeAllRanges(); s.addRange(comSavedSel); }
+                            document.execCommand('fontSize', false, '7');
+                            ed.querySelectorAll('font[size="7"]').forEach(f => {
+                                f.removeAttribute('size');
+                                f.style.fontSize = size;
+                            });
+                        }
+                        pop.style.display = 'none';
+                    };
+                    b.onmouseover = () => b.style.background = '#f0ece3';
+                    b.onmouseout  = () => b.style.background = 'none';
+                    list.appendChild(b);
+                });
+                pop.appendChild(list);
+            }
+            // fixed 포지션 계산
+            pop.style.position = 'fixed';
+            pop.style.zIndex = '2147483647';
+            requestAnimationFrame(() => {
+                const r = btn.getBoundingClientRect();
+                const ph = pop.offsetHeight || 140;
+                let top = r.top - ph - 6;
+                if (top < 8) top = r.bottom + 6;
+                let left = r.left;
+                if (left + pop.offsetWidth > window.innerWidth - 8) left = window.innerWidth - pop.offsetWidth - 8;
+                pop.style.top  = top + 'px';
+                pop.style.left = left + 'px';
+                pop.style.bottom = 'auto';
+            });
+        }
+    }
+
+    // ── 형광펜 팝업 ──────────────────────────────────────────────────
+    const COM_HL_COLORS = ['#FFE066','#B8F0A0','#A8D8FF','#FFB3B3','#E0C8FF','#FFD0A0'];
+    let comActiveHL = COM_HL_COLORS[0];
+
+    function comToggleHighlight() {
+        const pop = document.getElementById('com-hl-pop');
+        const btn = document.getElementById('com-hl-btn');
+        if (!pop) return;
+        const isOpen = pop.style.display === 'flex';
+        pop.style.display = isOpen ? 'none' : 'flex';
+        if (!isOpen) {
+            if (!pop.dataset.built) {
+                pop.dataset.built = '1';
+                // 제거 버튼
+                const rem = document.createElement('button');
+                rem.style.cssText = 'width:22px;height:22px;border-radius:50%;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:0.65rem;color:#aaa;display:flex;align-items:center;justify-content:center;flex-shrink:0;';
+                rem.title = '형광펜 제거';
+                rem.textContent = '✕';
+                rem.onmousedown = (e) => {
+                    e.preventDefault();
+                    const ed = document.getElementById('com-content');
+                    if (ed) { ed.focus(); if (comSavedSel) { const s = window.getSelection(); s.removeAllRanges(); s.addRange(comSavedSel); } document.execCommand('hiliteColor', false, 'transparent'); }
+                    pop.style.display = 'none';
+                };
+                pop.appendChild(rem);
+                COM_HL_COLORS.forEach(c => {
+                    const sw = document.createElement('div');
+                    sw.style.cssText = `width:22px;height:22px;border-radius:50%;background:${c};cursor:pointer;border:2px solid transparent;transition:transform 0.1s,border-color 0.1s;flex-shrink:0;`;
+                    sw.title = c;
+                    sw.onmouseenter = () => sw.style.transform = 'scale(1.2)';
+                    sw.onmouseleave = () => sw.style.transform = '';
+                    sw.onmousedown = (e) => {
+                        e.preventDefault();
+                        comActiveHL = c;
+                        document.getElementById('com-hl-indicator').style.background = c;
+                        const ed = document.getElementById('com-content');
+                        if (ed) { ed.focus(); if (comSavedSel) { const s = window.getSelection(); s.removeAllRanges(); s.addRange(comSavedSel); } document.execCommand('hiliteColor', false, c); }
+                        pop.style.display = 'none';
+                    };
+                    pop.appendChild(sw);
+                });
+            }
+            // fixed 포지션 계산
+            pop.style.position = 'fixed';
+            pop.style.zIndex = '2147483647';
+            requestAnimationFrame(() => {
+                const r = btn.getBoundingClientRect();
+                const ph = pop.offsetHeight || 44;
+                let top = r.top - ph - 6;
+                if (top < 8) top = r.bottom + 6;
+                let left = r.left;
+                if (left + pop.offsetWidth > window.innerWidth - 8) left = window.innerWidth - pop.offsetWidth - 8;
+                pop.style.top  = top + 'px';
+                pop.style.left = left + 'px';
+                pop.style.bottom = 'auto';
+            });
+        }
+    }
+
+    // 폰트크기·형광펜 팝업 외부 클릭 닫기
+    document.addEventListener('mousedown', (e) => {
+        const sizePop = document.getElementById('com-size-pop');
+        const sizeWrap = document.getElementById('com-size-wrap');
+        if (sizePop && sizeWrap && !sizeWrap.contains(e.target) && !sizePop.contains(e.target)) sizePop.style.display = 'none';
+        const hlPop = document.getElementById('com-hl-pop');
+        const hlWrap = document.getElementById('com-hl-wrap');
+        if (hlPop && hlWrap && !hlWrap.contains(e.target) && !hlPop.contains(e.target)) hlPop.style.display = 'none';
+    });
+
     // ── 색상 스와치 5개 + 커스텀 ─────────────────────────────────────
     const COM_COLORS = ['#E24B4A','#378ADD','#639922','#D85A30','#7F77DD'];
     let comActiveColor = COM_COLORS[0];
@@ -2928,7 +3233,8 @@ const SPECIAL_CATEGORIES = [
             if (lsp && lsBtn && !lsBtn.closest('div').contains(e.target)) lsp.style.display = 'none';
             const csp = document.getElementById('com-special-picker-pop');
             const csw = document.getElementById('com-special-wrap');
-            if (csp && csw && !csw.contains(e.target)) csp.style.display = 'none';
+            // 팝업 내부 클릭이면 닫지 않음
+            if (csp && csw && !csw.contains(e.target) && !csp.contains(e.target)) csp.style.display = 'none';
         });
     });
 
@@ -2947,20 +3253,36 @@ const SPECIAL_CATEGORIES = [
         const isOpen = pop.style.display !== 'none';
         pop.style.display = isOpen ? 'none' : 'block';
         if (!isOpen) {
+            // z-index를 최상위로 강제 설정 (필사모드, 모바일 오버레이 위)
+            pop.style.position = 'fixed';
+            pop.style.zIndex = '2147483647';
             // 버튼 위치 기준으로 fixed 포지션 계산
             if (btn) {
-                const rect = btn.getBoundingClientRect();
-                pop.style.position = 'fixed';
-                pop.style.bottom = 'auto';
-                pop.style.top  = (rect.top - pop.offsetHeight - 6) + 'px';
-                pop.style.left = rect.left + 'px';
-                pop.style.zIndex = '99999';
-                // 렌더 후 재계산 (높이가 0일 수 있음)
-                requestAnimationFrame(() => {
-                    const r = btn.getBoundingClientRect();
-                    pop.style.top = (r.top - pop.offsetHeight - 6) + 'px';
-                    pop.style.left = r.left + 'px';
-                });
+                const positionPop = () => {
+                    const rect = btn.getBoundingClientRect();
+                    const popH = pop.offsetHeight || 460;
+                    const popW = pop.offsetWidth || 535;
+                    const vw = window.innerWidth;
+                    const vh = window.innerHeight;
+
+                    // 상단 공간이 충분하면 위쪽에, 아니면 아래쪽에 표시
+                    let top = rect.top - popH - 6;
+                    if (top < 8) top = rect.bottom + 6;
+                    if (top + popH > vh - 8) top = Math.max(8, vh - popH - 8);
+
+                    // 좌우 벗어남 방지
+                    let left = rect.left;
+                    if (left + popW > vw - 8) left = Math.max(8, vw - popW - 8);
+                    if (left < 8) left = 8;
+
+                    pop.style.top  = top + 'px';
+                    pop.style.left = left + 'px';
+                    pop.style.bottom = 'auto';
+                    pop.style.right  = 'auto';
+                };
+                positionPop();
+                // 렌더 후 높이가 확정되면 재계산
+                requestAnimationFrame(positionPop);
             }
             comRenderSpecialGrid();
             const ed = document.getElementById('com-content');
@@ -2980,13 +3302,13 @@ const SPECIAL_CATEGORIES = [
         gridEl.innerHTML = cat.chars.map(ch => {
             const safe = ch.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
             if (ch.length > 1 && /^[\u0000-\u007F]*$/.test(ch))
-                return `<button class="special-char-btn" onclick="comInsertSpecial('${safe}');" title="${ch}" style="font-size:0.65rem;min-width:44px;">${ch}</button>`;
-            return `<button class="special-char-btn" onclick="comInsertSpecial('${safe}');" title="${ch}">${ch}</button>`;
+                return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" ondblclick="event.stopPropagation();comInsertSpecial('${safe}');" ontouchend="event.stopPropagation();comHandleTouchSpecial(this,'${safe}',event);" title="더블클릭으로 삽입: ${ch}" style="font-size:0.65rem;min-width:44px;">${ch}</button>`;
+            return `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" ondblclick="event.stopPropagation();comInsertSpecial('${safe}');" ontouchend="event.stopPropagation();comHandleTouchSpecial(this,'${safe}',event);" title="더블클릭으로 삽입: ${ch}">${ch}</button>`;
         }).join('');
         if (custEl) {
             custEl.innerHTML = customSpecials.map((ch, i) =>
-                `<button class="special-char-btn" onclick="comInsertSpecial('${ch}');">${ch}</button>
-                 <button onclick="removeCustomSpecial(${i})" style="font-size:0.6rem;color:#ccc;border:none;background:none;cursor:pointer;padding:1px 3px;">✕</button>`
+                `<button class="special-char-btn" onmousedown="event.preventDefault();event.stopPropagation();" ondblclick="event.stopPropagation();comInsertSpecial('${ch}');" ontouchend="event.stopPropagation();comHandleTouchSpecial(this,'${ch}',event);" title="더블클릭으로 삽입: ${ch}">${ch}</button>
+                 <button onmousedown="event.preventDefault();" onclick="removeCustomSpecial(${i})" style="font-size:0.6rem;color:#ccc;border:none;background:none;cursor:pointer;padding:1px 3px;">✕</button>`
             ).join('');
         }
     }
@@ -2999,6 +3321,27 @@ const SPECIAL_CATEGORIES = [
         document.execCommand('insertText', false, ch);
         const s = window.getSelection();
         if (s?.rangeCount) comSavedSel = s.getRangeAt(0).cloneRange();
+    }
+
+    // 터치 더블탭 처리 (모바일에서 더블클릭이 미발생하는 경우 대비)
+    const _comTouchTapMap = new WeakMap();
+    function comHandleTouchSpecial(btn, ch, e) {
+        e.preventDefault();
+        const now = Date.now();
+        const last = _comTouchTapMap.get(btn) || 0;
+        if (now - last < 400) {
+            // 더블탭 → 삽입
+            _comTouchTapMap.set(btn, 0);
+            comInsertSpecial(ch);
+            btn.style.background = '#c8ead8';
+            setTimeout(() => { btn.style.background = ''; }, 200);
+        } else {
+            // 첫 탭 → 기록
+            _comTouchTapMap.set(btn, now);
+            btn.style.borderColor = 'var(--accent)';
+            btn.style.background = '#f2f8f5';
+            setTimeout(() => { btn.style.borderColor = ''; btn.style.background = ''; }, 350);
+        }
     }
 
     function comAddCustomSpecial() {
@@ -3110,6 +3453,8 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('btn-home').style.display         = 'none';
         // 드롭존 바인딩 (UI 표시 후)
         setTimeout(initRefDropZone, 0);
+        // com-type-bar 너비를 nav-bar(이동 버튼 끝)에 맞춤
+        setTimeout(syncComTypeBarWidth, 0);
         // 이미 로드된 파일이 있으면 슬롯 동기화
         if (bibleData.length && bibleDataSets.length === 0) {
             bibleDataSets.push({ name: '본문1', data: bibleData });
@@ -3162,7 +3507,7 @@ const SPECIAL_CATEGORIES = [
 
         if (bibleDataSets.length === 0) {
             tabBar.innerHTML = `<button class="com-ref-tab-add" onclick="triggerBibleSlotLoad()" style="font-weight:600; color:#5a5750; gap:5px; display:inline-flex; align-items:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M6 1v7M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>본문 불러오기</button>`;
-            panelBox.innerHTML = `<div class="com-ref-panel no-bible">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요 · TXT · BDB · AAB</div>`;
+            panelBox.innerHTML = `<div class="com-ref-panel no-bible">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요 · TXT · BDB · AAB · ZIP 가능</div>`;
             return;
         }
 
@@ -3559,15 +3904,27 @@ const SPECIAL_CATEGORIES = [
         wrap.addEventListener('dragleave', (e) => {
             if (!wrap.contains(e.relatedTarget)) wrap.classList.remove('dragover');
         });
-        wrap.addEventListener('drop', (e) => {
+        wrap.addEventListener('drop', async (e) => {
             e.preventDefault();
             wrap.classList.remove('dragover');
-            const files = e.dataTransfer.files;
-            if (!files || !files.length) return;
+            let files = [...(e.dataTransfer.files || [])];
+            if (!files.length) return;
+
+            // zip 파일 확장
+            const expanded = [];
+            for (const f of files) {
+                if (f.name.toLowerCase().endsWith('.zip')) {
+                    const inner = await expandZip(f);
+                    expanded.push(...inner);
+                } else {
+                    expanded.push(f);
+                }
+            }
+            files = expanded;
 
             const allowed = ['.txt', '.bdb', '.aab'];
-            const validFiles = [...files].filter(f => allowed.some(ext => f.name.toLowerCase().endsWith(ext)));
-            if (!validFiles.length) return alert('TXT · BDB · AAB 파일만 지원합니다.');
+            const validFiles = files.filter(f => allowed.some(ext => f.name.toLowerCase().endsWith(ext)));
+            if (!validFiles.length) return alert('TXT · BDB · AAB · ZIP 파일만 지원합니다.');
 
             const remaining = MAX_BIBLE_SLOTS - bibleDataSets.length;
             if (remaining <= 0) return alert(`최대 ${MAX_BIBLE_SLOTS}개까지 추가할 수 있습니다.`);
@@ -3723,6 +4080,16 @@ const SPECIAL_CATEGORIES = [
     }
 
     // ── 주석 작성 네비 ────────────────────────────────────────────────
+    // ── com-type-bar 너비를 com-nav-bar(이동 버튼) 오른쪽 끝에 맞춤 ──
+    function syncComTypeBarWidth() {
+        const navBar  = document.getElementById('com-nav-bar');
+        const typeBar = document.getElementById('com-type-bar');
+        if (!navBar || !typeBar) return;
+        const w = navBar.offsetWidth;
+        if (w > 0) typeBar.style.width = w + 'px';
+    }
+    window.addEventListener('resize', syncComTypeBarWidth);
+
     function buildComNav() {
         const nb = document.getElementById('com-nav-book');
         const nc = document.getElementById('com-nav-chapter');
@@ -4279,10 +4646,10 @@ const SPECIAL_CATEGORIES = [
     })();
     </script>
     <!-- 주석 특수문자 팝업 (body 레벨 — overflow 클리핑 방지) -->
-    <div class="special-picker-pop" id="com-special-picker-pop" style="display:none; position:fixed; z-index:99999;">
+    <div class="special-picker-pop" id="com-special-picker-pop" style="display:none; position:fixed; z-index:2147483647;">
         <div class="sp-tabs" id="com-sp-tabs"></div>
         <div class="sp-body">
-            <div style="font-size:0.68rem;color:#bbb;margin-bottom:8px;">더블클릭으로 삽입</div>
+            <div style="font-size:0.68rem;color:#bbb;margin-bottom:8px;">더블클릭 (모바일: 두 번 탭)으로 삽입</div>
             <div id="com-special-preset-grid" class="special-grid"></div>
         </div>
         <div class="sp-custom-area">
