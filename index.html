@@ -82,6 +82,10 @@
         .nav-bar { display: none; gap: 6px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
         .nav-bar.visible { display: flex; }
         .nav-select { border: 1px solid var(--rule); border-radius: 4px; padding: 4px 8px; font-size: 0.85rem; background-color: #fff; outline: none; }
+        /* 주석 네비바 — PC에서 높이 통일 */
+        #com-nav-bar .nav-select { height: 33px; padding: 0 8px; }
+        #com-nav-bar .btn-nav    { height: 33px; min-height: unset; padding: 0 12px; }
+        #com-nav-bar.nav-bar     { align-items: center; }
 
         /* contenteditable 입력창 */
         #user-input[contenteditable] { display: block; border: none; outline: none; color: var(--ink); background-color: #ffffff; width: 100%; padding: var(--padding-val); min-height: 140px; max-height: 200px; overflow-y: auto; font-family: var(--font-main); font-size: var(--font-size-text); line-height: var(--line-height-text); word-break: break-all; white-space: pre-wrap; }
@@ -114,7 +118,7 @@
         /* 주석 내보내기 전용 — 모바일 min-height 룰 영향 없이 고정 높이 */
         .com-export-btn { background: var(--accent); color: #fff; border: 1px solid var(--accent); cursor: pointer; padding: 0 12px; height: 28px; min-height: 28px; max-height: 28px; border-radius: 4px; font-size: 0.8rem; font-family: var(--font-main); transition: background 0.12s; white-space: nowrap; flex-shrink: 0; align-self: center; }
         .com-export-btn:hover { background: #1e3329; border-color: #1e3329; }
-        .btn-nav { background: none; border: 1px solid var(--rule); cursor: pointer; padding: 0 12px; height: 30px; border-radius: 4px; font-size: 0.82rem; color: var(--ink-soft); font-family: var(--font-main); transition: background 0.12s, border-color 0.12s, color 0.12s; white-space: nowrap; }
+        .btn-nav { background: none; border: 1px solid var(--rule); cursor: pointer; padding: 0 12px; height: 33px; border-radius: 4px; font-size: 0.82rem; color: var(--ink-soft); font-family: var(--font-main); transition: background 0.12s, border-color 0.12s, color 0.12s; white-space: nowrap; }
         .btn-nav:hover { background: #f0ece3; border-color: #b0a898; color: var(--ink); }
 
         .load-area { margin-top: 10px; padding-top: 10px; border-top: 1px dotted var(--rule); }
@@ -248,11 +252,11 @@
         }
 
         /* 주석 유형 탭 */
-        .com-type-bar { display: flex; gap: 0; margin-bottom: 12px; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; align-items: stretch; }
+        .com-type-bar { display: flex; gap: 0; margin-bottom: 12px; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; align-items: stretch; height: 33px; }
         .com-refer-inline {
             display: flex; align-items: center; gap: 6px;
             padding: 0 12px; border: 1px solid var(--rule); border-radius: 6px;
-            background: #faf9f6; flex: 1 1 180px; min-width: 180px;
+            background: #faf9f6; flex: 1 1 180px; min-width: 180px; height: 33px;
         }
         .com-refer-inline label { font-size: 0.68rem; color: #bbb; white-space: nowrap; flex-shrink: 0; }
         .com-refer-inline #com-refer {
@@ -263,7 +267,7 @@
         .com-type-label { display: none; }
         .com-type-btn {
             flex: 1; border: none; border-right: 1px solid var(--rule);
-            background: #faf9f6; padding: 5px 4px; font-size: 0.8rem;
+            background: #faf9f6; padding: 0 4px; height: 33px; font-size: 0.8rem;
             color: var(--ink-soft); cursor: pointer; font-family: var(--font-main);
             transition: background 0.12s, color 0.12s; font-weight: 500; line-height: 1.3;
             white-space: nowrap;
@@ -761,34 +765,79 @@
             .progress-chip { font-size: 0.8rem; }
             .progress-expand-btn { font-size: 0.78rem; }
 
-            /* ── 주석 모드 — 내보내기 버튼 높이 ── */
+            /* ── 주석 모드 — 내보내기 버튼 높이 (원래대로) ── */
             .com-bar-right .btn-apply {
                 min-height: unset;
                 height: 32px;
             }
 
-            /* ── 주석 모드 — 네비바 (책/장/절/이동) 크기 축소 ── */
+            /* ── 주석 모드 — 본문 불러오기 탭바 높이 (자동) ── */
+
+            /* ── 주석 모드 공통 높이 변수 ── */
+            #commentary-write-ui { --com-row-h: 33px; }
+
+            /* ── 주석 서식툴바 스크롤바 스타일 ── */
+            .com-fmt-toolbar::-webkit-scrollbar {
+                height: 3px;
+            }
+            .com-fmt-toolbar::-webkit-scrollbar-track {
+                background: #f0ede6;
+                border-radius: 2px;
+            }
+            .com-fmt-toolbar::-webkit-scrollbar-thumb {
+                background: #c8c2b4;
+                border-radius: 2px;
+            }
+
+            /* ── 주석 모드 — 네비바 (책/장/절/이동) 좌우 꽉 차게, 높이 통일 ── */
+            #com-nav-bar.nav-bar {
+                width: 100%;
+                flex-wrap: nowrap;
+            }
             #com-nav-bar.nav-bar .nav-select {
-                height: 36px;
+                flex: 1;
+                height: var(--com-row-h);
                 font-size: 0.84rem;
             }
             #com-nav-bar.nav-bar .btn-nav {
-                height: 36px;
+                height: var(--com-row-h);
                 font-size: 0.84rem;
                 padding: 0 12px;
+                flex-shrink: 0;
             }
 
-            /* ── 주석 모드 — 탭+제목 행 가로 스크롤 ── */
+            /* ── 주석 모드 — 탭+제목 행: 모바일에서 전체 너비 분할, 높이 통일 ── */
             #com-tab-row {
-                overflow-x: auto;
-                overflow-y: hidden;
-                flex-wrap: nowrap;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
+                flex-wrap: wrap;
+                overflow-x: visible;
+                overflow-y: visible;
+                gap: 6px;
             }
-            #com-tab-row::-webkit-scrollbar { display: none; }
-            #com-tab-row .com-type-bar { flex-shrink: 0; }
-            #com-tab-row .com-refer-inline { flex-shrink: 0; min-width: 160px; }
+            #com-tab-row .com-type-bar {
+                flex: 1 1 100%;
+                width: 100%;
+                overflow: hidden;
+            }
+            #com-tab-row .com-type-bar .com-type-btn {
+                flex: 1;
+                min-width: 0;
+                font-size: 0.82rem;
+                height: var(--com-row-h);
+                padding: 0 4px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            #com-tab-row .com-refer-inline {
+                flex: 1 1 100%;
+                width: 100%;
+                min-width: 0;
+                height: var(--com-row-h);
+                padding: 0 14px;
+            }
+            #com-tab-row .com-refer-inline #com-refer {
+                font-size: 0.88rem;
+            }
         }
     </style>
 </head>
