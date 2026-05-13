@@ -654,7 +654,7 @@
             .fmt-clear-btn { width: auto; padding: 0 10px; height: 44px; }
             .fmt-divider { height: 24px; }
 
-            /* ── 특수문자 팝업 → 하단 시트 (fixed) ── */
+            /* ── 특수문자 팝업 → 모바일: 하단 시트 (fixed) ── */
             .special-picker-pop {
                 position: fixed !important;
                 bottom: 0 !important;
@@ -674,6 +674,9 @@
             .sp-tabs { padding: 10px 12px 0; }
             .sp-tab { font-size: 0.78rem; padding: 6px 0; }
             .sp-body { height: 240px; padding: 10px; }
+            /* 모바일: 드래그 핸들 숨김 (이동 PC 전용) — 닫기 버튼만 별도 표시 */
+            .sp-drag-handle { padding: 4px 8px !important; background: transparent !important; border-bottom: none !important; cursor: default !important; }
+            .sp-drag-pill { display: none !important; }
 
             /* ── 태그 팝업 → 하단 시트 (fixed) ── */
             .tag-popup {
@@ -1660,7 +1663,21 @@ const SPECIAL_CATEGORIES = [
         if (!isOpen) {
             // 키보드 내리기 — 에디터 포커스 해제
             if (document.activeElement) document.activeElement.blur();
-            // fixed 포지션으로 전환 — 입력창 뒤에 숨지 않도록
+
+            // 모바일: 인라인 style 초기화 → CSS의 하단 시트 적용 (키보드 안 올라오게 focus 안 함)
+            if (window.innerWidth <= 600) {
+                pop.style.position = '';
+                pop.style.left = '';
+                pop.style.right = '';
+                pop.style.top = '';
+                pop.style.bottom = '';
+                pop.style.width = '';
+                pop.style.zIndex = '';
+                renderSpecialGrid();
+                return;
+            }
+
+            // PC: fixed 포지션 — 입력창 뒤에 숨지 않도록
             pop.style.position = 'fixed';
             pop.style.zIndex = '2147483647';
             if (btn) {
@@ -3357,7 +3374,21 @@ const SPECIAL_CATEGORIES = [
             const ed = document.getElementById('com-content');
             if (ed) { const s = window.getSelection(); if (s?.rangeCount) comSavedSel = s.getRangeAt(0).cloneRange(); }
             if (document.activeElement) document.activeElement.blur();
-            // z-index를 최상위로 강제 설정 (필사모드, 모바일 오버레이 위)
+
+            // 모바일: 인라인 style 초기화 → CSS의 하단 시트 적용
+            if (window.innerWidth <= 600) {
+                pop.style.position = '';
+                pop.style.left = '';
+                pop.style.right = '';
+                pop.style.top = '';
+                pop.style.bottom = '';
+                pop.style.width = '';
+                pop.style.zIndex = '';
+                comRenderSpecialGrid();
+                return;
+            }
+
+            // PC: z-index를 최상위로 강제 설정 (필사모드, 모바일 오버레이 위)
             pop.style.position = 'fixed';
             pop.style.zIndex = '2147483647';
             // 버튼 위치 기준으로 fixed 포지션 계산
@@ -3419,32 +3450,25 @@ const SPECIAL_CATEGORIES = [
         const ed = document.getElementById('com-content');
         if (!ed) return;
 
-        // 에디터 포커스 (키보드 방지 위해 preventScroll)
-        ed.focus({ preventScroll: true });
-
-        // 저장된 커서 위치 복원
-        const sel = window.getSelection();
+        // focus 호출 금지 — 모바일 키보드 안 올라오게
+        let range;
         if (comSavedSel && ed.contains(comSavedSel.commonAncestorContainer)) {
-            sel.removeAllRanges();
-            sel.addRange(comSavedSel);
-        } else if (!sel.rangeCount || !ed.contains(sel.getRangeAt(0).commonAncestorContainer)) {
+            range = comSavedSel.cloneRange();
+        } else {
             // 저장된 커서 없으면 에디터 끝에 삽입
-            const r = document.createRange();
-            r.selectNodeContents(ed);
-            r.collapse(false);
-            sel.removeAllRanges();
-            sel.addRange(r);
+            range = document.createRange();
+            range.selectNodeContents(ed);
+            range.collapse(false);
         }
 
-        // Range API로 직접 삽입
-        const range = sel.getRangeAt(0);
+        // Range API로 직접 삽입 (focus 없이)
         range.deleteContents();
         const node = document.createTextNode(ch);
         range.insertNode(node);
         range.setStartAfter(node);
         range.collapse(true);
-        sel.removeAllRanges();
-        sel.addRange(range);
+
+        // 저장된 커서 업데이트
         comSavedSel = range.cloneRange();
     }
 
@@ -4885,9 +4909,27 @@ const SPECIAL_CATEGORIES = [
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            makeDraggable('sp-drag-handle',     'special-picker-pop');
-            makeDraggable('com-sp-drag-handle', 'com-special-picker-pop');
+            // 드래그는 PC에서만 활성
+            if (window.innerWidth > 600) {
+                makeDraggable('sp-drag-handle',     'special-picker-pop');
+                makeDraggable('com-sp-drag-handle', 'com-special-picker-pop');
+            }
         });
+
+        // 모바일: 팝업이 열릴 때 버전 푸터 바로 아래로 위치 + 스크롤
+        window.positionPopBelowVerFooter = function(popId) {
+            if (window.innerWidth > 600) return;
+            const pop = document.getElementById(popId);
+            const ver = document.getElementById('ver-footer');
+            if (!pop || !ver) return;
+            const verBottom = ver.getBoundingClientRect().bottom + window.scrollY;
+            pop.style.top = (verBottom + 12) + 'px';
+            // 팝업이 보이도록 부드럽게 스크롤
+            setTimeout(() => {
+                const popTop = pop.getBoundingClientRect().top + window.scrollY;
+                window.scrollTo({ top: popTop - 80, behavior: 'smooth' });
+            }, 50);
+        };
     })();
     </script>
 </body>
