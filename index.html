@@ -673,10 +673,12 @@
             }
             .sp-tabs { padding: 10px 12px 0; }
             .sp-tab { font-size: 0.78rem; padding: 6px 0; }
-            .sp-body { height: 240px; padding: 10px; }
+            .sp-body { height: 180px; padding: 8px; }
+            .sp-custom-area { padding: 6px 10px; }
             /* 모바일: 드래그 핸들 숨김 (이동 PC 전용) — 닫기 버튼만 별도 표시 */
             .sp-drag-handle { padding: 4px 8px !important; background: transparent !important; border-bottom: none !important; cursor: default !important; }
             .sp-drag-pill { display: none !important; }
+            .sp-close-btn { display: none !important; }
 
             /* ── 태그 팝업 → 하단 시트 (fixed) ── */
             .tag-popup {
@@ -1629,6 +1631,7 @@ const SPECIAL_CATEGORIES = [
 
     // 한 번 터치로 입력 (키보드 올라오지 않게 e.preventDefault 유지)
     function handleTouchSpecial(btn, ch, e) {
+        if (window._spTouchScrolled) return; // 스크롤 중이면 입력 안 함
         e.preventDefault();
         e.stopPropagation();
         insertSpecialChar(ch);
@@ -1674,6 +1677,7 @@ const SPECIAL_CATEGORIES = [
                 pop.style.width = '';
                 pop.style.zIndex = '';
                 renderSpecialGrid();
+                window.scrollEditorAbovePanel && window.scrollEditorAbovePanel('special-picker-pop', 'user-input');
                 return;
             }
 
@@ -3385,6 +3389,7 @@ const SPECIAL_CATEGORIES = [
                 pop.style.width = '';
                 pop.style.zIndex = '';
                 comRenderSpecialGrid();
+                window.scrollEditorAbovePanel && window.scrollEditorAbovePanel('com-special-picker-pop', 'com-content');
                 return;
             }
 
@@ -3474,6 +3479,7 @@ const SPECIAL_CATEGORIES = [
 
     // 한 번 터치로 입력 (키보드 올라오지 않게 e.preventDefault 유지)
     function comHandleTouchSpecial(btn, ch, e) {
+        if (window._spTouchScrolled) return; // 스크롤 중이면 입력 안 함
         e.preventDefault();
         e.stopPropagation();
         comInsertSpecial(ch);
@@ -4916,20 +4922,64 @@ const SPECIAL_CATEGORIES = [
             }
         });
 
-        // 모바일: 팝업이 열릴 때 버전 푸터 바로 아래로 위치 + 스크롤
-        window.positionPopBelowVerFooter = function(popId) {
-            if (window.innerWidth > 600) return;
+        // ── 터치 스크롤 감지 (스크롤하면 입력 취소) ──
+        window._spTouchScrolled = false;
+        let _spTouchStart = null;
+        function _bindTouchScrollDetect(popId) {
             const pop = document.getElementById(popId);
-            const ver = document.getElementById('ver-footer');
-            if (!pop || !ver) return;
-            const verBottom = ver.getBoundingClientRect().bottom + window.scrollY;
-            pop.style.top = (verBottom + 12) + 'px';
-            // 팝업이 보이도록 부드럽게 스크롤
+            if (!pop) return;
+            pop.addEventListener('touchstart', (e) => {
+                if (e.touches.length !== 1) { window._spTouchScrolled = true; return; }
+                const t = e.touches[0];
+                _spTouchStart = { x: t.clientX, y: t.clientY };
+                window._spTouchScrolled = false;
+            }, { passive: true });
+            pop.addEventListener('touchmove', (e) => {
+                if (!_spTouchStart) return;
+                const t = e.touches[0];
+                if (Math.abs(t.clientX - _spTouchStart.x) > 6 || Math.abs(t.clientY - _spTouchStart.y) > 6) {
+                    window._spTouchScrolled = true;
+                }
+            }, { passive: true });
+            pop.addEventListener('touchend', () => {
+                _spTouchStart = null;
+                // _spTouchScrolled 는 다음 touchstart 까지 유지 → 스크롤 끝나도 즉시 입력 방지
+                setTimeout(() => { window._spTouchScrolled = false; }, 100);
+            });
+        }
+        window.addEventListener('DOMContentLoaded', () => {
+            _bindTouchScrollDetect('special-picker-pop');
+            _bindTouchScrollDetect('com-special-picker-pop');
+        });
+
+        // ── 모바일: 팝업 열릴 때 에디터 상단을 화면 위쪽으로 스크롤 ──
+        window.scrollEditorAbovePanel = function(popId, edId) {
+            if (window.innerWidth > 600) return;
             setTimeout(() => {
-                const popTop = pop.getBoundingClientRect().top + window.scrollY;
-                window.scrollTo({ top: popTop - 80, behavior: 'smooth' });
-            }, 50);
+                const pop = document.getElementById(popId);
+                const ed  = document.getElementById(edId);
+                if (!pop || !ed) return;
+                const popH = pop.offsetHeight || 300;
+                // body에 padding-bottom 추가 → 패널 높이만큼 스크롤 여유 확보
+                document.body.style.paddingBottom = (popH + 40) + 'px';
+                // 에디터 상단이 화면 상단 80px 위치로 오도록 스크롤
+                const edTop = ed.getBoundingClientRect().top + window.scrollY;
+                window.scrollTo({ top: Math.max(0, edTop - 80), behavior: 'smooth' });
+            }, 80);
         };
+
+        // 팝업이 닫힐 때 body padding 복원 (MutationObserver로 display 변화 감지)
+        window.addEventListener('DOMContentLoaded', () => {
+            ['special-picker-pop', 'com-special-picker-pop'].forEach(id => {
+                const pop = document.getElementById(id);
+                if (!pop) return;
+                new MutationObserver(() => {
+                    if (pop.style.display === 'none') {
+                        document.body.style.paddingBottom = '';
+                    }
+                }).observe(pop, { attributes: true, attributeFilter: ['style'] });
+            });
+        });
     })();
     </script>
 </body>
