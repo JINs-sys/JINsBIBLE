@@ -1382,6 +1382,24 @@
     document.addEventListener('DOMContentLoaded', () => {
         const comEd = document.getElementById('com-content');
         if (!comEd) return;
+
+        // ── Enter → <br> 삽입 (브라우저 기본 <div> 블록 생성 차단) ──
+        comEd.addEventListener('keydown', e => {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+            const sel = window.getSelection();
+            if (!sel.rangeCount) return;
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+            const br = document.createElement('br');
+            range.insertNode(br);
+            // 커서를 br 다음으로 이동
+            range.setStartAfter(br);
+            range.setEndAfter(br);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        });
+
         comEd.addEventListener('paste', e => {
             e.preventDefault();
             const text = (e.clipboardData || window.clipboardData).getData('text/plain');
@@ -3395,9 +3413,27 @@ const SPECIAL_CATEGORIES = [
             if (!file) return;
             const reader = new FileReader();
             reader.onload = (ev) => {
-                const lines = ev.target.result.split(/\r?\n/);
+                const rawLines = ev.target.result.split(/\r?\n/);
+
+                // ── 여러 줄로 쪼개진 HTML 합치기 ──────────────────────────
+                // 새 항목 시작 = "책약어 장:절|", "책 개론|", "책 N장 개요|"
+                const isEntryStart = (line) => {
+                    const p = line.indexOf('|');
+                    if (p < 0) return false;
+                    const ref = line.slice(0, p).trim();
+                    return ref.match(/^\S+\s+\d+:\d+$/) ||   // 절 주석
+                           ref.match(/^.+?\s+개론$/)         ||   // 책 개론
+                           ref.match(/^\S+\s+\d+장\s*개요$/);     // 장 개요
+                };
+                const lines = [];
+                for (const raw of rawLines) {
+                    if (raw.startsWith('#') || raw.trim() === '') { lines.push(raw); continue; }
+                    if (isEntryStart(raw)) { lines.push(raw); }
+                    else if (lines.length > 0) { lines[lines.length - 1] += raw; } // HTML 이어붙이기
+                }
+                // ────────────────────────────────────────────────────────
+
                 const loaded = [];
-                // BOOK_NAMES 역매핑 (전체명 → 약어)
                 const FULLNAME_TO_ABBR = {};
                 Object.entries(BOOK_NAMES).forEach(([abbr, full]) => { FULLNAME_TO_ABBR[full] = abbr; });
 
@@ -3406,7 +3442,7 @@ const SPECIAL_CATEGORIES = [
                     const pipeIdx = line.indexOf('|');
                     if (pipeIdx < 0) continue;
                     const refer  = line.slice(0, pipeIdx).trim();
-                    const content = line.slice(pipeIdx + 1).trim();
+                    const content = trimComHtml(line.slice(pipeIdx + 1).trim());
                     if (!content) continue;
 
                     let bookAbbr = '', startChapter = 1, endChapter = 1, verse = null, type = 'verse';
@@ -4234,7 +4270,7 @@ const SPECIAL_CATEGORIES = [
         // 저장된 주석 내용 불러오기
         const key = comItemKey(comBook, comChapter, comVerse, currentComType);
         const existing = commentaryWritingData.find(it => it._key === key);
-        document.getElementById('com-content').innerHTML = existing ? existing.content : '';
+        document.getElementById('com-content').innerHTML = existing ? trimComHtml(existing.content) : '';
         document.getElementById('com-refer').value       = existing ? existing.refer   : comAutoRefer();
         updateComStatus();
     }
@@ -4298,10 +4334,30 @@ const SPECIAL_CATEGORIES = [
     }
 
     // ── 현재 주석 저장 ────────────────────────────────────────────────
+    // ── 저장/로드 시 trailing 빈 블록 제거 + 내부 개행 제거 ──────────
+    function trimComHtml(html) {
+        if (!html) return '';
+        // 1. HTML 내 리터럴 개행 제거 (TXT 한 줄 저장 형식 보호)
+        html = html.replace(/\r?\n/g, '');
+        // 2. <div>...</div> → ...내용...<br>  (Enter로 생긴 div 블록을 br로 정규화)
+        //    단, 빈 <div><br></div> 는 <br>로, 내용 있는 <div>는 내용 + <br>로
+        html = html.replace(/<div>\s*<br\s*\/?>\s*<\/div>/gi, '<br>');
+        html = html.replace(/<div>([\s\S]*?)<\/div>/gi, (_, inner) => inner ? inner + '<br>' : '<br>');
+        // 3. trailing 빈 <br> 반복 제거
+        let prev;
+        do {
+            prev = html;
+            html = html
+                .replace(/(\s*<br\s*\/?>\s*)+$/gi, '')
+                .trim();
+        } while (html !== prev);
+        return html;
+    }
+
     function comSave(showFeedback = true) {
         if (!comBook) return;
         const ed      = document.getElementById('com-content');
-        const content = ed.innerHTML.trim();
+        const content = trimComHtml(ed.innerHTML);
         const refer   = document.getElementById('com-refer').value.trim() || comAutoRefer();
         const key     = comItemKey(comBook, comChapter, comVerse, currentComType);
         const bookCode = BOOK_TO_CODE[comBook] || comBook;
