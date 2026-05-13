@@ -183,13 +183,13 @@
         .c-swatch:hover { transform:scale(1.2); }
         .c-swatch.sel { border-color:var(--ink); }
 
-        .special-picker-pop { position:absolute; bottom:40px; left:0; background:rgba(255,255,255,0.82); backdrop-filter:blur(14px) saturate(1.4); -webkit-backdrop-filter:blur(14px) saturate(1.4); border:1px solid rgba(217,210,193,0.7); border-radius:8px; padding:0; width:535px; z-index:2147483647; box-shadow:0 8px 32px rgba(0,0,0,0.16); overflow:visible; }
-        .sp-tabs { display:flex; flex-wrap:wrap; gap:0; border-bottom:1px solid rgba(217,210,193,0.6); padding:8px 10px 0; background:rgba(250,249,246,0.75); border-radius:8px 8px 0 0; }
+        .special-picker-pop { position:absolute; bottom:40px; left:0; background:#ffffff; border:1px solid rgba(217,210,193,0.7); border-radius:8px; padding:0; width:535px; z-index:2147483647; box-shadow:0 8px 32px rgba(0,0,0,0.16); overflow:visible; }
+        .sp-tabs { display:flex; flex-wrap:wrap; gap:0; border-bottom:1px solid rgba(217,210,193,0.6); padding:8px 10px 0; background:#faf9f6; border-radius:8px 8px 0 0; }
         .sp-tab { font-size:0.72rem; padding:4px 0; border:1px solid transparent; border-radius:4px 4px 0 0; cursor:pointer; color:var(--ink-soft); background:none; font-family:var(--font-main); margin-bottom:-1px; white-space:nowrap; flex:1; text-align:center; }
-        .sp-tab.active { background:rgba(255,255,255,0.9); border-color:rgba(217,210,193,0.7); border-bottom-color:rgba(255,255,255,0.9); color:var(--accent); font-weight:600; }
+        .sp-tab.active { background:#ffffff; border-color:rgba(217,210,193,0.7); border-bottom-color:#ffffff; color:var(--accent); font-weight:600; }
         .sp-body { padding:12px; height:350px; overflow-y:auto; }
         .sp-body::-webkit-scrollbar { width:4px; } .sp-body::-webkit-scrollbar-thumb { background:#ddd; border-radius:2px; }
-        .sp-custom-area { padding:10px 12px; border-top:1px solid rgba(217,210,193,0.6); background:rgba(250,249,246,0.75); border-radius:0 0 8px 8px; }
+        .sp-custom-area { padding:10px 12px; border-top:1px solid rgba(217,210,193,0.6); background:#faf9f6; border-radius:0 0 8px 8px; }
         .special-grid { display:flex; flex-wrap:wrap; gap:4px; }
         .special-char-btn { width:30px; height:30px; border:1px solid var(--rule); border-radius:5px; background:#fff; cursor:pointer; font-size:0.95rem; display:flex; align-items:center; justify-content:center; transition:background 0.1s, border-color 0.1s; position:relative; }
         .special-char-btn:hover { background:#f2f8f5; border-color:var(--accent); }
@@ -659,6 +659,9 @@
                 z-index: 9999 !important;
                 box-shadow: 0 -4px 24px rgba(0,0,0,0.18);
                 padding-bottom: env(safe-area-inset-bottom, 0px);
+                background: #ffffff !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
             }
             .sp-tabs { padding: 10px 12px 0; }
             .sp-tab { font-size: 0.78rem; padding: 6px 0; }
@@ -1080,7 +1083,7 @@
                         <div class="special-picker-pop" id="special-picker-pop" style="display:none;">
                             <div class="sp-tabs" id="sp-tabs"></div>
                             <div class="sp-body">
-                                <div style="font-size:0.68rem;color:#bbb;margin-bottom:8px;">더블클릭 (모바일: 두 번 탭)으로 삽입</div>
+                                <div style="font-size:0.68rem;color:#bbb;margin-bottom:8px;">한 번 탭 (PC: 클릭)으로 삽입</div>
                                 <div id="special-preset-grid" class="special-grid"></div>
                             </div>
                             <div class="sp-custom-area">
@@ -1270,7 +1273,7 @@
     </div>
 
     <div style="text-align:right; font-size:0.72rem; color:#ccc; margin-top:18px; padding-top:10px; border-top:1px solid var(--rule); position:relative; z-index:10000;">
-        <span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.2.2</span>
+        <span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.2.1</span>
     </div>
 
     <!-- 이스터에그 오버레이 -->
@@ -4768,6 +4771,22 @@ const SPECIAL_CATEGORIES = [
                     });
                 });
             }
+
+            // 특수문자 팝업 — 키보드 올라올 때 팝업도 같이 올라가게
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', function() {
+                    var pops = [
+                        document.getElementById('special-picker-pop'),
+                        document.getElementById('com-special-picker-pop')
+                    ];
+                    var kbHeight = window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop;
+                    pops.forEach(function(pop) {
+                        if (pop && pop.style.display !== 'none') {
+                            pop.style.bottom = Math.max(0, kbHeight) + 'px';
+                        }
+                    });
+                });
+            }
         });
     })();
     </script>
@@ -4775,7 +4794,7 @@ const SPECIAL_CATEGORIES = [
     <div class="special-picker-pop" id="com-special-picker-pop" style="display:none; position:fixed; z-index:2147483647;">
         <div class="sp-tabs" id="com-sp-tabs"></div>
         <div class="sp-body">
-            <div style="font-size:0.68rem;color:#bbb;margin-bottom:8px;">더블클릭 (모바일: 두 번 탭)으로 삽입</div>
+            <div style="font-size:0.68rem;color:#bbb;margin-bottom:8px;">한 번 탭 (PC: 클릭)으로 삽입</div>
             <div id="com-special-preset-grid" class="special-grid"></div>
         </div>
         <div class="sp-custom-area">
