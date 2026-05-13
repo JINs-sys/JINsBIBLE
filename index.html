@@ -1076,7 +1076,7 @@
                     <div class="fmt-divider"></div>
                     <!-- 특수문자 입력기 -->
                     <div class="fmt-color-wrap" id="fmt-special-wrap">
-                        <button class="fmt-btn" id="fmt-special-btn" onclick="toggleSpecialPicker()" title="특수문자 삽입">특수</button>
+                        <button class="fmt-btn" id="fmt-special-btn" onmousedown="event.preventDefault(); toggleSpecialPicker();" title="특수문자 삽입">특수</button>
                         <div class="special-picker-pop" id="special-picker-pop" style="display:none;">
                             <div class="sp-tabs" id="sp-tabs"></div>
                             <div class="sp-body">
@@ -1637,6 +1637,8 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('color-picker-pop').style.display = 'none';
         pop.style.display = isOpen ? 'none' : 'block';
         if (!isOpen) {
+            // 키보드 내리기 — 에디터 포커스 해제
+            if (document.activeElement) document.activeElement.blur();
             // fixed 포지션으로 전환 — 입력창 뒤에 숨지 않도록
             pop.style.position = 'fixed';
             pop.style.zIndex = '2147483647';
@@ -3341,6 +3343,10 @@ const SPECIAL_CATEGORIES = [
         const isOpen = pop.style.display !== 'none';
         pop.style.display = isOpen ? 'none' : 'block';
         if (!isOpen) {
+            // 커서 위치 먼저 저장 후 blur → 키보드 내리기
+            const ed = document.getElementById('com-content');
+            if (ed) { const s = window.getSelection(); if (s?.rangeCount) comSavedSel = s.getRangeAt(0).cloneRange(); }
+            if (document.activeElement) document.activeElement.blur();
             // z-index를 최상위로 강제 설정 (필사모드, 모바일 오버레이 위)
             pop.style.position = 'fixed';
             pop.style.zIndex = '2147483647';
@@ -3373,8 +3379,6 @@ const SPECIAL_CATEGORIES = [
                 requestAnimationFrame(positionPop);
             }
             comRenderSpecialGrid();
-            const ed = document.getElementById('com-content');
-            if (ed) { ed.focus(); const s = window.getSelection(); if (s?.rangeCount) comSavedSel = s.getRangeAt(0).cloneRange(); }
         }
     }
 
