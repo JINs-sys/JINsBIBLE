@@ -78,10 +78,70 @@
         @media (max-width: 480px) { .action-grid { grid-template-columns: 1fr; } }
         .freewrite-btn { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 14px; padding: 5px 12px; border: 1px solid #a0c4b4; border-radius: 4px; background: #f2f8f5; color: var(--accent); font-size: 0.82rem; font-family: var(--font-main); cursor: pointer; transition: background 0.15s, border-color 0.15s; }
         .freewrite-btn:hover { background: #e4f2ec; border-color: var(--accent); }
+        /* 드롭존 내 "자료 없이 시작" 버튼 */
+        .btn-noref { display:inline-flex; align-items:center; gap:6px; margin-top:18px; padding:7px 16px; border:1px solid var(--accent); border-radius:6px; background:#fff; color:var(--accent); font-size:0.85rem; font-family:var(--font-main); font-weight:500; cursor:pointer; transition:background 0.15s, transform 0.1s; }
+        .btn-noref:hover { background:#f2f8f5; }
+        .btn-noref:active { transform:scale(0.98); }
+        /* 본문 변경 슬라이드 메뉴 — 평소 숨김, 호버 시 우측에서 슬라이드 */
+        #reference-text { overflow:hidden; padding-top: 10px; padding-bottom: 10px; display: flex; align-items: flex-start; }
+        .ref-text-body { padding-right: 14px; text-align: left; display: block; flex: 1; }
+        /* 빈 본문 안내 — 우측 정렬, 메뉴 나오면 자연스럽게 밀림 */
+        .ref-text-body.ref-empty {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex; flex-direction: column; align-items: flex-end; justify-content: center;
+            padding: 12px 20px;
+            font-size: 0.82rem;
+            color: #8a8478;
+            text-align: right;
+            line-height: 1.7;
+            letter-spacing: 0.01em;
+            pointer-events: none;
+            transition: right 0.25s ease;
+        }
+        #reference-text:hover .ref-text-body.ref-empty { right: 112px; }
+        .ref-text-body.ref-empty .ref-empty-icon {
+            display: block; font-size: 1.4rem; color: #b8b2a4;
+            margin-bottom: 8px; opacity: 0.85; text-align: right;
+        }
+        .ref-text-body.ref-empty .ref-empty-emph {
+            color: #5a5750; font-weight: 600; padding: 0 2px;
+        }
+        /* 그라데이션 인디케이터 — 우측에서 본문 쪽으로 흐림 */
+        .ref-side-indicator {
+            position:absolute; right:0; top:0; bottom:0; width:48px;
+            background: linear-gradient(to left, rgba(180,168,148,0.18), transparent);
+            pointer-events:none;
+            transition:opacity 0.25s;
+        }
+        #reference-text:hover .ref-side-indicator { opacity:0; }
+        .ref-side-menu {
+            position:absolute; right:-120px; top:0; bottom:0; width:112px;
+            background:rgba(255,255,255,0.97); border-left:1px solid var(--rule);
+            padding:8px 6px; display:flex; flex-direction:column; gap:5px;
+            transition:right 0.25s ease; z-index:10;
+            box-shadow:-4px 0 16px rgba(0,0,0,0.06);
+        }
+        #reference-text:not(.is-editing):hover .ref-side-menu, .ref-side-menu:hover { right:0; }
+        #reference-text.is-editing .ref-side-menu { right:0; pointer-events:auto; }
+        #reference-text.is-editing .ref-side-indicator { opacity:0; }
+        #reference-text.is-editing { background:#eef4fb; }
+        #reference-text.is-editing .ref-text-body { font-size: 1.3rem; border: 1px dashed #d4e2ee; border-radius: 5px; padding: 5px 7px; margin: 2px; margin-right: 118px; transition: border-color 0.2s; outline: none; }
+        #reference-text.is-editing .ref-text-body:focus { border-color: #a8c4d8; border-style: dashed; outline: none; }
+        .ref-side-btn {
+            border:1px solid transparent; background:#faf9f6; padding:6px 8px;
+            border-radius:6px; font-size:0.74rem; color:var(--ink); cursor:pointer;
+            font-family:var(--font-main); text-align:left; white-space:nowrap;
+            transition:background 0.12s, border-color 0.12s;
+        }
+        .ref-side-btn:hover { background:#e9f5ef; border-color:#cce0d7; color:var(--accent); }
+        .ref-side-btn.editing { background:#fef4c0; border-color:#e8d676; color:#8a6d00; }
+        .ref-side-btn-cancel { color:#a05040 !important; }
+        .ref-side-btn-cancel:hover { background:#fdf0ec !important; border-color:#e8c4b8 !important; color:#c03020 !important; }
 
         .nav-bar { display: none; gap: 6px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
         .nav-bar.visible { display: flex; }
-        .nav-select { border: 1px solid var(--rule); border-radius: 4px; padding: 4px 8px; font-size: 0.85rem; background-color: #fff; outline: none; }
+        .nav-select { border: 1px solid var(--rule); border-radius: 4px; padding: 0 8px; height: 33px; box-sizing: border-box; font-size: 0.85rem; background-color: #fff; outline: none; }
         /* 주석 네비바 — PC에서 높이 통일 */
         #com-nav-bar .nav-select { height: 33px; padding: 0 8px; }
         #com-nav-bar .btn-nav    { height: 33px; min-height: unset; padding: 0 12px; }
@@ -184,12 +244,13 @@
         .c-swatch.sel { border-color:var(--ink); }
 
         .special-picker-pop { position:absolute; bottom:40px; left:0; background:#ffffff; border:1px solid rgba(217,210,193,0.7); border-radius:8px; padding:0; width:535px; z-index:2147483647; box-shadow:0 8px 32px rgba(0,0,0,0.16); overflow:visible; }
-        /* 드래그 핸들 */
-        .sp-drag-handle { display:flex; justify-content:center; align-items:center; padding:7px 8px 5px; cursor:grab; touch-action:none; background:#faf9f6; border-radius:8px 8px 0 0; border-bottom:1px solid rgba(217,210,193,0.4); user-select:none; position:relative; }
+        /* 드래그 핸들 — 타이틀 바 스타일 */
+        .sp-drag-handle { display:flex; justify-content:space-between; align-items:center; padding:0 10px; height:32px; cursor:grab; touch-action:none; background:#f5f1e8; border-radius:8px 8px 0 0; border-bottom:1px solid rgba(217,210,193,0.5); user-select:none; }
         .sp-drag-handle:active { cursor:grabbing; }
-        .sp-drag-pill { width:32px; height:3px; border-radius:2px; background:#ccc; pointer-events:none; flex:1; }
-        .sp-close-btn { position:absolute; right:8px; top:50%; transform:translateY(-50%); border:none; background:none; font-size:0.85rem; color:#aaa; cursor:pointer; padding:2px 6px; border-radius:4px; line-height:1; transition:background 0.12s, color 0.12s; }
-        .sp-close-btn:hover { background:#f0ece3; color:#666; }
+        .sp-drag-title { font-size:0.75rem; color:#9a9085; font-weight:500; letter-spacing:0.02em; }
+        .sp-drag-pill { display:none; }
+        .sp-close-btn { border:none; background:none; font-size:0.95rem; color:#9a9085; cursor:pointer; padding:0 4px; line-height:1; transition:color 0.12s; width:24px; height:24px; display:flex; align-items:center; justify-content:center; border-radius:4px; }
+        .sp-close-btn:hover { background:#e8e2d3; color:#444; }
         /* 드래그 후 플로팅 상태 */
         .special-picker-pop.sp-floating { border-radius:10px !important; box-shadow:0 10px 36px rgba(0,0,0,0.22) !important; }
         .sp-tabs { display:flex; flex-wrap:wrap; gap:0; border-bottom:1px solid rgba(217,210,193,0.6); padding:8px 10px 0; background:#faf9f6; border-radius:8px 8px 0 0; }
@@ -676,8 +737,7 @@
             .sp-body { height: 180px; padding: 8px; }
             .sp-custom-area { padding: 6px 10px; }
             /* 모바일: 드래그 핸들 숨김 (이동 PC 전용) — 닫기 버튼만 별도 표시 */
-            .sp-drag-handle { padding: 4px 8px !important; background: transparent !important; border-bottom: none !important; cursor: default !important; }
-            .sp-drag-pill { display: none !important; }
+            .sp-drag-handle { cursor: default !important; }
             .sp-close-btn { display: none !important; }
 
             /* ── 태그 팝업 → 하단 시트 (fixed) ── */
@@ -937,6 +997,7 @@
         <div id="drop-text">
             <strong style="color: var(--accent);">참고할 성경 역본 파일을<br>이곳에 끌어다 놓거나 클릭하여 불러오세요</strong>
             <p style="font-size:0.8rem; color:#8aab9e; margin:10px 0 0; letter-spacing:0.02em;">✦ TXT · BDB · ZIP 파일 사용 가능 ✦</p>
+            <button class="btn-noref" onclick="event.stopPropagation(); startFreeWrite();">📝 자료 없이 바로 시작</button>
         </div>
         <input type="file" id="file-input" accept=".txt,.bdb">
     </div>
@@ -964,7 +1025,7 @@
         <select class="nav-select" id="nav-book"><option value="">책 선택</option></select>
         <select class="nav-select" id="nav-chapter"><option value="">장 선택</option></select>
         <select class="nav-select" id="nav-verse"><option value="">절 선택</option></select>
-        <button class="btn-nav" onclick="jumpTo()" style="padding:4px 12px;">이동</button>
+        <button class="btn-nav" onclick="jumpTo()">이동</button>
     </div>
 
     <div id="exercise-ui" style="display:none;">
@@ -1042,7 +1103,17 @@
         </div>
 
         <div class="typing-frame">
-            <div id="reference-text" class="verse-box text-common">문장이 여기에 표시됩니다.</div>
+            <div id="reference-text" class="verse-box text-common" style="position:relative;">
+                <div class="ref-text-body">문장이 여기에 표시됩니다.</div>
+                <div class="ref-side-indicator"></div>
+                <div class="ref-side-menu" id="ref-side-menu" onclick="event.stopPropagation();">
+                    <button class="ref-side-btn" id="ref-side-load-btn" onclick="changeRefBible()" title="역본 파일 로드">📂 원문 변경</button>
+                    <button class="ref-side-btn" id="ref-side-edit-btn" onclick="editRefInline()" title="원문 직접 수정">✏️ 원문 편집</button>
+                    <button class="ref-side-btn ref-side-btn-cancel" id="ref-side-cancel-btn" onclick="cancelRefEdit()" title="편집 취소" style="display:none;">✕ 편집 취소</button>
+                    <button class="ref-side-btn" onclick="restoreRefOriginal()" title="원문으로 복원">↺ 원문 복원</button>
+                    <input type="file" id="ref-change-input" accept=".txt,.bdb,.aab,.zip" style="display:none;">
+                </div>
+            </div>
             <!-- 날짜 위치: 상단 -->
             <div id="user-input" contenteditable="true"
                 data-placeholder="원문 수정 및 필사를 자유롭게 하세요"
@@ -1095,7 +1166,7 @@
                         <button class="fmt-btn" id="fmt-special-btn" onmousedown="event.preventDefault(); toggleSpecialPicker();" title="특수문자 삽입">특수</button>
                         <div class="special-picker-pop" id="special-picker-pop" style="display:none;">
                             <div class="sp-drag-handle" id="sp-drag-handle">
-                                <div class="sp-drag-pill"></div>
+                                <span class="sp-drag-title">특수문자</span>
                                 <button class="sp-close-btn" onmousedown="event.preventDefault();" onclick="document.getElementById('special-picker-pop').style.display='none';" title="닫기">✕</button>
                             </div>
                             <div class="sp-tabs" id="sp-tabs"></div>
@@ -2525,7 +2596,9 @@ const SPECIAL_CATEGORIES = [
 
     function applySameText() {
         const input = document.getElementById('user-input');
-        input.innerHTML = document.getElementById('reference-text').innerText;
+        const body  = document.querySelector('#reference-text .ref-text-body');
+        if (!body) return;
+        input.innerHTML = body.innerText.trim();
         input.focus();
     }
 
@@ -2535,9 +2608,12 @@ const SPECIAL_CATEGORIES = [
         fileNameBase = "나만의성경_자유작성";
         document.getElementById('drop-zone').style.display = 'none';
         document.getElementById('action-grid').style.display = 'none';
-        document.getElementById('mode-select-normal').style.display = 'none';
-        document.getElementById('mode-select-freewrite').style.display = 'flex';
-        document.getElementById('reference-text').style.display = 'none';
+        // 풀 UI 표시 — 본문 자동 채움 / 이전절 / 다음절 버튼 포함된 mode-select-normal 사용
+        document.getElementById('mode-select-normal').style.display = 'flex';
+        document.getElementById('mode-select-freewrite').style.display = 'none';
+        const freeRadio = document.querySelector('input[name="typing-mode"][value="free"]');
+        if (freeRadio) freeRadio.checked = true;
+        document.getElementById('reference-text').style.display = '';
         document.getElementById('progress-container').style.display = 'none';
         document.getElementById('nav-bar').classList.add('visible');
         document.getElementById('exercise-ui').style.display = 'block';
@@ -2548,6 +2624,14 @@ const SPECIAL_CATEGORIES = [
         input.dataset.placeholder = '원문 수정 및 필사를 자유롭게 하세요';
         input.setAttribute('data-placeholder', '원문 수정 및 필사를 자유롭게 하세요');
         input.innerHTML = '';
+        // 빈 본문 안내 — 프로페셔널 스타일 (절대 위치, 메뉴와 안 겹침)
+        const refEl = document.getElementById('reference-text');
+        const body  = refEl.querySelector('.ref-text-body');
+        if (body) {
+            body.classList.add('ref-empty');
+            body.innerHTML = '본문 불러오기 메뉴 → <span class="ref-empty-emph">원문 불러오기</span>';
+        }
+        updateRefSideMenuLabel();
         document.getElementById('verse-title').innerText = '자유 입력 모드';
         const lbl = document.getElementById('header-mode-label'); if(lbl){ lbl.textContent=''; lbl.style.display='none'; }
         input.focus();
@@ -2640,13 +2724,128 @@ const SPECIAL_CATEGORIES = [
         }
     }
 
+    // ── 본문 변경 슬라이드 메뉴 액션 ─────────────────────────────────
+    function changeRefBible() {
+        document.getElementById('ref-change-input').click();
+    }
+    function updateRefSideMenuLabel() {
+        const loadBtn = document.getElementById('ref-side-load-btn');
+        if (!loadBtn) return;
+        loadBtn.textContent = bibleData.length ? '📂 원문 변경' : '📂 원문 불러오기';
+        loadBtn.title       = bibleData.length ? '다른 역본 파일 로드' : '역본 파일 로드';
+    }
+    function editRefInline() {
+        const el      = document.getElementById('reference-text');
+        const body    = el?.querySelector('.ref-text-body');
+        const editBtn = document.getElementById('ref-side-edit-btn');
+        if (!body) return;
+        const wasEditing = body.dataset.editing === '1';
+        if (wasEditing) {
+            // 편집 종료 → 저장
+            body.contentEditable = 'false';
+            body.dataset.editing = '';
+            body.style.outline = '';
+            body.style.background = '';
+            el.classList.remove('is-editing');
+            editBtn.classList.remove('editing');
+            editBtn.textContent = '✏️ 원문 편집';
+            document.getElementById('ref-side-cancel-btn').style.display = 'none';
+            const editedText = body.innerText.trim();
+            const idx = (typeof currentIndex !== 'undefined') ? currentIndex : 0;
+            if (bibleData[idx]) {
+                bibleData[idx].text = editedText;
+                alert('편집된 원문이 저장되었습니다.');
+            } else {
+                alert('편집된 본문이 화면에만 적용됩니다.\n저장하려면 먼저 "원문 불러오기"로 본문을 로드한 뒤 편집해 주세요.');
+            }
+            return;
+        }
+        // 편집 모드 진입
+        body.contentEditable = 'true';
+        body.dataset.editing = '1';
+        body.style.outline = '';
+        body.style.background = '';
+        el.classList.add('is-editing');
+        editBtn.classList.add('editing');
+        editBtn.textContent = '💾 편집 저장';
+        document.getElementById('ref-side-cancel-btn').style.display = '';
+        body.focus();
+    }
+    function cancelRefEdit() {
+        const el      = document.getElementById('reference-text');
+        const body    = el?.querySelector('.ref-text-body');
+        const editBtn = document.getElementById('ref-side-edit-btn');
+        if (!body || body.dataset.editing !== '1') return;
+        // 원래 텍스트로 복원 (현재 절 bibleData 기준)
+        const idx = (typeof currentIndex !== 'undefined') ? currentIndex : 0;
+        if (bibleData[idx]) body.textContent = bibleData[idx].text;
+        body.contentEditable = 'false';
+        body.dataset.editing = '';
+        body.style.outline = '';
+        body.style.background = '';
+        el.classList.remove('is-editing');
+        editBtn.classList.remove('editing');
+        editBtn.textContent = '✏️ 원문 편집';
+        document.getElementById('ref-side-cancel-btn').style.display = 'none';
+    }
+    function restoreRefOriginal() {
+        if (!bibleData.length) return alert('로드된 본문이 없습니다.');
+        if (!confirm('현재 절의 원문을 처음 로드한 상태로 복원할까요?\n편집 내용이 있으면 사라집니다.')) return;
+        const idx = (typeof currentIndex !== 'undefined') ? currentIndex : 0;
+        if (currentRawFile) {
+            const reader = new FileReader();
+            const ext = currentRawFile.name.toLowerCase().split('.').pop();
+            if (ext === 'txt') {
+                reader.onload = (ev) => {
+                    const lines = ev.target.result.split(/\r?\n/);
+                    const fresh = lines.filter(l => l.includes('|')).map(l => {
+                        const [t, x] = l.split('|');
+                        return { title: t.trim(), text: x ? x.trim() : '' };
+                    });
+                    const target = fresh.find(d => d.title === bibleData[idx]?.title);
+                    if (target) { bibleData[idx].text = target.text; loadVerse(idx); }
+                };
+                reader.readAsText(currentRawFile);
+            } else {
+                alert('TXT 파일만 원문 복원이 가능합니다.\n다른 형식은 "원문 변경"으로 새로 로드해주세요.');
+            }
+        } else {
+            alert('원본 파일 정보가 없습니다.');
+        }
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+        const refInput = document.getElementById('ref-change-input');
+        if (refInput) {
+            refInput.onchange = (e) => {
+                const f = e.target.files[0]; e.target.value = '';
+                if (!f) return;
+                if (bibleData.length && !confirm(`"${f.name}"으로 본문을 교체합니다. 진행하시겠습니까?`)) return;
+                if (freeWriteMode) {
+                    freeWriteMode = false;
+                    freeCurrentKey = '';
+                    document.getElementById('progress-container').style.display = '';
+                    document.getElementById('verse-title').innerText = '';
+                }
+                bibleData = [];
+                handleFile(f);
+            };
+        }
+    });
+
     function loadVerse(idx) {
         if(idx >= bibleData.length) return alert("성경 끝까지 완료했습니다!");
         currentIndex = idx;
         const data = bibleData[idx];
         document.getElementById('verse-title').innerText = data.title;
         updateHeaderMode();
-        document.getElementById('reference-text').innerText = data.text;
+        // 본문 텍스트만 갱신 (.ref-text-body 만 교체)
+        const refEl = document.getElementById('reference-text');
+        const body  = refEl.querySelector('.ref-text-body');
+        if (body) {
+            body.classList.remove('ref-empty');
+            body.textContent = data.text;
+        }
+        updateRefSideMenuLabel();
         const input = document.getElementById('user-input');
         const existing = typedData.find(d => d.k === data.title);
         // 저장된 데이터에서 본문/각주 분리 복원
@@ -4858,7 +5057,7 @@ const SPECIAL_CATEGORIES = [
     <!-- 주석 특수문자 팝업 (body 레벨 — overflow 클리핑 방지) -->
     <div class="special-picker-pop" id="com-special-picker-pop" style="display:none; position:fixed; z-index:2147483647;">
         <div class="sp-drag-handle" id="com-sp-drag-handle">
-            <div class="sp-drag-pill"></div>
+            <span class="sp-drag-title">특수문자</span>
             <button class="sp-close-btn" onmousedown="event.preventDefault();" onclick="document.getElementById('com-special-picker-pop').style.display='none';" title="닫기">✕</button>
         </div>
         <div class="sp-tabs" id="com-sp-tabs"></div>
