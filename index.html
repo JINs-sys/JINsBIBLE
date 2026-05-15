@@ -87,19 +87,27 @@
         /* 본문 변경 슬라이드 메뉴 — 평소 숨김, 호버 시 우측에서 슬라이드 */
         #reference-text { overflow:hidden; padding-top: 10px; padding-bottom: 10px; display: flex; align-items: flex-start; height: auto; min-height: 140px; max-height: 140px; overflow-y: hidden; transition: max-height 0.3s ease; }
         .ref-text-body { padding-right: 14px; text-align: left; display: block; flex: 1; }
-        /* 빈 본문 안내 — 우측 정렬, 메뉴 나오면 자연스럽게 밀림 */
+        /* 빈 본문 안내 — 좌측 샘플버튼 + 우측 업로드 안내 */
         .ref-text-body.ref-empty {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            display: flex; flex-direction: column; align-items: flex-end; justify-content: center;
+            display: flex; flex-direction: row; align-items: center; justify-content: space-between;
             padding: 12px 20px;
+            font-size: 0.82rem;
+            color: #8a8478;
+            line-height: 1.7;
+            letter-spacing: 0.01em;
+            pointer-events: auto;
+            transition: right 0.25s ease;
+        }
+        .ref-text-body.ref-empty::after {
+            content: '참고 성경역본\A불러오기\A(파일 드롭 가능)→';
+            white-space: pre;
             font-size: 0.82rem;
             color: #8a8478;
             text-align: right;
             line-height: 1.7;
-            letter-spacing: 0.01em;
             pointer-events: none;
-            transition: right 0.25s ease;
         }
         #reference-text:hover .ref-text-body.ref-empty { right: 112px; }
         .ref-text-body.ref-empty .ref-empty-icon {
@@ -161,6 +169,8 @@
         /* contenteditable 입력창 */
         #user-input[contenteditable] { display: block; border: none; outline: none; color: var(--ink); background-color: #ffffff; width: 100%; padding: var(--padding-val); min-height: 140px; max-height: 200px; overflow-y: auto; font-family: var(--font-main); font-size: calc(var(--font-size-text) * 0.65); line-height: var(--line-height-text); word-break: break-all; white-space: pre-wrap; }
         /* 나만의 성경역본 / 필사 모드 공통: 입력창 폰트 = 참고본문과 동일 (JS로 직접 적용) */
+        .sample-btn { border:none; background:none; cursor:pointer; font-size:0.7rem; color:#bbb; font-family:var(--font-main); white-space:nowrap; padding:0 4px; line-height:1; font-weight:400; transition:font-weight 0.1s, color 0.1s; }
+        .sample-btn:hover { font-weight:700; color:#888; }
         #user-input[contenteditable]:empty::before { content: attr(data-placeholder); color: #c0bdb6; pointer-events: none; }
         #user-input.correct { background-color: #e9f5ef; }
         /* 타이핑 통계 바 */
@@ -183,8 +193,8 @@
         #reference-text.strict-mode .ref-text-body.ref-empty {
             position: absolute !important;
             top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
-            display: flex !important; flex-direction: column !important;
-            align-items: flex-end !important; justify-content: center !important;
+            display: flex !important; flex-direction: row !important;
+            align-items: center !important; justify-content: space-between !important;
             padding: 12px 20px !important;
             font-size: 0.82rem !important;
             line-height: 1.7 !important;
@@ -1100,6 +1110,7 @@
             <span class="tstat-item">오타<strong id="tstat-err">0</strong></span>
             <span class="tstat-item">정확도 <strong id="tstat-acc">100</strong><span class="tstat-unit">%</span></span>
             <span class="tstat-item"><span class="tstat-unit">CMP</span><strong id="tstat-cpm" style="font-size:1.4rem; line-height:1;">0</strong></span>
+            <button onclick="loadSampleBible()" title="개역개정 창세기 1장 샘플 불러오기" style="background:none;border:none;cursor:pointer;font-size:0.78rem;color:#d4776e;font-family:var(--font-main);padding:0 4px;font-weight:500;">▷ 샘플본문 click</button>
         </div>
     </div>
 
@@ -1186,7 +1197,8 @@
                 </div>
             </div>
             <!-- 참고본문 아래 액션 버튼 -->
-            <div id="free-tools" style="display:flex; justify-content:flex-end; gap:5px; padding:6px 2px;">
+            <div id="free-tools" style="display:flex; align-items:center; gap:5px; padding:6px 2px;">
+                <div style="flex:1;"></div>
                 <button class="btn-apply" onclick="applySameText()">본문 자동 채움</button>
                 <button class="btn-action" onclick="forcePrev()">이전 절</button>
                 <button class="btn-action" onclick="forceNext()">다음 절 (Enter)</button>
@@ -1336,6 +1348,8 @@
                 <select class="nav-select" id="com-nav-chapter"><option value="">장 선택</option></select>
                 <select class="nav-select" id="com-nav-verse"><option value="">절 선택</option></select>
                 <button class="btn-nav" onclick="comJumpTo()">이동</button>
+                <button class="btn-nav" onclick="comPrev()" title="이전 절">◀ 이전</button>
+                <button class="btn-nav" onclick="comNext()" title="다음 절">다음 ▶</button>
             </div>
 
             <!-- 주석 유형 탭 + 제목 입력 (가로 배치) -->
@@ -1462,7 +1476,7 @@
     </div>
 
     <div id="ver-footer" style="text-align:right; font-size:0.72rem; color:#ccc; margin-top:18px; padding-top:10px; border-top:1px solid var(--rule); position:relative; z-index:1;">
-        <span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.2.2</span>
+        <span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.2.3</span>
     </div>
 
     <!-- 이스터에그 오버레이 -->
@@ -2852,7 +2866,7 @@ const SPECIAL_CATEGORIES = [
         const body  = refEl.querySelector('.ref-text-body');
         if (body) {
             body.classList.add('ref-empty');
-            body.innerHTML = '참고 성경역본 <strong>불러오기</strong>(파일 드롭 가능)→';
+            body.innerHTML = '<button onclick="loadSampleBible()" style="display:inline-block;background:none;border:none;cursor:pointer;font-size:0.82rem;color:#d4776e;font-family:var(--font-main);padding:0;line-height:1.5;text-align:left;font-weight:500;" title="개역개정 창세기 1장 샘플 불러오기">▷ 샘플본문 click</button>';
         }
         updateRefSideMenuLabel();
         // 헤더 타이틀 = 모드 이름 (라디오 라벨과 동일하게 통일)
@@ -2904,6 +2918,173 @@ const SPECIAL_CATEGORIES = [
         const verses = bibleData.filter(d => d.book === data.book && d.ch === data.ch);
         nv.innerHTML = '<option value="">절 선택</option>' + verses.map(v => `<option value="${bibleData.indexOf(v)}">${v.vs}절</option>`).join('');
         nv.value = idx;
+    }
+
+    // ── 샘플 본문 로드 (개역개정 창세기 1:1~1:10) ──────────────────────────
+    const SAMPLE_BIBLE_DATA = [
+        { title:'창 1:1',  text:'<천지 창조> 태초에 하나님이 천지를 창조하시니라' },
+        { title:'창 1:2',  text:'땅이 혼돈하고 공허하며 흑암이 깊음 위에 있고 하나님의 영은 수면 위에 운행하시니라' },
+        { title:'창 1:3',  text:'하나님이 이르시되 빛이 있으라 하시니 빛이 있었고' },
+        { title:'창 1:4',  text:'빛이 하나님이 보시기에 좋았더라 하나님이 빛과 어둠을 나누사' },
+        { title:'창 1:5',  text:'하나님이 빛을 낮이라 부르시고 어둠을 밤이라 부르시니라 저녁이 되고 아침이 되니 이는 첫째 날이니라' },
+        { title:'창 1:6',  text:'하나님이 이르시되 물 가운데에 궁창이 있어 물과 물로 나뉘라 하시고' },
+        { title:'창 1:7',  text:'하나님이 궁창을 만드사 궁창 아래의 물과 궁창 위의 물로 나뉘게 하시니 그대로 되니라' },
+        { title:'창 1:8',  text:'하나님이 궁창을 하늘이라 부르시니라 저녁이 되고 아침이 되니 이는 둘째 날이니라' },
+        { title:'창 1:9',  text:'하나님이 이르시되 천하의 물이 한 곳으로 모이고 뭍이 드러나라 하시니 그대로 되니라' },
+        { title:'창 1:10', text:'하나님이 뭍을 땅이라 부르시고 모인 물을 바다라 부르시니 하나님이 보시기에 좋았더라' },
+    ].map(d => ({ ...d, book:'창', ch:1, vs: parseInt(d.title.split(':')[1]) }));
+
+    function loadSampleBible() {
+        bibleData = SAMPLE_BIBLE_DATA;
+        currentIndex = 0;
+        fileNameBase = '샘플_개역한글';
+
+        // freeWriteMode 해제 — 샘플은 파일 로드 모드와 동일하게 동작
+        freeWriteMode = false;
+        freeCurrentKey = '';
+
+        // drop-zone을 "완료" 상태로 교체 (실제 파일 로드와 동일)
+        const dz = document.getElementById('drop-zone');
+        if (dz) {
+            dz.classList.add('loaded');
+            dz.onclick = null;
+            dz.style.display = '';  // 혹시 숨겨진 경우 복원
+            dz.innerHTML = `
+                <div id="drop-text">
+                    <strong style="color:var(--accent)">✅ 샘플 로드 완료: 창세기 1:1~1:10 (개역개정)</strong>
+                    <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 저장된 결과 파일(TXT)을 이곳에 드롭하세요.</p>
+                </div>
+                <input type="file" id="file-input" accept=".txt" style="display:none;">`;
+            dz.ondragover  = e => { e.preventDefault(); dz.classList.add('dragover'); };
+            dz.ondragleave = () => { dz.classList.remove('dragover'); };
+            dz.ondrop      = e => { e.preventDefault(); dz.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); };
+        }
+
+        // freeWrite 전용 UI 숨기기
+        document.getElementById('mode-select-freewrite').style.display = 'none';
+        const typingFrame = document.querySelector('.typing-frame');
+        if (typingFrame) { typingFrame.classList.remove('free-write-active'); typingFrame.classList.add('strict-active'); typingFrame.classList.remove('strict-active'); }
+
+        // 나만의 성경역본 라디오를 free로 유지 (파일 로드 모드에서 기본값)
+        const freeRadio = document.querySelector('input[name="typing-mode"][value="free"]');
+        if (freeRadio) freeRadio.checked = true;
+
+        document.getElementById('nav-bar').classList.add('visible');
+        document.getElementById('action-grid').style.display = 'none';
+        document.getElementById('exercise-ui').style.display = 'block';
+        document.getElementById('settings-bar').style.display = 'flex';
+        document.getElementById('btn-chart').style.display = 'inline-block';
+        buildBookNav();
+        initTypingMode();
+        loadVerse(0);
+        // 샘플 안내 표시
+        let notice = document.getElementById('sample-notice');
+        if (!notice) {
+            notice = document.createElement('div');
+            notice.id = 'sample-notice';
+            notice.style.cssText = 'position:absolute;bottom:6px;right:10px;font-size:0.62rem;color:#aaa;line-height:1.5;text-align:right;pointer-events:none;';
+            notice.innerHTML = '샘플본문입니다.<br>창세기 1장 10절까지만 있습니다.';
+            const refEl = document.getElementById('reference-text');
+            if (refEl) refEl.appendChild(notice);
+        }
+        notice.style.display = 'block';
+    }
+
+    function hideSampleNotice() {
+        const n = document.getElementById('sample-notice');
+        if (n) n.style.display = 'none';
+    }
+
+    // ── 주석 모드용 5개 역본 샘플 데이터 ────────────────────────────────────
+    function parseSampleTxt(lines, bookOverride) {
+        return lines.map(l => {
+            const pipeIdx = l.indexOf('|');
+            if (pipeIdx < 0) return null;
+            const k = l.slice(0, pipeIdx).trim();
+            const t = l.slice(pipeIdx + 1).trim();
+            const m = k.match(/^(.+?)\s+(\d+):(\d+)/);
+            if (!m) return null;
+            const rawBook = m[1].trim();
+            const book = bookOverride || rawBook;
+            return { title: `${book} ${m[2]}:${m[3]}`, text: t, book, ch: parseInt(m[2]), vs: parseInt(m[3]) };
+        }).filter(Boolean);
+    }
+
+    const COM_SAMPLE_SETS = [
+        {
+            name: '개역개정',
+            data: parseSampleTxt([
+                '창 1:1 | <천지 창조> 태초에 하나님이 천지를 창조하시니라',
+                '창 1:2 | 땅이 혼돈하고 공허하며 흑암이 깊음 위에 있고 하나님의 영은 수면 위에 운행하시니라',
+                '창 1:3 | 하나님이 이르시되 빛이 있으라 하시니 빛이 있었고',
+                '창 1:4 | 빛이 하나님이 보시기에 좋았더라 하나님이 빛과 어둠을 나누사',
+                '창 1:5 | 하나님이 빛을 낮이라 부르시고 어둠을 밤이라 부르시니라 저녁이 되고 아침이 되니 이는 첫째 날이니라',
+                '창 1:6 | 하나님이 이르시되 물 가운데에 궁창이 있어 물과 물로 나뉘라 하시고',
+                '창 1:7 | 하나님이 궁창을 만드사 궁창 아래의 물과 궁창 위의 물로 나뉘게 하시니 그대로 되니라',
+                '창 1:8 | 하나님이 궁창을 하늘이라 부르시니라 저녁이 되고 아침이 되니 이는 둘째 날이니라',
+                '창 1:9 | 하나님이 이르시되 천하의 물이 한 곳으로 모이고 뭍이 드러나라 하시니 그대로 되니라',
+                '창 1:10 | 하나님이 뭍을 땅이라 부르시고 모인 물을 바다라 부르시니 하나님이 보시기에 좋았더라',
+            ])
+        },
+        {
+            name: '새번역',
+            data: parseSampleTxt([
+                '창 1:1 | <천지창조> a태초에 하나님이 천지를 창조하셨다.(a 또는 \'태초에 하나님이 천지를 창조하실 때에\' 또는 \'하나님이 천지를 창조하기 시작하셨을 때에\')',
+                '창 1:2 | 땅이 혼돈하고 공허하며, 어둠이 깊음 위에 있고, b하나님의 영은 물 위에 움직이고 계셨다.(b 또는 \'하나님의 바람\' 또는 \'강한 바람\')',
+                '창 1:3 | ○하나님이 말씀하시기를 "빛이 생겨라" 하시니, 빛이 생겼다.',
+            ])
+        },
+        {
+            name: '공동번역',
+            data: parseSampleTxt([
+                '창 1:1 | ㉠한처음에 하느님께서 하늘과 땅을 지어내셨다. / ㉠"하느님께서 하늘과 땅을 지어내시던 한처음이었다."라고 옮길 수도 있다.',
+                '창 1:2 | 땅은 아직 모양을 갖추지 않고 아무것도 생기지 않았는데, 어둠이 깊은 물 위에 뒤덮여 있었고 그 물 위에 하느님의 ㉠기운이 휘돌고 있었다. / ㉠"바람", "영", "혼", "얼"이라고 옮길 수도 있다.',
+                '창 1:3 | 하느님께서 "빛이 생겨라!" 하시자 빛이 생겨났다.',
+            ])
+        },
+        {
+            name: '카톨릭',
+            data: parseSampleTxt([
+                'Gen 1:1 | 한처음에 하느님께서 하늘과 땅을 창조하셨다.',
+                'Gen 1:2 | 땅은 아직 꼴을 갖추지 못하고 비어 있었는데, 어둠이 심연을 덮고 하느님의 영이 그 물 위를 감돌고 있었다.',
+                'Gen 1:3 | 하느님께서 말씀하시기를 "빛이 생겨라." 하시자 빛이 생겼다.',
+            ], '창')  // GEN/Gen → '창' 정규화
+        },
+        {
+            name: 'NIV',
+            data: parseSampleTxt([
+                'GEN 1:1 | In the beginning God created the heavens and the earth.',
+                'GEN 1:2 | Now the earth was formless and empty, darkness was over the surface of the deep, and the Spirit of God was hovering over the waters.',
+                'GEN 1:3 | And God said, "Let there be light," and there was light.',
+            ], '창')  // GEN → '창' 정규화
+        },
+    ];
+
+    function loadComSampleBible() {
+        if (typeof bibleDataSets === 'undefined') return;
+        // 5개 역본을 모두 슬롯에 로드
+        bibleDataSets = COM_SAMPLE_SETS.map(s => ({ name: s.name, data: s.data }));
+        activeRefTab = 0;
+        // 현재 위치가 없으면 창세기 1:1로 초기화
+        if (!comBook) { comBook = '창'; comChapter = 1; comVerse = 1; }
+        if (typeof renderRefTabs === 'function') renderRefTabs();
+        if (typeof updateRefPanels === 'function') updateRefPanels();
+        // 주석 네비 창세기 1:1로 맞춤
+        setTimeout(() => {
+            const nb = document.getElementById('com-nav-book');
+            const nc = document.getElementById('com-nav-chapter');
+            const nv = document.getElementById('com-nav-verse');
+            if (!nb || !nc || !nv) return;
+            if (nb.value !== comBook) {
+                nb.value = comBook;
+                if (typeof nb.onchange === 'function') nb.onchange();
+            }
+            setTimeout(() => {
+                nc.value = String(comChapter);
+                if (typeof nc.onchange === 'function') nc.onchange();
+                setTimeout(() => { nv.value = String(comVerse); }, 30);
+            }, 30);
+        }, 50);
     }
 
     function buildBookNav() {
@@ -3512,6 +3693,18 @@ const SPECIAL_CATEGORIES = [
                 autoSaveDebounced();
             }
         } else {
+            // 나만의 성경역본 모드: 참고 본문과 동일하면 다음 절 자동 이동
+            if (!freeWriteMode && bibleData.length && bibleData[currentIndex]) {
+                if (this.innerText.trim() === bibleData[currentIndex].text.trim()) {
+                    this.classList.add('correct');
+                    setTimeout(() => {
+                        saveCurrentVerse();
+                        loadVerse(currentIndex + 1);
+                        refreshChartIfVisible();
+                    }, 200);
+                    return;
+                }
+            }
             autoSaveDebounced();
         }
     };
@@ -4312,7 +4505,7 @@ const SPECIAL_CATEGORIES = [
         panelBox.innerHTML = '';
 
         if (bibleDataSets.length === 0) {
-            tabBar.innerHTML = `<button class="com-ref-tab-add" onclick="triggerBibleSlotLoad()" style="font-weight:600; color:#5a5750; gap:5px; display:inline-flex; align-items:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M6 1v7M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>본문 불러오기</button>`;
+            tabBar.innerHTML = `<button class="com-ref-tab-add" onclick="triggerBibleSlotLoad()" style="font-weight:600; color:#5a5750; gap:5px; display:inline-flex; align-items:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M6 1v7M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>본문 불러오기</button><button onclick="loadComSampleBible()" style="margin-left:auto; background:none; border:none; cursor:pointer; font-size:0.82rem; color:#d4776e; font-family:var(--font-main); padding:2px 4px; font-weight:500;" title="창1:1-3, 샘플 5개 역본 불러오기">▷ 샘플 본문보기(5개 역본) </button>`;
             panelBox.innerHTML = `<div class="com-ref-panel no-bible">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요 · TXT · BDB · AAB · ZIP 가능</div>`;
             return;
         }
