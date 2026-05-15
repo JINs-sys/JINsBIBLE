@@ -300,9 +300,9 @@
 
         .typing-frame { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background-color: var(--paper-white); }
         .verse-box { background-color: #f8f7f2; color: #5a5750; border-bottom: 1px solid var(--rule); border-radius: 10px 10px 0 0; }
-        .fmt-toolbar { display:flex; align-items:center; padding:4px 8px; border-top:1px solid var(--rule); background:#faf9f6; border-radius: 0 0 10px 10px; overflow-x:auto; overflow-y:visible; scrollbar-width:none; -ms-overflow-style:none; }
+        .fmt-toolbar { display:flex; align-items:center; padding:1px 4px; border-top:1px solid var(--rule); background:#faf9f6; border-radius: 0 0 10px 10px; overflow-x:auto; overflow-y:visible; scrollbar-width:none; -ms-overflow-style:none; }
         .fmt-toolbar::-webkit-scrollbar { display:none; }
-        .fmt-left { display:flex; align-items:center; gap:1px; flex-wrap:nowrap; flex-shrink:0; }
+        .fmt-left { display:flex; align-items:center; gap:0px; flex-wrap:nowrap; flex-shrink:0; }
         .fmt-center { display:none; }
         .fmt-right  { display:none; }
         .text-common { font-family: var(--font-main); font-size: var(--font-size-text); line-height: var(--line-height-text); padding: 0; width: 100%; box-sizing: border-box; word-break: break-all; white-space: pre-wrap; height: 140px; overflow-y: auto; }
@@ -313,6 +313,7 @@
         .btn-action:hover { background: #f0ece3; border-color: #b0a898; color: var(--ink); }
         .btn-apply { background: var(--accent); color: #fff; border: 1px solid var(--accent); cursor: pointer; padding: 0 14px; height: 30px; border-radius: 4px; font-size: 0.82rem; font-family: var(--font-main); transition: background 0.12s; white-space: nowrap; }
         .btn-apply:hover { background: #1e3329; border-color: #1e3329; }
+        .btn-apply:disabled { background: #b0b0a8; border-color: #b0b0a8; cursor: not-allowed; opacity: 0.6; }
         /* 주석 내보내기 전용 — 모바일 min-height 룰 영향 없이 고정 높이 */
         .com-export-btn { background: var(--accent); color: #fff; border: 1px solid var(--accent); cursor: pointer; padding: 0 12px; height: 28px; min-height: 28px; max-height: 28px; border-radius: 4px; font-size: 0.8rem; font-family: var(--font-main); transition: background 0.12s; white-space: nowrap; flex-shrink: 0; align-self: center; }
         .com-export-btn:hover { background: #1e3329; border-color: #1e3329; }
@@ -327,16 +328,16 @@
 
         /* ── 서식 툴바 ── */
         /* fmt-toolbar defined above with border-radius */
-        .fmt-left { display:flex; align-items:center; gap:1px; flex-wrap:wrap; }
+        .fmt-left { display:flex; align-items:center; gap:0px; flex-wrap:wrap; }
         .fmt-center { display:flex; align-items:center; justify-content:center; flex:1; }
-        .fmt-right { display:flex; align-items:center; gap:1px; }
-        .fmt-btn { display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; padding:0; border:none; border-radius:7px; background:transparent; cursor:pointer; font-size:0.88rem; font-weight:700; color:var(--ink-soft); font-family:var(--font-main); white-space:nowrap; transition:background 0.12s, color 0.12s; }
+        .fmt-right { display:flex; align-items:center; gap:0px; }
+        .fmt-btn { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; padding:0; border:none; border-radius:4px; background:transparent; cursor:pointer; font-size:0.78rem; font-weight:700; color:var(--ink-soft); font-family:var(--font-main); white-space:nowrap; transition:background 0.12s, color 0.12s; }
         .fmt-btn:hover { background:#f0ece3; color:var(--ink); }
         .fmt-btn:active { transform:scale(0.93); }
         .fmt-btn-italic { font-style:italic; }
         .fmt-btn-underline { text-decoration:underline; }
         .fmt-btn-strike { text-decoration:line-through; }
-        .fmt-clear-btn { width:auto; padding:0 8px; gap:4px; color:#c0a898; }
+        .fmt-clear-btn { width:auto; padding:0 5px; gap:2px; color:#c0a898; }
         .fmt-clear-btn:hover { background:#f7f0ec; color:#a07060; }
         .date-del-btn { color:#c0a898 !important; border-color:#e0d4cc !important; }
         .date-del-btn:hover { background:#f7f0ec !important; color:#a07060 !important; border-color:#c0a898 !important; }
@@ -883,11 +884,11 @@
             .fmt-toolbar::-webkit-scrollbar { display: none; }
             .fmt-left { flex-wrap: nowrap; }
             .fmt-btn {
-                width: 44px;
-                height: 44px;
-                font-size: 1rem;
+                width: 34px;
+                height: 34px;
+                font-size: 0.88rem;
                 flex-shrink: 0;
-                border-radius: 8px;
+                border-radius: 6px;
             }
             .fmt-tag-btn { width: auto; padding: 0 12px; }
             .fmt-clear-btn { width: auto; padding: 0 10px; height: 44px; }
@@ -1342,7 +1343,7 @@
             <!-- 참고본문 아래 액션 버튼 -->
             <div id="free-tools" style="display:flex; align-items:center; gap:5px; padding:6px 2px;">
                 <div style="flex:1;"></div>
-                <button class="btn-apply" onclick="applySameText()">본문 자동 채움</button>
+                <button id="btn-apply-text" class="btn-apply" onclick="applySameText()" disabled>본문 자동 채움</button>
             </div>
             <!-- 날짜 위치: 상단 -->
             <div id="user-input" contenteditable="true"
@@ -1446,7 +1447,7 @@
                         <div class="color-picker-pop" id="color-picker-pop" style="display:none;"></div>
                     </div>
                     <div class="fmt-divider"></div>
-                    <button class="fmt-btn" id="fn-pipe-btn" title="각주 구분자 삽입  1) 히, '단어' | 2) 히, '단어'" style="font-family:var(--font-main); letter-spacing:0; color:#888; font-size:0.72rem; width:auto; padding:0 10px;">| 각주구분</button>
+                    <button class="fmt-btn" id="fn-pipe-btn" title="각주 구분자 삽입  1) 히, '단어' | 2) 히, '단어'" style="font-family:var(--font-main); letter-spacing:0; color:#888; font-size:0.72rem; width:auto; padding:0 5px;">| 각주구분</button>
                     <div class="fmt-divider"></div>
                     <button class="fmt-btn fmt-clear-btn" onclick="clearTagsFrom('user-input')" title="본문 태그 전체 삭제">
                         <span style="font-size:0.72rem;">본문태그↺</span>
@@ -2963,6 +2964,7 @@ const SPECIAL_CATEGORIES = [
                         // ref-char span만 걷어내고 텍스트 유지
                         refBody.innerHTML = refBody.innerText;
                     }
+                    delete refBody.dataset.origText;
                 }
             }
 
@@ -2980,6 +2982,23 @@ const SPECIAL_CATEGORIES = [
         input.innerHTML = body.innerText.trim();
         input.focus();
     }
+
+    // 참고 성경역본(ref-text-body)에 내용이 있을 때만 "본문 자동 채움" 버튼 활성화
+    function updateApplyBtnState() {
+        const btn = document.getElementById('btn-apply-text');
+        if (!btn) return;
+        const body = document.querySelector('#reference-text .ref-text-body');
+        const hasRef = body && !body.classList.contains('ref-empty') && body.innerText.trim().length > 0;
+        btn.disabled = !hasRef;
+    }
+
+    // 참고 성경역본 변화 감지 (DOMContentLoaded 이후)
+    document.addEventListener('DOMContentLoaded', function () {
+        const refContainer = document.getElementById('reference-text');
+        if (refContainer) {
+            new MutationObserver(updateApplyBtnState).observe(refContainer, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['class'] });
+        }
+    });
 
     // ── 나만의 성경역본 진입 ──────────────────────────────────────────────
     // mode: 'free' (default) — 나만의 성경역본 / 'strict' — 필사 모드
@@ -3006,6 +3025,7 @@ const SPECIAL_CATEGORIES = [
         input.dataset.placeholder = '원문 수정 및 필사를 자유롭게 하세요';
         input.setAttribute('data-placeholder', '원문 수정 및 필사를 자유롭게 하세요');
         input.innerHTML = '';
+        updateApplyBtnState();
         // 빈 본문 안내 — 프로페셔널 스타일 (절대 위치, 메뉴와 안 겹침)
         const refEl = document.getElementById('reference-text');
         const body  = refEl.querySelector('.ref-text-body');
@@ -3042,6 +3062,7 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('verse-title').innerText = 'JINs Bible';
         const lbl2 = document.getElementById('header-mode-label'); if(lbl2){ lbl2.textContent=''; lbl2.style.display='none'; }
         document.getElementById('user-input').innerHTML = '';
+        updateApplyBtnState();
         document.getElementById('user-input').setAttribute('data-placeholder', '위와 동일하게 입력 시 다음 절로 자동 이동됩니다.');
         const typingFrame = document.querySelector('.typing-frame');
         if (typingFrame) typingFrame.classList.remove('free-write-active');
@@ -3454,6 +3475,7 @@ const SPECIAL_CATEGORIES = [
         if (body) {
             body.classList.remove('ref-empty');
             body.textContent = data.text;
+            delete body.dataset.origText;
             const refEl2 = document.getElementById('reference-text');
             const isStrict = refEl2.classList.contains('strict-mode');
             if (isStrict) {
@@ -3789,8 +3811,60 @@ const SPECIAL_CATEGORIES = [
         loadVerse(currentIndex - 1);
     }
 
+    // 나만의 성경역본 모드: 본문창 글자 색상 비교 렌더링
+    function renderBibleVersionCompare(typed) {
+        const refBody = document.querySelector('#reference-text .ref-text-body');
+        if (!refBody || refBody.classList.contains('ref-empty')) return;
+
+        // 원본 텍스트는 반드시 innerHTML 갱신 전에 캐싱
+        // 우선순위: ① 이미 캐시된 origText ② bibleData ③ 현재 innerText (span 없을 때만)
+        if (!refBody.dataset.origText) {
+            if (bibleData && bibleData[currentIndex]) {
+                refBody.dataset.origText = bibleData[currentIndex].text;
+            } else {
+                // span 태그가 없는 순수 텍스트 상태일 때만 innerText로 캐싱
+                refBody.dataset.origText = refBody.innerText;
+            }
+        }
+        const original = refBody.dataset.origText;
+        if (!original) return;
+
+        const parts = [];
+        for (let i = 0; i < original.length; i++) {
+            let ch = original[i].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            if (original[i] === ' ') ch = '&nbsp;';
+            if (original[i] === '\n') ch = '<br>';
+            const cls = i < typed.length
+                ? (typed[i] === original[i] ? 'char-correct' : 'char-wrong')
+                : 'char-pending';
+            parts.push(original[i] === '\n'
+                ? `<span class="ref-char ${cls}"></span><br>`
+                : `<span class="ref-char ${cls}">${ch}</span>`);
+        }
+        refBody.innerHTML = parts.join('');
+    }
+
     document.getElementById('user-input').oninput = function() {
         if (freeWriteMode) {
+            // 나만의 성경역본 모드: 입력 내용과 본문 비교해 글자색 표시
+            const typed = this.innerText;
+            const refBody = document.querySelector('#reference-text .ref-text-body');
+            if (!refBody || refBody.classList.contains('ref-empty')) {
+                autoSaveDebounced();
+                return;
+            }
+            if (typed.trim()) {
+                renderBibleVersionCompare(typed);
+            } else {
+                // 입력 비우면 본문 색 초기화 — origText 캐시 우선 사용
+                const orig = refBody.dataset.origText
+                    || (bibleData && bibleData[currentIndex] && bibleData[currentIndex].text)
+                    || null;
+                if (orig) {
+                    refBody.textContent = orig;
+                    delete refBody.dataset.origText;
+                }
+            }
             autoSaveDebounced();
             return;
         }
@@ -3848,6 +3922,37 @@ const SPECIAL_CATEGORIES = [
                 autoSaveDebounced();
             }
         } else {
+            // 나만의 성경역본 모드 (mode === 'free'): 필사 모드와 동일하게 글자색 비교 표시
+            const typed   = this.innerText;
+            const refBody = document.querySelector('#reference-text .ref-text-body');
+            if (refBody && !refBody.classList.contains('ref-empty')) {
+                // 원본 텍스트 캐싱 — innerHTML 덮어쓰기 전에 반드시 먼저 확정
+                if (!refBody.dataset.origText) {
+                    refBody.dataset.origText = (bibleData && bibleData[currentIndex])
+                        ? bibleData[currentIndex].text
+                        : refBody.innerText;
+                }
+                const original = refBody.dataset.origText;
+                if (typed.trim() && original) {
+                    const parts = [];
+                    for (let i = 0; i < original.length; i++) {
+                        let ch = original[i].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                        if (original[i] === ' ') ch = '&nbsp;';
+                        if (original[i] === '\n') ch = '<br>';
+                        const cls = i < typed.length
+                            ? (typed[i] === original[i] ? 'char-correct' : 'char-wrong')
+                            : 'char-pending';
+                        parts.push(original[i] === '\n'
+                            ? `<span class="ref-char ${cls}"></span><br>`
+                            : `<span class="ref-char ${cls}">${ch}</span>`);
+                    }
+                    refBody.innerHTML = parts.join('');
+                } else if (!typed.trim() && original) {
+                    // 입력 비우면 본문 원래 색으로 복원
+                    refBody.textContent = original;
+                    delete refBody.dataset.origText;
+                }
+            }
             autoSaveDebounced();
         }
     };
