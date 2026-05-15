@@ -158,17 +158,27 @@
         .ref-side-btn-cancel:hover { background:#fdf0ec !important; border-color:#e8c4b8 !important; color:#c03020 !important; }
 
         /* ── 네비게이션 바 ── */
+        /* ── 네비 바 (공통) ── */
         .nav-bar { display: none; flex-direction: column; gap: 8px; margin-bottom: 16px; }
         .nav-bar.visible { display: flex; }
+        /* PC: nav-row-top이 selects+prevnext를 한 줄로 묶음 */
+        .nav-row-top { display: flex; flex-direction: row; align-items: center; gap: 6px; width: 100%; }
         .nav-row { display: flex; align-items: center; gap: 6px; }
-        .nav-row-selects { flex-wrap: nowrap; }
+        /* PC: selects 행이 남은 공간 채움 */
+        .nav-row-selects { flex: 1; min-width: 0; flex-wrap: nowrap; }
         .nav-row-selects .nav-select { flex: 1; min-width: 0; }
+        /* PC: prevnext 행은 오른쪽에 고정 (shrink 없음) */
+        .nav-row-prevnext { flex-shrink: 0; }
+        /* 구분선 (PC에서만 표시) */
+        .nav-prevnext-divider { width: 1px; height: 20px; background: var(--rule); flex-shrink: 0; margin: 0 2px; }
         .nav-row-mode { padding: 5px 12px; background: #f8f7f2; border-radius: 7px; border: 1px solid var(--rule); }
         .nav-select { border: 1px solid var(--rule); border-radius: 4px; padding: 0 8px; height: 33px; box-sizing: border-box; font-size: 0.85rem; background-color: #fff; outline: none; min-width: 0; }
-        /* 주석 네비바 — PC에서 높이 통일, 가로 배치 유지 */
+        /* 주석 네비바 — PC에서 높이 통일 */
         #com-nav-bar .nav-select { height: 33px; padding: 0 8px; }
         #com-nav-bar .btn-nav    { height: 33px; min-height: unset; padding: 0 12px; }
-        #com-nav-bar.nav-bar     { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 6px; }
+        /* PC: com-nav-bar는 column, 내부 nav-row-top이 row로 1줄 구성 (.nav-row-top 전역 규칙 상속) */
+        #com-nav-bar.nav-bar { flex-direction: column; align-items: stretch; gap: 6px; width: 100%; }
+        #com-nav-bar .nav-row-selects { flex: 1; min-width: 0; }
 
         /* contenteditable 입력창 */
         #user-input[contenteditable] { display: block; border: none; outline: none; color: var(--ink); background-color: #ffffff; width: 100%; box-sizing: border-box; padding: var(--padding-val); min-height: 140px; max-height: 200px; overflow-y: auto; font-family: var(--font-main); font-size: var(--font-size-text); line-height: var(--line-height-text); word-break: break-all; white-space: pre-wrap; }
@@ -780,9 +790,33 @@
             /* ── 파일 업로드 ── */
             .file-upload-container { padding: 30px 16px; }
 
-            /* ── 내비 바 ── */
+            /* ── 내비 바 (모바일: 2줄 분리) ── */
             .nav-bar { gap: 6px; }
+            /* 모바일: nav-row-top을 column으로 전환 → selects 1줄, prevnext 2줄 */
+            .nav-row-top {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            /* 1줄: selects + 이동 — 각 select가 공간 균등 분배 */
+            .nav-row-selects {
+                width: 100%;
+                flex: unset;
+            }
             .nav-row-selects .nav-select { height: 44px; font-size: 0.92rem; }
+            /* 2줄: 이전/다음 — 너비 100%, 두 버튼 균등 분할 */
+            .nav-row-prevnext {
+                width: 100%;
+                flex-shrink: unset;
+                gap: 6px;
+            }
+            .nav-row-prevnext .btn-nav-prev,
+            .nav-row-prevnext .btn-nav-next {
+                flex: 1;
+            }
+            /* 구분선: 모바일에서 숨김 */
+            .nav-prevnext-divider { display: none; }
+            /* btn-nav 공통 높이 */
             .btn-nav { height: 44px; font-size: 0.92rem; padding: 0 16px; }
 
             /* ── 버튼 기본 터치 크기 ── */
@@ -1010,15 +1044,37 @@
                 border-radius: 2px;
             }
 
-            /* ── 주석 모드 — 네비바 (책/장/절/이동) 좌우 꽉 차게, 높이 통일 ── */
+            /* ── 주석 모드 — 네비바 2줄 분리 ── */
             #com-nav-bar.nav-bar {
                 width: 100%;
-                flex-wrap: nowrap;
+                gap: 6px;
+            }
+            /* com-nav-bar 내부 nav-row-top도 column으로 */
+            #com-nav-bar .nav-row-top {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            /* 1줄: 책/장/절 select + 이동 */
+            #com-nav-bar .nav-row-selects {
+                width: 100%;
+                flex: unset;
             }
             #com-nav-bar .nav-row .nav-select {
                 flex: 1;
                 height: var(--com-row-h);
                 font-size: 0.84rem;
+            }
+            /* 2줄: 이전/다음 — 너비 100%, 버튼 균등 분할 */
+            #com-nav-bar .nav-row-prevnext {
+                width: 100%;
+                flex-shrink: unset;
+                gap: 6px;
+            }
+            #com-nav-bar .nav-row-prevnext .btn-nav-prev,
+            #com-nav-bar .nav-row-prevnext .btn-nav-next {
+                flex: 1;
+                height: var(--com-row-h);
             }
             #com-nav-bar .nav-row .btn-nav {
                 height: var(--com-row-h);
@@ -1170,17 +1226,23 @@
     </div>
 
     <div class="nav-bar" id="nav-bar">
-        <!-- 1행: 책/장/절 네비게이션 + 이전/다음 절 -->
-        <div class="nav-row nav-row-selects">
-            <select class="nav-select" id="nav-book"><option value="">책 선택</option></select>
-            <select class="nav-select" id="nav-chapter"><option value="">장 선택</option></select>
-            <select class="nav-select" id="nav-verse"><option value="">절 선택</option></select>
-            <button class="btn-nav" onclick="jumpTo()">이동</button>
-            <div style="width:1px; height:20px; background:var(--rule); flex-shrink:0; margin:0 2px;"></div>
-            <button class="btn-nav" onclick="forcePrev()">◀ 이전</button>
-            <button class="btn-nav" onclick="forceNext()">다음 ▶</button>
+        <!-- PC: selects행+prevnext행을 가로로 묶는 래퍼 / 모바일: column으로 쌓임 -->
+        <div class="nav-row-top">
+            <!-- 1행: 책/장/절 select + 이동 -->
+            <div class="nav-row nav-row-selects">
+                <select class="nav-select" id="nav-book"><option value="">책 선택</option></select>
+                <select class="nav-select" id="nav-chapter"><option value="">장 선택</option></select>
+                <select class="nav-select" id="nav-verse"><option value="">절 선택</option></select>
+                <button class="btn-nav" onclick="jumpTo()">이동</button>
+            </div>
+            <!-- 2행(모바일)/이어붙임(PC): 이전 / 다음 -->
+            <div class="nav-row nav-row-prevnext">
+                <div class="nav-prevnext-divider"></div>
+                <button class="btn-nav btn-nav-prev" onclick="forcePrev()">◀ 이전</button>
+                <button class="btn-nav btn-nav-next" onclick="forceNext()">다음 ▶</button>
+            </div>
         </div>
-        <!-- 2행: 필사 모드 통계 (필사 모드일 때만 표시) -->
+        <!-- 필사 모드 통계 (필사 모드일 때만 표시) -->
         <div class="nav-row nav-row-mode" id="nav-row-mode" style="display:none;">
             <div id="typing-stats" style="display:flex; align-items:baseline; gap:10px; flex-shrink:0;">
                 <span class="tstat-item">오타 <strong id="tstat-err">0</strong></span>
@@ -1417,14 +1479,21 @@
         <!-- 네비게이션 + 주석 유형 선택 (너비 통일) -->
         <div style="display:flex; flex-direction:column; align-items:stretch; gap:0;">
             <div class="nav-bar visible" id="com-nav-bar" style="margin-bottom:6px; width:100%;">
-                <div class="nav-row nav-row-selects" style="width:100%;">
-                    <select class="nav-select" id="com-nav-book"><option value="">책 선택</option></select>
-                    <select class="nav-select" id="com-nav-chapter"><option value="">장 선택</option></select>
-                    <select class="nav-select" id="com-nav-verse"><option value="">절 선택</option></select>
-                    <button class="btn-nav" onclick="comJumpTo()">이동</button>
-                    <div style="width:1px; height:20px; background:var(--rule); flex-shrink:0; margin:0 2px;"></div>
-                    <button class="btn-nav" onclick="comPrev()" title="이전 절">◀ 이전</button>
-                    <button class="btn-nav" onclick="comNext()" title="다음 절">다음 ▶</button>
+                <!-- PC: nav-row-top이 selects+prevnext를 한 줄로 묶음 / 모바일: column으로 쌓임 -->
+                <div class="nav-row-top">
+                    <!-- 1행: 책/장/절 select + 이동 -->
+                    <div class="nav-row nav-row-selects">
+                        <select class="nav-select" id="com-nav-book"><option value="">책 선택</option></select>
+                        <select class="nav-select" id="com-nav-chapter"><option value="">장 선택</option></select>
+                        <select class="nav-select" id="com-nav-verse"><option value="">절 선택</option></select>
+                        <button class="btn-nav" onclick="comJumpTo()">이동</button>
+                    </div>
+                    <!-- 2행(모바일)/이어붙임(PC): 이전 / 다음 -->
+                    <div class="nav-row nav-row-prevnext">
+                        <div class="nav-prevnext-divider"></div>
+                        <button class="btn-nav btn-nav-prev" onclick="comPrev()" title="이전 절">◀ 이전</button>
+                        <button class="btn-nav btn-nav-next" onclick="comNext()" title="다음 절">다음 ▶</button>
+                    </div>
                 </div>
             </div>
 
