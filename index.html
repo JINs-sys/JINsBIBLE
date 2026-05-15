@@ -223,6 +223,16 @@
 			opacity: 1 !important;
 		}
 		
+		/* '본문 불러오기' 호버 시 100% 검정색 강제 적용 */
+		.com-ref-tab-add:hover {
+			color: #000000 !important;
+			opacity: 1 !important;
+		}
+		.com-ref-tab-add:hover svg,
+		.com-ref-tab-add:hover svg path {
+			stroke: #000000 !important;
+		}
+		
 		
 		/* 나만의 성경역본 / 필사 모드 공통: 입력창 폰트 = 참고본문과 동일 (JS로 직접 적용) */
         .sample-btn { border:none; background:none; cursor:pointer; font-size:0.7rem; color:#bbb; font-family:var(--font-main); white-space:nowrap; padding:0 4px; line-height:1; font-weight:400; transition:font-weight 0.1s, color 0.1s; }
@@ -1005,12 +1015,12 @@
                 width: 100%;
                 flex-wrap: nowrap;
             }
-            #com-nav-bar.nav-bar .nav-select {
+            #com-nav-bar .nav-row .nav-select {
                 flex: 1;
                 height: var(--com-row-h);
                 font-size: 0.84rem;
             }
-            #com-nav-bar.nav-bar .btn-nav {
+            #com-nav-bar .nav-row .btn-nav {
                 height: var(--com-row-h);
                 font-size: 0.84rem;
                 padding: 0 12px;
@@ -1405,14 +1415,17 @@
         </div>
 
         <!-- 네비게이션 + 주석 유형 선택 (너비 통일) -->
-        <div style="display:flex; flex-direction:column; align-items:flex-start; gap:0;">
+        <div style="display:flex; flex-direction:column; align-items:stretch; gap:0;">
             <div class="nav-bar visible" id="com-nav-bar" style="margin-bottom:6px; width:100%;">
-                <select class="nav-select" id="com-nav-book"><option value="">책 선택</option></select>
-                <select class="nav-select" id="com-nav-chapter"><option value="">장 선택</option></select>
-                <select class="nav-select" id="com-nav-verse"><option value="">절 선택</option></select>
-                <button class="btn-nav" onclick="comJumpTo()">이동</button>
-                <button class="btn-nav" onclick="comPrev()" title="이전 절">◀ 이전</button>
-                <button class="btn-nav" onclick="comNext()" title="다음 절">다음 ▶</button>
+                <div class="nav-row nav-row-selects" style="width:100%;">
+                    <select class="nav-select" id="com-nav-book"><option value="">책 선택</option></select>
+                    <select class="nav-select" id="com-nav-chapter"><option value="">장 선택</option></select>
+                    <select class="nav-select" id="com-nav-verse"><option value="">절 선택</option></select>
+                    <button class="btn-nav" onclick="comJumpTo()">이동</button>
+                    <div style="width:1px; height:20px; background:var(--rule); flex-shrink:0; margin:0 2px;"></div>
+                    <button class="btn-nav" onclick="comPrev()" title="이전 절">◀ 이전</button>
+                    <button class="btn-nav" onclick="comNext()" title="다음 절">다음 ▶</button>
+                </div>
             </div>
 
             <!-- 주석 유형 탭 + 제목 입력 (가로 배치) -->
@@ -4481,9 +4494,10 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('commentary-write-ui').style.display = 'block';
         document.getElementById('verse-title').innerText = '주석 작성';
         document.getElementById('com-header-verse').style.display = 'inline';
-        // 헤더 버튼 전환
-        document.getElementById('btn-com-back').style.display     = 'inline-flex';
-        document.getElementById('btn-home').style.display         = 'none';
+        // 헤더 버튼 전환 — 홈 버튼을 주석 종료로 교체
+        document.getElementById('btn-com-back').style.display     = 'none';
+        document.getElementById('btn-home').style.display         = 'inline-flex';
+        document.getElementById('btn-home').onclick               = exitCommentaryMode;
         // 드롭존 바인딩 (UI 표시 후)
         setTimeout(initRefDropZone, 0);
         // 모바일: 주석 네비바 크기 축소 (CSS specificity 우회)
@@ -4520,6 +4534,7 @@ const SPECIAL_CATEGORIES = [
         // 헤더 버튼 복원
         document.getElementById('btn-com-back').style.display     = 'none';
         document.getElementById('btn-home').style.display         = 'inline-flex';
+        document.getElementById('btn-home').onclick               = () => location.reload();
         if (bibleData.length) {
             document.getElementById('nav-bar').classList.add('visible');
             document.getElementById('exercise-ui').style.display = 'block';
@@ -4546,12 +4561,30 @@ const SPECIAL_CATEGORIES = [
         tabBar.innerHTML = '';
         panelBox.innerHTML = '';
 
-	if (bibleDataSets.length === 0) {
-		tabBar.innerHTML = `<button class="com-ref-tab-add" onclick="triggerBibleSlotLoad()" style="font-weight:600; color:#5a5750; gap:5px; display:inline-flex; align-items:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M6 1v7M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>본문 불러오기</button>
-		<button class="sample-btn" onclick="loadComSampleBible()" style="margin-left:auto; background:none; border:none; cursor:pointer; font-size:0.82rem; color:#d4776e; font-family:var(--font-main); padding:2px 4px; font-weight:500;" title="창세기 1장 샘플 5개 역본 불러오기">▷샘플 본문보기(5개 역본)</button>`;
-		panelBox.innerHTML = `<div class="com-ref-panel no-bible">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요 · TXT · BDB · AAB · ZIP 가능</div>`;
-		return;
-	}
+		/*==========================================================================
+		' 최초 제작일: 2025-12-04
+		' 최종 수정일: 2026-05-15
+		'==========================================================================*/
+
+		if (bibleDataSets.length === 0) {
+			// [검토 결과] 왼쪽 버튼과 동일한 렌더링 환경을 위해 display, weight, line-height를 강제 동기화함
+		tabBar.innerHTML = `
+		<button class="com-ref-tab-add" onclick="triggerBibleSlotLoad()" 
+			style="font-size:0.82rem; font-weight:600; color:#5a5750; gap:5px; display:inline-flex; align-items:center; vertical-align:middle; line-height:1;">
+			<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+				<path d="M6 1v7M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+				<path d="M1 10h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+			</svg>본문 불러오기
+		</button>
+		<button class="sample-btn" onclick="loadComSampleBible()" 
+			style="margin-left:auto; background:none; border:none; cursor:pointer; font-size:0.82rem; font-weight:600; color:#d4776e; display:inline-flex; align-items:center; vertical-align:middle; line-height:1; padding:2px 4px;" 
+			title="창세기 1장 샘플 5개 역본 불러오기">
+			▷샘플 본문보기(5개 역본)
+		</button>`;
+
+			panelBox.innerHTML = `<div class="com-ref-panel no-bible">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요 · TXT · BDB · AAB · ZIP 가능</div>`;
+			return;
+		}
 
         // 탭 생성
         let dragSrcIdx = null;
