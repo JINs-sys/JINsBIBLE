@@ -172,7 +172,59 @@
 
         /* contenteditable 입력창 */
         #user-input[contenteditable] { display: block; border: none; outline: none; color: var(--ink); background-color: #ffffff; width: 100%; box-sizing: border-box; padding: var(--padding-val); min-height: 140px; max-height: 200px; overflow-y: auto; font-family: var(--font-main); font-size: var(--font-size-text); line-height: var(--line-height-text); word-break: break-all; white-space: pre-wrap; }
-        /* 나만의 성경역본 / 필사 모드 공통: 입력창 폰트 = 참고본문과 동일 (JS로 직접 적용) */
+
+		
+	/* --- 호버 효과 최종 적용 (100% 확정본) --- */
+
+	/* 1. 자유입력 모드: '▷ 샘플본문 click' */
+	.ref-text-body.ref-empty button:hover {
+		font-weight: normal !important; 
+		color: #ff0000 !important;      
+		text-decoration: none !important;
+	}
+
+	/* 2. 자유입력 모드: '참고 성경역본 불러오기...' */
+	.ref-empty-upload-hint {
+		pointer-events: auto !important; 
+	}
+	.ref-empty-upload-hint:hover {
+		font-weight: normal !important; 
+		color: #ff0000 !important;      
+		cursor: pointer;
+	}
+
+	/* 3. 주석 모드: '▷ 샘플 본문보기(5개 역본)' */
+	.sample-btn:hover {
+		font-weight: normal !important; 
+		color: #ff0000 !important;      
+		text-decoration: none !important;
+}	
+
+
+		/* 1. 마우스 인식 및 포인터 설정 (공통) */
+		.ref-empty-upload-hint, 
+		.sample-btn, 
+		#sample-btn {
+			pointer-events: auto !important;
+			cursor: pointer !important;
+			display: inline-block !important;
+		}
+
+		/* 2. 호버 효과 최종 적용 (자유입력 및 주석 모드 통합) */
+		.ref-text-body.ref-empty button:hover,
+		.ref-empty-upload-hint:hover,
+		.sample-btn:hover,
+		.sample-btn *:hover,
+		#sample-btn:hover,
+		#sample-btn *:hover {
+			font-weight: normal !important;
+			color: #ff0000 !important;      /* 고채도 빨간색 */
+			text-decoration: none !important;
+			opacity: 1 !important;
+		}
+		
+		
+		/* 나만의 성경역본 / 필사 모드 공통: 입력창 폰트 = 참고본문과 동일 (JS로 직접 적용) */
         .sample-btn { border:none; background:none; cursor:pointer; font-size:0.7rem; color:#bbb; font-family:var(--font-main); white-space:nowrap; padding:0 4px; line-height:1; font-weight:400; transition:font-weight 0.1s, color 0.1s; }
         .sample-btn:hover { font-weight:700; color:#888; }
         #user-input[contenteditable]:empty::before { content: attr(data-placeholder); color: #c0bdb6; pointer-events: none; }
@@ -4494,11 +4546,12 @@ const SPECIAL_CATEGORIES = [
         tabBar.innerHTML = '';
         panelBox.innerHTML = '';
 
-        if (bibleDataSets.length === 0) {
-            tabBar.innerHTML = `<button class="com-ref-tab-add" onclick="triggerBibleSlotLoad()" style="font-weight:600; color:#5a5750; gap:5px; display:inline-flex; align-items:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M6 1v7M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>본문 불러오기</button><button onclick="loadComSampleBible()" style="margin-left:auto; background:none; border:none; cursor:pointer; font-size:0.82rem; color:#d4776e; font-family:var(--font-main); padding:2px 4px; font-weight:500;" title="창세기 1장 샘플 5개 역본 불러오기">▷샘플 본문보기(5개 역본)</button>`;
-            panelBox.innerHTML = `<div class="com-ref-panel no-bible">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요 · TXT · BDB · AAB · ZIP 가능</div>`;
-            return;
-        }
+	if (bibleDataSets.length === 0) {
+		tabBar.innerHTML = `<button class="com-ref-tab-add" onclick="triggerBibleSlotLoad()" style="font-weight:600; color:#5a5750; gap:5px; display:inline-flex; align-items:center;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;"><path d="M6 1v7M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 10h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>본문 불러오기</button>
+		<button class="sample-btn" onclick="loadComSampleBible()" style="margin-left:auto; background:none; border:none; cursor:pointer; font-size:0.82rem; color:#d4776e; font-family:var(--font-main); padding:2px 4px; font-weight:500;" title="창세기 1장 샘플 5개 역본 불러오기">▷샘플 본문보기(5개 역본)</button>`;
+		panelBox.innerHTML = `<div class="com-ref-panel no-bible">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요 · TXT · BDB · AAB · ZIP 가능</div>`;
+		return;
+	}
 
         // 탭 생성
         let dragSrcIdx = null;
