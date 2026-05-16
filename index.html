@@ -1348,21 +1348,41 @@
                 </div>
             </div>
             <!-- 참고본문 아래 액션 버튼 -->
-            <div id="free-tools" style="display:flex; align-items:center; gap:5px; padding:6px 2px;">
-                <div style="display:flex; align-items:center; gap:1px;">
-                    <span style="font-size:0.7rem; color:#9a8e7a; margin-right:4px; white-space:nowrap;">각주번호 입력</span>
-                    <button class="fn-num-btn" onclick="insertFootnoteNum('¹⁾')" title="각주 1번"><sup>1</sup>⁾</button>
-                    <button class="fn-num-btn" onclick="insertFootnoteNum('²⁾')" title="각주 2번"><sup>2</sup>⁾</button>
-                    <button class="fn-num-btn" onclick="insertFootnoteNum('³⁾')" title="각주 3번"><sup>3</sup>⁾</button>
+            <div id="free-tools" style="display:flex; align-items:center; gap:4px; padding:5px 8px; flex-wrap:nowrap;">
+
+                <!-- ① 각주번호 그룹: 테두리 없이 나열 -->
+                <div style="display:inline-flex; align-items:center; gap:1px; flex-shrink:0;">
+                    <button onclick="insertFootnoteNum('¹⁾')" title="각주 1번" style="background:none;border:none;cursor:pointer;padding:0 6px;height:26px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'"><sup style="font-size:0.65em;">1</sup>⁾</button>
+                    <button onclick="insertFootnoteNum('²⁾')" title="각주 2번" style="background:none;border:none;cursor:pointer;padding:0 6px;height:26px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'"><sup style="font-size:0.65em;">2</sup>⁾</button>
+                    <button onclick="insertFootnoteNum('³⁾')" title="각주 3번" style="background:none;border:none;cursor:pointer;padding:0 6px;height:26px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'"><sup style="font-size:0.65em;">3</sup>⁾</button>
+                    <button onclick="insertFootnoteNum('⁴⁾')" title="각주 4번" style="background:none;border:none;cursor:pointer;padding:0 6px;height:26px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'"><sup style="font-size:0.65em;">4</sup>⁾</button>
+                    <button onclick="insertFootnoteNum('⁵⁾')" title="각주 5번" style="background:none;border:none;cursor:pointer;padding:0 6px;height:26px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'"><sup style="font-size:0.65em;">5</sup>⁾</button>
+                    <span style="width:1px;height:12px;background:#d4ccbc;margin:0 2px;"></span>
+                    <button onclick="insertFootnoteNum('ᵃ')" title="각주 a" style="background:none;border:none;cursor:pointer;padding:0 6px;height:26px;font-size:0.85rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'">ᵃ</button>
+                    <button onclick="insertFootnoteNum('ᵇ')" title="각주 b" style="background:none;border:none;cursor:pointer;padding:0 6px;height:26px;font-size:0.85rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'">ᵇ</button>
+                    <button onclick="insertFootnoteNum('ᶜ')" title="각주 c" style="background:none;border:none;cursor:pointer;padding:0 6px;height:26px;font-size:0.85rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'">ᶜ</button>
                 </div>
-                <div style="flex:1;"></div>
-                <button id="btn-typo-check" class="btn-apply" onclick="toggleTypoCheck()" style="background:#5a7a6a; border-color:#5a7a6a;" disabled>본문 대조</button>
-                <button id="btn-apply-text" class="btn-apply" onclick="applySameText()" disabled>본문 자동 채움</button>
-                <!-- 나만의 성경역본 모드에서만 표시되는 이전/다음 절 버튼 -->
-                <span id="btn-free-nav-group" style="display:none; align-items:center; gap:0; border:1px solid var(--rule); border-radius:5px; overflow:hidden; margin-left:4px;">
-                    <button id="btn-free-prev" onclick="forcePrev()" style="background:none; border:none; border-right:1px solid var(--rule); cursor:pointer; padding:0 10px; height:30px; font-size:0.85rem; color:var(--ink-soft); font-family:var(--font-main); transition:background 0.12s;" onmouseover="this.style.background='#f0ece3'" onmouseout="this.style.background='none'">◀</button>
-                    <span id="free-verse-label" style="font-size:0.78rem; color:var(--ink-soft); white-space:nowrap; padding:0 8px; line-height:30px; background:none; user-select:none;"></span>
-                    <button id="btn-free-next" onclick="forceNext()" style="background:none; border:none; border-left:1px solid var(--rule); cursor:pointer; padding:0 10px; height:30px; font-size:0.85rem; color:var(--ink-soft); font-family:var(--font-main); transition:background 0.12s;" onmouseover="this.style.background='#f0ece3'" onmouseout="this.style.background='none'">▶</button>
+
+                <div style="flex:1; min-width:4px;"></div>
+
+                <!-- ② 다시쓰기 -->
+                <button id="btn-clear-input" onclick="clearUserInput()" title="입력 내용 지우기" style="display:none;background:none;border:none;cursor:pointer;color:#8a8076;font-size:1.1rem;font-weight:600;padding:0 6px;height:26px;line-height:1;transition:color 0.12s;flex-shrink:0;" onmouseover="this.style.color='#c03030'" onmouseout="this.style.color='#8a8076'">↺</button>
+
+                <!-- ③ 세로 구분선 -->
+                <span style="width:1px;height:16px;background:#d4ccbc;flex-shrink:0;"></span>
+
+                <!-- ④ 본문 대조 / 본문 자동 채움 -->
+                <button id="btn-typo-check" onclick="toggleTypoCheck()" style="background:#5a7a6a;border:1px solid #5a7a6a;border-radius:5px;color:#fff;cursor:pointer;font-size:0.78rem;font-family:var(--font-main);padding:0 10px;height:26px;white-space:nowrap;flex-shrink:0;transition:background 0.12s;" onmouseover="this.style.background='#3e5a4e'" onmouseout="this.style.background=this.dataset.active==='1'?'#b04040':'#5a7a6a'" disabled>본문 대조</button>
+                <button id="btn-apply-text" onclick="applySameText()" style="background:#5a7a6a;border:1px solid #5a7a6a;border-radius:5px;color:#fff;cursor:pointer;font-size:0.78rem;font-family:var(--font-main);padding:0 10px;height:26px;white-space:nowrap;flex-shrink:0;transition:background 0.12s;" onmouseover="this.style.background='#3e5a4e'" onmouseout="this.style.background='#5a7a6a'" disabled>자동 채움</button>
+
+                <!-- ⑤ 세로 구분선 -->
+                <span style="width:1px;height:16px;background:#d4ccbc;flex-shrink:0;"></span>
+
+                <!-- ⑥ 이전/다음 절 네비 -->
+                <span id="btn-free-nav-group" style="display:none; align-items:center; gap:0; border:1px solid #d4ccbc; border-radius:5px; overflow:hidden; flex-shrink:0;">
+                    <button id="btn-free-prev" onclick="forcePrev()" style="background:none;border:none;border-right:1px solid #d4ccbc;cursor:pointer;padding:0 9px;height:26px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);transition:background 0.1s;" onmouseover="this.style.background='#ede8de'" onmouseout="this.style.background='none'">◀</button>
+                    <span id="free-verse-label" style="font-size:0.72rem;color:#8a8278;white-space:nowrap;padding:0 6px;line-height:26px;user-select:none;"></span>
+                    <button id="btn-free-next" onclick="forceNext()" style="background:none;border:none;border-left:1px solid #d4ccbc;cursor:pointer;padding:0 9px;height:26px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);transition:background 0.1s;" onmouseover="this.style.background='#ede8de'" onmouseout="this.style.background='none'">▶</button>
                 </span>
             </div>
             <!-- 날짜 위치: 상단 -->
@@ -3047,11 +3067,24 @@ const SPECIAL_CATEGORIES = [
         document.execCommand('insertText', false, sym);
     }
 
+    function clearUserInput() {
+        const input = document.getElementById('user-input');
+        if (!input) return;
+        if (input.innerText.trim() && !confirm('입력 내용을 모두 지울까요?')) return;
+        input.innerHTML = '';
+        document.getElementById('footnote-input').innerHTML = '';
+        const cb = document.getElementById('btn-clear-input'); if (cb) cb.style.display = 'none';
+        input.focus();
+        autoSaveDebounced();
+    }
+
     function applySameText() {
         const input = document.getElementById('user-input');
         const body  = document.querySelector('#reference-text .ref-text-body');
         if (!body) return;
-        input.textContent = body.innerText.trim();  // innerHTML→textContent: <태그>를 HTML로 파싱하지 않음
+        input.textContent = body.innerText.trim();
+        const cb = document.getElementById('btn-clear-input');
+        if (cb) cb.style.display = input.innerText.trim() ? '' : 'none';
         input.focus();
     }
 
@@ -3093,7 +3126,7 @@ const SPECIAL_CATEGORIES = [
             // 각주 문자 코드포인트 제거 (¹²³⁾ 만 — 화면에는 그대로)
             const typedClean = [...typed].filter(ch => {
                 const cp = ch.codePointAt(0);
-                return !(cp === 0x00B9 || cp === 0x00B2 || cp === 0x00B3 || cp === 0x207E);
+                return !(cp === 0x00B9 || cp === 0x00B2 || cp === 0x00B3 || cp === 0x207E || cp === 0x1D43 || cp === 0x1D47 || cp === 0x1D9C);
             }).join('');
 
             if (!refBody.dataset.origText) {
@@ -3667,6 +3700,7 @@ const SPECIAL_CATEGORIES = [
         } else {
             input.innerHTML = '';
             document.getElementById('footnote-input').innerHTML = '';
+            const cb = document.getElementById('btn-clear-input'); if (cb) cb.style.display = 'none';
         }
         input.classList.remove('correct');
         const p = (idx / bibleData.length * 100).toFixed(1);
@@ -4081,7 +4115,8 @@ const SPECIAL_CATEGORIES = [
         const typedClean = [...typed].filter(ch => {
             const cp = ch.codePointAt(0);
             return !(cp === 0x00B9 || cp === 0x00B2 || cp === 0x00B3 ||
-                     (cp >= 0x2070 && cp <= 0x2079) || cp === 0x207E);
+                     (cp >= 0x2070 && cp <= 0x2079) || cp === 0x207E ||
+                     cp === 0x1D43 || cp === 0x1D47 || cp === 0x1D9C);
         }).join('');
 
         const parts = [];
@@ -4089,6 +4124,10 @@ const SPECIAL_CATEGORIES = [
     }
 
     document.getElementById('user-input').oninput = function() {
+        // ↺ 버튼: 내용 있을 때만 표시
+        const clearBtn = document.getElementById('btn-clear-input');
+        if (clearBtn) clearBtn.style.display = this.innerText.trim() ? '' : 'none';
+
         if (freeWriteMode) {
             // 나만의 성경역본 모드: 글자색 비교 없이 자동저장만
             // 혹시 남아있는 비교 span 제거
