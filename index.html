@@ -1487,8 +1487,6 @@
                         <div class="color-picker-pop" id="color-picker-pop" style="display:none;"></div>
                     </div>
                     <div class="fmt-divider"></div>
-                    <button class="fmt-btn" id="fn-pipe-btn" title="각주 구분자 삽입  1) 히, '단어' | 2) 히, '단어'" style="font-family:var(--font-main); letter-spacing:0; color:#888; font-size:0.72rem; width:auto; padding:0 5px;">| 각주구분</button>
-                    <div class="fmt-divider"></div>
                     <button class="fmt-btn fmt-clear-btn" onclick="clearTagsFrom('user-input')" title="본문 태그 전체 삭제">
                         <span style="font-size:0.72rem;">본문태그↺</span>
                     </button>
@@ -1924,25 +1922,6 @@
     })();
 
     // ── 각주 구분자 | 삽입 ─────────────────────────────────────────────────
-    document.getElementById('fn-pipe-btn').addEventListener('click', function() {
-        const fn = document.getElementById('footnote-input');
-        fn.focus();
-        const sel = window.getSelection();
-        // 저장된 커서 위치 또는 현재 선택 영역 사용
-        const range = sel && sel.rangeCount ? sel.getRangeAt(0) : null;
-        if (range && fn.contains(range.commonAncestorContainer)) {
-            range.deleteContents();
-            const txt = document.createTextNode(' | ');
-            range.insertNode(txt);
-            range.setStartAfter(txt);
-            range.collapse(true);
-            sel.removeAllRanges();
-            sel.addRange(range);
-        } else {
-            // 커서가 없으면 맨 끝에 삽입
-            document.execCommand('insertText', false, ' | ');
-        }
-    });
 
     // ── 본문 패널 높이 조절 ────────────────────────────────────────────────
     (function() {
