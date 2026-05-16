@@ -1425,14 +1425,11 @@
             </div>
             <!-- 날짜 row: 항상 하단 -->
             <div class="date-row" id="date-row-bottom">
-                <label>날짜</label>
+                <label>각주에 날짜 삽입</label>
                 <span id="date-display-bottom" style="margin-left:6px;"></span>
                 <div style="margin-left:auto; display:flex; align-items:center; gap:6px;">
-                    <button class="date-pos-btn btn-date-toggle" id="btn-date-toggle" onclick="toggleDateStamp()" title="저장마다 날짜 자동 추가">자동</button>
+                    <button class="date-pos-btn btn-date-toggle" id="btn-date-toggle" onclick="toggleDateStamp()" title="누르면 절마다 날짜 연속 삽입, 다시 누르면 해제">연속 삽입</button>
                     <button class="date-pos-btn" onclick="insertDateStampOnce()" title="날짜 한 번 삽입">1회</button>
-                    <div style="width:1px; height:14px; background:var(--rule); margin:0 2px;"></div>
-                    <button class="date-pos-btn active" id="fn-top-btn" onclick="setDateInFootnote('top')" title="날짜를 각주 맨 위에 삽입">각주상단</button>
-                    <button class="date-pos-btn" id="fn-bottom-btn" onclick="setDateInFootnote('bottom')" title="날짜를 각주 맨 아래에 삽입">각주하단</button>
                     <div style="width:1px; height:14px; background:var(--rule); margin:0 2px;"></div>
                     <button class="date-pos-btn date-del-btn" onclick="clearAllDates()" title="본문·각주 날짜 태그 전체 삭제">날짜삭제</button>
                 </div>
@@ -1782,7 +1779,7 @@
     let dateStampEnabled = false;
     let activeEditor = 'main';  // 'main' | 'footnote'
     let savedSelection = null;
-    let dateInFootnote = 'top';
+    const dateInFootnote = 'bottom';
 
     // ── 주석 작성 모드 ────────────────────────────────────────────────────
     let commentaryMode = false;
@@ -1790,12 +1787,6 @@
     let currentComType = 'verse';        // 'verse' | 'chapter' | 'intro'
     let comBook = '', comChapter = 1, comVerse = 1;
     let comBibleIndex = 0;               // 성경 데이터 내 현재 절 인덱스
-
-    function setDateInFootnote(pos) {
-        dateInFootnote = pos;
-        document.getElementById('fn-top-btn').classList.toggle('active', pos === 'top');
-        document.getElementById('fn-bottom-btn').classList.toggle('active', pos === 'bottom');
-    }
 
     function updateDateDisplay() {
         const now = new Date();
@@ -2286,6 +2277,7 @@ const SPECIAL_CATEGORIES = [
                 span.remove();
             });
         });
+        autoSaveDebounced();  // DOM 변경을 typedData에 즉시 반영
     }
 
     function insertJTag() {
@@ -2447,6 +2439,7 @@ const SPECIAL_CATEGORIES = [
     function toggleDateStamp() {
         dateStampEnabled = !dateStampEnabled;
         document.getElementById('btn-date-toggle').classList.toggle('active', dateStampEnabled);
+        if (dateStampEnabled) insertDateStampOnce();  // 활성화 즉시 현재 절에 삽입
     }
 
     function getDateStamp() {
@@ -2479,23 +2472,15 @@ const SPECIAL_CATEGORIES = [
         span.dataset.date = date;
         span.textContent = `${date}`;
         const br = document.createElement('br');
-        if (dateInFootnote === 'top') {
-            fn.prepend(br);
-            fn.prepend(span);
-        } else {
-            fn.appendChild(br);
-            fn.appendChild(span);
-        }
+        fn.appendChild(br);
+        fn.appendChild(span);
         const sel = window.getSelection();
         const range = document.createRange();
-        if (dateInFootnote === 'top') {
-            range.setStartAfter(br);
-        } else {
-            range.setStartAfter(span);
-        }
+        range.setStartAfter(span);
         range.collapse(true);
         sel.removeAllRanges();
         sel.addRange(range);
+        autoSaveDebounced();  // 날짜 삽입 즉시 저장 트리거
     }
 
     const ABBR_ALIAS = {'요일':'요1','요이':'요2','요삼':'요3'};
@@ -3766,10 +3751,11 @@ const SPECIAL_CATEGORIES = [
             const tag = node.tagName.toLowerCase();
             const kids = Array.from(node.childNodes).map(walk).join('');
 
-            // 날짜 스탬프 → //YYYY.MM.DD (저장 포맷)
+            // 날짜 스탬프 → YYYY.MM.DD (저장 포맷, 앞의 BR 요소가 줄바꿈 담당)
             if (node.classList && node.classList.contains('inline-date-stamp')) {
                 const dt = node.dataset.date || node.textContent.replace(/^†?/,'');
-                return dateInFootnote === 'top' ? `${dt}` : `<br>${dt}`;
+                return dt;  // <br> 없이 순수 날짜 텍스트만 — 앞 BR 요소가 
+ 생성
             }
 
             // 인라인 태그 chip → [#태그명]
@@ -3873,8 +3859,7 @@ const SPECIAL_CATEGORIES = [
                 span.className = 'inline-date-stamp';
                 span.dataset.date = date;
                 span.textContent = `${date}`;
-                if (dateInFootnote === 'top') fnEl.prepend(span);
-                else fnEl.appendChild(span);
+                fnEl.appendChild(span);
             }
         }
         const fnContent = toSaveFormat(fnEl.innerHTML).trim()
@@ -4258,10 +4243,7 @@ const SPECIAL_CATEGORIES = [
                         .replace(/\[\/#[^\]]+\]/g, '');
                     mainPart = strip(mainPart).replace(/\n/g, ' ').trim();
                     if (!fnPart.trim()) return mainPart;
-                    // 날짜 스탬프 제거
-                    fnPart = strip(fnPart)
-                        .replace(/\d{4}\.\d{2}\.\d{2}/g, '')
-                        .trim();
+                    fnPart = strip(fnPart).trim();
                     // 구분자 감지: ① 파이프(|) ② <br> (엔터 입력) 순으로 분리
                     let items;
                     if (fnPart.includes('|')) {
@@ -4273,10 +4255,32 @@ const SPECIAL_CATEGORIES = [
                         items = fnPart.split(/<br\s*\/?>/gi)
                             .map(s => s.trim());
                     }
-                    const blocks = items
-                        .filter(s => s && !/^\d{4}\.\d{2}\.\d{2}$/.test(s))
-                        .map(s => `【${s}】`);
-                    return mainPart + (blocks.length ? ' ' + blocks.join(' ') : '');
+                    // 날짜/숫자각주/알파벳각주 분리 처리
+                    const ALPHA_SUPS = {a:'ᵃ',b:'ᵇ',c:'ᶜ',d:'ᵈ',e:'ᵉ',f:'ᶠ',g:'ᵍ',h:'ʰ',i:'ⁱ',j:'ʲ',k:'ᵏ',l:'ˡ',m:'ᵐ',n:'ⁿ',o:'ᵒ',p:'ᵖ',r:'ʳ',s:'ˢ',t:'ᵗ',u:'ᵘ',v:'ᵛ',w:'ʷ',x:'ˣ',y:'ʸ',z:'ᶻ'};
+                    const DATE_RE = /^\d{4}\.\d{2}\.\d{2}$/;
+                    const valid = items.filter(Boolean);
+
+                    // 날짜 위치 감지: 맨 앞=상단, 맨 뒤=하단
+                    let topDate = null, bottomDate = null;
+                    if (valid.length && DATE_RE.test(valid[0].trim()))    topDate    = valid.shift().trim();
+                    if (valid.length && DATE_RE.test(valid[valid.length-1].trim())) bottomDate = valid.pop().trim();
+
+                    // 숫자각주 → 【N) text】 / 알파벳각주 → ᵃtext 별도 라인
+                    const numFns = [], alphaFns = [];
+                    valid.forEach(s => {
+                        const nm = s.match(/^(\d+)\)([\s\S]*)$/);
+                        if (nm) { numFns.push(`【${nm[1]})${nm[2].trim()}】`); return; }
+                        const am = s.match(/^([a-z])([\s\S]*)$/);
+                        if (am) { alphaFns.push(`${ALPHA_SUPS[am[1]] || am[1]}${am[2]}`); return; }
+                    });
+
+                    // 형식: 본문<br>▷날짜(상단)<br>【숫자각주】<br>▷ᵃ알파벳각주<br>▷날짜(하단)
+                    let result = mainPart;
+                    if (topDate)        result += `<br>▷【${topDate}】`;
+                    if (numFns.length)  result += numFns.join(' ');
+                    if (alphaFns.length) result += `<br>▷${alphaFns.join('<br> | ')}<br>|`;
+                    if (bottomDate)     result += `<br>▷${bottomDate}`;
+                    return result;
                 }
 
                 const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
