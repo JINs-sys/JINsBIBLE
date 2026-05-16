@@ -19,7 +19,7 @@
         :root {
             --ink: #1a1815; --ink-soft: #4a4740; --paper: #f6f2e9; --paper-white: #ffffff;
             --rule: #d9d2c1; --accent: #2d4a3e; --font-main: 'Pretendard Variable', sans-serif;
-            --font-size-text: 1.6rem; --line-height-text: 1.7; --padding-val: 18px;
+            --font-size-text: 1.6rem; --line-height-text: 1.5; --padding-val: 18px;
         }
         * { box-sizing: border-box; }
         body { margin: 0; background-color: var(--paper); color: var(--ink); font-family: var(--font-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
@@ -95,7 +95,7 @@
             padding: var(--padding-val);
             font-size: 0.82rem;
             color: #8a8478;
-            line-height: 1.7;
+            line-height: 1.5;
             letter-spacing: 0.01em;
             pointer-events: auto;
             transition: right 0.25s ease;
@@ -103,7 +103,7 @@
         .ref-text-body.ref-empty::after { content: ''; display: none; }
         .ref-empty-upload-hint {
             font-size: 0.82rem; color: #8a8478; text-align: right;
-            line-height: 1.7; pointer-events: none; flex-shrink: 0;
+            line-height: 1.5; pointer-events: none; flex-shrink: 0;
         }
         #reference-text:hover .ref-text-body.ref-empty,
         #reference-text.is-editing .ref-text-body.ref-empty { right: 120px !important; }
@@ -271,7 +271,7 @@
             align-items: center !important; justify-content: space-between !important;
             padding: var(--padding-val) !important;
             font-size: 0.82rem !important;
-            line-height: 1.7 !important;
+            line-height: 1.5 !important;
             white-space: normal !important;
             word-break: normal !important;
             color: #8a8478 !important;
@@ -289,6 +289,7 @@
         /* 공백 오류: 글자색 그대로, 위에 ▽ 표시 */
         .ref-char.char-space-err { color: var(--ink); }
         .ref-char.char-space-err::before { content:'▽'; position:absolute; top:-0.7em; left:50%; transform:translateX(-50%); color:#c03030; font-size:0.5em; line-height:1; pointer-events:none; }
+        .ref-char.char-extra-space { color:#c03030; font-size:0.55em; vertical-align:super; line-height:0; pointer-events:none; user-select:none; }
         .inline-j-tag { color: #d0342c; }
         .fmt-j-btn { color: #d0342c !important; font-weight: 700; }
         .fmt-j-btn:hover { background: #fdf0f0 !important; color: #a01a10 !important; }
@@ -1357,6 +1358,12 @@
                 <div style="flex:1;"></div>
                 <button id="btn-typo-check" class="btn-apply" onclick="toggleTypoCheck()" style="background:#5a7a6a; border-color:#5a7a6a;" disabled>본문 대조</button>
                 <button id="btn-apply-text" class="btn-apply" onclick="applySameText()" disabled>본문 자동 채움</button>
+                <!-- 나만의 성경역본 모드에서만 표시되는 이전/다음 절 버튼 -->
+                <span id="btn-free-nav-group" style="display:none; align-items:center; gap:0; border:1px solid var(--rule); border-radius:5px; overflow:hidden; margin-left:4px;">
+                    <button id="btn-free-prev" onclick="forcePrev()" style="background:none; border:none; border-right:1px solid var(--rule); cursor:pointer; padding:0 10px; height:30px; font-size:0.85rem; color:var(--ink-soft); font-family:var(--font-main); transition:background 0.12s;" onmouseover="this.style.background='#f0ece3'" onmouseout="this.style.background='none'">◀</button>
+                    <span id="free-verse-label" style="font-size:0.78rem; color:var(--ink-soft); white-space:nowrap; padding:0 8px; line-height:30px; background:none; user-select:none;"></span>
+                    <button id="btn-free-next" onclick="forceNext()" style="background:none; border:none; border-left:1px solid var(--rule); cursor:pointer; padding:0 10px; height:30px; font-size:0.85rem; color:var(--ink-soft); font-family:var(--font-main); transition:background 0.12s;" onmouseover="this.style.background='#f0ece3'" onmouseout="this.style.background='none'">▶</button>
+                </span>
             </div>
             <!-- 날짜 위치: 상단 -->
             <div id="user-input" contenteditable="true"
@@ -1366,7 +1373,10 @@
 
             <!-- 입력창↕각주창 비율 조절 핸들 -->
             <div id="ratio-handle" style="position:relative; height:0; border-top:1px solid #dedad2; z-index:3; overflow:visible;">
-                <div id="ratio-knob" style="position:absolute; left:50%; top:0; transform:translate(-50%,-50%); width:14px; height:14px; border-radius:50%; background:var(--paper); border:1.5px solid #b8b2a8; cursor:ns-resize; flex-shrink:0;"></div>
+                <div id="ratio-knob" style="position:absolute; left:50%; top:0; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; justify-content:center; background:none; cursor:ns-resize; flex-shrink:0; line-height:1; gap:5px; padding:4px 6px;">
+                    <span style="font-size:0.65rem; color:#b8b2a8; line-height:1;">▲</span>
+                    <span style="font-size:0.65rem; color:#b8b2a8; line-height:1;">▼</span>
+                </div>
             </div>
 
             <div class="footnote-wrapper">
@@ -1505,8 +1515,8 @@
                     <!-- 2행(모바일)/이어붙임(PC): 이전 / 다음 -->
                     <div class="nav-row nav-row-prevnext">
                         <div class="nav-prevnext-divider"></div>
-                        <button class="btn-nav btn-nav-prev" onclick="comPrev()" title="이전 절">◀ 이전</button>
-                        <button class="btn-nav btn-nav-next" onclick="comNext()" title="다음 절">다음 ▶</button>
+                        <button class="btn-nav btn-nav-prev" onclick="comPrev()" title="이전 절">◀</button>
+                        <button class="btn-nav btn-nav-next" onclick="comNext()" title="다음 절">▶</button>
                     </div>
                 </div>
             </div>
@@ -2982,6 +2992,10 @@ const SPECIAL_CATEGORIES = [
                 }
             }
 
+            // 나만의 성경역본 모드에서만 이전/다음 절 그룹 표시
+            const freeNavGroup = document.getElementById('btn-free-nav-group');
+            if (freeNavGroup) freeNavGroup.style.display = isFree ? 'inline-flex' : 'none';
+
             const input = document.getElementById('user-input');
             input.setAttribute('data-placeholder', isFree ? (input.dataset.freePlaceholder || '원문 수정 및 필사를 자유롭게 하세요') : '위와 동일하게 입력 시 다음 절로 자동 이동됩니다.');
             input.focus();
@@ -3089,21 +3103,7 @@ const SPECIAL_CATEGORIES = [
             const original = refBody.dataset.origText;
             if (!original) return;
 
-            // 역본 모드 본문 대조: 단순 위치 비교 (각주 기호 제거 후)
-            // ▽ 없이 틀린 글자만 빨간색
-            const parts = [];
-            for (let i = 0; i < original.length; i++) {
-                let ch = original[i].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-                if (original[i] === ' ') ch = '&nbsp;';
-                if (original[i] === '\n') ch = '<br>';
-                const cls = i < typedClean.length
-                    ? (typedClean[i] === original[i] ? 'char-correct' : 'char-wrong')
-                    : 'char-pending';
-                parts.push(original[i] === '\n'
-                    ? `<span class="ref-char ${cls}"></span><br>`
-                    : `<span class="ref-char ${cls}">${ch}</span>`);
-            }
-            refBody.innerHTML = parts.join('');
+            renderCompareInto(original, typedClean, refBody);
         }
     }
 
@@ -3195,6 +3195,12 @@ const SPECIAL_CATEGORIES = [
 
     // ── 파일 로드용 네비 ─────────────────────────────────────────────────
     function syncNavToVerse(data, idx) {
+        // free-verse-label 갱신 (나만의 성경역본 모드 이전/다음 절 표시)
+        const verseLabel = document.getElementById('free-verse-label');
+        if (verseLabel) {
+            const vs = data.vs || (data.title && data.title.match(/:(\d+)$/) || [])[1];
+            if (vs) verseLabel.textContent = vs + '절';
+        }
         const nb = document.getElementById('nav-book');
         const nc = document.getElementById('nav-chapter');
         const nv = document.getElementById('nav-verse');
@@ -3946,6 +3952,59 @@ const SPECIAL_CATEGORIES = [
     // 나만의 성경역본 모드: 본문창 글자 색상 비교 렌더링
     // 글자 알고리즘 + 공백 알고리즘 분리 실행
     // 반환: original 각 위치에 대해 'correct'|'wrong'|'pending'|'space-err'
+    // 원본에 공백 없는 자리에 typed가 공백을 추가한 경우: 해당 비공백 글자 인덱스 Set 반환
+    function getExtraSpaceAfter(original, typed) {
+        const typedGapCount = new Map();
+        let tNS = -1;
+        for (const c of typed) {
+            if (c === ' ') typedGapCount.set(tNS, (typedGapCount.get(tNS) || 0) + 1);
+            else tNS++;
+        }
+        const origGapCount = new Map();
+        let oNS = -1;
+        for (const c of original) {
+            if (c === ' ') origGapCount.set(oNS, (origGapCount.get(oNS) || 0) + 1);
+            else oNS++;
+        }
+        const extraAfter = new Set();
+        let k = -1;
+        for (const c of original) {
+            if (c !== ' ' && c !== '\n') {
+                k++;
+                if ((origGapCount.get(k) || 0) === 0 && (typedGapCount.get(k) || 0) > 0) {
+                    extraAfter.add(k);
+                }
+            }
+        }
+        return extraAfter;
+    }
+
+    // 비교 렌더링 통합 함수: classifyMixed + extra-space ▽ 주입
+    function renderCompareInto(original, typedClean, refBody) {
+        const classes = classifyMixed(original, typedClean);
+        const extraAfter = getExtraSpaceAfter(original, typedClean);
+        const parts = [];
+        let nsCount = -1;
+        for (let i = 0; i < original.length; i++) {
+            const c = original[i];
+            let ch = c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            if (c === ' ') ch = '&nbsp;';
+            const cls = 'char-' + (classes[i] || 'pending');
+            if (c === '\n') {
+                parts.push(`<span class="ref-char ${cls}"></span><br>`);
+            } else {
+                parts.push(`<span class="ref-char ${cls}">${ch}</span>`);
+                if (c !== ' ') {
+                    nsCount++;
+                    if (extraAfter.has(nsCount)) {
+                        parts.push('<span class="ref-char char-extra-space">▽</span>');
+                    }
+                }
+            }
+        }
+        refBody.innerHTML = parts.join('');
+    }
+
     function classifyMixed(original, typed) {
         // ── 글자 알고리즘: 공백 제거 후 위치 비교 ──
         const origNS  = [...original].filter(c => c !== ' ' && c !== '\n');
@@ -4026,18 +4085,7 @@ const SPECIAL_CATEGORIES = [
         }).join('');
 
         const parts = [];
-        const classes = classifyMixed(original, typedClean);
-        for (let i = 0; i < original.length; i++) {
-            let ch = original[i].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-            if (original[i] === ' ') ch = '&nbsp;';
-            if (original[i] === '\n') ch = '<br>';
-            // 공백 오류는 ▽, 일반 오류는 빨간색
-            const cls = classes[i] || 'pending';
-            parts.push(original[i] === '\n'
-                ? `<span class="ref-char char-${cls}"></span><br>`
-                : `<span class="ref-char char-${cls}">${ch}</span>`);
-        }
-        refBody.innerHTML = parts.join('');
+        renderCompareInto(original, typedClean, refBody);
     }
 
     document.getElementById('user-input').oninput = function() {
@@ -4078,18 +4126,7 @@ const SPECIAL_CATEGORIES = [
             // 글자별 오타 표시 (글자 알고리즘 + 공백 알고리즘 분리)
             if (refBody && bibleData[currentIndex]) {
                 const original = bibleData[currentIndex].text;
-                const classes = classifyMixed(original, typed);
-                const parts = [];
-                for (let i = 0; i < original.length; i++) {
-                    let ch = original[i].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-                    if (original[i] === ' ') ch = '&nbsp;';
-                    if (original[i] === '\n') ch = '<br>';
-                    const cls = 'char-' + (classes[i] || 'pending');
-                    parts.push(original[i] === '\n'
-                        ? `<span class="ref-char ${cls}"></span><br>`
-                        : `<span class="ref-char ${cls}">${ch}</span>`);
-                }
-                refBody.innerHTML = parts.join('');
+                renderCompareInto(original, typed, refBody);
             }
             if (this.innerText.trim() === bibleData[currentIndex].text.trim()) {
                 this.classList.add('correct');
@@ -4107,34 +4144,33 @@ const SPECIAL_CATEGORIES = [
                 autoSaveDebounced();
             }
         } else {
-            // 나만의 성경역본 모드 (mode === 'free'): 필사 모드와 동일하게 글자색 비교 표시
-            const typed   = this.innerText;
-            const refBody = document.querySelector('#reference-text .ref-text-body');
-            if (refBody && !refBody.classList.contains('ref-empty')) {
-                // 원본 텍스트 캐싱 — innerHTML 덮어쓰기 전에 반드시 먼저 확정
-                if (!refBody.dataset.origText) {
-                    refBody.dataset.origText = (bibleData && bibleData[currentIndex])
-                        ? bibleData[currentIndex].text
-                        : refBody.innerText;
-                }
-                const original = refBody.dataset.origText;
-                if (typed.trim() && original) {
-                    const classes = classifyMixed(original, typed);
-                    const parts = [];
-                    for (let i = 0; i < original.length; i++) {
-                        let ch = original[i].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-                        if (original[i] === ' ') ch = '&nbsp;';
-                        if (original[i] === '\n') ch = '<br>';
-                        const cls = 'char-' + (classes[i] || 'pending');
-                        parts.push(original[i] === '\n'
-                            ? `<span class="ref-char ${cls}"></span><br>`
-                            : `<span class="ref-char ${cls}">${ch}</span>`);
+            // 나만의 성경역본 모드 (mode === 'free')
+            // 본문 대조는 버튼으로만 수동 제어 — 자동 실행 안 함
+            // 단, 버튼이 이미 활성화된 상태(_typoCheckActive)에서는 입력 변화 반영
+            const wasFnInsert = !!window._fnNumInsert;
+            window._fnNumInsert = false;  // 플래그 소비 (1회성)
+
+            if (_typoCheckActive && !wasFnInsert) {
+                const typed   = this.innerText;
+                const refBody = document.querySelector('#reference-text .ref-text-body');
+                if (refBody && !refBody.classList.contains('ref-empty')) {
+                    if (!refBody.dataset.origText) {
+                        refBody.dataset.origText = (bibleData && bibleData[currentIndex])
+                            ? bibleData[currentIndex].text
+                            : refBody.innerText;
                     }
-                    refBody.innerHTML = parts.join('');
-                } else if (!typed.trim() && original) {
-                    // 입력 비우면 본문 원래 색으로 복원
-                    refBody.textContent = original;
-                    delete refBody.dataset.origText;
+                    const original = refBody.dataset.origText;
+                    if (typed.trim() && original) {
+                        const typedClean = [...typed].filter(ch => {
+                            const cp = ch.codePointAt(0);
+                            return !(cp === 0x00B9 || cp === 0x00B2 || cp === 0x00B3 ||
+                                     (cp >= 0x2070 && cp <= 0x2079) || cp === 0x207E);
+                        }).join('');
+                        renderCompareInto(original, typedClean, refBody);
+                    } else if (!typed.trim() && original) {
+                        refBody.textContent = original;
+                        delete refBody.dataset.origText;
+                    }
                 }
             }
             autoSaveDebounced();
@@ -4237,6 +4273,10 @@ const SPECIAL_CATEGORIES = [
         // bibleData가 로드된 경우에는 free 라디오여도 freeWriteMode = false 유지
         freeWriteMode = !isStrict && !bibleData.length;
         showTypingStats(isStrict);
+        // 이전/다음 절 그룹: 나만의 성경역본 모드(free)일 때만 표시
+        const isFreeMode = checked && checked.value === 'free';
+        const freeNavGroup = document.getElementById('btn-free-nav-group');
+        if (freeNavGroup) freeNavGroup.style.display = isFreeMode ? 'inline-flex' : 'none';
 
         // 본문창·입력창 스크롤 동기화 (입력 중 정렬 유지)
         const refEl = document.getElementById('reference-text');
