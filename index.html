@@ -2660,8 +2660,11 @@ const SPECIAL_CATEGORIES = [
         } else {
             // 원본 파일 로드
             currentRawFile = file;
-            if (file.name.toLowerCase().endsWith('.bdb')) {
-                processBdbFile();
+            const lower = file.name.toLowerCase();
+            if (lower.endsWith('.bdb')) {
+                processBdbFile(0);
+            } else if (lower.endsWith('.aab')) {
+                processBdbFile(8); // AAB: 8바이트 헤더(AABB 01 01 00 00) 뒤가 SQLite
             } else {
                 processBibleFile();
             }
@@ -2822,13 +2825,15 @@ const SPECIAL_CATEGORIES = [
         reader.readAsArrayBuffer(currentRawFile);
     }
 
-    // ── BDB(SQLite) 파일 로드 ────────────────────────────────────────────
-    function processBdbFile() {
+    // ── BDB(SQLite) / AAB(8바이트 헤더 + SQLite) 파일 로드 ──────────────
+    function processBdbFile(sliceOffset = 0) {
         const reader = new FileReader();
         reader.onload = async (e) => {
             try {
                 const SQL = await initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${file}` });
-                const db = new SQL.Database(new Uint8Array(e.target.result));
+                const rawBuf = e.target.result;
+                const sqliteBuf = sliceOffset > 0 ? rawBuf.slice(sliceOffset) : rawBuf;
+                const db = new SQL.Database(new Uint8Array(sqliteBuf));
 
                 // Bible 테이블에서 데이터 읽기 (book, chapter, verse, btext)
                 const res = db.exec("SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse");
