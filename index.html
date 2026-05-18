@@ -86,7 +86,28 @@
         .btn-noref:hover { background:#f2f8f5; }
         .btn-noref:active { transform:scale(0.98); }
         /* 본문 변경 슬라이드 메뉴 — 평소 숨김, 호버 시 우측에서 슬라이드 */
-        #reference-text { overflow-x: hidden; overflow-y: visible; display: flex; align-items: flex-start; height: auto; min-height: 140px; transition: max-height 0.3s ease; box-sizing: border-box; position: relative; padding: 0; }
+        #reference-text { overflow-x: hidden; overflow-y: visible; display: flex; flex-direction: column; align-items: stretch; height: auto; min-height: 140px; transition: max-height 0.3s ease; box-sizing: border-box; position: relative; padding: 0; }
+        /* ── 표제어 칸 ── */
+        .ref-section-title {
+            display: block; padding: 5px var(--padding-val) 3px;
+            font-family: var(--font-main); font-size: calc(var(--font-size-text) * 0.72);
+            font-weight: 700; color: #b05a3a; letter-spacing: 0.03em;
+            border-bottom: 1px solid #f0e8dc; background: #fdf8f2;
+            flex-shrink: 0;
+        }
+        #section-title-input {
+            display: none; /* 표제어 없을 때 숨김 */
+            border: none; outline: none; width: 100%; box-sizing: border-box;
+            padding: 5px var(--padding-val) 4px;
+            font-family: var(--font-main); font-size: calc(var(--font-size-text) * 0.72);
+            font-weight: 700; color: #b05a3a; letter-spacing: 0.03em;
+            background: #fdf8f2; border-bottom: 1px solid #f0e8dc;
+            white-space: nowrap; overflow-x: auto; word-break: keep-all;
+            flex-shrink: 0;
+        }
+        #section-title-input:empty::before {
+            content: attr(data-placeholder); color: #d4b8a8; font-weight: 400; pointer-events: none;
+        }
         .ref-text-body { text-align: left; display: block; flex: 1; min-width: 0; box-sizing: border-box; padding: var(--padding-val); word-break: break-all; white-space: pre-wrap; font-family: var(--font-main); font-size: var(--font-size-text); line-height: var(--line-height-text); }
         /* 빈 본문 안내 — 좌측 샘플버튼 + 우측 업로드 안내 */
         .ref-text-body.ref-empty {
@@ -199,6 +220,7 @@
 
         /* contenteditable 입력창 */
         #user-input[contenteditable] { display: block; border: none; outline: none; color: var(--ink); background-color: #ffffff; width: 100%; box-sizing: border-box; padding: var(--padding-val); min-height: 140px; overflow-y: visible; font-family: var(--font-main); font-size: var(--font-size-text); line-height: var(--line-height-text); word-break: break-all; white-space: pre-wrap; }
+        #user-input.drag-over { outline: 2px dashed #d4776e !important; outline-offset: -3px; background: #fff8f7 !important; }
 
 		
 	/* --- 호버 효과 최종 적용 (100% 확정본) --- */
@@ -384,6 +406,8 @@
         #date-display { font-size:0.78rem; color:#aaa; font-style:italic; flex:1; }
         #footnote-input { display:block; border:none; outline:none; color:#444; background:#fffdf8; width:100%; padding:8px 14px 8px 28px; min-height:80px; overflow-y:visible; font-family:'Georgia', 'Nanum Myeongjo', serif; font-size:calc(var(--font-size-text) * 0.62); line-height:1.75; word-break:break-all; white-space:pre-wrap; box-sizing:border-box; font-style:italic; }
         #footnote-input:empty::before { content:"1)각주 내용A\A 2)각주 내용B....이런 식으로 기술하세요."; color:#c0bdb6; pointer-events:none; font-style:normal; font-size:0.85em; white-space:pre; }
+        .ref-text-fn-line { display:block; padding:3px var(--padding-val) 6px; font-family:'Georgia','Nanum Myeongjo',serif; font-size:calc(var(--font-size-text)*0.58); color:#8a8076; font-style:italic; line-height:1.7; border-top:1px dashed #e4dfd4; white-space:nowrap; overflow-x:auto; background:#fff; flex-shrink:0; }
+        .ref-text-fn-line .fn-sup { font-size:0.72em; vertical-align:super; line-height:0; font-style:normal; }
         .footnote-wrapper { position:relative; background:#fffdf8; }
         .footnote-wrapper::before { content:'†'; position:absolute; left:12px; top:9px; color:#aaa; font-size:calc(var(--font-size-text) * 0.58); font-family:'Georgia', serif; pointer-events:none; user-select:none; line-height:1; }
         #footnote-input:empty ~ .footnote-wrapper::before,
@@ -665,6 +689,8 @@
             min-height: 32px;
         }
         .com-ref-panel.no-bible { color: #c8c4bc; font-style: italic; font-size: 0.82rem; min-height: 32px; padding: 7px 18px; }
+        .com-ref-fn-line { display:block; padding: 2px var(--padding-val) 6px; font-family:'Georgia','Nanum Myeongjo',serif; font-size:0.72rem; color:#8a8076; font-style:italic; line-height:1.6; border-top:1px dashed #e4dfd4; white-space:normal; word-break:break-all; }
+        .com-ref-fn-line .fn-sup { font-size:0.72em; vertical-align:super; line-height:0; font-style:normal; }
         /* RTL (히브리어 등) */
         .com-ref-panel[dir="rtl"] { text-align: right; font-family: 'SBL Hebrew', 'Ezra SIL', 'Times New Roman', serif; letter-spacing: 0.02em; }
         #com-content[dir="rtl"] { text-align: right; direction: rtl; }
@@ -1237,7 +1263,7 @@
                 <option value="aab">AAB</option>
             </select>
             <button class="btn-action" onclick="saveData()">저장</button>
-            <button class="btn-action" id="btn-resume" onclick="document.getElementById('resume-input').click()">이어하기</button>
+            <button class="btn-action" id="btn-resume" onclick="document.getElementById('resume-input').click()" title="TXT(작업이어하기) · AAB · BDB">이어하기</button>
             <input type="file" id="resume-input" accept=".txt,.bdb,.aab" style="display:none;">
             <button class="btn-action" onclick="resetAll()">초기화</button>
         </div>
@@ -1282,8 +1308,9 @@
             <!-- 2행(모바일)/이어붙임(PC): 이전 / 다음 -->
             <div class="nav-row nav-row-prevnext">
                 <div class="nav-prevnext-divider"></div>
-                <button class="btn-nav btn-nav-prev" onclick="forcePrev()">◀ 이전</button>
-                <button class="btn-nav btn-nav-next" onclick="forceNext()">다음 ▶</button>
+                <button class="btn-nav btn-nav-prev" onclick="forcePrevChapter()">◀ 이전</button>
+                <span id="nav-chapter-label" style="font-size:0.82rem;color:#6a6460;padding:0 6px;white-space:nowrap;flex-shrink:0;"></span>
+                <button class="btn-nav btn-nav-next" onclick="forceNextChapter()">다음 ▶</button>
             </div>
         </div>
         <!-- 필사 모드 통계 (필사 모드일 때만 표시) -->
@@ -1373,6 +1400,7 @@
 
         <div class="typing-frame">
             <div id="reference-text" class="verse-box text-common" style="position:relative; background:#ffffff; box-sizing:border-box;">
+                <div class="ref-section-title" id="ref-section-title" style="display:none;"></div>
                 <div class="ref-text-body">문장이 여기에 표시됩니다.</div>
                 <div class="ref-side-indicator"></div>
                 <div class="ref-side-menu" id="ref-side-menu" onclick="event.stopPropagation();">
@@ -1404,11 +1432,16 @@
 
                 <div style="flex:1; min-width:4px;"></div>
 
-                <!-- ② 다시쓰기 -->
                 <button id="btn-clear-input" onclick="clearUserInput()" title="입력 내용 지우기" style="display:none;background:none;border:none;cursor:pointer;color:#8a8076;font-size:1.1rem;font-weight:600;padding:0 6px;height:26px;line-height:1;transition:color 0.12s;flex-shrink:0;" onmouseover="this.style.color='#c03030'" onmouseout="this.style.color='#8a8076'">↺</button>
 
                 <!-- ③ 세로 구분선 -->
                 <span id="free-tools-divider-1" style="display:none;width:1px;height:16px;background:#d4ccbc;flex-shrink:0;"></span>
+
+                <!-- ④-0 표제어 버튼 (↺ 리셋과 본문 대조 사이) -->
+                <button id="btn-section-title2" onclick="toggleSectionTitle()" title="표제어 칸 추가/제거"
+                    style="background:#c8795a;border:1px solid #c8795a;border-radius:5px;color:#fff;cursor:pointer;font-size:0.78rem;font-family:var(--font-main);padding:0 10px;height:26px;line-height:26px;white-space:nowrap;flex-shrink:0;transition:background 0.12s;box-sizing:border-box;"
+                    onmouseover="this.style.background='#a85e42';this.style.borderColor='#a85e42'"
+                    onmouseout="this.style.background='#c8795a';this.style.borderColor='#c8795a'">표제어</button>
 
                 <!-- ④ 본문 대조 / 본문 자동 채움 -->
                 <button id="btn-typo-check" data-mobile-label="대조" onclick="toggleTypoCheck()" style="background:#5a7a6a;border:1px solid #5a7a6a;border-radius:5px;color:#fff;cursor:pointer;font-size:0.78rem;font-family:var(--font-main);padding:0 10px;height:26px;white-space:nowrap;flex-shrink:0;transition:background 0.12s;" onmouseover="this.style.background='#3e5a4e'" onmouseout="this.style.background=this.dataset.active==='1'?'#b04040':'#5a7a6a'" disabled>본문 대조</button>
@@ -1425,6 +1458,9 @@
                 </span>
             </div>
             <!-- 날짜 위치: 상단 -->
+            <div id="section-title-input" contenteditable="true"
+                data-placeholder="표제어"
+                spellcheck="false"></div>
             <div id="user-input" contenteditable="true"
                 data-placeholder="원문 수정 및 필사를 자유롭게 하세요"
                 spellcheck="false"
@@ -1818,6 +1854,41 @@
     let savedSelection = null;
     const dateInFootnote = 'bottom';
 
+    // ── btext 파싱: 본문 / 각주 분리 ─────────────────────────────────────
+    // AAB btext 포맷: "<섹션제목> 본문 ¹⁾단어 ... 【1)내용】 【2)내용】"
+    // 반환: { mainText, fnItems: [{sup, label, text}, ...] }
+    // sup  = 어깨글자 유니코드 (¹⁾  ²⁾ ... 또는 ¹) ²) 등)
+    // label = 숫자 문자열 ("1","2"...)
+    // text  = 각주 내용 문자열
+    const SUP_MAP = {'1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','0':'⁰'};
+    function numToSup(n) {
+        return String(n).split('').map(c => SUP_MAP[c] || c).join('') + '⁾';
+    }
+    function parseBtext(raw) {
+        if (!raw) return { sectionTitle: '', mainText: '', fnItems: [] };
+        // 섹션 제목 추출: <...> 맨 앞
+        let sectionTitle = '';
+        let t = raw.replace(/^<([^>]*)>\s*/, (_, inner) => { sectionTitle = inner; return ''; });
+        // 각주 블록 추출: 【N)내용】
+        const fnItems = [];
+        const FN_RE = /【(\d+)\)([\s\S]*?)】/g;
+        let m;
+        while ((m = FN_RE.exec(t)) !== null) {
+            fnItems.push({ label: m[1], sup: numToSup(m[1]), text: m[2].trim() });
+        }
+        // 각주 블록 제거 → 순수 본문
+        const mainText = t.replace(/【\d+\)[\s\S]*?】/g, '').replace(/\s{2,}/g, ' ').trim();
+        return { sectionTitle, mainText, fnItems };
+    }
+    // 각주 줄 HTML 생성: † ¹⁾태초 · ²⁾하나님 · ³⁾천지
+    function buildFnLineHTML(fnItems) {
+        if (!fnItems.length) return '';
+        const parts = fnItems.map(f =>
+            `<span class="fn-sup">${f.sup}</span>${f.text}`
+        ).join(' · ');
+        return `† ${parts}`;
+    }
+
     // ── 주석 작성 모드 ────────────────────────────────────────────────────
     let commentaryMode = false;
     let commentaryWritingData = [];      // 작성된 주석 아이템 배열
@@ -1838,6 +1909,19 @@
     document.getElementById('user-input').addEventListener('focus', () => {
         activeEditor = 'main';
         setFootnoteToolbarMode(false);
+    });
+    // 표제어 입력칸: Enter 차단(한 줄 유지), focus, paste 순수 텍스트
+    document.getElementById('section-title-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); document.getElementById('user-input').focus(); }
+    });
+    document.getElementById('section-title-input').addEventListener('focus', () => {
+        activeEditor = 'main';
+        setFootnoteToolbarMode(false);
+    });
+    document.getElementById('section-title-input').addEventListener('paste', e => {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text/plain').replace(/[\r\n]+/g, ' ');
+        document.execCommand('insertText', false, text);
     });
     // 각주 입력창: Enter → <br> 강제 (div 생성 방지 → 저장/복원 일관성 유지)
     document.getElementById('footnote-input').addEventListener('keydown', function(e) {
@@ -2673,6 +2757,37 @@ const SPECIAL_CATEGORIES = [
     dropZone.ondragleave = () => { dropZone.classList.remove('dragover'); };
     dropZone.ondrop      = (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); };
 
+    // ── 입력창(typing-frame) 드래그드롭 ──────────────────────────────────
+    // 본문이 로드된 상태에서만 활성화. contenteditable 충돌 방지를 위해 부모에 등록.
+    (function setupInputDrop() {
+        const ui = document.getElementById('user-input');
+        const tf = document.querySelector('.typing-frame');
+        if (!tf || !ui) return;
+
+        tf.addEventListener('dragover', (e) => {
+            if (!bibleData.length) return; // 본문 없으면 무시
+            if (!(e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files'))) return;
+            const refEl = document.getElementById('reference-text');
+            if (refEl && refEl.contains(e.target)) return; // 참고본문 영역 제외
+            e.preventDefault();
+            ui.classList.add('drag-over');
+        });
+
+        tf.addEventListener('dragleave', (e) => {
+            if (!tf.contains(e.relatedTarget)) ui.classList.remove('drag-over');
+        });
+
+        tf.addEventListener('drop', (e) => {
+            ui.classList.remove('drag-over');
+            if (!bibleData.length) return;
+            const refEl = document.getElementById('reference-text');
+            if (refEl && refEl.contains(e.target)) return;
+            if (!(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length)) return;
+            e.preventDefault();
+            handleFile(e.dataTransfer.files[0]);
+        });
+    })();
+
     function handleFile(file) {
         if(!file) return;
         const lower = file.name.toLowerCase();
@@ -2830,7 +2945,7 @@ const SPECIAL_CATEGORIES = [
                     dz.innerHTML = `
                         <div id="drop-text">
                             <strong style="color:var(--accent)">✅ 성경 로드 완료: ${currentRawFile.name}</strong>
-                            <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 저장된 결과 파일(TXT)을 이곳에 드롭하세요.</p>
+                            <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 결과 파일(TXT) 또는 성경 파일(AAB·BDB)을 이곳에 드롭하세요.</p>
                         </div>
                         <input type="file" id="file-input" accept=".txt" style="display:none;">`;
                     dz.ondragover  = e => { e.preventDefault(); dz.classList.add('dragover'); };
@@ -2890,7 +3005,7 @@ const SPECIAL_CATEGORIES = [
                     dz.innerHTML = `
                         <div id="drop-text">
                             <strong style="color:var(--accent)">✅ 성경 로드 완료: ${currentRawFile.name}</strong>
-                            <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 저장된 결과 파일(TXT)을 이곳에 드롭하세요.</p>
+                            <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 결과 파일(TXT) 또는 성경 파일(AAB·BDB)을 이곳에 드롭하세요.</p>
                         </div>
                         <input type="file" id="file-input" accept=".txt,.bdb" style="display:none;">`;
                     dz.ondragover  = e => { e.preventDefault(); dz.classList.add('dragover'); };
@@ -3224,90 +3339,26 @@ const SPECIAL_CATEGORIES = [
         window._adjustFootnoteHeight = adjustFootnoteHeight;
     })();
 
-    // ── 전체 초기화 (나만의 성경역본 바로입장 초기 상태로) ────────────
     function resetAll() {
-        if (!confirm('작성한 내용이 모두 지워집니다. 계속하시겠습니까?')) return;
-
-        // 상태 변수 초기화 (성경 데이터 포함)
-        bibleData      = [];
-        bibleDataSets  = [];
-        typedData      = [];
-        currentIndex   = 0;
-        currentRawFile = null;
-        freeWriteMode  = true;
-        freeCurrentKey = '';
-        activeRefTab   = 0;
-        refPanelH      = null;
-
-        // 입력창 초기화
-        const ui = document.getElementById('user-input');
-        const fn = document.getElementById('footnote-input');
-        if (ui) ui.innerHTML = '';
-        if (fn) fn.innerHTML = '';
-        if (window._adjustFootnoteHeight) window._adjustFootnoteHeight();
-
-        // drop-zone: 원본 HTML 복원 + 숨기기 (바로 시작 상태와 동일)
-        const dz = document.getElementById('drop-zone');
-        if (dz) {
-            dz.classList.remove('loaded');
-            dz.innerHTML = `<div id="drop-text">
-                <div style="font-size:1.4rem; font-weight:700; color:var(--accent); margin-bottom:6px;">나만의 성경 역본</div>
-                <div style="font-size:0.88rem; color:#7a8a80; margin-bottom:14px;">참고할 성경역본을 불러와 나만의 역본을 작성합니다</div>
-                <div style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem; margin-bottom:16px;">
-                    📂 TXT · AAB · BDB · ZIP 드래그드롭 또는 클릭
-                </div><br>
-                <button class="btn-noref" onclick="event.stopPropagation(); startFreeWrite();">📝 바로 시작</button>
-            </div>
-            <input type="file" id="file-input" accept=".txt,.bdb">`;
-            dz.style.display = 'none';
-        }
-
-        // 샘플 로드 완료 알림 제거
-        const sn = document.getElementById('sample-notice');
-        if (sn) sn.remove();
-
-        // 책/장/절 드롭다운 초기값으로
-        const nb = document.getElementById('nav-book');
-        const nc = document.getElementById('nav-chapter');
-        const nv = document.getElementById('nav-verse');
-        if (nb) { nb.innerHTML = '<option value="">책 선택</option>'; }
-        if (nc) { nc.innerHTML = '<option value="">장 선택</option>'; }
-        if (nv) { nv.innerHTML = '<option value="">절 선택</option>'; }
-
-        // 참고 성경역본 초기 빈 상태로 복원 (샘플본문 버튼 포함)
-        const refBody = document.querySelector('#reference-text .ref-text-body');
-        if (refBody) {
-            refBody.classList.add('ref-empty');
-            refBody.innerHTML = '<button onclick="loadSampleBible()" style="display:inline-block;background:none;border:none;cursor:pointer;font-size:0.82rem;color:#d4776e;font-family:var(--font-main);padding:0;line-height:1.5;text-align:left;font-weight:500;" title="개역개정 창세기 1장 샘플 불러오기">▷ 샘플본문 click</button><span class="ref-empty-upload-hint">참고 성경역본<br>불러오기<br>(파일 드롭 가능)<br>TXT.AAB.BDB.ZIP<br>→</span>';
-        }
-
-        // 진행률 초기화
-        ['progress-bar-total','progress-bar-total-d','progress-bar-ot','progress-bar-nt','progress-bar-book','progress-bar-ch'].forEach(id => {
-            const el = document.getElementById(id); if (el) el.style.width = '0%';
-        });
-        ['progress-text-total','progress-text-total-d','progress-text-ot','progress-text-nt','progress-text-book','progress-text-book-d','progress-text-ch','progress-text-ch-d'].forEach(id => {
-            const el = document.getElementById(id); if (el) el.innerText = '0%';
-        });
-
-        // 타이틀 복원
-        const vt = document.getElementById('verse-title');
-        if (vt) vt.innerText = '나만의 성경역본';
-        const lbl = document.getElementById('header-mode-label');
-        if (lbl) { lbl.textContent = '성경역본 수정 / 각주추가'; lbl.style.display = 'block'; }
-        const ng = document.getElementById('btn-free-nav-group'); if (ng) ng.style.display = 'none';
-
-        // exercise-ui·settings-bar 유지 (모드 선택 화면으로 나가지 않음)
-        const dividers = [document.getElementById('free-tools-divider-1'), document.getElementById('free-tools-divider-2')];
-        dividers.forEach(d => { if (d) d.style.display = 'none'; });
-        updateApplyBtnState();
+        sessionStorage.setItem('autoFreeWrite', '1');
+        location.reload();
     }
 
     function clearUserInput() {
-        const input = document.getElementById('user-input');
+        const input   = document.getElementById('user-input');
+        const fnEl    = document.getElementById('footnote-input');
+        const stInput = document.getElementById('section-title-input');
         if (!input) return;
-        if (input.innerText.trim() && !confirm('입력 내용을 모두 지울까요?')) return;
+        const hasContent = input.innerText.trim()
+            || (fnEl && fnEl.innerText.trim())
+            || (stInput && stInput.innerText.trim());
+        if (hasContent && !confirm('입력 내용을 모두 지울까요?')) return;
         input.innerHTML = '';
-        document.getElementById('footnote-input').innerHTML = '';
+        if (fnEl) fnEl.innerHTML = '';
+        if (stInput) { stInput.textContent = ''; stInput.style.display = 'none'; }
+        // 표제어 버튼 상태 초기화
+        const stBtn2 = document.getElementById('btn-section-title2');
+        if (stBtn2) { stBtn2.style.background = '#c8795a'; stBtn2.style.borderColor = '#c8795a'; }
         if (window._adjustFootnoteHeight) window._adjustFootnoteHeight();
         const cb = document.getElementById('btn-clear-input'); if (cb) cb.style.display = 'none';
         input.focus();
@@ -3315,13 +3366,74 @@ const SPECIAL_CATEGORIES = [
     }
 
     function applySameText() {
-        const input = document.getElementById('user-input');
-        const body  = document.querySelector('#reference-text .ref-text-body');
+        const input  = document.getElementById('user-input');
+        const fnEl   = document.getElementById('footnote-input');
+        const stInput = document.getElementById('section-title-input');
+        const body   = document.querySelector('#reference-text .ref-text-body');
         if (!body) return;
-        input.textContent = body.innerText.trim();
+
+        // 현재 절 btext 파싱 → 표제어 / 본문 / 각주 분리
+        const rawText = (bibleData && bibleData[currentIndex]) ? bibleData[currentIndex].text : body.innerText;
+        const { sectionTitle, mainText, fnItems } = parseBtext(rawText);
+
+        // 표제어 입력칸
+        if (stInput) {
+            stInput.textContent = sectionTitle;
+            stInput.style.display = sectionTitle ? 'block' : 'none';
+            const stBtn = document.getElementById('btn-section-title');
+            if (stBtn) { stBtn.style.background = sectionTitle ? '#fdf0e8' : 'none'; stBtn.style.borderColor = sectionTitle ? '#b05a3a' : '#c8c0b4'; }
+        }
+
+        // 본문 입력창: 순수 본문
+        input.textContent = mainText;
         const cb = document.getElementById('btn-clear-input');
         if (cb) cb.style.display = input.innerText.trim() ? '' : 'none';
+
+        // 각주 입력창: "1)내용\n2)내용" 형태로 채움
+        if (fnEl && fnItems.length) {
+            fnEl.innerHTML = fnItems.map(f => `${f.label})${f.text}`).join('<br>');
+            if (window._adjustFootnoteHeight) window._adjustFootnoteHeight();
+        }
+
         input.focus();
+    }
+
+    // ── 표제어 칸 토글 ────────────────────────────────────────────────────
+    function toggleSectionTitle() {
+        const stInput = document.getElementById('section-title-input');
+        const btn     = document.getElementById('btn-section-title');
+        const btn2    = document.getElementById('btn-section-title2');
+        if (!stInput) return;
+        const isVisible = stInput.style.display === 'block';
+        if (isVisible) {
+            // 내용이 있으면 숨기지 않고 포커스만 이동
+            if (stInput.textContent.trim()) {
+                stInput.focus();
+                const sel = window.getSelection();
+                const range = document.createRange();
+                range.selectNodeContents(stInput);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+                return;
+            }
+            // 내용이 없을 때만 숨기기
+            stInput.style.display = 'none';
+            stInput.textContent = '';
+            [btn, btn2].forEach(b => { if (b) { b.style.background = 'none'; b.style.borderColor = '#c8c0b4'; b.style.color = '#b05a3a'; } });
+        } else {
+            // 표시 + 포커스
+            stInput.style.display = 'block';
+            stInput.focus();
+            // 커서를 끝으로
+            const sel = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(stInput);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+            [btn, btn2].forEach(b => { if (b) { b.style.background = '#fdf0e8'; b.style.borderColor = '#b05a3a'; } });
+        }
     }
 
     // 참고 성경역본(ref-text-body)에 내용이 있을 때만 "본문 자동 채움" 버튼 활성화
@@ -3373,8 +3485,9 @@ const SPECIAL_CATEGORIES = [
             }).join('');
 
             if (!refBody.dataset.origText) {
-                refBody.dataset.origText = (bibleData && bibleData[currentIndex])
+                const _raw = (bibleData && bibleData[currentIndex])
                     ? bibleData[currentIndex].text : refBody.innerText;
+                refBody.dataset.origText = parseBtext(_raw).mainText;
             }
             const original = refBody.dataset.origText;
             if (!original) return;
@@ -3426,6 +3539,17 @@ const SPECIAL_CATEGORIES = [
         input.dataset.placeholder = '원문 수정 및 필사를 자유롭게 하세요';
         input.setAttribute('data-placeholder', '원문 수정 및 필사를 자유롭게 하세요');
         input.innerHTML = '';
+        // 표제어 초기화
+        const st = document.getElementById('section-title-input');
+        if (st) { st.textContent = ''; st.style.display = 'none'; }
+        const stBtn2 = document.getElementById('btn-section-title2');
+        if (stBtn2) { stBtn2.style.background = '#c8795a'; stBtn2.style.borderColor = '#c8795a'; }
+        // 각주 초기화
+        const fn = document.getElementById('footnote-input');
+        if (fn) fn.innerHTML = '';
+        // 리셋버튼 숨김
+        const cb = document.getElementById('btn-clear-input');
+        if (cb) cb.style.display = 'none';
         updateApplyBtnState();
         // 빈 본문 안내 — 프로페셔널 스타일 (절대 위치, 메뉴와 안 겹침)
         const refEl = document.getElementById('reference-text');
@@ -3528,7 +3652,7 @@ const SPECIAL_CATEGORIES = [
             dz.innerHTML = `
                 <div id="drop-text">
                     <strong style="color:var(--accent)">✅ 샘플 로드 완료: 창세기 1:1~1:10 (개역개정)</strong>
-                    <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 저장된 결과 파일(TXT)을 이곳에 드롭하세요.</p>
+                    <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 결과 파일(TXT) 또는 성경 파일(AAB·BDB)을 이곳에 드롭하세요.</p>
                 </div>
                 <input type="file" id="file-input" accept=".txt" style="display:none;">`;
             dz.ondragover  = e => { e.preventDefault(); dz.classList.add('dragover'); };
@@ -3674,10 +3798,16 @@ const SPECIAL_CATEGORIES = [
             const chapters = [...new Set(bibleData.filter(d => d.book === nb.value).map(d => d.ch))].sort((a,b) => a-b);
             document.getElementById('nav-chapter').innerHTML = `<option value="">${chSelectPlaceholder(nb.value)}</option>` + chOptions(nb.value, chapters);
             document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>';
+            // 책 선택 시 1장 자동 선택
+            const nc = document.getElementById('nav-chapter');
+            if (nc.options.length > 1) { nc.selectedIndex = 1; nc.dispatchEvent(new Event('change')); }
+            updateNavChapterLabel();
         };
         document.getElementById('nav-chapter').onchange = () => {
             const verses = bibleData.filter(d => d.book === nb.value && d.ch === parseInt(document.getElementById('nav-chapter').value));
             document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>' + verses.map(v => `<option value="${bibleData.indexOf(v)}">${v.vs}절</option>`).join('');
+            const nv = document.getElementById('nav-verse');
+            if (nv.options.length > 1) nv.selectedIndex = 1;
         };
     }
 
@@ -3689,12 +3819,18 @@ const SPECIAL_CATEGORIES = [
             const maxCh = MAX_CHAPTERS[nb.value] || 1;
             document.getElementById('nav-chapter').innerHTML = `<option value="">${chSelectPlaceholder(nb.value)}</option>` + chOptionsRange(nb.value, maxCh);
             document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>';
+            // 책 선택 시 1장 자동 선택
+            const nc = document.getElementById('nav-chapter');
+            if (nc.options.length > 1) { nc.selectedIndex = 1; nc.dispatchEvent(new Event('change')); }
+            updateNavChapterLabel();
         };
         document.getElementById('nav-chapter').onchange = () => {
             const book = nb.value, ch = parseInt(document.getElementById('nav-chapter').value);
             const maxVs = (MAX_VERSES[book] && MAX_VERSES[book][ch - 1]) || 30;
             document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>' +
                 Array.from({length: maxVs}, (_, i) => `<option value="${i+1}">${i+1}절</option>`).join('');
+            const nv = document.getElementById('nav-verse');
+            if (nv.options.length > 1) nv.selectedIndex = 1;
         };
     }
 
@@ -3714,7 +3850,7 @@ const SPECIAL_CATEGORIES = [
             input.focus();
         } else {
             const idx = parseInt(document.getElementById('nav-verse').value);
-            if (!isNaN(idx)) { dropZone.style.display = 'none'; loadVerse(idx); }
+            if (!isNaN(idx)) { if (!dropZone.classList.contains('loaded')) dropZone.style.display = 'none'; loadVerse(idx); }
         }
     }
 
@@ -3876,13 +4012,37 @@ const SPECIAL_CATEGORIES = [
         const data = bibleData[idx];
         document.getElementById('verse-title').innerText = data.title;
         updateHeaderMode();
+        updateNavChapterLabel();
         // 본문 텍스트만 갱신 (.ref-text-body 만 교체)
         const refEl = document.getElementById('reference-text');
         const body  = refEl.querySelector('.ref-text-body');
         if (body) {
             body.classList.remove('ref-empty');
-            body.textContent = data.text;
+            // 각주 파싱 후 본문만 표시
+            const { sectionTitle, mainText, fnItems } = parseBtext(data.text);
+            body.textContent = mainText;
+            // 참고본문 표제어 칸
+            const refTitleEl = document.getElementById('ref-section-title');
+            if (refTitleEl) {
+                if (sectionTitle) {
+                    refTitleEl.textContent = sectionTitle;
+                    refTitleEl.style.display = '';
+                } else {
+                    refTitleEl.textContent = '';
+                    refTitleEl.style.display = 'none';
+                }
+            }
             delete body.dataset.origText;
+            // 기존 각주 줄 제거 후 재생성
+            const oldFnLine = refEl.querySelector('.ref-text-fn-line');
+            if (oldFnLine) oldFnLine.remove();
+            const fnHTML = buildFnLineHTML(fnItems);
+            if (fnHTML) {
+                const fnLine = document.createElement('div');
+                fnLine.className = 'ref-text-fn-line';
+                fnLine.innerHTML = fnHTML;
+                body.after(fnLine);
+            }
             _fnInText = false;  // 절 이동 시 각주 플래그 초기화
             // 본문 대조 모드 닫기
             if (_typoCheckActive) {
@@ -3921,19 +4081,33 @@ const SPECIAL_CATEGORIES = [
         }
         updateRefSideMenuLabel();
         const input = document.getElementById('user-input');
+        const stInput = document.getElementById('section-title-input');
         const existing = typedData.find(d => d.k === data.title);
-        // 저장된 데이터에서 본문/각주 분리 복원
+        // 저장된 데이터에서 표제어/본문/각주 분리 복원
         if (existing) {
             const saved = existing.t;
-            // <br>▷각주 패턴 추출 (날짜 이외의 ▷ 태그)
+            // 표제어 분리: 맨 앞 <...> 패턴
+            let saveMain = saved;
+            let savedTitle = '';
+            const stMatch = saved.match(/^<([^>]*)>\s*/);
+            if (stMatch) { savedTitle = stMatch[1]; saveMain = saved.slice(stMatch[0].length); }
+            // 표제어 입력칸 복원
+            if (stInput) {
+                stInput.textContent = savedTitle;
+                stInput.style.display = savedTitle ? 'block' : 'none';
+                const stBtn = document.getElementById('btn-section-title');
+                if (stBtn) { stBtn.style.background = savedTitle ? '#fdf0e8' : 'none'; stBtn.style.borderColor = savedTitle ? '#b05a3a' : '#c8c0b4'; }
+                const stBtn2 = document.getElementById('btn-section-title2');
+                if (stBtn2) { stBtn2.style.background = savedTitle ? '#a85e42' : '#c8795a'; stBtn2.style.borderColor = savedTitle ? '#a85e42' : '#c8795a'; }
+            }
             // 본문 / 각주 분리: <br>▷ 첫 등장 기준
-            const fnIdx = saved.indexOf('<br>▷');
+            const fnIdx = saveMain.indexOf('<br>▷');
             let mainPart, fnPart;
             if (fnIdx !== -1) {
-                mainPart = saved.slice(0, fnIdx);
-                fnPart   = saved.slice(fnIdx + 5);
+                mainPart = saveMain.slice(0, fnIdx);
+                fnPart   = saveMain.slice(fnIdx + 5);
             } else {
-                mainPart = saved; fnPart = '';
+                mainPart = saveMain; fnPart = '';
             }
             input.innerHTML = fromSaveFormat(mainPart);
             const fnEl2 = document.getElementById('footnote-input');
@@ -3942,6 +4116,12 @@ const SPECIAL_CATEGORIES = [
             while (fnEl2.firstChild && fnEl2.firstChild.nodeName === 'BR') fnEl2.removeChild(fnEl2.firstChild);
             if (window._adjustFootnoteHeight) window._adjustFootnoteHeight();
         } else {
+            if (stInput) { stInput.textContent = ''; stInput.style.display = 'none'; }
+            // 표제어 버튼 상태 초기화
+            const stBtn = document.getElementById('btn-section-title');
+            if (stBtn) { stBtn.style.background = 'none'; stBtn.style.borderColor = '#c8c0b4'; }
+            const stBtn2 = document.getElementById('btn-section-title2');
+            if (stBtn2) { stBtn2.style.background = '#c8795a'; stBtn2.style.borderColor = '#c8795a'; }
             input.innerHTML = '';
             document.getElementById('footnote-input').innerHTML = '';
             if (window._adjustFootnoteHeight) window._adjustFootnoteHeight();
@@ -4100,6 +4280,9 @@ const SPECIAL_CATEGORIES = [
     function buildSaveContent() {
         const input = document.getElementById('user-input');
         const fnEl  = document.getElementById('footnote-input');
+        const stInput = document.getElementById('section-title-input');
+        const stText = stInput ? stInput.innerText.trim() : '';
+        const titlePrefix = stText ? `<${stText}> ` : '';
         const main  = toSaveFormat(input.innerHTML);
         // 날짜 자동: 각주 상단/하단에 오늘 날짜 스탬프 삽입 (중복 방지)
         if (dateStampEnabled) {
@@ -4124,7 +4307,7 @@ const SPECIAL_CATEGORIES = [
         // 상단 날짜면 날짜에 <br>이 이미 붙으므로 ▷ 뒤 추가 <br> 불필요
         const hasTopDate = /^\d{4}\.\d{2}\.\d{2}/.test(fnContent);
         const fnTag = fnContent ? `<br>▷${fnMultiLine && !hasTopDate ? '<br>' : ''}${fnContent}` : '';
-        return main + fnTag;
+        return titlePrefix + main + fnTag;
     }
 
     function saveCurrentFreeVerse() {
@@ -4226,6 +4409,74 @@ const SPECIAL_CATEGORIES = [
         if (currentIndex <= 0) return alert('첫 번째 절입니다!');
         saveCurrentVerse();
         loadVerse(currentIndex - 1);
+    }
+
+    // ── 장 이동 ───────────────────────────────────────────────────────────
+    function updateNavChapterLabel() {
+        const el = document.getElementById('nav-chapter-label');
+        const nb = document.getElementById('nav-book');
+        const nc = document.getElementById('nav-chapter');
+        if (!el) return;
+        const book = nb ? nb.value : '';
+        const ch   = nc && nc.value ? nc.value : (bibleData.length ? '1' : '');
+        // 시편: free모드는 '시', strict모드는 book번호 19
+        const isPsalms = book === '시' || parseInt(book) === 19;
+        const unit = isPsalms ? '편' : '장';
+        el.textContent = ch ? ch + unit : '';
+    }
+
+    function _jumpToChapter(book, ch) {
+        const nb = document.getElementById('nav-book');
+        const nc = document.getElementById('nav-chapter');
+        if (nb) nb.value = book;
+        nb && nb.dispatchEvent(new Event('change'));
+        setTimeout(() => {
+            if (nc) nc.value = String(ch);
+            nc && nc.dispatchEvent(new Event('change'));
+            setTimeout(() => {
+                // 절은 첫 번째 옵션(1절)으로
+                const nv = document.getElementById('nav-verse');
+                if (nv && nv.options.length > 1) nv.selectedIndex = 1;
+                jumpTo();
+                updateNavChapterLabel();
+            }, 30);
+        }, 30);
+    }
+
+    function forceNextChapter() {
+        const nb = document.getElementById('nav-book');
+        const nc = document.getElementById('nav-chapter');
+        if (!nb || !nb.value) return alert('먼저 책을 선택하세요.');
+        const book = nb.value;
+        const ch   = parseInt(nc.value) || 1;
+        const maxCh = MAX_CHAPTERS[book] || 1;
+        if (ch < maxCh) {
+            _jumpToChapter(book, ch + 1);
+        } else {
+            // 다음 책으로
+            const bookIdx = BOOK_NUM.indexOf(book);
+            if (bookIdx > 0 && bookIdx < BOOK_NUM.length - 1) {
+                _jumpToChapter(BOOK_NUM[bookIdx + 1], 1);
+            } else { alert('성경 마지막 장입니다!'); }
+        }
+    }
+
+    function forcePrevChapter() {
+        const nb = document.getElementById('nav-book');
+        const nc = document.getElementById('nav-chapter');
+        if (!nb || !nb.value) return alert('먼저 책을 선택하세요.');
+        const book = nb.value;
+        const ch   = parseInt(nc.value) || 1;
+        if (ch > 1) {
+            _jumpToChapter(book, ch - 1);
+        } else {
+            // 이전 책 마지막 장으로
+            const bookIdx = BOOK_NUM.indexOf(book);
+            if (bookIdx > 1) {
+                const prevBook = BOOK_NUM[bookIdx - 1];
+                _jumpToChapter(prevBook, MAX_CHAPTERS[prevBook] || 1);
+            } else { alert('성경 첫 번째 장입니다!'); }
+        }
     }
 
     // 나만의 성경역본 모드: 본문창 글자 색상 비교 렌더링
@@ -4368,6 +4619,19 @@ const SPECIAL_CATEGORIES = [
         renderCompareInto(original, typedClean, refBody);
     }
 
+    // ↺ 버튼 가시성: oninput 외에 innerHTML 직접 변경(절 이동 등)도 감지
+    (function() {
+        const userInput = document.getElementById('user-input');
+        const clearBtn  = document.getElementById('btn-clear-input');
+        if (!userInput || !clearBtn) return;
+        function syncClearBtn() {
+            clearBtn.style.display = userInput.innerText.trim() ? '' : 'none';
+        }
+        const _mo = new MutationObserver(syncClearBtn);
+        _mo.observe(userInput, { childList: true, subtree: true, characterData: true });
+        syncClearBtn(); // 초기 상태 반영
+    })();
+
     document.getElementById('user-input').oninput = function() {
         // ↺ 버튼: 내용 있을 때만 표시
         const clearBtn = document.getElementById('btn-clear-input');
@@ -4486,6 +4750,10 @@ const SPECIAL_CATEGORIES = [
                 //    또는 본문<br>▷1) 히, ...<br>2) 얻음  (엔터 구분)
                 // AAB:  본문 【1) 히, ...】 【2) 얻음】  ← import_service.dart 가 파싱
                 function toAABText(saved) {
+                    // 표제어 분리: 맨 앞 <...> 패턴
+                    let titlePrefix = '';
+                    const stMatch = saved.match(/^<([^>]*)>\s*/);
+                    if (stMatch) { titlePrefix = `<${stMatch[1]}>` + ' '; saved = saved.slice(stMatch[0].length); }
                     const fnIdx = saved.indexOf('<br>▷');
                     let mainPart = fnIdx !== -1 ? saved.slice(0, fnIdx) : saved;
                     let fnPart   = fnIdx !== -1 ? saved.slice(fnIdx + 5) : '';
@@ -4527,13 +4795,13 @@ const SPECIAL_CATEGORIES = [
                         if (am) { alphaFns.push(`${ALPHA_SUPS[am[1]] || am[1]}${am[2]}`); return; }
                     });
 
-                    // 형식: 본문<br>▷날짜(상단)<br>【숫자각주】<br>▷ᵃ알파벳각주<br>▷날짜(하단)
+                    // 형식: <표제어> 본문<br>▷날짜(상단)<br>【숫자각주】<br>▷ᵃ알파벳각주<br>▷날짜(하단)
                     let result = mainPart;
                     if (topDate)        result += `<br>▷【${topDate}】`;
                     if (numFns.length)  result += numFns.join(' ');
                     if (alphaFns.length) result += `<br>▷${alphaFns.join('<br> | ')}<br>|`;
                     if (bottomDate)     result += `<br>▷${bottomDate}`;
-                    return result;
+                    return titlePrefix + result;
                 }
 
                 const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
@@ -4617,6 +4885,7 @@ const SPECIAL_CATEGORIES = [
         const isFreeMode = checked && checked.value === 'free';
         const freeNavGroup = document.getElementById('btn-free-nav-group');
         if (freeNavGroup) freeNavGroup.style.display = isFreeMode ? 'inline-flex' : 'none';
+        updateNavChapterLabel();
 
         // 본문창·입력창 스크롤 동기화 (입력 중 정렬 유지)
         const refEl = document.getElementById('reference-text');
@@ -5638,10 +5907,22 @@ const SPECIAL_CATEGORIES = [
             const panel = document.getElementById(`com-ref-panel-${i}`);
             if (!panel) return;
             const d = slot.data.find(d => d.book === comBook && d.ch === comChapter && d.vs === comVerse);
-            const text = d ? (d.text || '') : '이 절의 본문이 없습니다.';
-            panel.textContent = text;
+            const rawText = d ? (d.text || '') : '이 절의 본문이 없습니다.';
+            // 각주 파싱
+            const { mainText, fnItems } = parseBtext(rawText);
+            const fnHTML = buildFnLineHTML(fnItems);
+            // 패널 렌더링 (기존 각주 줄 제거 후 재생성)
+            panel.textContent = mainText;
+            const oldFn = panel.parentElement && panel.parentElement.querySelector('.com-ref-fn-line');
+            if (oldFn) oldFn.remove();
+            if (fnHTML) {
+                const fnLine = document.createElement('div');
+                fnLine.className = 'com-ref-fn-line';
+                fnLine.innerHTML = fnHTML;
+                panel.after(fnLine);
+            }
             // 히브리어 자동 RTL
-            if (isHebrew(text)) {
+            if (isHebrew(mainText)) {
                 panel.setAttribute('dir', 'rtl');
             } else {
                 panel.removeAttribute('dir');
@@ -5767,6 +6048,14 @@ const SPECIAL_CATEGORIES = [
         });
     }
     document.addEventListener('DOMContentLoaded', initRefDropZone);
+
+    // 초기화 버튼 후 자동 바로입장
+    document.addEventListener('DOMContentLoaded', () => {
+        if (sessionStorage.getItem('autoFreeWrite')) {
+            sessionStorage.removeItem('autoFreeWrite');
+            startFreeWrite();
+        }
+    });
 
     function removeBibleSlot(idx) {
         bibleDataSets.splice(idx, 1);
