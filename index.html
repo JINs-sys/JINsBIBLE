@@ -53,9 +53,9 @@
         /* 진행률 접힘 디자인 */
         .progress-collapsed { display: flex; flex-direction: column; gap: 5px; }
         .progress-collapsed-row { display: flex; align-items: center; justify-content: space-between; }
-        .progress-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-        .progress-chip { font-size: 0.75rem; color: var(--ink-soft); }
-        .progress-chip strong { color: var(--accent); font-weight: 600; }
+        .progress-chips { display: flex; gap: 8px; flex-wrap: nowrap; align-items: center; white-space: nowrap; overflow: hidden; }
+        .progress-chip { font-size: 0.75rem; color: var(--ink-soft); white-space: nowrap; }
+        .progress-chip strong { color: var(--accent); font-weight: normal; }
         .progress-mini-bar { height: 1px; background: var(--rule); border-radius: 1px; overflow: hidden; margin-top: 4px; }
         .progress-mini-fill { height: 100%; background: var(--accent); transition: width 0.3s ease; width: 0%; }
         .progress-expand-btn { font-size: 0.72rem; color: #aaa; background: none; border: none; cursor: pointer; padding: 0; white-space: nowrap; }
@@ -856,11 +856,11 @@
             .settings-group { flex-shrink: 0; }
             .settings-bar .btn-action,
             .settings-bar .btn-resume {
-                height: 40px;
-                font-size: 0.84rem;
-                padding: 0 14px;
+                height: 34px;
+                font-size: 0.82rem;
+                padding: 0 12px;
             }
-            .settings-bar .nav-select { height: 40px; font-size: 0.84rem; }
+            .settings-bar .nav-select { height: 34px; font-size: 0.82rem; }
 
             /* ── 파일 업로드 ── */
             .file-upload-container { padding: 30px 16px; }
@@ -878,7 +878,7 @@
                 width: 100%;
                 flex: unset;
             }
-            .nav-row-selects .nav-select { height: 44px; font-size: 0.92rem; }
+            .nav-row-selects .nav-select { height: 36px; font-size: 0.88rem; }
             /* 2줄: 이전/다음 — 너비 100%, 두 버튼 균등 분할 */
             .nav-row-prevnext {
                 width: 100%;
@@ -892,11 +892,11 @@
             /* 구분선: 모바일에서 숨김 */
             .nav-prevnext-divider { display: none; }
             /* btn-nav 공통 높이 */
-            .btn-nav { height: 44px; font-size: 0.92rem; padding: 0 16px; }
+            .btn-nav { height: 36px; font-size: 0.88rem; padding: 0 14px; }
 
             /* ── 버튼 기본 터치 크기 ── */
             .btn-action, .btn-apply {
-                min-height: 40px;
+                min-height: 34px;
             }
 
             /* ── 모드 선택 ── */
@@ -912,7 +912,7 @@
                 justify-content: flex-end;
             }
             .mode-select .btn-apply,
-            .mode-select .btn-action { height: 40px; font-size: 0.86rem; }
+            .mode-select .btn-action { height: 34px; font-size: 0.84rem; }
 
             /* ── 본문/입력 박스 ── */
             .text-common {
@@ -1094,6 +1094,8 @@
             /* ── 진행률 요약 ── */
             .progress-chip { font-size: 0.8rem; }
             .progress-expand-btn { font-size: 0.78rem; }
+            .progress-chip-total { display: none !important; }
+            .progress-sep-total { display: none !important; }
 
             /* ── 주석 모드 — 내보내기 버튼 높이 (원래대로) ── */
             .com-bar-right .btn-apply {
@@ -1308,9 +1310,9 @@
             <!-- 2행(모바일)/이어붙임(PC): 이전 / 다음 -->
             <div class="nav-row nav-row-prevnext">
                 <div class="nav-prevnext-divider"></div>
-                <button class="btn-nav btn-nav-prev" onclick="forcePrevChapter()">◀ 이전</button>
-                <span id="nav-chapter-label" style="font-size:0.82rem;color:#6a6460;padding:0 6px;white-space:nowrap;flex-shrink:0;"></span>
-                <button class="btn-nav btn-nav-next" onclick="forceNextChapter()">다음 ▶</button>
+                <button class="btn-nav btn-nav-prev" onclick="forcePrevChapter()">◀ 이전 장</button>
+                <span id="nav-chapter-label" style="font-size:1.05rem;font-weight:700;color:var(--accent);padding:0 6px;white-space:nowrap;flex-shrink:0;"></span>
+                <button class="btn-nav btn-nav-next" onclick="forceNextChapter()">다음 장 ▶</button>
             </div>
         </div>
         <!-- 필사 모드 통계 (필사 모드일 때만 표시) -->
@@ -1334,8 +1336,8 @@
             <div class="progress-collapsed">
                 <div class="progress-collapsed-row">
                     <div class="progress-chips">
-                        <span class="progress-chip">전체 <strong id="progress-text-total">0%</strong></span>
-                        <span style="color:#ddd;font-size:0.7rem;">│</span>
+                        <span class="progress-chip progress-chip-total">전체 <strong id="progress-text-total">0%</strong></span>
+                        <span class="progress-sep-total" style="color:#ddd;font-size:0.7rem;">│</span>
                         <span class="progress-chip"><span id="progress-label-book">책</span> <strong id="progress-text-book">0%</strong></span>
                         <span style="color:#ddd;font-size:0.7rem;">│</span>
                         <span class="progress-chip"><span id="progress-label-ch">장</span> <strong id="progress-text-ch">0%</strong></span>
@@ -2740,8 +2742,8 @@ const SPECIAL_CATEGORIES = [
             currentRawFile = file;
             processBdbFile(0);
         } else if (lower.endsWith('.aab')) {
-            currentRawFile = file;
-            processBdbFile(8);
+            // 저장본 vs 원본 성경 자동 감지 후 분기
+            processAabFile_forResume(file);
         } else {
             if (!bibleData.length) {
                 alert('먼저 원본 성경 파일(BDB/AAB/TXT)을 로드해주세요.');
@@ -3053,6 +3055,85 @@ const SPECIAL_CATEGORIES = [
             el.style.display = 'flex';
         } else {
             if (el) el.style.display = 'none';
+        }
+    }
+
+    // ── AAB btext → 내부 typedData 포맷 역변환 ───────────────────────────
+    // toAABText 의 역함수: 【N) 내용】 → N) 내용, 항목 사이 <br> 삽입
+    function aabToInternalFormat(btext) {
+        if (!btext) return '';
+        return btext
+            .replace(/】\s*【/g, '<br>') // 항목 구분: 】 【 → <br>
+            .replace(/【|】/g, '');       // 남은 괄호 제거
+    }
+
+    // ── 저장된 AAB를 이어하기 데이터로 파싱 ──────────────────────────────
+    function processAabAsResume(rows) {
+        showResumeLoading(true);
+        const bibleMap = new Map();
+        bibleData.forEach((d, i) => {
+            const t = d.title.replace(/\s+/g, ' ').trim();
+            if (!bibleMap.has(t)) bibleMap.set(t, i);
+        });
+        const tempTypedData = [];
+        let lastFoundIndex = -1;
+        rows.forEach(([book, chapter, verse, btext]) => {
+            if (!btext) return;
+            const bookAbbr = BOOK_NUM[book] || '';
+            if (!bookAbbr) return;
+            const key = `${bookAbbr} ${chapter}:${verse}`;
+            const internalText = aabToInternalFormat(btext);
+            tempTypedData.push({ k: key, t: internalText });
+            const foundIdx = bibleMap.get(key);
+            if (foundIdx !== undefined) lastFoundIndex = foundIdx;
+        });
+        setTimeout(() => {
+            showResumeLoading(false);
+            if (lastFoundIndex === -1) {
+                alert('이어하기 데이터와 현재 성경 역본이 일치하지 않습니다.\n원본 성경 파일을 먼저 로드한 후 이어하기를 사용하세요.');
+                return;
+            }
+            typedData = tempTypedData;
+            const resumeIdx = Math.min(lastFoundIndex + 1, bibleData.length - 1);
+            const lastTitle = bibleData[lastFoundIndex].title;
+            alert(`✅ ${typedData.length}개 구절을 불러왔습니다.\n마지막 작업: ${lastTitle}\n다음 절부터 이어서 시작합니다.`);
+            document.getElementById('drop-zone').style.display = 'none';
+            document.getElementById('action-grid').style.display = 'none';
+            document.getElementById('exercise-ui').style.display = 'block';
+            document.getElementById('settings-bar').style.display = 'flex';
+            document.getElementById('btn-chart').style.display = 'inline-block';
+            initTypingMode();
+            loadVerse(resumeIdx);
+        }, 100);
+    }
+
+    // ── 이어하기 경로의 AAB: 저장본 vs 원본 성경 자동 감지 ─────────────────
+    async function processAabFile_forResume(file) {
+        try {
+            const buf = await file.arrayBuffer();
+            const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+            const db = new SQL.Database(new Uint8Array(buf.slice(8)));
+            const res = db.exec('SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse');
+            db.close();
+            if (!res.length || !res[0].values.length) {
+                alert('AAB 파일에서 데이터를 찾지 못했습니다.');
+                return;
+            }
+            // JINs 저장본 감지: btext 에 <br>▷ 포함 여부
+            const isJinsSaved = res[0].values.some(([,,,btext]) => btext && btext.includes('<br>▷'));
+            if (isJinsSaved) {
+                if (bibleData.length > 0) {
+                    processAabAsResume(res[0].values);
+                } else {
+                    alert('이어하기 AAB 파일을 복원하려면\n먼저 원본 성경 파일(AAB/BDB)을 불러오세요.');
+                }
+            } else {
+                // 원본 성경 AAB → 기존 방식으로 로드
+                currentRawFile = file;
+                processBdbFile(8);
+            }
+        } catch (err) {
+            alert('AAB 파일 처리 중 오류가 발생했습니다.\n' + err.message);
         }
     }
 
@@ -3620,7 +3701,7 @@ const SPECIAL_CATEGORIES = [
     // ── 샘플 본문 로드 (개역개정 창세기 1:1~1:10) ──────────────────────────
     const SAMPLE_BIBLE_DATA = [
         { title:'창 1:1',  text:'<천지 창조> 태초에 하나님이 천지를 창조하시니라' },
-        { title:'창 1:2',  text:'땅이 혼돈하고 공허하며 흑암이 깊음 위에 있고 하나님의 영은 수면 위에 운행하시니라' },
+        { title:'창 1:2',  text:'땅이 ¹⁾혼돈하고 공허하며 흑암이 깊음 위에 있고 하나님의 영은 수면 위에 운행하시니라 【1) 또는 형체가 없는】' },
         { title:'창 1:3',  text:'하나님이 이르시되 빛이 있으라 하시니 빛이 있었고' },
         { title:'창 1:4',  text:'빛이 하나님이 보시기에 좋았더라 하나님이 빛과 어둠을 나누사' },
         { title:'창 1:5',  text:'하나님이 빛을 낮이라 부르시고 어둠을 밤이라 부르시니라 저녁이 되고 아침이 되니 이는 첫째 날이니라' },
@@ -3718,7 +3799,7 @@ const SPECIAL_CATEGORIES = [
             name: '개역개정',
             data: parseSampleTxt([
                 '창 1:1 | <천지 창조> 태초에 하나님이 천지를 창조하시니라',
-                '창 1:2 | 땅이 혼돈하고 공허하며 흑암이 깊음 위에 있고 하나님의 영은 수면 위에 운행하시니라',
+                '창 1:2 | 땅이 ¹⁾혼돈하고 공허하며 흑암이 깊음 위에 있고 하나님의 영은 수면 위에 운행하시니라 【1) 또는 형체가 없는】',
                 '창 1:3 | 하나님이 이르시되 빛이 있으라 하시니 빛이 있었고',
                 '창 1:4 | 빛이 하나님이 보시기에 좋았더라 하나님이 빛과 어둠을 나누사',
                 '창 1:5 | 하나님이 빛을 낮이라 부르시고 어둠을 밤이라 부르시니라 저녁이 되고 아침이 되니 이는 첫째 날이니라',
@@ -4422,7 +4503,11 @@ const SPECIAL_CATEGORIES = [
         // 시편: free모드는 '시', strict모드는 book번호 19
         const isPsalms = book === '시' || parseInt(book) === 19;
         const unit = isPsalms ? '편' : '장';
-        el.textContent = ch ? ch + unit : '';
+        el.textContent = ch ? ch : '';
+        const prevBtn = document.querySelector('.btn-nav-prev');
+        const nextBtn = document.querySelector('.btn-nav-next');
+        if (prevBtn) prevBtn.textContent = '◀ 이전 ' + unit;
+        if (nextBtn) nextBtn.textContent = '다음 ' + unit + ' ▶';
     }
 
     function _jumpToChapter(book, ch) {
@@ -6985,6 +7070,55 @@ const SPECIAL_CATEGORIES = [
         } else {
             init();
         }
+    })();
+
+    // ── 참고본문 영역 스와이프 → 절 이동 (모바일) ────────────────────────
+    (function() {
+        var SWIPE_MIN_X  = 40;   // 좌우 최소 이동 거리 (px)
+        var SWIPE_MAX_Y  = 60;   // 세로 이동 허용 최대치 (px) — 초과 시 스크롤로 간주
+        var SWIPE_TIMEOUT = 400; // 최대 인식 시간 (ms)
+
+        var refEl = document.getElementById('reference-text');
+        if (!refEl) return;
+
+        var sx = 0, sy = 0, st = 0, swiping = false;
+
+        refEl.addEventListener('touchstart', function(e) {
+            if (e.touches.length !== 1) { swiping = false; return; }
+            var t = e.touches[0];
+            sx = t.clientX; sy = t.clientY; st = Date.now(); swiping = true;
+        }, { passive: true });
+
+        refEl.addEventListener('touchmove', function(e) {
+            if (!swiping || e.touches.length !== 1) return;
+            // 세로 이동이 크면 스크롤 허용, 스와이프 취소
+            if (Math.abs(e.touches[0].clientY - sy) > SWIPE_MAX_Y) { swiping = false; }
+        }, { passive: true });
+
+        refEl.addEventListener('touchend', function(e) {
+            if (!swiping) return;
+            swiping = false;
+
+            // 편집 중이면 스와이프 무시
+            if (refEl.classList.contains('is-editing')) return;
+
+            if (Date.now() - st > SWIPE_TIMEOUT) return;
+
+            var dx = e.changedTouches[0].clientX - sx;
+            var dy = Math.abs(e.changedTouches[0].clientY - sy);
+
+            if (Math.abs(dx) < SWIPE_MIN_X) return;
+            if (dy > SWIPE_MAX_Y) return;
+
+            // 왼쪽으로 스와이프 → 다음 절
+            if (dx < 0) {
+                if (typeof forceNext === 'function') forceNext();
+            }
+            // 오른쪽으로 스와이프 → 이전 절
+            else {
+                if (typeof forcePrev === 'function') forcePrev();
+            }
+        }, { passive: true });
     })();
     </script>
 </body>
