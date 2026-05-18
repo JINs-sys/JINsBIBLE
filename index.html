@@ -363,6 +363,14 @@
         .fn-num-btn { background: none; border: none; cursor: pointer; font-size: 0.85rem; padding: 2px 4px; border-radius: 4px; color: var(--ink); font-family: var(--font-main); line-height: 1; transition: background 0.12s; }
         .fn-num-btn sup { font-size: 0.72em; vertical-align: super; line-height: 0; }
         .fn-num-btn:hover { background: #e8e0d0; }
+        /* ── free-tools 버튼: onmouseover/onmouseout 대신 CSS :hover 사용 (hover 고착 방지) ── */
+        .free-sym-btn { background:none; border:none; cursor:pointer; padding:0 6px; height:21px; font-size:0.72rem; color:#6a6460; font-family:var(--font-main); border-radius:3px; transition:background 0.1s; flex-shrink:0; }
+        .free-sym-btn sup { font-size:0.65em; }
+        .free-sym-btn:hover { background:#e8e2d8; }
+        .free-clear-btn { background:none; border:none; cursor:pointer; color:#8a8076; font-size:1.1rem; font-weight:600; padding:0 6px; height:26px; line-height:1; transition:color 0.12s; flex-shrink:0; }
+        .free-clear-btn:hover { color:#c03030; }
+        .free-nav-btn { background:none; border:none; cursor:pointer; padding:0 9px; height:26px; font-size:0.78rem; color:#6a6460; font-family:var(--font-main); transition:background 0.1s; }
+        .free-nav-btn:hover { background:#ede8de; }
         /* 주석 내보내기 전용 — 모바일 min-height 룰 영향 없이 고정 높이 */
         .com-export-btn { background: var(--accent); color: #fff; border: 1px solid var(--accent); cursor: pointer; padding: 0 12px; height: 28px; min-height: 28px; max-height: 28px; border-radius: 4px; font-size: 0.8rem; font-family: var(--font-main); transition: background 0.12s; white-space: nowrap; flex-shrink: 0; align-self: center; }
         .com-export-btn:hover { background: #1e3329; border-color: #1e3329; }
@@ -1420,21 +1428,21 @@
                 <div class="free-tools-footnotes-wrap" style="display:inline-flex; flex-direction:column; align-items:flex-start; gap:0; flex-shrink:0;">
                     <span class="footnote-symbol-label" style="font-size:0.55rem; color:#8a8076; line-height:1; padding:0 4px; letter-spacing:0.3px; user-select:none;">각주기호</span>
                     <div class="free-tools-footnotes" style="display:inline-flex; align-items:center; gap:1px;">
-                        <button onclick="insertFootnoteNum('¹⁾')" title="각주 1번" style="background:none;border:none;cursor:pointer;padding:0 6px;height:21px;font-size:0.72rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'"><sup style="font-size:0.65em;">1</sup>⁾</button>
-                        <button onclick="insertFootnoteNum('²⁾')" title="각주 2번" style="background:none;border:none;cursor:pointer;padding:0 6px;height:21px;font-size:0.72rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'"><sup style="font-size:0.65em;">2</sup>⁾</button>
-                        <button onclick="insertFootnoteNum('³⁾')" title="각주 3번" style="background:none;border:none;cursor:pointer;padding:0 6px;height:21px;font-size:0.72rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'"><sup style="font-size:0.65em;">3</sup>⁾</button>
-                        <button onclick="insertFootnoteNum('⁴⁾')" title="각주 4번" style="background:none;border:none;cursor:pointer;padding:0 6px;height:21px;font-size:0.72rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'"><sup style="font-size:0.65em;">4</sup>⁾</button>
-                        <button onclick="insertFootnoteNum('⁵⁾')" title="각주 5번" style="background:none;border:none;cursor:pointer;padding:0 6px;height:21px;font-size:0.72rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'"><sup style="font-size:0.65em;">5</sup>⁾</button>
+                        <button class="free-sym-btn" onclick="insertFootnoteNum('¹⁾')" title="각주 1번"><sup>1</sup>⁾</button>
+                        <button class="free-sym-btn" onclick="insertFootnoteNum('²⁾')" title="각주 2번"><sup>2</sup>⁾</button>
+                        <button class="free-sym-btn" onclick="insertFootnoteNum('³⁾')" title="각주 3번"><sup>3</sup>⁾</button>
+                        <button class="free-sym-btn" onclick="insertFootnoteNum('⁴⁾')" title="각주 4번"><sup>4</sup>⁾</button>
+                        <button class="free-sym-btn" onclick="insertFootnoteNum('⁵⁾')" title="각주 5번"><sup>5</sup>⁾</button>
                         <span style="width:1px;height:12px;background:#d4ccbc;margin:0 2px;"></span>
-                        <button onclick="insertFootnoteNum('ᵃ')" title="각주 a" style="background:none;border:none;cursor:pointer;padding:0 6px;height:21px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'">ᵃ</button>
-                        <button onclick="insertFootnoteNum('ᵇ')" title="각주 b" style="background:none;border:none;cursor:pointer;padding:0 6px;height:21px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'">ᵇ</button>
-                        <button onclick="insertFootnoteNum('ᶜ')" title="각주 c" style="background:none;border:none;cursor:pointer;padding:0 6px;height:21px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);border-radius:3px;transition:background 0.1s;" onmouseover="this.style.background='#e8e2d8'" onmouseout="this.style.background='none'">ᶜ</button>
+                        <button class="free-sym-btn" style="font-size:0.78rem;" onclick="insertFootnoteNum('ᵃ')" title="각주 a">ᵃ</button>
+                        <button class="free-sym-btn" style="font-size:0.78rem;" onclick="insertFootnoteNum('ᵇ')" title="각주 b">ᵇ</button>
+                        <button class="free-sym-btn" style="font-size:0.78rem;" onclick="insertFootnoteNum('ᶜ')" title="각주 c">ᶜ</button>
                     </div>
                 </div>
 
                 <div style="flex:1; min-width:4px;"></div>
 
-                <button id="btn-clear-input" onclick="clearUserInput()" title="입력 내용 지우기" style="display:none;background:none;border:none;cursor:pointer;color:#8a8076;font-size:1.1rem;font-weight:600;padding:0 6px;height:26px;line-height:1;transition:color 0.12s;flex-shrink:0;" onmouseover="this.style.color='#c03030'" onmouseout="this.style.color='#8a8076'">↺</button>
+                <button id="btn-clear-input" class="free-clear-btn" onclick="clearUserInput()" title="입력 내용 지우기" style="display:none;">↺</button>
 
                 <!-- ③ 세로 구분선 -->
                 <span id="free-tools-divider-1" style="display:none;width:1px;height:16px;background:#d4ccbc;flex-shrink:0;"></span>
@@ -1454,9 +1462,9 @@
 
                 <!-- ⑥ 이전/다음 절 네비 -->
                 <span id="btn-free-nav-group" style="display:none; align-items:center; gap:0; border:1px solid #d4ccbc; border-radius:5px; overflow:hidden; flex-shrink:0;">
-                    <button id="btn-free-prev" onclick="forcePrev()" style="background:none;border:none;border-right:1px solid #d4ccbc;cursor:pointer;padding:0 9px;height:26px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);transition:background 0.1s;" onmouseover="this.style.background='#ede8de'" onmouseout="this.style.background='none'">◀</button>
+                    <button id="btn-free-prev" class="free-nav-btn" style="border-right:1px solid #d4ccbc;" onclick="forcePrev()">◀</button>
                     <span id="free-verse-label" style="font-size:0.72rem;color:#8a8278;white-space:nowrap;padding:0 6px;line-height:26px;user-select:none;"></span>
-                    <button id="btn-free-next" onclick="forceNext()" style="background:none;border:none;border-left:1px solid #d4ccbc;cursor:pointer;padding:0 9px;height:26px;font-size:0.78rem;color:#6a6460;font-family:var(--font-main);transition:background 0.1s;" onmouseover="this.style.background='#ede8de'" onmouseout="this.style.background='none'">▶</button>
+                    <button id="btn-free-next" class="free-nav-btn" style="border-left:1px solid #d4ccbc;" onclick="forceNext()">▶</button>
                 </span>
             </div>
             <!-- 날짜 위치: 상단 -->
@@ -4096,6 +4104,8 @@ const SPECIAL_CATEGORIES = [
         updateNavChapterLabel();
         // 본문 텍스트만 갱신 (.ref-text-body 만 교체)
         const refEl = document.getElementById('reference-text');
+        // 절 이동 시 참고본문 사이드메뉴 상태 초기화 (hover 고착 방지)
+        refEl.classList.remove('ref-menu-open', 'is-editing');
         const body  = refEl.querySelector('.ref-text-body');
         if (body) {
             body.classList.remove('ref-empty');
