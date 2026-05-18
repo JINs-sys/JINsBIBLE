@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="JINs Bible">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="data:image/png;base64,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">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 
@@ -405,7 +406,7 @@
         .fmt-date-btn.active { background:#edf3ef !important; color:#3a6b52 !important; border-color:#b5d0c0 !important; }
 
         /* 태그 팝업 */
-        .tag-popup { position:absolute; bottom:40px; left:0; background:#fff; border:1px solid var(--rule); border-radius:8px; padding:14px 16px; width:300px; z-index:200; box-shadow:0 4px 16px rgba(0,0,0,0.10); }
+        .tag-popup { position:fixed; background:#fff; border:1px solid var(--rule); border-radius:8px; padding:14px 16px; width:300px; z-index:9000; box-shadow:0 4px 16px rgba(0,0,0,0.10); }
         .tag-input-row { display:flex; gap:6px; margin-bottom:8px; }
         .tag-input-field { flex:1; height:28px; border:1px solid var(--rule); border-radius:99px; padding:0 10px; font-size:0.8rem; font-family:var(--font-main); outline:none; color:var(--ink); background:#f8f7f2; }
         .tag-input-field:focus { border-color:var(--accent); background:#fff; }
@@ -419,7 +420,7 @@
         .fmt-color-wrap { position:relative; }
         .fmt-color-btn { flex-direction:column; gap:1px; padding:0 8px; height:28px; }
         .color-indicator { display:block; width:14px; height:3px; border-radius:2px; }
-        .color-picker-pop { position:absolute; bottom:34px; left:50%; transform:translateX(-50%); background:#fff; border:1px solid var(--rule); border-radius:8px; padding:8px; display:flex; flex-wrap:wrap; gap:6px; width:140px; z-index:200; box-shadow:0 4px 16px rgba(0,0,0,0.10); }
+        .color-picker-pop { position:fixed; background:#fff; border:1px solid var(--rule); border-radius:8px; padding:8px; display:flex; flex-wrap:wrap; gap:6px; width:140px; z-index:9000; box-shadow:0 4px 16px rgba(0,0,0,0.10); }
         .c-swatch { width:20px; height:20px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:transform 0.1s; }
         .c-swatch:hover { transform:scale(1.2); }
         .c-swatch.sel { border-color:var(--ink); }
@@ -1237,8 +1238,8 @@
             </select>
             <button class="btn-action" onclick="saveData()">저장</button>
             <button class="btn-action" id="btn-resume" onclick="document.getElementById('resume-input').click()">이어하기</button>
-            <input type="file" id="resume-input" accept=".txt" style="display:none;">
-            <button class="btn-action" onclick="location.reload()">초기화</button>
+            <input type="file" id="resume-input" accept=".txt,.bdb,.aab" style="display:none;">
+            <button class="btn-action" onclick="resetAll()">초기화</button>
         </div>
     </div>
 
@@ -1475,8 +1476,8 @@
             <div class="fmt-toolbar">
                 <div class="fmt-left">
                     <div class="fmt-tag-wrap" id="fmt-tag-wrap">
-                        <button class="fmt-btn fmt-tag-btn" id="fmt-tag-btn" onclick="toggleTagPopup()" title="선택 영역에 태그 삽입">
-                            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1h6l7 7-6 6-7-7V1z"/><circle cx="4.5" cy="4.5" r="1" fill="currentColor" stroke="none"/></svg>
+                        <button class="fmt-btn fmt-tag-btn" id="fmt-tag-btn" onclick="toggleTagPopup();" title="선택 영역에 태그 삽입">
+                            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="pointer-events:none;"><path d="M1 1h6l7 7-6 6-7-7V1z"/><circle cx="4.5" cy="4.5" r="1" fill="currentColor" stroke="none"/></svg>
                             태그
                         </button>
                         <div class="tag-popup" id="tag-popup" style="display:none;">
@@ -2208,24 +2209,41 @@ const SPECIAL_CATEGORIES = [
 
     function toggleColorPicker() {
         const pop = document.getElementById('color-picker-pop');
-        pop.style.display = pop.style.display === 'none' ? 'flex' : 'none';
+        const isOpen = pop.style.display !== 'none';
         document.getElementById('tag-popup').style.display = 'none';
+        if (isOpen) { pop.style.display = 'none'; return; }
+        const btn = document.getElementById('fmt-color-btn');
+        if (btn) {
+            const r = btn.getBoundingClientRect();
+            pop.style.left   = Math.max(4, r.left - 50) + 'px';
+            pop.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+            pop.style.top    = 'auto';
+        }
+        pop.style.display = 'flex';
     }
 
     function toggleTagPopup() {
         const pop = document.getElementById('tag-popup');
+        if (!pop) return;
         const isOpen = pop.style.display !== 'none';
-        pop.style.display = isOpen ? 'none' : 'block';
-        document.getElementById('color-picker-pop').style.display = 'none';
-        if (!isOpen) {
-            // 팝업 열기 전 커서/선택 위치 저장
-            const sel = window.getSelection();
-            if (sel && sel.rangeCount > 0) {
-                savedSelection = sel.getRangeAt(0).cloneRange();
-            }
-            renderSavedTags();
-            setTimeout(() => document.getElementById('tag-input-field').focus(), 50);
+        const colorPop = document.getElementById('color-picker-pop');
+        const spPop = document.getElementById('special-picker-pop');
+        if (colorPop) colorPop.style.display = 'none';
+        if (spPop) spPop.style.display = 'none';
+        if (isOpen) { pop.style.display = 'none'; return; }
+        // 버튼 위치 기준으로 팝업 고정 위치 계산
+        const btn = document.getElementById('fmt-tag-btn');
+        if (btn) {
+            const r = btn.getBoundingClientRect();
+            pop.style.left  = Math.max(4, r.left) + 'px';
+            pop.style.bottom = (window.innerHeight - r.top + 6) + 'px';
+            pop.style.top   = 'auto';
         }
+        const sel = window.getSelection();
+        if (sel && sel.rangeCount > 0) savedSelection = sel.getRangeAt(0).cloneRange();
+        pop.style.display = 'block';
+        renderSavedTags();
+        setTimeout(() => { const inp = document.getElementById('tag-input-field'); if (inp) inp.focus(); }, 50);
     }
 
     function renderSavedTags() {
@@ -2403,7 +2421,8 @@ const SPECIAL_CATEGORIES = [
     document.addEventListener('click', e => {
         const tagWrap   = document.getElementById('fmt-tag-wrap');
         const colorWrap = document.getElementById('fmt-color-wrap');
-        if (tagWrap   && !tagWrap.contains(e.target))   document.getElementById('tag-popup').style.display = 'none';
+        const target = e.target.closest ? (e.target.closest('#fmt-tag-wrap') || e.target) : e.target;
+        if (tagWrap && !tagWrap.contains(target) && !tagWrap.contains(e.target)) document.getElementById('tag-popup').style.display = 'none';
         if (colorWrap && !colorWrap.contains(e.target)) { const p = document.getElementById('color-picker-pop'); if(p) p.style.display = 'none'; }
     });
 
@@ -2632,12 +2651,21 @@ const SPECIAL_CATEGORIES = [
     document.getElementById('resume-input').onchange = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        if (!bibleData.length) {
-            alert('먼저 원본 성경 파일(TXT)을 드롭해서 로드해주세요.');
-            e.target.value = '';
-            return;
+        const lower = file.name.toLowerCase();
+        if (lower.endsWith('.bdb')) {
+            currentRawFile = file;
+            processBdbFile(0);
+        } else if (lower.endsWith('.aab')) {
+            currentRawFile = file;
+            processBdbFile(8);
+        } else {
+            if (!bibleData.length) {
+                alert('먼저 원본 성경 파일(BDB/AAB/TXT)을 로드해주세요.');
+                e.target.value = '';
+                return;
+            }
+            processResultFile(file);
         }
-        processResultFile(file);
         e.target.value = '';
     };
 
@@ -2647,24 +2675,23 @@ const SPECIAL_CATEGORIES = [
 
     function handleFile(file) {
         if(!file) return;
-        if (file.name.toLowerCase().endsWith('.zip')) {
+        const lower = file.name.toLowerCase();
+        if (lower.endsWith('.zip')) {
             processZipFile(file, (extracted) => handleFile(extracted));
             return;
         }
+        // .bdb/.aab는 항상 원본 성경으로 처리 (bibleData 여부 무관)
+        if (lower.endsWith('.bdb')) {
+            currentRawFile = file; processBdbFile(0); return;
+        }
+        if (lower.endsWith('.aab')) {
+            currentRawFile = file; processBdbFile(8); return;
+        }
         if (bibleData.length > 0) {
-            // 원본이 이미 로드된 상태 → 결과 파일로 처리
             processResultFile(file);
         } else {
-            // 원본 파일 로드
             currentRawFile = file;
-            const lower = file.name.toLowerCase();
-            if (lower.endsWith('.bdb')) {
-                processBdbFile(0);
-            } else if (lower.endsWith('.aab')) {
-                processBdbFile(8); // AAB: 8바이트 헤더(AABB 01 01 00 00) 뒤가 SQLite
-            } else {
-                processBibleFile();
-            }
+            processBibleFile();
         }
     }
 
@@ -2797,6 +2824,7 @@ const SPECIAL_CATEGORIES = [
                 if (bibleData.length) {
                     // 드롭존 → 완료 메시지로 교체 (원본 스타일 유지)
                     const dz = document.getElementById('drop-zone');
+                    dz.style.display = '';
                     dz.classList.add('loaded');
                     dz.onclick = null;
                     dz.innerHTML = `
@@ -2856,6 +2884,7 @@ const SPECIAL_CATEGORIES = [
 
                 if (bibleData.length) {
                     const dz = document.getElementById('drop-zone');
+                    dz.style.display = '';
                     dz.classList.add('loaded');
                     dz.onclick = null;
                     dz.innerHTML = `
@@ -3194,6 +3223,84 @@ const SPECIAL_CATEGORIES = [
         window._syncFootnoteList   = syncFootnoteList;
         window._adjustFootnoteHeight = adjustFootnoteHeight;
     })();
+
+    // ── 전체 초기화 (나만의 성경역본 바로입장 초기 상태로) ────────────
+    function resetAll() {
+        if (!confirm('작성한 내용이 모두 지워집니다. 계속하시겠습니까?')) return;
+
+        // 상태 변수 초기화 (성경 데이터 포함)
+        bibleData      = [];
+        bibleDataSets  = [];
+        typedData      = [];
+        currentIndex   = 0;
+        currentRawFile = null;
+        freeWriteMode  = true;
+        freeCurrentKey = '';
+        activeRefTab   = 0;
+        refPanelH      = null;
+
+        // 입력창 초기화
+        const ui = document.getElementById('user-input');
+        const fn = document.getElementById('footnote-input');
+        if (ui) ui.innerHTML = '';
+        if (fn) fn.innerHTML = '';
+        if (window._adjustFootnoteHeight) window._adjustFootnoteHeight();
+
+        // drop-zone: 원본 HTML 복원 + 숨기기 (바로 시작 상태와 동일)
+        const dz = document.getElementById('drop-zone');
+        if (dz) {
+            dz.classList.remove('loaded');
+            dz.innerHTML = `<div id="drop-text">
+                <div style="font-size:1.4rem; font-weight:700; color:var(--accent); margin-bottom:6px;">나만의 성경 역본</div>
+                <div style="font-size:0.88rem; color:#7a8a80; margin-bottom:14px;">참고할 성경역본을 불러와 나만의 역본을 작성합니다</div>
+                <div style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem; margin-bottom:16px;">
+                    📂 TXT · AAB · BDB · ZIP 드래그드롭 또는 클릭
+                </div><br>
+                <button class="btn-noref" onclick="event.stopPropagation(); startFreeWrite();">📝 바로 시작</button>
+            </div>
+            <input type="file" id="file-input" accept=".txt,.bdb">`;
+            dz.style.display = 'none';
+        }
+
+        // 샘플 로드 완료 알림 제거
+        const sn = document.getElementById('sample-notice');
+        if (sn) sn.remove();
+
+        // 책/장/절 드롭다운 초기값으로
+        const nb = document.getElementById('nav-book');
+        const nc = document.getElementById('nav-chapter');
+        const nv = document.getElementById('nav-verse');
+        if (nb) { nb.innerHTML = '<option value="">책 선택</option>'; }
+        if (nc) { nc.innerHTML = '<option value="">장 선택</option>'; }
+        if (nv) { nv.innerHTML = '<option value="">절 선택</option>'; }
+
+        // 참고 성경역본 초기 빈 상태로 복원 (샘플본문 버튼 포함)
+        const refBody = document.querySelector('#reference-text .ref-text-body');
+        if (refBody) {
+            refBody.classList.add('ref-empty');
+            refBody.innerHTML = '<button onclick="loadSampleBible()" style="display:inline-block;background:none;border:none;cursor:pointer;font-size:0.82rem;color:#d4776e;font-family:var(--font-main);padding:0;line-height:1.5;text-align:left;font-weight:500;" title="개역개정 창세기 1장 샘플 불러오기">▷ 샘플본문 click</button><span class="ref-empty-upload-hint">참고 성경역본<br>불러오기<br>(파일 드롭 가능)<br>TXT.AAB.BDB.ZIP<br>→</span>';
+        }
+
+        // 진행률 초기화
+        ['progress-bar-total','progress-bar-total-d','progress-bar-ot','progress-bar-nt','progress-bar-book','progress-bar-ch'].forEach(id => {
+            const el = document.getElementById(id); if (el) el.style.width = '0%';
+        });
+        ['progress-text-total','progress-text-total-d','progress-text-ot','progress-text-nt','progress-text-book','progress-text-book-d','progress-text-ch','progress-text-ch-d'].forEach(id => {
+            const el = document.getElementById(id); if (el) el.innerText = '0%';
+        });
+
+        // 타이틀 복원
+        const vt = document.getElementById('verse-title');
+        if (vt) vt.innerText = '나만의 성경역본';
+        const lbl = document.getElementById('header-mode-label');
+        if (lbl) { lbl.textContent = '성경역본 수정 / 각주추가'; lbl.style.display = 'block'; }
+        const ng = document.getElementById('btn-free-nav-group'); if (ng) ng.style.display = 'none';
+
+        // exercise-ui·settings-bar 유지 (모드 선택 화면으로 나가지 않음)
+        const dividers = [document.getElementById('free-tools-divider-1'), document.getElementById('free-tools-divider-2')];
+        dividers.forEach(d => { if (d) d.style.display = 'none'; });
+        updateApplyBtnState();
+    }
 
     function clearUserInput() {
         const input = document.getElementById('user-input');
@@ -6343,13 +6450,6 @@ const SPECIAL_CATEGORIES = [
             window.toggleSpecialPicker = function() {
                 _os && _os();
                 var pop = document.getElementById('special-picker-pop');
-                if (pop && pop.style.display !== 'none') showDim(); else hideDim();
-            };
-
-            var _ot = window.toggleTagPopup;
-            window.toggleTagPopup = function() {
-                _ot && _ot();
-                var pop = document.getElementById('tag-popup');
                 if (pop && pop.style.display !== 'none') showDim(); else hideDim();
             };
 
