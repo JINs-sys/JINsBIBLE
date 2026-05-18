@@ -1249,14 +1249,9 @@
             <div style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem; margin-bottom:16px;">
                 📂 TXT · AAB · BDB · ZIP 드래그드롭 또는 클릭
             </div><br>
-            <button class="btn-noref" onclick="event.stopPropagation(); startFreeWrite();">📝 참고자료 없이 바로 시작</button>
+            <button class="btn-noref" onclick="event.stopPropagation(); startFreeWrite();">📝 바로 시작</button>
         </div>
         <input type="file" id="file-input" accept=".txt,.bdb">
-    </div>
-
-    <div class="freewrite-box" id="freewrite-box" onclick="startFreeWrite()">
-        <strong>✍️ 성경 본문 참고 없이 작성하기</strong>
-        <p>책·장·절을 직접 선택하고 자유롭게 작성합니다.</p>
     </div>
 
     <!-- 랜딩 액션 카드 -->
@@ -1264,7 +1259,7 @@
         <div class="action-card card-commentary" id="com-mode-box" onclick="startCommentaryMode()">
             <div class="action-card-icon">📝</div>
             <div class="action-card-title">나만의 주석 작성</div>
-            <div class="action-card-desc">성경 본문을 보며 절·장·책 단위<br>주석을 작성하고 AAB로 내보냅니다.</div>
+            <div class="action-card-desc">성경 본문을 보며 책·장·절 단위<br>주석을 작성하고 AAB로 내보냅니다.</div>
         </div>
         <div class="action-card" onclick="startFreeWrite('strict')">
             <div class="action-card-icon">✍️</div>
