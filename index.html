@@ -394,6 +394,8 @@
         .btn-home:hover, .btn-chart:hover { background: #f0ece3; color: var(--accent); }
         .btn-chart { margin-right: 2px; }
         .date-pos-btn.active, .btn-date-toggle.active, .fmt-date-btn.active { background:#edf3ef !important; color:#3a6b52 !important; border-color:#b5d0c0 !important; }
+        #btn-section-title2:hover { background:#a85e42 !important; border-color:#a85e42 !important; }
+        #btn-section-title2:active { background:#8a4a32 !important; border-color:#8a4a32 !important; }
 
         /* ── 서식 툴바 ── */
         /* fmt-toolbar defined above with border-radius */
@@ -1473,9 +1475,7 @@
 
                 <!-- ④-0 표제어 버튼 (↺ 리셋과 본문 대조 사이) -->
                 <button id="btn-section-title2" onclick="toggleSectionTitle()" title="표제어 칸 추가/제거"
-                    style="background:#c8795a;border:1px solid #c8795a;border-radius:5px;color:#fff;cursor:pointer;font-size:0.78rem;font-family:var(--font-main);padding:0 10px;height:26px;line-height:26px;white-space:nowrap;flex-shrink:0;transition:background 0.12s;box-sizing:border-box;"
-                    onmouseover="this.style.background='#a85e42';this.style.borderColor='#a85e42'"
-                    onmouseout="this.style.background='#c8795a';this.style.borderColor='#c8795a'">표제어</button>
+                    style="background:#c8795a;border:1px solid #c8795a;border-radius:5px;color:#fff;cursor:pointer;font-size:0.78rem;font-family:var(--font-main);padding:0 10px;height:26px;line-height:26px;white-space:nowrap;flex-shrink:0;transition:background 0.12s;box-sizing:border-box;">표제어</button>
 
                 <!-- ④ 본문 대조 / 본문 자동 채움 -->
                 <button id="btn-typo-check" data-mobile-label="대조" onclick="toggleTypoCheck()" style="background:#5a7a6a;border:1px solid #5a7a6a;border-radius:5px;color:#fff;cursor:pointer;font-size:0.78rem;font-family:var(--font-main);padding:0 10px;height:26px;white-space:nowrap;flex-shrink:0;transition:background 0.12s;" onmouseover="this.style.background='#3e5a4e'" onmouseout="this.style.background=this.dataset.active==='1'?'#b04040':'#5a7a6a'" disabled>본문 대조</button>
@@ -2352,19 +2352,28 @@ const SPECIAL_CATEGORIES = [
         if (colorPop) colorPop.style.display = 'none';
         if (spPop) spPop.style.display = 'none';
         if (isOpen) { pop.style.display = 'none'; return; }
-        // 버튼 위치 기준으로 팝업 고정 위치 계산
+        // 버튼 위치 기준으로 팝업 위치 계산 (데스크탑만 — 모바일은 CSS 바텀시트)
         const btn = document.getElementById('fmt-tag-btn');
-        if (btn) {
+        if (btn && window.innerWidth > 600) {
             const r = btn.getBoundingClientRect();
-            pop.style.left  = Math.max(4, r.left) + 'px';
+            pop.style.left   = Math.max(4, r.left) + 'px';
             pop.style.bottom = (window.innerHeight - r.top + 6) + 'px';
-            pop.style.top   = 'auto';
+            pop.style.top    = 'auto';
+            pop.style.right  = 'auto';
+            pop.style.width  = '';
+        } else {
+            // 모바일: CSS가 바텀시트로 제어 — JS 인라인 위치 초기화
+            pop.style.left   = '';
+            pop.style.bottom = '';
+            pop.style.top    = '';
+            pop.style.right  = '';
+            pop.style.width  = '';
         }
         const sel = window.getSelection();
         if (sel && sel.rangeCount > 0) savedSelection = sel.getRangeAt(0).cloneRange();
         pop.style.display = 'block';
         renderSavedTags();
-        setTimeout(() => { const inp = document.getElementById('tag-input-field'); if (inp) inp.focus(); }, 50);
+        if (window.innerWidth > 600) { setTimeout(() => { const inp = document.getElementById('tag-input-field'); if (inp) inp.focus(); }, 50); }
     }
 
     function renderSavedTags() {
