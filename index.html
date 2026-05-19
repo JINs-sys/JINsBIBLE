@@ -5131,7 +5131,20 @@ const SPECIAL_CATEGORIES = [
             const blob = new Blob([tsv], { type: 'text/tab-separated-values' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fileNameBase + '_결과.tsv'; a.click();
         } else {
-            const blob = new Blob(['\uFEFF' + typedData.map(d => `${d.k} | ${d.t}`).join('\n')], { type: 'text/plain;charset=utf-8' });
+            const lines = typedData.map(d => {
+                let t = d.t;
+                // 필사 모드(txt) 저장: 각주·인라인 각주번호·HTML 태그 모두 제거
+                // <br>▷ 이후가 각주 영역 — 내용 있든 없든 구분자째로 제거
+                t = t.replace(/<br>▷[\s\S]*$/, '');
+                // 인라인 각주 번호 기호 제거: ¹⁾ ²⁾ ³⁾ 등, ᵃ ᵇ ᶜ 등
+                t = t.replace(/[¹²³⁴⁵⁶⁷⁸⁹⁰]+⁾/g, '').replace(/[ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ]/g, '');
+                // 표제어 <...> 제거
+                t = t.replace(/^<[^>]*>\s*/, '');
+                // HTML 태그 제거
+                t = t.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').trim();
+                return `${d.k} | ${t}`;
+            });
+            const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/plain;charset=utf-8' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fileNameBase + "_결과.txt"; a.click();
         }
     }
