@@ -397,7 +397,7 @@
 
         /* ── 서식 툴바 ── */
         /* fmt-toolbar defined above with border-radius */
-        .fmt-left { display:flex; align-items:center; gap:0px; flex-wrap:wrap; }
+        .fmt-left { display:flex; align-items:center; gap:0px; flex-wrap:nowrap; flex-shrink:0; min-width:max-content; }
         .fmt-center { display:flex; align-items:center; justify-content:center; flex:1; }
         .fmt-right { display:flex; align-items:center; gap:0px; }
         .fmt-btn { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; padding:0; border:none; border-radius:4px; background:transparent; cursor:pointer; font-size:0.78rem; font-weight:700; color:var(--ink-soft); font-family:var(--font-main); white-space:nowrap; transition:background 0.12s, color 0.12s; }
@@ -4618,13 +4618,17 @@ const SPECIAL_CATEGORIES = [
         const unit = isPsalms ? '편' : '장';
         const prevBtn = document.querySelector('.btn-nav-prev');
         const nextBtn = document.querySelector('.btn-nav-next');
-        // 필사 모드(strict): 이전 절 / [절번호 볼드] / 다음 절
-        if (!freeWriteMode && bibleData.length) {
+        // 성경역본 모드(free/bibleData 로드): 장 이동 / 필사 모드(strict): 절 이동
+        const _checkedMode = document.querySelector('input[name="typing-mode"]:checked');
+        const _isStrict = _checkedMode && _checkedMode.value === 'strict';
+        if (_isStrict && bibleData.length) {
+            // 필사(strict) — 절 이동
             const vs = bibleData[currentIndex] ? bibleData[currentIndex].vs : '';
-            el.innerHTML = vs ? `<strong>${vs}</strong>` : '';
+            el.innerHTML = vs ? `<strong>${vs}</strong>` : (ch ? ch : '');
             if (prevBtn) { prevBtn.textContent = '◀ 이전 절'; prevBtn.onclick = forcePrev; }
             if (nextBtn) { nextBtn.textContent = '다음 절 ▶'; nextBtn.onclick = forceNext; }
         } else {
+            // 성경역본 or 자유입력 — 장 이동
             el.textContent = ch ? ch : '';
             if (prevBtn) { prevBtn.textContent = '◀ 이전 ' + unit; prevBtn.onclick = forcePrevChapter; }
             if (nextBtn) { nextBtn.textContent = '다음 ' + unit + ' ▶'; nextBtn.onclick = forceNextChapter; }
@@ -7422,14 +7426,13 @@ const SPECIAL_CATEGORIES = [
             if (Math.abs(dx) < SWIPE_MIN_X) return;
             if (dy > SWIPE_MAX_Y) return;
 
-            // 왼쪽으로 스와이프 → 다음 절
-            if (dx < 0) {
-                if (typeof forceNext === 'function') forceNext();
-            }
-            // 오른쪽으로 스와이프 → 이전 절
-            else {
-                if (typeof forcePrev === 'function') forcePrev();
-            }
+            // 필사(strict)면 절 이동, 그 외(성경역본/자유입력)는 장 이동
+            const _sm = document.querySelector('input[name="typing-mode"]:checked');
+            const _strict = _sm && _sm.value === 'strict';
+            const swipeNext = (_strict && bibleData.length) ? forceNext : forceNextChapter;
+            const swipePrev = (_strict && bibleData.length) ? forcePrev : forcePrevChapter;
+            if (dx < 0) { if (typeof swipeNext === 'function') swipeNext(); }
+            else        { if (typeof swipePrev === 'function') swipePrev(); }
         }, { passive: true });
     })();
     </script>
