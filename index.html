@@ -24,12 +24,18 @@
         }
         * { box-sizing: border-box; }
         body { margin: 0; background-color: var(--paper); color: var(--ink); font-family: var(--font-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        /* 작업 모드 진입 시: 컨테이너를 상단 고정, 세로 점프 방지 */
+        body.active-mode { align-items: flex-start; }
+        /* sticky 오프셋은 JS가 --header-h / --settingsbar-h 변수로 동적 갱신 */
+        body.active-mode .settings-bar { position: sticky; top: var(--sticky-settings-top, 54px); z-index: 29; border-radius: 0 0 8px 8px; margin-left: -30px; margin-right: -30px; padding-left: 30px; padding-right: 30px; }
         .container { width: 100%; max-width: 620px; background-color: var(--paper-white); padding: 30px; border-radius: 12px; border: 1px solid var(--rule); box-shadow: 0 10px 40px rgba(0,0,0,0.06); position: relative; }
 
         .header { margin-bottom: 20px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end; position: sticky; top: 0; z-index: 30; background: var(--paper-white); }
         .title { font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--accent); }
 
         .settings-bar { display: flex; flex-wrap: nowrap; align-items: center; gap: 10px; background: #f8f7f2; padding: 10px 12px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--rule); font-size: 0.82rem; }
+        /* 작업 모드에서 설정 바 sticky (헤더 바로 아래 고정) */
+        body.active-mode .settings-bar { position: sticky; top: 54px; z-index: 29; border-radius: 0 0 8px 8px; margin-left: -30px; margin-right: -30px; padding-left: 30px; padding-right: 30px; }
         .settings-group { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
         .settings-bar .btn-action { padding: 5px 10px; font-size: 0.82rem; height: 30px; line-height: 1; }
         .settings-bar .btn-action:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -199,6 +205,8 @@
         /* ── 네비 바 (공통) ── */
         .nav-bar { display: none; flex-direction: column; gap: 8px; margin-bottom: 16px; }
         .nav-bar.visible { display: flex; }
+        /* 작업 모드: nav-bar(이전장/다음장) sticky — 스크롤해도 항상 화면에 고정 */
+        body.active-mode .nav-bar.visible { position: sticky; top: var(--sticky-nav-top, 114px); z-index: 28; background: var(--paper-white); padding: 8px 0 6px; margin-left: -30px; margin-right: -30px; padding-left: 30px; padding-right: 30px; border-bottom: 1px solid var(--rule); margin-bottom: 12px; }
         /* PC: nav-row-top이 selects+prevnext를 한 줄로 묶음 */
         .nav-row-top { display: flex; flex-direction: row; align-items: center; gap: 6px; width: 100%; }
         .nav-row { display: flex; align-items: center; gap: 6px; }
@@ -294,7 +302,8 @@
         .tstat-item strong { color:var(--accent); font-weight:700; }
         .tstat-unit { font-size:0.68rem; color:#aaa; }
         /* 필사 모드 — 참고 본문 폰트/패딩만 강제, 레이아웃은 나만의 역본 모드와 동일 유지 */
-        #reference-text.strict-mode { max-height: 140px !important; overflow-y: auto !important; }
+        /* 필사 모드: 높이는 JS(loadVerse)가 자동 조절 — CSS에서 고정하지 않음 */
+        #reference-text.strict-mode { overflow-y: hidden; }
         #reference-text.strict-mode .ref-text-body {
             font-family: var(--font-main) !important;
             font-size: var(--font-size-text) !important;
@@ -328,10 +337,12 @@
         .ref-char.char-correct { color: var(--ink); }
         .ref-char.char-wrong   { color: #c03030; }
         .ref-char.char-pending { color: #c8c2b8; }
+        /* 필사 모드 각주 마커: 타이핑 불필요 — 중립색으로 항상 표시 */
+        .ref-char.char-fn-skip { color: #b8a890; }
         /* 공백 오류: 글자색 그대로, 위에 ▽ 표시 */
         .ref-char.char-space-err { color: var(--ink); }
-        .ref-char.char-space-err::before { content:'▽'; position:absolute; top:-0.7em; left:50%; transform:translateX(-50%); color:#c03030; font-size:0.5em; line-height:1; pointer-events:none; }
-        .ref-char.char-extra-space { color:#c03030; font-size:0.55em; vertical-align:super; line-height:0; pointer-events:none; user-select:none; }
+        .ref-char.char-space-err::before { content:'▽'; position:absolute; top:-0.35em; left:50%; transform:translateX(-50%); color:#c03030; font-size:0.5em; line-height:1; pointer-events:none; }
+        .ref-char.char-extra-space { color:#c03030; font-size:0.5em; vertical-align:0.35em; line-height:0; pointer-events:none; user-select:none; }
         .inline-j-tag { color: #d0342c; }
         .fmt-j-btn { color: #d0342c !important; font-weight: 700; }
         .fmt-j-btn:hover { background: #fdf0f0 !important; color: #a01a10 !important; }
@@ -414,7 +425,7 @@
         #date-display { font-size:0.78rem; color:#aaa; font-style:italic; flex:1; }
         #footnote-input { display:block; border:none; outline:none; color:#444; background:#fffdf8; width:100%; padding:8px 14px 8px 28px; min-height:80px; overflow-y:visible; font-family:'Georgia', 'Nanum Myeongjo', serif; font-size:calc(var(--font-size-text) * 0.62); line-height:1.75; word-break:break-all; white-space:pre-wrap; box-sizing:border-box; font-style:italic; }
         #footnote-input:empty::before { content:"1)각주 내용A\A 2)각주 내용B....이런 식으로 기술하세요."; color:#c0bdb6; pointer-events:none; font-style:normal; font-size:0.85em; white-space:pre; }
-        .ref-text-fn-line { display:block; padding:3px var(--padding-val) 6px; font-family:'Georgia','Nanum Myeongjo',serif; font-size:calc(var(--font-size-text)*0.58); color:#8a8076; font-style:italic; line-height:1.7; border-top:1px dashed #e4dfd4; white-space:nowrap; overflow-x:auto; background:#fff; flex-shrink:0; }
+        .ref-text-fn-line { display:block; padding:3px var(--padding-val) 44px; font-family:'Georgia','Nanum Myeongjo',serif; font-size:calc(var(--font-size-text)*0.58); color:#8a8076; font-style:italic; line-height:1.7; border-top:1px dashed #e4dfd4; white-space:nowrap; overflow-x:auto; background:#fff; flex-shrink:0; }
         .ref-text-fn-line .fn-sup { font-size:0.72em; vertical-align:super; line-height:0; font-style:normal; }
         .footnote-wrapper { position:relative; background:#fffdf8; }
         .footnote-wrapper::before { content:'†'; position:absolute; left:12px; top:9px; color:#aaa; font-size:calc(var(--font-size-text) * 0.58); font-family:'Georgia', serif; pointer-events:none; user-select:none; line-height:1; }
@@ -928,6 +939,11 @@
                 min-height: 110px;
                 max-height: 210px;
             }
+            /* 필사 모드: JS가 높이 자동 조절 — 모바일 상한 제외 */
+            #reference-text.strict-mode {
+                max-height: none !important;
+                overflow-y: hidden !important;
+            }
             #user-input[contenteditable] {
                 min-height: 130px;
                 max-height: 240px;
@@ -1200,6 +1216,14 @@
             #com-tab-row .com-refer-inline #com-refer {
                 font-size: 0.88rem;
             }
+            /* 모바일: sticky 바 여백 보정 (container padding 14px) */
+            body.active-mode .settings-bar,
+            body.active-mode .nav-bar.visible {
+                margin-left: -14px;
+                margin-right: -14px;
+                padding-left: 14px;
+                padding-right: 14px;
+            }
         }
     </style>
 </head>
@@ -1275,7 +1299,6 @@
             <button class="btn-action" onclick="saveData()">저장</button>
             <button class="btn-action" id="btn-resume" onclick="document.getElementById('resume-input').click()" title="TXT(작업이어하기) · AAB · BDB">이어하기</button>
             <input type="file" id="resume-input" accept=".txt,.bdb,.aab" style="display:none;">
-            <button class="btn-action" onclick="resetAll()">초기화</button>
         </div>
     </div>
 
@@ -1858,6 +1881,9 @@
     let fileNameBase = "MyBIBLE";
     let freeWriteMode = false;
     let _fnInText = false;  // 각주 기호가 본문에 들어간 적 있으면 true → 비교 완전 중단
+    let _fnAutoInsertBusy = false; // 각주 자동삽입 중 재귀 oninput 방지
+    let _verseCompleting = false; // 완료 판정 후 중복 절 이동 방지
+    let _isComposing = false;      // 한국어 IME 조합 중 여부
     let freeCurrentKey = "";
     let dateStampEnabled = false;
     let activeEditor = 'main';  // 'main' | 'footnote'
@@ -3102,9 +3128,9 @@ const SPECIAL_CATEGORIES = [
                 return;
             }
             typedData = tempTypedData;
-            const resumeIdx = Math.min(lastFoundIndex + 1, bibleData.length - 1);
+            const resumeIdx = lastFoundIndex;
             const lastTitle = bibleData[lastFoundIndex].title;
-            alert(`✅ ${typedData.length}개 구절을 불러왔습니다.\n마지막 작업: ${lastTitle}\n다음 절부터 이어서 시작합니다.`);
+            alert(`✅ ${typedData.length}개 구절을 불러왔습니다.\n마지막 작업: ${lastTitle}\n해당 절로 이동합니다.`);
             document.getElementById('drop-zone').style.display = 'none';
             document.getElementById('action-grid').style.display = 'none';
             document.getElementById('exercise-ui').style.display = 'block';
@@ -3198,9 +3224,9 @@ const SPECIAL_CATEGORIES = [
                     }
 
                     typedData = tempTypedData;
-                    const resumeIdx = Math.min(lastFoundIndex + 1, bibleData.length - 1);
+                    const resumeIdx = lastFoundIndex;
                     const lastTitle = bibleData[lastFoundIndex].title;
-                    alert(`✅ ${typedData.length}개 구절을 불러왔습니다.\n마지막 작업: ${lastTitle}\n다음 절부터 이어서 시작합니다.`);
+                    alert(`✅ ${typedData.length}개 구절을 불러왔습니다.\n마지막 작업: ${lastTitle}\n해당 절로 이동합니다.`);
                     dropZone.style.display = 'none';
                     document.getElementById('action-grid').style.display = 'none';
                     document.getElementById('exercise-ui').style.display = 'block';
@@ -3272,6 +3298,7 @@ const SPECIAL_CATEGORIES = [
             input.setAttribute('data-placeholder', isFree ? (input.dataset.freePlaceholder || '원문 수정 및 필사를 자유롭게 하세요') : '위와 동일하게 입력 시 다음 절로 자동 이동됩니다.');
             input.focus();
             updateHeaderMode();
+            updateNavChapterLabel();  // 모드 전환 시 이전/다음 버튼 텍스트 갱신
         };
     });
 
@@ -3597,6 +3624,19 @@ const SPECIAL_CATEGORIES = [
     // mode: 'free' (default) — 나만의 성경역본 / 'strict' — 필사 모드
     function startFreeWrite(mode) {
         freeWriteMode = true;
+        // 초기화 버튼: 나만의 성경역본 모드에서만 동적 생성
+        (function() {
+            if (mode === 'strict') return;
+            if (document.getElementById('btn-reset-all')) return;
+            const bar = document.querySelector('.settings-bar .settings-group:last-child');
+            if (!bar) return;
+            const btn = document.createElement('button');
+            btn.className = 'btn-action';
+            btn.id = 'btn-reset-all';
+            btn.textContent = '초기화';
+            btn.onclick = resetAll;
+            bar.appendChild(btn);
+        }());
         _fnInText = false;
         _typoCheckActive = false;
         // 참고본문 비교 색상 무조건 초기화 (span 있든 없든)
@@ -3623,6 +3663,16 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('exercise-ui').style.display = 'block';
         document.getElementById('settings-bar').style.display = 'flex';
         document.getElementById('btn-chart').style.display = 'inline-block';
+        document.body.classList.add('active-mode');
+        requestAnimationFrame(() => {
+            const header = document.querySelector('.header');
+            const settingsBar = document.getElementById('settings-bar');
+            if (header) {
+                const hH = header.getBoundingClientRect().height;
+                document.documentElement.style.setProperty('--sticky-settings-top', hH + 'px');
+                document.documentElement.style.setProperty('--sticky-nav-top', (hH + (settingsBar ? settingsBar.offsetHeight : 60)) + 'px');
+            }
+        });
         buildFreeNav();
         const input = document.getElementById('user-input');
         input.dataset.placeholder = '원문 수정 및 필사를 자유롭게 하세요';
@@ -3666,6 +3716,8 @@ const SPECIAL_CATEGORIES = [
     function exitFreeWrite() {
         freeWriteMode = false;
         freeCurrentKey = "";
+        const rb = document.getElementById('btn-reset-all'); if (rb) rb.remove();
+        document.body.classList.remove('active-mode');
         document.getElementById('mode-select-freewrite').style.display = 'none';
         document.getElementById('nav-bar').classList.remove('visible');
         document.getElementById('exercise-ui').style.display = 'none';
@@ -4134,7 +4186,9 @@ const SPECIAL_CATEGORIES = [
                 fnLine.innerHTML = fnHTML;
                 body.after(fnLine);
             }
+
             _fnInText = false;  // 절 이동 시 각주 플래그 초기화
+            _fnAutoInsertBusy = false;
             // 본문 대조 모드 닫기
             if (_typoCheckActive) {
                 _typoCheckActive = false;
@@ -4143,31 +4197,26 @@ const SPECIAL_CATEGORIES = [
                 }
             const refEl2 = document.getElementById('reference-text');
             const isStrict = refEl2.classList.contains('strict-mode');
-            if (isStrict) {
-                // 필사 모드: 고정 높이, 스크롤 가능
-                refEl2.style.maxHeight = '140px';
-                refEl2.style.overflowY = 'auto';
+            // 필사 모드 / 나만의 성경역본 모두: 콘텐츠 높이에 맞게 자동 조절 (스크롤 없음)
+            refEl2.style.maxHeight = 'none';
+            refEl2.style.overflowY = 'hidden';
+            const natural = refEl2.scrollHeight;
+            let newRefH;
+            if (natural > 140) {
+                // 필사 모드: 본문 전체 표시 (상한 없음) / 나만의 성경역본: 최대 260px
+                newRefH = isStrict ? natural : Math.min(natural, 260);
+                refEl2.style.maxHeight = newRefH + 'px';
+                refEl2.style.overflowY = (!isStrict && natural > 260) ? 'auto' : 'hidden';
             } else {
-                // 나만의 성경역본: 콘텐츠 크기에 따라 동적 확장 (최대 260px)
-                refEl2.style.maxHeight = 'none';
+                newRefH = 140;
+                refEl2.style.maxHeight = '140px';
                 refEl2.style.overflowY = 'hidden';
-                const natural = refEl2.scrollHeight;
-                let newRefH;
-                if (natural > 140) {
-                    newRefH = Math.min(natural, 260);
-                    refEl2.style.maxHeight = newRefH + 'px';
-                    refEl2.style.overflowY = natural > 260 ? 'auto' : 'hidden';
-                } else {
-                    newRefH = 140;
-                    refEl2.style.maxHeight = '140px';
-                    refEl2.style.overflowY = 'hidden';
-                }
-                // 입력 창도 동일 높이로 연동
-                const userInput = document.getElementById('user-input');
-                if (userInput) {
-                    userInput.style.minHeight = newRefH + 'px';
-                    userInput.style.maxHeight = newRefH + 'px';
-                }
+            }
+            // 입력 창도 동일 높이로 연동
+            const userInput = document.getElementById('user-input');
+            if (userInput) {
+                userInput.style.minHeight = newRefH + 'px';
+                userInput.style.maxHeight = isStrict ? '' : newRefH + 'px';
             }
         }
         updateRefSideMenuLabel();
@@ -4510,14 +4559,21 @@ const SPECIAL_CATEGORIES = [
         if (!el) return;
         const book = nb ? nb.value : '';
         const ch   = nc && nc.value ? nc.value : (bibleData.length ? '1' : '');
-        // 시편: free모드는 '시', strict모드는 book번호 19
         const isPsalms = book === '시' || parseInt(book) === 19;
         const unit = isPsalms ? '편' : '장';
-        el.textContent = ch ? ch : '';
         const prevBtn = document.querySelector('.btn-nav-prev');
         const nextBtn = document.querySelector('.btn-nav-next');
-        if (prevBtn) prevBtn.textContent = '◀ 이전 ' + unit;
-        if (nextBtn) nextBtn.textContent = '다음 ' + unit + ' ▶';
+        // 필사 모드(strict): 이전 절 / [절번호 볼드] / 다음 절
+        if (!freeWriteMode && bibleData.length) {
+            const vs = bibleData[currentIndex] ? bibleData[currentIndex].vs : '';
+            el.innerHTML = vs ? `<strong>${vs}</strong>` : '';
+            if (prevBtn) { prevBtn.textContent = '◀ 이전 절'; prevBtn.onclick = forcePrev; }
+            if (nextBtn) { nextBtn.textContent = '다음 절 ▶'; nextBtn.onclick = forceNext; }
+        } else {
+            el.textContent = ch ? ch : '';
+            if (prevBtn) { prevBtn.textContent = '◀ 이전 ' + unit; prevBtn.onclick = forcePrevChapter; }
+            if (nextBtn) { nextBtn.textContent = '다음 ' + unit + ' ▶'; nextBtn.onclick = forceNextChapter; }
+        }
     }
 
     function _jumpToChapter(book, ch) {
@@ -4630,6 +4686,76 @@ const SPECIAL_CATEGORIES = [
         refBody.innerHTML = parts.join('');
     }
 
+    // ── 각주 마커 판별 / 제거 헬퍼 ─────────────────────────────────────────
+    function isFnMarkerChar(ch) {
+        const cp = ch.codePointAt(0);
+        return (
+            cp === 0x00B9 || cp === 0x00B2 || cp === 0x00B3 ||  // ¹²³
+            (cp >= 0x2070 && cp <= 0x2079) ||                    // ⁰⁴⁵⁶⁷⁸⁹
+            cp === 0x207E ||                                       // ⁾
+            cp === 0x1D43 || cp === 0x1D47 || cp === 0x1D9C      // ᵃᵇᶜ
+        );
+    }
+    function stripFnMarkers(str) {
+        return [...str].filter(ch => !isFnMarkerChar(ch)).join('');
+    }
+
+    // 타이핑한 글자(각주 제외)를 참고본문 기준 각주 위치에 자동 삽입한 문자열 반환
+    function buildExpectedWithFn(typedNoFn, refText) {
+        let result = '';
+        let refIdx = 0;
+        for (let tIdx = 0; tIdx < typedNoFn.length; tIdx++) {
+            // 이 위치 앞에 오는 각주 마커를 먼저 삽입
+            while (refIdx < refText.length && isFnMarkerChar(refText[refIdx])) {
+                result += refText[refIdx++];
+            }
+            result += typedNoFn[tIdx]; // 사용자가 입력한 글자 (맞든 틀리든)
+            if (refIdx < refText.length) refIdx++; // 대응하는 ref 위치 전진
+        }
+        // 루프 종료 후 refText 끝에 남은 각주 마커도 추가 (말미 각주 누락 방지)
+        while (refIdx < refText.length && isFnMarkerChar(refText[refIdx])) {
+            result += refText[refIdx++];
+        }
+        return result;
+    }
+
+    // ── 필사 모드 전용 렌더링: 각주 마커는 비교 제외, 항상 중립색 표시 ──────
+    function renderCompareIntoStrict(original, typedClean, refBody) {
+        const origStripped  = stripFnMarkers(original);
+        const typedStripped = stripFnMarkers(typedClean);
+        const classes    = classifyMixed(origStripped, typedStripped);
+        const extraAfter = getExtraSpaceAfter(origStripped, typedStripped);
+        const parts = [];
+        let stripIdx = 0;   // index into classes[] (origStripped 기준)
+        let nsCount  = -1;  // non-space non-fn count for extraAfter
+        for (let i = 0; i < original.length; i++) {
+            const c = original[i];
+            let ch = c.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            if (c === ' ') ch = '&nbsp;';
+            if (isFnMarkerChar(c)) {
+                // 각주 마커: 타이핑 불필요 — 중립색으로 항상 표시
+                parts.push(`<span class="ref-char char-fn-skip">${ch}</span>`);
+            } else if (c === '\n') {
+                const cls = 'char-' + (classes[stripIdx] || 'pending');
+                parts.push(`<span class="ref-char ${cls}"></span><br>`);
+                stripIdx++;
+            } else if (c === ' ') {
+                const cls = 'char-' + (classes[stripIdx] || 'pending');
+                parts.push(`<span class="ref-char ${cls}">&nbsp;</span>`);
+                stripIdx++;
+            } else {
+                const cls = 'char-' + (classes[stripIdx] || 'pending');
+                parts.push(`<span class="ref-char ${cls}">${ch}</span>`);
+                nsCount++;
+                if (extraAfter.has(nsCount)) {
+                    parts.push('<span class="ref-char char-extra-space">▽</span>');
+                }
+                stripIdx++;
+            }
+        }
+        refBody.innerHTML = parts.join('');
+    }
+
     function classifyMixed(original, typed) {
         // ── 글자 알고리즘: 공백 제거 후 위치 비교 ──
         const origNS  = [...original].filter(c => c !== ' ' && c !== '\n');
@@ -4727,6 +4853,25 @@ const SPECIAL_CATEGORIES = [
         syncClearBtn(); // 초기 상태 반영
     })();
 
+    // ── IME 조합 추적 (한국어 입력 중 자동삽입 방지) ────────────────────────
+    (function() {
+        const ui = document.getElementById('user-input');
+        if (!ui) return;
+        ui.addEventListener('compositionstart', () => {
+            _isComposing = true;
+        });
+        ui.addEventListener('compositionend', () => {
+            _isComposing = false;
+            // 조합 완료 후 각주 자동삽입 체크 (oninput이 먼저 실행되고 나서)
+            requestAnimationFrame(() => {
+                if (!freeWriteMode &&
+                    document.querySelector('input[name="typing-mode"]:checked')?.value === 'strict') {
+                    ui.dispatchEvent(new InputEvent('input', { bubbles: true }));
+                }
+            });
+        });
+    })();
+
     document.getElementById('user-input').oninput = function() {
         // ↺ 버튼: 내용 있을 때만 표시
         const clearBtn = document.getElementById('btn-clear-input');
@@ -4747,44 +4892,89 @@ const SPECIAL_CATEGORIES = [
         }
         const mode = document.querySelector('input[name="typing-mode"]:checked').value;
         if (mode === 'strict') {
-            const typed   = this.innerText;
+            if (_fnAutoInsertBusy) return; // 자동 삽입 중 재귀 호출 방지
+
             const refBody = document.querySelector('#reference-text .ref-text-body');
 
-            // 타이머 시작 (첫 글자 입력 시)
-            if (typed.length === 1 && !_statsTimer) startStatsTimer();
+            // 비교 기준: 화면에 표시되는 mainText 사용 (raw text의 <표제어>·【각주】 제외)
+            const refText = bibleData[currentIndex]
+                ? parseBtext(bibleData[currentIndex].text).mainText
+                : '';
 
-            // 통계 업데이트
+            // ── 각주 마커 자동 삽입 (IME 조합 중에는 건너뜀) ────────────────
+            const rawTyped  = this.innerText.replace(/\n/g, '');
+            const typedNoFn = stripFnMarkers(rawTyped);
+            const expected  = buildExpectedWithFn(typedNoFn, refText);
+            if (!_isComposing && rawTyped !== expected) {
+                _fnAutoInsertBusy = true;
+                if (expected.startsWith(rawTyped)) {
+                    // 끝에 추가만 하면 되는 경우: execCommand로 커서/IME 상태 보존
+                    document.execCommand('insertText', false, expected.slice(rawTyped.length));
+                } else {
+                    // 중간 삽입 필요 (조합 중이 아닐 때만 도달): textContent 교체
+                    this.textContent = expected;
+                    const range = document.createRange();
+                    const sel   = window.getSelection();
+                    range.selectNodeContents(this);
+                    range.collapse(false);
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                }
+                _fnAutoInsertBusy = false;
+            }
+
+            const typed = this.innerText.replace(/\n/g, '');
+            // 각주 마커 제외 버전 (완료 판정·통계에 사용)
+            const refTextNoFn = stripFnMarkers(refText);
+            const typedNoFnFinal = stripFnMarkers(typed);
+
+            // 타이머 시작 (첫 글자 입력 시)
+            if (typedNoFnFinal.length === 1 && !_statsTimer) startStatsTimer();
+
+            // 통계 업데이트 (각주 마커 제외)
             if (_statsStart) {
-                _statsTyped = typed.length;
+                _statsTyped = typedNoFnFinal.length;
                 let errs = 0;
-                if (bibleData[currentIndex]) {
-                    const orig = bibleData[currentIndex].text;
-                    for (let i = 0; i < typed.length; i++) {
-                        if (typed[i] !== orig[i]) errs++;
-                    }
+                for (let i = 0; i < typedNoFnFinal.length; i++) {
+                    if (typedNoFnFinal[i] !== refTextNoFn[i]) errs++;
                 }
                 _statsTotalErr = errs;
             }
 
-            // 글자별 오타 표시 (글자 알고리즘 + 공백 알고리즘 분리)
-            if (refBody && bibleData[currentIndex]) {
-                const original = bibleData[currentIndex].text;
-                renderCompareInto(original, typed, refBody);
+            // 글자별 오타 표시 — 각주 마커는 중립색 표시, 비교에서 제외
+            if (refBody && refText) {
+                renderCompareIntoStrict(refText, typedNoFnFinal, refBody);
             }
-            if (this.innerText.trim() === bibleData[currentIndex].text.trim()) {
+            // 입력창 높이 자동 조절 (타이핑 중 내용이 늘어나면 함께 확장)
+            const _refEl = document.getElementById('reference-text');
+            if (_refEl) {
+                const _refH = parseInt(_refEl.style.maxHeight) || 140;
+                const _naturalH = this.scrollHeight;
+                if (_naturalH > _refH) {
+                    this.style.minHeight = _naturalH + 'px';
+                }
+            }
+            // 완료 판정 (각주 마커 제외 후 비교) — _verseCompleting 플래그로 중복 방지
+            if (!_verseCompleting && typedNoFnFinal.trim() === refTextNoFn.trim()) {
+                _verseCompleting = true;
                 this.classList.add('correct');
                 stopStatsTimer();
                 const inputEl = this;
                 setTimeout(() => {
+                    // buildSaveContent는 반드시 innerHTML 초기화 전에 호출
+                    const savedContent = buildSaveContent();
                     inputEl.blur();
                     inputEl.innerHTML = '';
                     document.getElementById('footnote-input').innerHTML = '';
                     if (window._adjustFootnoteHeight) window._adjustFootnoteHeight();
-                    typedData.push({k: bibleData[currentIndex].title, t: buildSaveContent(), m: 'strict'});
+                    const existIdx = typedData.findIndex(d => d.k === bibleData[currentIndex].title);
+                    if (existIdx !== -1) typedData[existIdx].t = savedContent;
+                    else typedData.push({k: bibleData[currentIndex].title, t: savedContent, m: 'strict'});
+                    _verseCompleting = false;
                     loadVerse(currentIndex + 1);
                     refreshChartIfVisible();
                 }, 200);
-            } else {
+            } else if (!_verseCompleting) {
                 autoSaveDebounced();
             }
         } else {
@@ -4836,6 +5026,7 @@ const SPECIAL_CATEGORIES = [
 
     async function saveData() {
         if (freeWriteMode) saveCurrentFreeVerse();
+        else saveCurrentVerse();   // 현재 입력 중인 절도 저장에 포함
         if (!typedData.length) return alert("저장할 데이터가 없습니다.");
         const fmt = freeWriteMode ? 'txt' : document.getElementById('save-format').value;
         if (fmt === 'aab') {
@@ -4970,6 +5161,21 @@ const SPECIAL_CATEGORIES = [
     }
     // 파일 로드 시 현재 라디오 선택에 맞게 모드 클래스 초기화
     function initTypingMode() {
+        document.body.classList.add('active-mode'); // 컨테이너 상단 고정 + sticky nav 활성화
+        // sticky 오프셋: 헤더/설정바 실제 높이를 CSS 변수로 전달
+        requestAnimationFrame(() => {
+            const container = document.querySelector('.container');
+            const header = document.querySelector('.header');
+            const settingsBar = document.getElementById('settings-bar');
+            if (container && header) {
+                const containerTop = container.getBoundingClientRect().top + window.scrollY;
+                const hH = header.getBoundingClientRect().height;
+                const settingsTop = hH;
+                const navTop = hH + (settingsBar && settingsBar.offsetHeight > 0 ? settingsBar.offsetHeight : 0);
+                document.documentElement.style.setProperty('--sticky-settings-top', settingsTop + 'px');
+                document.documentElement.style.setProperty('--sticky-nav-top', navTop + 'px');
+            }
+        });
         const checked = document.querySelector('input[name="typing-mode"]:checked');
         const isStrict = checked && checked.value === 'strict';
         // 모드에 따라 freeWriteMode 동기화
@@ -6033,7 +6239,7 @@ const SPECIAL_CATEGORIES = [
         if (!input) {
             input = document.createElement('input');
             input.type = 'file'; input.id = 'com-bible-slot-input';
-            input.accept = '.txt,.bdb,.aab'; input.style.display = 'none';
+            input.accept = '.txt,.bdb,.aab,.zip'; input.style.display = 'none';
             input.addEventListener('change', onBibleSlotFileSelected);
             document.body.appendChild(input);
         }
@@ -6223,9 +6429,35 @@ const SPECIAL_CATEGORIES = [
         input.click();
     }
 
-    function onBibleSlotFileSelected(e) {
+    async function onBibleSlotFileSelected(e) {
         const file = e.target.files[0];
         if (!file) return;
+
+        // ZIP이면 전체 파일을 한꺼번에 로드 (주석 모드: expandZip)
+        if (file.name.toLowerCase().endsWith('.zip')) {
+            const inner = await expandZip(file);
+            if (!inner.length) return;
+            const remaining = MAX_BIBLE_SLOTS - bibleDataSets.length;
+            if (remaining <= 0) return alert(`최대 ${MAX_BIBLE_SLOTS}개까지 추가할 수 있습니다.`);
+            const toLoad = inner.slice(0, remaining);
+            if (inner.length > remaining) alert(`슬롯이 ${remaining}개 남아 ${toLoad.length}개만 불러옵니다.`);
+            let loaded = 0;
+            toLoad.forEach(f => {
+                parseBibleFile(f, (slotName, data) => {
+                    if (!data.length) return;
+                    bibleDataSets.push({ name: slotName, data });
+                    if (bibleDataSets.length === 1) bibleData = data;
+                    loaded++;
+                    if (loaded === toLoad.length) {
+                        activeRefTab = bibleDataSets.length - 1;
+                        buildComNav();
+                        renderRefTabs();
+                        comLoadCurrent();
+                    }
+                });
+            });
+            return;
+        }
 
         const slotName = file.name.replace(/\.[^.]+$/, ''); // 확장자 제거
 
