@@ -1893,7 +1893,8 @@
 
 <script>
     let bibleData = [];   // 기존 읽기 기능용 (슬롯 0과 동기화)
-    let bibleIsRTL = false;  // 히브리어·아랍어 등 RTL 성경 여부
+    let bibleIsRTL = false;     // 히브리어·아랍어 등 RTL 성경 여부
+    let bibleIsEnglish = false; // 영어 성경 여부 (드롭다운 영문 이름 표시)
 
     // ── 멀티 본문 슬롯 (주석 모드 전용) ──────────────────────────────
     // 각 슬롯: { name: string, data: array }
@@ -1935,6 +1936,16 @@
     }
     function applyBibleRTL(isRTL) {
         bibleIsRTL = isRTL;
+        // 영어 성경 감지: 첫 번째 구절 본문에 한글·히브리어·아랍어가 없고 ASCII 영문이 주를 이루면 영어
+        if (bibleData.length > 0) {
+            const sample = (bibleData[0].text || '').replace(/<[^>]+>/g, '');
+            const hasKorean = /[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318F]/.test(sample);
+            const hasRTL    = /[\u0590-\u05FF\u0600-\u06FF]/.test(sample);
+            const hasLatin  = /[a-zA-Z]/.test(sample);
+            bibleIsEnglish  = !hasKorean && !hasRTL && hasLatin;
+        } else {
+            bibleIsEnglish = false;
+        }
         const targets = [
             document.getElementById('user-input'),
             document.getElementById('footnote-input'),
@@ -2848,11 +2859,22 @@ const SPECIAL_CATEGORIES = [
     const ABBR_ALIAS = {'요일':'요1','요이':'요2','요삼':'요3'};
     const BOOK_NUM = ['','창','출','레','민','신','수','삿','룻','삼상','삼하','왕상','왕하','대상','대하','스','느','에','욥','시','잠','전','아','사','렘','애','겔','단','호','욜','암','옵','욘','미','나','합','습','학','슥','말','마','막','눅','요','행','롬','고전','고후','갈','엡','빌','골','살전','살후','딤전','딤후','딛','몬','히','약','벧전','벧후','요1','요2','요3','유','계'];
     const BOOK_NAMES = {'창':'창세기','출':'출애굽기','레':'레위기','민':'민수기','신':'신명기','수':'여호수아','삿':'사사기','룻':'룻기','삼상':'사무엘상','삼하':'사무엘하','왕상':'열왕기상','왕하':'열왕기하','대상':'역대상','대하':'역대하','스':'에스라','느':'느헤미야','에':'에스더','욥':'욥기','시':'시편','잠':'잠언','전':'전도서','아':'아가','사':'이사야','렘':'예레미야','애':'예레미야애가','겔':'에스겔','단':'다니엘','호':'호세아','욜':'요엘','암':'아모스','옵':'오바댜','욘':'요나','미':'미가','나':'나훔','합':'하박국','습':'스바냐','학':'학개','슥':'스가랴','말':'말라기','마':'마태복음','막':'마가복음','눅':'누가복음','요':'요한복음','행':'사도행전','롬':'로마서','고전':'고린도전서','고후':'고린도후서','갈':'갈라디아서','엡':'에베소서','빌':'빌립보서','골':'골로새서','살전':'데살로니가전서','살후':'데살로니가후서','딤전':'디모데전서','딤후':'디모데후서','딛':'디도서','몬':'빌레몬서','히':'히브리서','약':'야고보서','벧전':'베드로전서','벧후':'베드로후서','요1':'요한1서','요2':'요한2서','요3':'요한3서','요일':'요한1서','요이':'요한2서','요삼':'요한3서','유':'유다서','계':'요한계시록'};
+    // 영어 성경용 책 이름 (한글 약어 → 영문 풀네임)
+    const BOOK_NAMES_EN = {'창':'Genesis','출':'Exodus','레':'Leviticus','민':'Numbers','신':'Deuteronomy','수':'Joshua','삿':'Judges','룻':'Ruth','삼상':'1 Samuel','삼하':'2 Samuel','왕상':'1 Kings','왕하':'2 Kings','대상':'1 Chronicles','대하':'2 Chronicles','스':'Ezra','느':'Nehemiah','에':'Esther','욥':'Job','시':'Psalms','잠':'Proverbs','전':'Ecclesiastes','아':'Song of Solomon','사':'Isaiah','렘':'Jeremiah','애':'Lamentations','겔':'Ezekiel','단':'Daniel','호':'Hosea','욜':'Joel','암':'Amos','옵':'Obadiah','욘':'Jonah','미':'Micah','나':'Nahum','합':'Habakkuk','습':'Zephaniah','학':'Haggai','슥':'Zechariah','말':'Malachi','마':'Matthew','막':'Mark','눅':'Luke','요':'John','행':'Acts','롬':'Romans','고전':'1 Corinthians','고후':'2 Corinthians','갈':'Galatians','엡':'Ephesians','빌':'Philippians','골':'Colossians','살전':'1 Thessalonians','살후':'2 Thessalonians','딤전':'1 Timothy','딤후':'2 Timothy','딛':'Titus','몬':'Philemon','히':'Hebrews','약':'James','벧전':'1 Peter','벧후':'2 Peter','요1':'1 John','요2':'2 John','요3':'3 John','요일':'1 John','요이':'2 John','요삼':'3 John','유':'Jude','계':'Revelation'};
+    // 현재 성경 언어에 맞는 책 이름 반환
+    function getBookName(abbr) { return (bibleIsEnglish ? BOOK_NAMES_EN[abbr] : BOOK_NAMES[abbr]) || abbr; }
+    // 한글 약어 → 영문 약어 (상단 절 제목용: Gen, Exo, ... Rev)
+    const BOOK_ABBR_EN = {'창':'Gen','출':'Exo','레':'Lev','민':'Num','신':'Deu','수':'Jos','삿':'Jdg','룻':'Rut','삼상':'1Sa','삼하':'2Sa','왕상':'1Ki','왕하':'2Ki','대상':'1Ch','대하':'2Ch','스':'Ezr','느':'Neh','에':'Est','욥':'Job','시':'Psa','잠':'Pro','전':'Ecc','아':'Sng','사':'Isa','렘':'Jer','애':'Lam','겔':'Ezk','단':'Dan','호':'Hos','욜':'Jol','암':'Amo','옵':'Oba','욘':'Jnh','미':'Mic','나':'Nam','합':'Hab','습':'Zep','학':'Hag','슥':'Zec','말':'Mal','마':'Mat','막':'Mrk','눅':'Luk','요':'Jhn','행':'Act','롬':'Rom','고전':'1Co','고후':'2Co','갈':'Gal','엡':'Eph','빌':'Php','골':'Col','살전':'1Th','살후':'2Th','딤전':'1Ti','딤후':'2Ti','딛':'Tit','몬':'Phm','히':'Heb','약':'Jas','벧전':'1Pe','벧후':'2Pe','요1':'1Jn','요2':'2Jn','요3':'3Jn','요일':'1Jn','요이':'2Jn','요삼':'3Jn','유':'Jud','계':'Rev'};
+    // 절 제목 변환: "계 22:21" → 영어 성경이면 "Rev 22:21"
+    function getVerseTitle(title) {
+        if (!bibleIsEnglish || !title) return title;
+        return title.replace(/^([^\s]+)(\s.*)$/, (_, abbr, rest) => (BOOK_ABBR_EN[abbr] || abbr) + rest);
+    }
 
     // 시편은 '장' 대신 '편' 사용
-    function chUnit(book) { return book === '시' ? '편' : '장'; }
-    function chLabel(book, n) { return `${n}${chUnit(book)}`; }
-    function chSelectPlaceholder(book) { return `${chUnit(book)} 선택`; }
+    function chUnit(book) { return bibleIsEnglish ? '' : (book === '시' ? '편' : '장'); }
+    function chLabel(book, n) { return bibleIsEnglish ? `Chapter ${n}` : `${n}${chUnit(book)}`; }
+    function chSelectPlaceholder(book) { return bibleIsEnglish ? 'Chapter' : `${chUnit(book)} 선택`; }
     function chOptions(book, chapters) {
         return chapters.map(c => `<option value="${c}">${chLabel(book, c)}</option>`).join('');
     }
@@ -3381,7 +3403,7 @@ const SPECIAL_CATEGORIES = [
             const lastTitle = bibleData[lastFoundIndex].title;
             alert(`✅ ${typedData.length}개 구절을 불러왔습니다.\n마지막 작업: ${lastTitle}\n해당 절로 이동합니다.`);
             { const _abbr = bibleData[resumeIdx]?.title?.split(' ')[0] || '작업파일';
-              showDropZoneWorkLoaded(BOOK_NAMES[_abbr] || _abbr); }
+              showDropZoneWorkLoaded(currentRawFile?.name || getBookName(_abbr)); }
             document.getElementById('action-grid').style.display = 'none';
             document.getElementById('exercise-ui').style.display = 'block';
             document.getElementById('settings-bar').style.display = 'flex';
@@ -3787,8 +3809,12 @@ const SPECIAL_CATEGORIES = [
         if (stInput) {
             stInput.textContent = sectionTitle;
             stInput.style.display = sectionTitle ? 'block' : 'none';
-            const stBtn = document.getElementById('btn-section-title');
-            if (stBtn) { stBtn.style.background = sectionTitle ? '#fdf0e8' : 'none'; stBtn.style.borderColor = sectionTitle ? '#b05a3a' : '#c8c0b4'; }
+            const stBtn2 = document.getElementById('btn-section-title2');
+            if (stBtn2) {
+                stBtn2.style.background = sectionTitle ? '#a85e42' : '#c8795a';
+                stBtn2.style.borderColor = sectionTitle ? '#a85e42' : '#c8795a';
+                stBtn2.style.color = '#fff';
+            }
         }
 
         // 본문 입력창: 순수 본문
@@ -3796,9 +3822,13 @@ const SPECIAL_CATEGORIES = [
         const cb = document.getElementById('btn-clear-input');
         if (cb) cb.style.display = input.innerText.trim() ? '' : 'none';
 
-        // 각주 입력창: "1)내용\n2)내용" 형태로 채움
+        // 각주 입력창: "1)내용\n2)내용" 형태로 채움 (NIV sup ¹⁾→1 등 숫자 정규화)
+        const SUP_TO_NUM = {'¹⁾':'1','²⁾':'2','³⁾':'3','⁴⁾':'4','⁵⁾':'5','⁶⁾':'6','⁷⁾':'7','⁸⁾':'8','⁹⁾':'9'};
         if (fnEl && fnItems.length) {
-            fnEl.innerHTML = fnItems.map(f => `${f.label})${f.text}`).join('<br>');
+            fnEl.innerHTML = fnItems.map((f, i) => {
+                const numLabel = SUP_TO_NUM[f.sup] || SUP_TO_NUM[f.label] || (i + 1);
+                return `${numLabel})${f.text}`;
+            }).join('<br>');
             if (window._adjustFootnoteHeight) window._adjustFootnoteHeight();
         }
 
@@ -3827,7 +3857,7 @@ const SPECIAL_CATEGORIES = [
             // 내용이 없을 때만 숨기기
             stInput.style.display = 'none';
             stInput.textContent = '';
-            [btn, btn2].forEach(b => { if (b) { b.style.background = 'none'; b.style.borderColor = '#c8c0b4'; b.style.color = '#b05a3a'; } });
+            if (btn2) { btn2.style.background = '#c8795a'; btn2.style.borderColor = '#c8795a'; btn2.style.color = '#fff'; }
         } else {
             // 표시 + 포커스
             stInput.style.display = 'block';
@@ -3839,7 +3869,7 @@ const SPECIAL_CATEGORIES = [
             range.collapse(false);
             sel.removeAllRanges();
             sel.addRange(range);
-            [btn, btn2].forEach(b => { if (b) { b.style.background = '#fdf0e8'; b.style.borderColor = '#b05a3a'; } });
+            if (btn2) { btn2.style.background = '#fdf0e8'; btn2.style.borderColor = '#b05a3a'; btn2.style.color = '#b05a3a'; }
         }
     }
 
@@ -4247,7 +4277,7 @@ const SPECIAL_CATEGORIES = [
     function buildBookNav() {
         const books = [...new Set(bibleData.map(d => d.book))];
         const nb = document.getElementById('nav-book');
-        nb.innerHTML = '<option value="">책 선택</option>' + books.map(b => `<option value="${b}">${BOOK_NAMES[b] || b}</option>`).join('');
+        nb.innerHTML = '<option value="">책 선택</option>' + books.map(b => `<option value="${b}">${getBookName(b)}</option>`).join('');
         nb.onchange = () => {
             const chapters = [...new Set(bibleData.filter(d => d.book === nb.value).map(d => d.ch))].sort((a,b) => a-b);
             document.getElementById('nav-chapter').innerHTML = `<option value="">${chSelectPlaceholder(nb.value)}</option>` + chOptions(nb.value, chapters);
@@ -4268,7 +4298,7 @@ const SPECIAL_CATEGORIES = [
     // ── 자유작성용 네비 (개역개정4판 실제 데이터 기준) ──────────────────
     function buildFreeNav() {
         const nb = document.getElementById('nav-book');
-        nb.innerHTML = '<option value="">책 선택</option>' + BOOK_NUM.slice(1).map(b => `<option value="${b}">${BOOK_NAMES[b] || b}</option>`).join('');
+        nb.innerHTML = '<option value="">책 선택</option>' + BOOK_NUM.slice(1).map(b => `<option value="${b}">${getBookName(b)}</option>`).join('');
         nb.onchange = () => {
             const maxCh = MAX_CHAPTERS[nb.value] || 1;
             document.getElementById('nav-chapter').innerHTML = `<option value="">${chSelectPlaceholder(nb.value)}</option>` + chOptionsRange(nb.value, maxCh);
@@ -4518,7 +4548,7 @@ const SPECIAL_CATEGORIES = [
         if(idx >= bibleData.length) return alert("성경 끝까지 완료했습니다!");
         currentIndex = idx;
         const data = bibleData[idx];
-        document.getElementById('verse-title').innerText = data.title;
+        document.getElementById('verse-title').innerText = getVerseTitle(data.title);
         updateHeaderMode();
         updateNavChapterLabel();
         // 본문 텍스트만 갱신 (.ref-text-body 만 교체)
@@ -4654,9 +4684,17 @@ const SPECIAL_CATEGORIES = [
             const { fnItems: nivFnForInput } = parseBtext(data.text);
             if (nivFnForInput.length) {
                 // sup ¹⁾→1), ²⁾→2) 등 변환하여 저장 포맷으로
-                const SUP_TO_LABEL = {'¹⁾':'1)','²⁾':'2)','³⁾':'3)','⁴⁾':'4)','⁵⁾':'5)','ᵃ':'a','ᵇ':'b','ᶜ':'c'};
+                const SUP_CHAR_MAP = {'¹':1,'²':2,'³':3,'⁴':4,'⁵':5,'⁶':6,'⁷':7,'⁸':8,'⁹':9,'⁰':0};
+                const ALPHA_SUP_TO_LABEL = {'ᵃ':'a','ᵇ':'b','ᶜ':'c','ᵈ':'d','ᵉ':'e','ᶠ':'f','ᵍ':'g','ʰ':'h','ⁱ':'i','ʲ':'j','ᵏ':'k','ˡ':'l','ᵐ':'m','ⁿ':'n','ᵒ':'o','ᵖ':'p','ʳ':'r','ˢ':'s','ᵗ':'t','ᵘ':'u','ᵛ':'v','ʷ':'w','ˣ':'x','ʸ':'y','ᶻ':'z'};
                 const fnLines = nivFnForInput.map(f => {
-                    const label = SUP_TO_LABEL[f.sup] || f.sup;
+                    // ¹⁾²⁾ 형태: 상위숫자 → 숫자)
+                    let label = f.sup;
+                    const numMatch = f.sup.match(/^([¹²³⁴⁵⁶⁷⁸⁹⁰]+)⁾$/);
+                    if (numMatch) {
+                        label = [...numMatch[1]].map(c => SUP_CHAR_MAP[c] ?? '').join('') + ')';
+                    } else if (ALPHA_SUP_TO_LABEL[f.sup]) {
+                        label = ALPHA_SUP_TO_LABEL[f.sup];
+                    }
                     // <i>태그는 평문으로
                     const text = f.text.replace(/<i>([\s\S]*?)<\/i>/gi, '$1').replace(/<[^>]+>/g, '');
                     return label + text;
@@ -4678,7 +4716,7 @@ const SPECIAL_CATEGORIES = [
         const bookVerses = bibleData.filter(d => d.book === curBook);
         const bookDone  = bibleData.slice(0, idx + 1).filter(d => d.book === curBook).length;
         const bookPct   = (bookDone / bookVerses.length * 100).toFixed(1);
-        document.getElementById('progress-label-book').innerText = BOOK_NAMES[curBook] || curBook;
+        document.getElementById('progress-label-book').innerText = getBookName(curBook);
         document.getElementById('progress-bar-book').style.width = bookPct + "%";
         document.getElementById('progress-text-book').innerText = `${bookPct}% (${bookDone}/${bookVerses.length}절)`;
 
@@ -4687,7 +4725,7 @@ const SPECIAL_CATEGORIES = [
         const chVerses = bibleData.filter(d => d.book === curBook && d.ch === curCh);
         const chDone   = bibleData.slice(0, idx + 1).filter(d => d.book === curBook && d.ch === curCh).length;
         const chPct    = (chDone / chVerses.length * 100).toFixed(1);
-        document.getElementById('progress-label-ch').innerText = `${BOOK_NAMES[curBook] || curBook} ${curCh}장`;
+        document.getElementById('progress-label-ch').innerText = bibleIsEnglish ? `${getBookName(curBook)} Chapter ${curCh}` : `${getBookName(curBook)} ${curCh}장`;
         document.getElementById('progress-bar-ch').style.width = chPct + "%";
         document.getElementById('progress-text-ch').innerText = `${chPct}% (${chDone}/${chVerses.length}절)`;
         updateProgressSummary();
@@ -5477,11 +5515,25 @@ const SPECIAL_CATEGORIES = [
                     if (valid.length && DATE_RE.test(valid[0].trim()))    topDate    = valid.shift().trim();
                     if (valid.length && DATE_RE.test(valid[valid.length-1].trim())) bottomDate = valid.pop().trim();
 
+                    // 상위문자 → 숫자 변환 맵 (NIV 각주: ¹⁾ → 1, ²⁾ → 2, ...)
+                    const SUP_TO_NUM = {'¹':1,'²':2,'³':3,'⁴':4,'⁵':5,'⁶':6,'⁷':7,'⁸':8,'⁹':9,'⁰':0};
+                    const ALPHA_UNSUP = {'ᵃ':'a','ᵇ':'b','ᶜ':'c','ᵈ':'d','ᵉ':'e','ᶠ':'f','ᵍ':'g','ʰ':'h','ⁱ':'i','ʲ':'j','ᵏ':'k','ˡ':'l','ᵐ':'m','ⁿ':'n','ᵒ':'o','ᵖ':'p','ʳ':'r','ˢ':'s','ᵗ':'t','ᵘ':'u','ᵛ':'v','ʷ':'w','ˣ':'x','ʸ':'y','ᶻ':'z'};
                     // 숫자각주 → 【N) text】 / 알파벳각주 → ᵃtext 별도 라인
                     const numFns = [], alphaFns = [];
                     valid.forEach(s => {
+                        // 일반 숫자 각주: 1)내용
                         const nm = s.match(/^(\d+)\)([\s\S]*)$/);
                         if (nm) { numFns.push(`【${nm[1]})${nm[2].trim()}】`); return; }
+                        // NIV 상위문자 각주: ¹⁾내용 → 숫자각주로 변환
+                        const nivm = s.match(/^([¹²³⁴⁵⁶⁷⁸⁹⁰]+)⁾([\s\S]*)$/);
+                        if (nivm) {
+                            const num = [...nivm[1]].map(c => SUP_TO_NUM[c] ?? '').join('');
+                            if (num) { numFns.push(`【${num})${nivm[2].trim()}】`); return; }
+                        }
+                        // 알파벳 상위문자 각주: ᵃ내용 → 알파벳각주로 변환
+                        const supm = s.match(/^([ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ])([\s\S]*)$/);
+                        if (supm) { alphaFns.push(`${supm[1]}${supm[2]}`); return; }
+                        // 일반 소문자 각주: a)내용 또는 a내용
                         const am = s.match(/^([a-z])([\s\S]*)$/);
                         if (am) { alphaFns.push(`${ALPHA_SUPS[am[1]] || am[1]}${am[2]}`); return; }
                     });
@@ -6966,7 +7018,7 @@ const SPECIAL_CATEGORIES = [
             // 성경 파일 로드됨 → 실제 데이터 기반
             const books = [...new Set(bibleData.map(d => d.book))];
             nb.innerHTML = '<option value="">책 선택</option>' +
-                books.map(b => `<option value="${b}">${BOOK_NAMES[b] || b}</option>`).join('');
+                books.map(b => `<option value="${b}">${getBookName(b)}</option>`).join('');
             nb.onchange = () => {
                 comBook = nb.value;
                 const chs = [...new Set(bibleData.filter(d => d.book === comBook).map(d => d.ch))].sort((a,b) => a-b);
@@ -6981,7 +7033,7 @@ const SPECIAL_CATEGORIES = [
         } else {
             // 성경 파일 없음 → 개역개정4판 데이터 기반
             nb.innerHTML = '<option value="">책 선택</option>' +
-                BOOK_NUM.slice(1).map(b => `<option value="${b}">${BOOK_NAMES[b] || b}</option>`).join('');
+                BOOK_NUM.slice(1).map(b => `<option value="${b}">${getBookName(b)}</option>`).join('');
             nb.onchange = () => {
                 comBook = nb.value;
                 const maxCh = MAX_CHAPTERS[comBook] || 1;
@@ -7110,7 +7162,7 @@ const SPECIAL_CATEGORIES = [
     // ── 자동 표시 제목 생성 ───────────────────────────────────────────
     function comAutoRefer() {
         if (!comBook) return '';
-        const bookName = BOOK_NAMES[comBook] || comBook;
+        const bookName = getBookName(comBook);
         const short = comBook;
         if (currentComType === 'intro')   return `${bookName} 개론`;
         if (currentComType === 'chapter') return `${short} ${comChapter}${chUnit(short)} 개요`;
@@ -7399,7 +7451,7 @@ const SPECIAL_CATEGORIES = [
                     const hasP = doneVerses[b] && Object.keys(doneVerses[b]).length > 0;
                     return `<span class="book-nav-chip${hasP ? ' has-progress' : ''}"
                         onclick="scrollToBook('${b}')"
-                        title="${BOOK_NAMES[b]}">${b}</span>`;
+                        title="${getBookName(b)}">${b}</span>`;
                 }).join('');
                 return `<div class="book-nav-row">
                     <span class="book-cat-label">${g.label}</span>
@@ -7422,12 +7474,12 @@ const SPECIAL_CATEGORIES = [
                 const pct = Math.min(done / maxVs * 100, 100);
                 const isDone = pct >= 100;
                 const style = `background: conic-gradient(var(--accent) ${pct}%, #e8e4da ${pct}%)`;
-                const tooltip = `${BOOK_NAMES[book]} ${ch}장 (${done}/${maxVs}절 · ${Math.round(pct)}%)`;
+                const tooltip = `${getBookName(book)} ${bibleIsEnglish ? `Chapter ${ch}` : `${ch}장`} (${done}/${maxVs}${bibleIsEnglish ? ` verses` : `절`} · ${Math.round(pct)}%)`;
                 const clickable = canJump ? `onclick="goToChapter('${book}',${ch})" style="${style}; cursor:pointer;"` : `style="${style}"`;
                 return `<div class="chart-circle${isDone ? ' done' : ''}" data-ch="${ch}" ${clickable} title="${tooltip}"></div>`;
             }).join('');
             return `<div class="chart-book" id="book-${book}">
-                <div class="chart-book-name">${BOOK_NAMES[book]} <span style="font-weight:400;font-size:0.8rem;color:#aaa;">${book}</span></div>
+                <div class="chart-book-name">${getBookName(book)} <span style="font-weight:400;font-size:0.8rem;color:#aaa;">${book}</span></div>
                 <div class="chart-circles">${circles}</div>
             </div>`;
         }).join('');
@@ -7436,7 +7488,7 @@ const SPECIAL_CATEGORIES = [
     function goToChapter(book, ch) {
         // 해당 장의 첫 번째 절 인덱스 찾기
         const idx = bibleData.findIndex(d => d.book === book && d.ch === ch);
-        if (idx === -1) return alert(`${BOOK_NAMES[book]} ${ch}장을 찾을 수 없습니다.\n원본 성경 파일을 먼저 로드해주세요.`);
+        if (idx === -1) return alert(`${getBookName(book)} ${bibleIsEnglish ? `Chapter ${ch}` : `${ch}장`}을 찾을 수 없습니다.\n원본 성경 파일을 먼저 로드해주세요.`);
 
         // 읽기표 닫기
         chartVisible = false;
