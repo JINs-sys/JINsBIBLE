@@ -3192,7 +3192,11 @@ const SPECIAL_CATEGORIES = [
                     alert('이어하기 AAB 파일을 복원하려면\n먼저 원본 성경 파일(AAB/BDB)을 불러오세요.');
                 }
             } else {
-                // 원본 성경 AAB → 기존 방식으로 로드
+                // 원본 성경 AAB — 이미 본문이 로드된 상태라면 이어하기 불가 안내
+                if (bibleData.length > 0) {
+                    alert('이 AAB 파일은 원본 성경 파일입니다.\n이어하기용 저장 파일(작업 후 내보내기한 AAB)을 사용해주세요.');
+                    return;
+                }
                 currentRawFile = file;
                 processBdbFile(8);
             }
@@ -3701,7 +3705,8 @@ const SPECIAL_CATEGORIES = [
             if (orig) { refBody.textContent = orig; delete refBody.dataset.origText; }
         }
         fileNameBase = "나만의성경_자유작성";
-        document.getElementById('drop-zone').style.display = 'none';
+        const _dzSFW = document.getElementById('drop-zone');
+        if (_dzSFW && !_dzSFW.classList.contains('loaded')) _dzSFW.style.display = 'none';
         document.getElementById('action-grid').style.display = 'none';
         // mode-select-normal은 숨김 처리됨 (라디오→nav-bar, 액션→참고본문 아래)
         document.getElementById('mode-select-freewrite').style.display = 'none';
@@ -5924,7 +5929,8 @@ const SPECIAL_CATEGORIES = [
     function startCommentaryMode() {
         commentaryMode = true;
         document.body.classList.add('active-mode');
-        document.getElementById('drop-zone').style.display      = 'none';
+        const _dzCM = document.getElementById('drop-zone');
+        if (_dzCM && !_dzCM.classList.contains('loaded')) _dzCM.style.display = 'none';
         document.getElementById('action-grid').style.display    = 'none';
         document.getElementById('nav-bar').classList.remove('visible');
         document.getElementById('exercise-ui').style.display    = 'none';
@@ -5965,7 +5971,8 @@ const SPECIAL_CATEGORIES = [
         commentaryMode = false;
         document.body.classList.remove('active-mode');
         document.getElementById('commentary-write-ui').style.display = 'none';
-        document.getElementById('drop-zone').style.display      = 'block';
+        const _dzECM0 = document.getElementById('drop-zone');
+        if (_dzECM0) _dzECM0.style.display = _dzECM0.classList.contains('loaded') ? '' : 'block';
         document.getElementById('action-grid').style.display    = 'grid';
         document.getElementById('verse-title').innerText = 'JINs Bible';
         document.getElementById('com-header-verse').style.display = 'none';
@@ -5978,7 +5985,8 @@ const SPECIAL_CATEGORIES = [
             document.getElementById('nav-bar').classList.add('visible');
             document.getElementById('exercise-ui').style.display = 'block';
             document.getElementById('settings-bar').style.display = 'flex';
-            document.getElementById('drop-zone').style.display = 'none';
+            const _dzECM = document.getElementById('drop-zone');
+            if (_dzECM && !_dzECM.classList.contains('loaded')) _dzECM.style.display = 'none';
         }
     }
 
@@ -7143,7 +7151,8 @@ const SPECIAL_CATEGORIES = [
         const bi = document.getElementById('btn-to-input'); if(bi) bi.style.display = 'none';
 
         // 작업 UI 표시 확인
-        document.getElementById('drop-zone').style.display = 'none';
+        const _dzGTC = document.getElementById('drop-zone');
+        if (_dzGTC && !_dzGTC.classList.contains('loaded')) _dzGTC.style.display = 'none';
         document.getElementById('action-grid').style.display = 'none';
         document.getElementById('exercise-ui').style.display = 'block';
         document.getElementById('settings-bar').style.display = 'flex';
