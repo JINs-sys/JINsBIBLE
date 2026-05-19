@@ -2866,7 +2866,13 @@ const SPECIAL_CATEGORIES = [
             currentRawFile = file; processBdbFile(0); return;
         }
         if (lower.endsWith('.aab')) {
-            currentRawFile = file; processBdbFile(8); return;
+            // bibleData가 이미 로드된 상태면 이어하기 경로(저장본/원본 자동 감지)로
+            if (bibleData.length > 0) {
+                processAabFile_forResume(file);
+            } else {
+                currentRawFile = file; processBdbFile(8);
+            }
+            return;
         }
         if (bibleData.length > 0) {
             processResultFile(file);
@@ -3194,7 +3200,7 @@ const SPECIAL_CATEGORIES = [
             } else {
                 // 원본 성경 AAB — 이미 본문이 로드된 상태라면 이어하기 불가 안내
                 if (bibleData.length > 0) {
-                    alert('이 AAB 파일은 원본 성경 파일입니다.\n이어하기용 저장 파일(작업 후 내보내기한 AAB)을 사용해주세요.');
+                    alert(`⚠️ 이 파일은 원본 성경 파일(${file.name})입니다.\n\n작업 이어하기에는 사용할 수 없습니다.\n이어하기용 저장 파일은 작업 화면에서\n[내보내기] 버튼으로 저장한 AAB 또는 TXT 파일입니다.`);
                     return;
                 }
                 currentRawFile = file;
