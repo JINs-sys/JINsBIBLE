@@ -338,6 +338,25 @@
         .ref-char.char-correct { color: var(--ink); }
         .ref-char.char-wrong   { color: #c03030; }
         .ref-char.char-pending { color: #c8c2b8; }
+        /* 본문 대조 상태 메시지 */
+        #ref-compare-status {
+            display: none;
+            position: absolute;
+            bottom: 6px;
+            left: 14px;
+            font-size: 0.72rem;
+            font-family: var(--font-main);
+            font-weight: 600;
+            line-height: 1.35;
+            pointer-events: none;
+            z-index: 10;
+        }
+        #ref-compare-status.status-same {
+            color: #b03030;
+        }
+        #ref-compare-status.status-diff {
+            color: #c04040;
+        }
         /* 필사 모드 각주 마커: 타이핑 불필요 — 중립색으로 항상 표시 */
         .ref-char.char-fn-skip { color: #b8a890; }
         /* 공백 오류: 글자색 그대로, 위에 ▽ 표시 */
@@ -1438,6 +1457,7 @@
             <div id="reference-text" class="verse-box text-common" style="position:relative; background:#ffffff; box-sizing:border-box;">
                 <div class="ref-section-title" id="ref-section-title" style="display:none;"></div>
                 <div class="ref-text-body">문장이 여기에 표시됩니다.</div>
+                <div id="ref-compare-status"></div>
                 <div class="ref-side-indicator"></div>
                 <div class="ref-side-menu" id="ref-side-menu" onclick="event.stopPropagation();">
                     <button class="ref-side-btn" id="ref-side-load-btn" onclick="changeRefBible()" title="역본 파일 로드">📂 원문 변경</button>
@@ -3190,7 +3210,10 @@ const SPECIAL_CATEGORIES = [
                 const bar = document.getElementById('resume-loading-bar');
                 if (bar) bar.style.width = '40%';
 
-                const lines = e.target.result.split(/\r?\n/);
+                // 인코딩 자동 감지 (UTF-8 / EUC-KR/CP949 모두 지원)
+                const encoding = detectEncoding(e.target.result);
+                const text = new TextDecoder(encoding).decode(e.target.result);
+                const lines = text.split(/\r?\n/);
                 let lastFoundIndex = -1;
                 const tempTypedData = [];
 
@@ -3247,7 +3270,7 @@ const SPECIAL_CATEGORIES = [
                 }, 100);
             }, 50);
         };
-        reader.readAsText(file, 'UTF-8');
+        reader.readAsArrayBuffer(file);
     }
 
     function updateHeaderMode() {
@@ -3596,6 +3619,9 @@ const SPECIAL_CATEGORIES = [
                 || (bibleData && bibleData[currentIndex] && bibleData[currentIndex].text)
                 || null;
             if (orig) { refBody.textContent = orig; delete refBody.dataset.origText; }
+            // 상태 메시지 숨기기
+            const statusEl = document.getElementById('ref-compare-status');
+            if (statusEl) { statusEl.style.display = 'none'; statusEl.textContent = ''; statusEl.className = ''; }
         } else {
             // 확인 시작 → 각주 제거(로직)하고 비교, 화면 user-input은 그대로
             _typoCheckActive = true;
@@ -3619,6 +3645,23 @@ const SPECIAL_CATEGORIES = [
             if (!original) return;
 
             renderCompareInto(original, typedClean, refBody);
+
+            // ── 동일 여부 판정 후 상태 메시지 표시 ──────────────────────
+            const statusEl = document.getElementById('ref-compare-status');
+            if (statusEl) {
+                const origNorm  = original.replace(/\s+/g, ' ').trim();
+                const typedNorm = typedClean.replace(/\s+/g, ' ').trim();
+                if (origNorm === typedNorm) {
+                    // 내용이 동일
+                    statusEl.textContent = '상하 동일함 ✓';
+                    statusEl.className = 'status-same';
+                } else {
+                    // 내용이 다름
+                    statusEl.textContent = '동일하지 않습니다. 확인 바랍니다.';
+                    statusEl.className = 'status-diff';
+                }
+                statusEl.style.display = 'block';
+            }
         }
     }
 
@@ -4258,6 +4301,8 @@ const SPECIAL_CATEGORIES = [
                 _typoCheckActive = false;
                 const typoBtn = document.getElementById('btn-typo-check');
                 if (typoBtn) { typoBtn.textContent = '본문 대조'; typoBtn.dataset.mobileLabel = '대조'; typoBtn.style.background = typoBtn.style.borderColor = '#5a7a6a'; }
+                const statusEl2 = document.getElementById('ref-compare-status');
+                if (statusEl2) { statusEl2.style.display = 'none'; statusEl2.textContent = ''; statusEl2.className = ''; }
                 }
             const refEl2 = document.getElementById('reference-text');
             const isStrict = refEl2.classList.contains('strict-mode');
