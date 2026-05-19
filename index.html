@@ -138,7 +138,7 @@
         }
         /* 데스크탑(마우스 호버 지원)에서만 hover 시 안내문 밀림 */
         @media (hover: hover) and (pointer: fine) {
-            #reference-text:hover .ref-text-body.ref-empty { right: 120px !important; }
+            #reference-text:not(._hover-hide):hover .ref-text-body.ref-empty { right: 120px !important; }
         }
         /* 편집/명시적 메뉴 열림 상태는 모든 기기에서 적용 */
         #reference-text.is-editing .ref-text-body.ref-empty,
@@ -178,8 +178,9 @@
             box-shadow:-4px 0 16px rgba(0,0,0,0.06);
         }
         @media (hover: hover) and (pointer: fine) {
-            #reference-text:not(.is-editing):hover .ref-side-menu, .ref-side-menu:hover { right:0; }
-            #reference-text:not(.is-editing):hover #sample-notice,
+            #reference-text:not(.is-editing):not(._hover-hide):hover .ref-side-menu,
+            .ref-side-menu:hover { right:0; }
+            #reference-text:not(.is-editing):not(._hover-hide):hover #sample-notice,
             .ref-side-menu:hover ~ #sample-notice { right: 122px; }
         }
         /* 명시적 메뉴 열림(터치 등) — 모든 기기 */
@@ -329,7 +330,7 @@
         /* 필사 모드에서도 메뉴 hover/편집 시 안내문 밀림 적용 */
         #reference-text.strict-mode .ref-text-body.ref-empty { right: 0; }
         @media (hover: hover) and (pointer: fine) {
-            #reference-text.strict-mode:hover .ref-text-body.ref-empty { right: 120px !important; }
+            #reference-text.strict-mode:not(._hover-hide):hover .ref-text-body.ref-empty { right: 120px !important; }
         }
         #reference-text.strict-mode.is-editing .ref-text-body.ref-empty,
         #reference-text.strict-mode.ref-menu-open .ref-text-body.ref-empty { right: 120px !important; }
@@ -4145,6 +4146,60 @@ const SPECIAL_CATEGORIES = [
                 handleFile(f);
             });
         }
+
+        // ── 참고 본문 창 호버 메뉴: 진입 후 250ms 정지해야 표시, 2초 후 자동 숨김 ──
+        (function() {
+            const refEl = document.getElementById('reference-text');
+            const menu  = document.getElementById('ref-side-menu');
+            if (!refEl || !menu) return;
+            let showTimer = null;   // 진입 딜레이 (스치면 취소)
+            let hideTimer = null;   // 2초 후 자동 숨김
+
+            function scheduleShow() {
+                clearTimeout(showTimer);
+                showTimer = setTimeout(() => {
+                    // 250ms 정지 후 → 메뉴 허용 (CSS :hover 활성화)
+                    refEl.classList.remove('_hover-hide');
+                    // 2초 후 자동 숨김 시작
+                    clearTimeout(hideTimer);
+                    hideTimer = setTimeout(() => {
+                        if (refEl.classList.contains('is-editing')) return;
+                        if (menu.contains(document.activeElement)) return;
+                        refEl.classList.add('_hover-hide');
+                    }, 2000);
+                }, 250);
+            }
+
+            function cancelAll() {
+                clearTimeout(showTimer);
+                clearTimeout(hideTimer);
+                refEl.classList.add('_hover-hide');
+            }
+
+            // 처음 진입 시 바로 숨김 상태로 시작 → 500ms 후 해제
+            refEl.addEventListener('mouseenter', () => {
+                refEl.classList.add('_hover-hide');
+                scheduleShow();
+            });
+            refEl.addEventListener('mousemove', () => {
+                // 움직이는 동안은 딜레이 리셋 (정지해야 표시)
+                refEl.classList.add('_hover-hide');
+                scheduleShow();
+            });
+            refEl.addEventListener('mouseleave', () => {
+                clearTimeout(showTimer);
+                clearTimeout(hideTimer);
+                refEl.classList.remove('_hover-hide');
+            });
+
+            // 메뉴 위에서는 숨김 취소
+            menu.addEventListener('mouseenter', () => {
+                clearTimeout(showTimer);
+                clearTimeout(hideTimer);
+                refEl.classList.remove('_hover-hide');
+            });
+            menu.addEventListener('mouseleave', scheduleShow);
+        })();
     });
 
     function loadVerse(idx) {
@@ -5810,6 +5865,7 @@ const SPECIAL_CATEGORIES = [
     // ── 주석 작성 모드 ────────────────────────────────────────────────
     function startCommentaryMode() {
         commentaryMode = true;
+        document.body.classList.add('active-mode');
         document.getElementById('drop-zone').style.display      = 'none';
         document.getElementById('action-grid').style.display    = 'none';
         document.getElementById('nav-bar').classList.remove('visible');
@@ -5849,6 +5905,7 @@ const SPECIAL_CATEGORIES = [
             if (!confirm('작성 중인 주석이 있습니다.\n"내보내기" 또는 "임시저장"을 하지 않으면 사라집니다.\n정말 나가시겠습니까?')) return;
         }
         commentaryMode = false;
+        document.body.classList.remove('active-mode');
         document.getElementById('commentary-write-ui').style.display = 'none';
         document.getElementById('drop-zone').style.display      = 'block';
         document.getElementById('action-grid').style.display    = 'grid';
