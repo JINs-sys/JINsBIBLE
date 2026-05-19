@@ -4621,7 +4621,7 @@ const SPECIAL_CATEGORIES = [
         // 성경역본 모드(free/bibleData 로드): 장 이동 / 필사 모드(strict): 절 이동
         const _checkedMode = document.querySelector('input[name="typing-mode"]:checked');
         const _isStrict = _checkedMode && _checkedMode.value === 'strict';
-        if (_isStrict && bibleData.length) {
+        if (_isStrict) {
             // 필사(strict) — 절 이동
             const vs = bibleData[currentIndex] ? bibleData[currentIndex].vs : '';
             el.innerHTML = vs ? `<strong>${vs}</strong>` : (ch ? ch : '');
@@ -7429,8 +7429,8 @@ const SPECIAL_CATEGORIES = [
             // 필사(strict)면 절 이동, 그 외(성경역본/자유입력)는 장 이동
             const _sm = document.querySelector('input[name="typing-mode"]:checked');
             const _strict = _sm && _sm.value === 'strict';
-            const swipeNext = (_strict && bibleData.length) ? forceNext : forceNextChapter;
-            const swipePrev = (_strict && bibleData.length) ? forcePrev : forcePrevChapter;
+            const swipeNext = _strict ? forceNext : forceNextChapter;
+            const swipePrev = _strict ? forcePrev : forcePrevChapter;
             if (dx < 0) { if (typeof swipeNext === 'function') swipeNext(); }
             else        { if (typeof swipePrev === 'function') swipePrev(); }
         }, { passive: true });
