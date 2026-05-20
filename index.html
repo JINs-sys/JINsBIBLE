@@ -89,6 +89,9 @@
         .action-card-desc { font-size: 0.75rem; color: #999; line-height: 1.5; }
         .action-card.card-commentary { border-color: #a8c8bc; background: linear-gradient(135deg, #eef6f2 0%, #f4f8f6 100%); }
         .action-card.card-commentary:hover { border-color: var(--accent); background: #e4f2ec; box-shadow: 0 2px 12px rgba(45,74,62,0.12); }
+        .action-card.card-dragover { border-color: var(--accent) !important; background: #e0f2ea !important; box-shadow: 0 0 0 3px rgba(45,106,70,0.18) !important; transform: scale(1.025) !important; }
+        .action-card.card-dragover .action-card-icon::after { content: ' 📂'; }
+        .action-card-drop-hint { margin-top:6px; font-size:0.72rem; color:#aaa; border-top:1px dashed #e0ddd5; padding-top:6px; }
         @media (max-width: 480px) { .action-grid { grid-template-columns: 1fr; } .action-card.card-commentary { grid-row: auto; } }
         /* 드롭존 내 "자료 없이 시작" 버튼 */
         .btn-noref { display:inline-flex; align-items:center; gap:6px; margin-top:18px; padding:7px 16px; border:1px solid var(--accent); border-radius:6px; background:#fff; color:var(--accent); font-size:0.85rem; font-family:var(--font-main); font-weight:500; cursor:pointer; transition:background 0.15s, transform 0.1s; }
@@ -234,7 +237,8 @@
         #com-nav-bar .btn-nav    { height: 33px; min-height: unset; padding: 0 12px; }
         /* PC: com-nav-bar는 column, 내부 nav-row-top이 row로 1줄 구성 (.nav-row-top 전역 규칙 상속) */
         #com-nav-bar.nav-bar { flex-direction: column; align-items: stretch; gap: 6px; width: 100%; }
-        #com-nav-bar .nav-row-selects { flex: 1; min-width: 0; }
+        #com-nav-bar .nav-row-selects { flex: 1; min-width: 0; width: 100%; }
+        body.active-mode #com-nav-bar.nav-bar { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
 
         /* contenteditable 입력창 */
         #user-input[contenteditable] { display: block; border: none; outline: none; color: var(--ink); background-color: #ffffff; width: 100%; box-sizing: border-box; padding: var(--padding-val); min-height: 140px; overflow-y: visible; font-family: var(--font-main); font-size: var(--font-size-text); line-height: var(--line-height-text); word-break: break-all; white-space: pre-wrap; }
@@ -557,6 +561,8 @@
         .com-ref-wrap { border-radius: 10px 10px 0 0; overflow: hidden; }
         .com-fmt-toolbar { border-radius: 0; }
         .com-bottom-bar { border-radius: 0 0 10px 10px; }
+        .com-nav-arrow { background:none; border:none; cursor:pointer; padding:0 7px; font-size:1rem; color:var(--ink-soft); flex-shrink:0; border-radius:4px; transition:background 0.12s, color 0.12s; }
+        .com-nav-arrow:hover { background:#e8f2ec; color:var(--accent); }
 
         /* 입력창 — contenteditable */
         #com-content {
@@ -761,9 +767,16 @@
 
         /* 하단 버튼바 */
         .com-bottom-bar {
-            display: flex; align-items: center; gap: 5px;
+            display: flex; flex-direction: row; align-items: center; gap: 5px; flex-wrap: nowrap;
             padding: 7px 10px; background: #faf9f6;
-            border-top: 1px solid var(--rule); border-radius: 0 0 10px 10px; flex-wrap: wrap;
+            border-top: 1px solid var(--rule); border-radius: 0 0 10px 10px;
+        }
+        .com-bottom-row1, .com-bottom-row2 { display: contents; }
+        @media (max-width: 600px) {
+            .com-bottom-bar { flex-direction: column; align-items: stretch; gap: 6px; }
+            .com-bottom-row1 { display: flex; align-items: center; gap: 5px; }
+            .com-bottom-row2 { display: flex; align-items: center; gap: 4px; }
+            .com-bottom-pc-div { display: none; }
         }
         .com-status { font-size: 0.72rem; color: #8aab9e; margin-left: 6px; font-weight: 600; }
         .chart-book { margin-bottom: 20px; }
@@ -1292,35 +1305,35 @@
             <div class="action-card-icon">📝</div>
             <div class="action-card-title">나만의 주석 작성</div>
             <div class="action-card-desc">성경 본문을 보며 책·장·절 단위<br>주석을 작성하고 AAB로 내보냅니다.</div>
+            <div class="action-card-drop-hint">📂 TXT · AAB · BDB · ZIP 드래그드롭</div>
         </div>
         <div class="action-card" onclick="startFreeWrite('strict')">
             <div class="action-card-icon">✍️</div>
             <div class="action-card-title">디지털 필사 모드</div>
             <div class="action-card-desc">성경을 보면서 타이핑<br>타이핑 연습</div>
+            <div class="action-card-drop-hint">📂 TXT · AAB · BDB · ZIP 드래그드롭</div>
         </div>
         <div class="action-card card-edit" onclick="startEditMode()">
             <div class="action-card-icon">✏️</div>
             <div class="action-card-title">편집 모드</div>
             <div class="action-card-desc">1. 표제어 삽입 및 수정<br>2. 역본 내 단어 일괄 변경 및 수정</div>
+            <div class="action-card-drop-hint">📂 TXT · AAB · BDB · ZIP 드래그드롭</div>
         </div>
     </div>
 
     <div class="nav-bar" id="nav-bar">
-        <!-- PC: selects행+prevnext행을 가로로 묶는 래퍼 / 모바일: column으로 쌓임 -->
         <div class="nav-row-top">
-            <!-- 1행: 책/장/절 select + 이동 -->
-            <div class="nav-row nav-row-selects">
-                <select class="nav-select" id="nav-book"><option value="">책 선택</option></select>
-                <select class="nav-select" id="nav-chapter"><option value="">장 선택</option></select>
-                <select class="nav-select" id="nav-verse"><option value="">절 선택</option></select>
-                <button class="btn-nav" onclick="jumpTo()">이동</button>
-            </div>
-            <!-- 2행(모바일)/이어붙임(PC): 이전 / 다음 -->
-            <div class="nav-row nav-row-prevnext">
-                <div class="nav-prevnext-divider"></div>
-                <button class="btn-nav btn-nav-prev" onclick="forcePrevChapter()">◀ 이전 장</button>
-                <span id="nav-chapter-label" style="font-size:1.05rem;font-weight:700;color:var(--accent);padding:0 6px;white-space:nowrap;flex-shrink:0;"></span>
-                <button class="btn-nav btn-nav-next" onclick="forceNextChapter()">다음 장 ▶</button>
+            <div class="nav-row nav-row-selects" style="display:flex; align-items:center; gap:4px; flex-wrap:wrap;">
+                <select class="nav-select" id="nav-book" style="flex:2; min-width:80px;"><option value="">책 선택</option></select>
+                <button class="btn-nav btn-nav-prev" onclick="forcePrevChapter()" style="padding:0 7px; flex-shrink:0;">◀</button>
+                <select class="nav-select" id="nav-chapter" style="flex:1; min-width:48px;"><option value="">장</option></select>
+                <button class="btn-nav btn-nav-next" onclick="forceNextChapter()" style="padding:0 7px; flex-shrink:0;">▶</button>
+                <div style="width:1px; height:20px; background:var(--rule); flex-shrink:0; margin:0 3px;"></div>
+                <button class="btn-nav btn-nav-prev" onclick="forcePrev()" style="padding:0 7px; flex-shrink:0;">◀</button>
+                <select class="nav-select" id="nav-verse" style="flex:1; min-width:48px;"><option value="">절</option></select>
+                <button class="btn-nav btn-nav-next" onclick="forceNext()" style="padding:0 7px; flex-shrink:0;">▶</button>
+                <button class="btn-nav" onclick="jumpTo()" style="flex-shrink:0;">이동</button>
+                <span id="nav-chapter-label" style="display:none;"></span>
             </div>
         </div>
         <!-- 필사 모드 통계 (필사 모드일 때만 표시) -->
@@ -1596,20 +1609,17 @@
         <!-- 네비게이션 + 주석 유형 선택 (너비 통일) -->
         <div style="display:flex; flex-direction:column; align-items:stretch; gap:0;">
             <div class="nav-bar visible" id="com-nav-bar" style="margin-bottom:6px; width:100%;">
-                <!-- PC: nav-row-top이 selects+prevnext를 한 줄로 묶음 / 모바일: column으로 쌓임 -->
                 <div class="nav-row-top">
-                    <!-- 1행: 책/장/절 select + 이동 -->
-                    <div class="nav-row nav-row-selects">
-                        <select class="nav-select" id="com-nav-book"><option value="">책 선택</option></select>
-                        <select class="nav-select" id="com-nav-chapter"><option value="">장 선택</option></select>
-                        <select class="nav-select" id="com-nav-verse"><option value="">절 선택</option></select>
-                        <button class="btn-nav" onclick="comJumpTo()">이동</button>
-                    </div>
-                    <!-- 2행(모바일)/이어붙임(PC): 이전 / 다음 -->
-                    <div class="nav-row nav-row-prevnext">
-                        <div class="nav-prevnext-divider"></div>
-                        <button class="btn-nav btn-nav-prev" onclick="comPrev()" title="이전 절">◀</button>
-                        <button class="btn-nav btn-nav-next" onclick="comNext()" title="다음 절">▶</button>
+                    <div class="nav-row nav-row-selects" style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; width:100%;">
+                        <select class="nav-select" id="com-nav-book" style="flex:2; min-width:80px;"><option value="">책 선택</option></select>
+                        <button class="btn-nav btn-nav-prev" onclick="comPrevChapter()" style="padding:0 7px; flex-shrink:0;">◀</button>
+                        <select class="nav-select" id="com-nav-chapter" style="flex:1; min-width:48px;"><option value="">장</option></select>
+                        <button class="btn-nav btn-nav-next" onclick="comNextChapter()" style="padding:0 7px; flex-shrink:0;">▶</button>
+                        <div style="width:1px; height:20px; background:var(--rule); flex-shrink:0; margin:0 3px;"></div>
+                        <button class="btn-nav btn-nav-prev" onclick="comPrev()" style="padding:0 7px; flex-shrink:0;">◀</button>
+                        <select class="nav-select" id="com-nav-verse" style="flex:1; min-width:48px;"><option value="">절</option></select>
+                        <button class="btn-nav btn-nav-next" onclick="comNext()" style="padding:0 7px; flex-shrink:0;">▶</button>
+                        <button class="btn-nav" onclick="comJumpTo()" style="flex-shrink:0;">이동</button>
                     </div>
                 </div>
             </div>
@@ -1720,13 +1730,23 @@
                 </div>
             </div>
             <div class="com-bottom-bar">
-                <button class="btn-action" onclick="comSave(true)" title="현재 절 주석을 메모리에 저장">임시 저장</button>
-                <button class="btn-action" onclick="document.getElementById('com-resume-input').click()" title="이전에 TXT로 내보낸 주석 파일 이어하기">불러오기</button>
-                <input type="file" id="com-resume-input" accept=".txt" style="display:none;">
-                <button class="btn-action" onclick="comPrev()">◀ 이전 절</button>
-                <button class="btn-action" onclick="comNext()">다음 절 ▶</button>
-                <button class="btn-action" onclick="comDeleteCurrent()" style="color:#c0a898;" title="현재 위치 주석 삭제">삭제</button>
-                <span class="com-status" id="com-status"></span>
+                <div class="com-bottom-row1">
+                    <button class="btn-action" onclick="comSave(true)" title="현재 절 주석을 메모리에 저장">임시 저장</button>
+                    <button class="btn-action" onclick="document.getElementById('com-resume-input').click()" title="이전에 TXT로 내보낸 주석 파일 이어하기">불러오기</button>
+                    <input type="file" id="com-resume-input" accept=".txt" style="display:none;">
+                    <button class="btn-action" onclick="comDeleteCurrent()" style="color:#c0a898; white-space:nowrap;" title="현재 위치 주석 삭제">삭제</button>
+                    <span class="com-status" id="com-status"></span>
+                </div>
+                <div style="width:1px; height:16px; background:var(--rule); flex-shrink:0; margin:0 2px;" class="com-bottom-pc-div"></div>
+                <div class="com-bottom-row2">
+                    <button class="com-nav-arrow" onclick="comPrevChapter()">◀</button>
+                    <span id="com-bottom-ch-label" style="font-size:0.9rem; font-weight:700; color:var(--accent); white-space:nowrap; flex-shrink:0; min-width:2em; text-align:center;"></span>
+                    <button class="com-nav-arrow" onclick="comNextChapter()">▶</button>
+                    <div style="width:1px; height:16px; background:var(--rule); flex-shrink:0; margin:0 4px;"></div>
+                    <button class="com-nav-arrow" onclick="comPrev()">◀</button>
+                    <span id="com-bottom-vs-label" style="font-size:0.9rem; font-weight:700; color:var(--accent); white-space:nowrap; flex-shrink:0; min-width:2em; text-align:center;"></span>
+                    <button class="com-nav-arrow" onclick="comNext()">▶</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1741,9 +1761,9 @@
             <div style="font-size:1.1rem; font-weight:700; color:var(--accent); margin-bottom:6px;">성경 역본 파일 로드</div>
             <div style="font-size:0.85rem; color:#7a8a80; margin-bottom:10px;">편집할 역본 파일을 불러오세요</div>
             <div style="display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem;">
-                📂 AAB · BDB · ZIP 드래그드롭 또는 클릭
+                📂 AAB · BDB · TXT · ZIP 드래그드롭 또는 클릭
             </div>
-            <input type="file" id="edit-file-input" accept=".bdb,.aab,.zip" style="display:none;">
+            <input type="file" id="edit-file-input" accept=".bdb,.aab,.txt,.zip" style="display:none;">
         </div>
 
         <!-- 현재 역본 불러오기 버튼 (bibleData가 있을 때만 표시) -->
@@ -1787,22 +1807,18 @@
             <div style="font-size:0.82rem; font-weight:700; color:var(--accent); margin-bottom:10px;">📖 본문 미리보기</div>
 
             <!-- 내비게이션 바 -->
-            <div style="display:flex; flex-direction:column; gap:7px; margin-bottom:10px;">
-                <div style="display:flex; align-items:center; gap:5px; flex-wrap:nowrap;">
-                    <select class="nav-select" id="ep-book" style="flex:2; min-width:80px;"><option value="">책 선택</option></select>
-                    <select class="nav-select" id="ep-chapter" style="flex:1; min-width:50px;"><option value="">장</option></select>
-                    <select class="nav-select" id="ep-verse" style="flex:1; min-width:50px;"><option value="">절</option></select>
-                    <button class="btn-nav" onclick="epJumpTo()">이동</button>
-                </div>
-                <div style="display:flex; align-items:center; gap:5px;">
-                    <button class="btn-nav btn-nav-prev" onclick="epPrevChapter()">◀ 이전 장</button>
-                    <span id="ep-chapter-label" style="font-size:1rem; font-weight:700; color:var(--accent); padding:0 6px; white-space:nowrap; flex-shrink:0;"></span>
-                    <button class="btn-nav btn-nav-next" onclick="epNextChapter()">다음 장 ▶</button>
-                    <div style="width:1px; height:18px; background:var(--rule); margin:0 2px; flex-shrink:0;"></div>
-                    <button class="btn-nav btn-nav-prev" onclick="epPrevVerse()" style="padding:0 8px;">◀ 이전 절</button>
-                    <span id="ep-verse-label" style="font-size:1rem; font-weight:700; color:var(--accent); padding:0 6px; white-space:nowrap; flex-shrink:0;"></span>
-                    <button class="btn-nav btn-nav-next" onclick="epNextVerse()" style="padding:0 8px;">다음 절 ▶</button>
-                </div>
+            <div style="display:flex; align-items:center; gap:4px; flex-wrap:wrap; margin-bottom:10px;">
+                <select class="nav-select" id="ep-book" style="flex:2; min-width:80px;"><option value="">책 선택</option></select>
+                <button class="btn-nav btn-nav-prev" onclick="epPrevChapter()" style="padding:0 7px; flex-shrink:0;">◀</button>
+                <select class="nav-select" id="ep-chapter" style="flex:1; min-width:48px;"><option value="">장</option></select>
+                <span id="ep-chapter-label" style="display:none;"></span>
+                <button class="btn-nav btn-nav-next" onclick="epNextChapter()" style="padding:0 7px; flex-shrink:0;">▶</button>
+                <div style="width:1px; height:20px; background:var(--rule); flex-shrink:0; margin:0 3px;"></div>
+                <button class="btn-nav btn-nav-prev" onclick="epPrevVerse()" style="padding:0 7px; flex-shrink:0;">◀</button>
+                <select class="nav-select" id="ep-verse" style="flex:1; min-width:48px;"><option value="">절</option></select>
+                <span id="ep-verse-label" style="display:none;"></span>
+                <button class="btn-nav btn-nav-next" onclick="epNextVerse()" style="padding:0 7px; flex-shrink:0;">▶</button>
+                <button class="btn-nav" onclick="epJumpTo()" style="flex-shrink:0;">이동</button>
             </div>
 
             <!-- 본문 표시창 (2분할: 원본 | 표제어 적용 후) -->
@@ -1857,7 +1873,6 @@
         <!-- ④ 단어 변경 패널 (처음엔 숨김) -->
         <div id="edit-panel-replace" style="display:none; margin-top:14px;">
             <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--rule);">
-                <button class="btn-action" onclick="editPanelBack()" style="font-size:0.8rem; padding:4px 10px;">← 뒤로</button>
                 <span style="font-weight:700; color:var(--accent); font-size:0.95rem;">🔄 단어 일괄 변경</span>
             </div>
 
@@ -1865,14 +1880,14 @@
             <div style="background:#f8f7f2; border:1px solid var(--rule); border-radius:8px; padding:14px; margin-bottom:12px;">
                 <div style="font-size:0.82rem; font-weight:700; color:#555; margin-bottom:8px;">침례 ↔ 세례</div>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                    <label style="display:flex; align-items:center; gap:5px; font-size:0.85rem; cursor:pointer; padding:6px 12px; border:1.5px solid var(--rule); border-radius:6px; background:#fff;">
-                        <input type="radio" name="edit-baptism" value="none" checked> 변경 안 함
+                    <label style="display:flex; align-items:center; gap:5px; font-size:0.85rem; cursor:pointer; padding:6px 12px; border:1.5px solid var(--rule); border-radius:6px; background:#fff; transition:all 0.12s;" id="lbl-baptism-none">
+                        <input type="radio" name="edit-baptism" value="none" checked onchange="epBaptismChange(this)"> 변경 안 함
                     </label>
-                    <label style="display:flex; align-items:center; gap:5px; font-size:0.85rem; cursor:pointer; padding:6px 12px; border:1.5px solid var(--rule); border-radius:6px; background:#fff;">
-                        <input type="radio" name="edit-baptism" value="chim_to_sel"> 침례 → 세례
+                    <label style="display:flex; align-items:center; gap:5px; font-size:0.85rem; cursor:pointer; padding:6px 12px; border:1.5px solid var(--rule); border-radius:6px; background:#fff; transition:all 0.12s;" id="lbl-baptism-chim_to_sel">
+                        <input type="radio" name="edit-baptism" value="chim_to_sel" onchange="epBaptismChange(this)"> 침례 → 세례
                     </label>
-                    <label style="display:flex; align-items:center; gap:5px; font-size:0.85rem; cursor:pointer; padding:6px 12px; border:1.5px solid var(--rule); border-radius:6px; background:#fff;">
-                        <input type="radio" name="edit-baptism" value="sel_to_chim"> 세례 → 침례
+                    <label style="display:flex; align-items:center; gap:5px; font-size:0.85rem; cursor:pointer; padding:6px 12px; border:1.5px solid var(--rule); border-radius:6px; background:#fff; transition:all 0.12s;" id="lbl-baptism-sel_to_chim">
+                        <input type="radio" name="edit-baptism" value="sel_to_chim" onchange="epBaptismChange(this)"> 세례 → 침례
                     </label>
                 </div>
             </div>
@@ -2019,6 +2034,7 @@
     let currentRawFile = null;
     let fileNameBase = "MyBIBLE";
     let freeWriteMode = false;
+    let pendingModeAfterLoad = null; // 카드 드롭 후 진입할 모드 ('commentary'|'strict'|'editmode'|null)
     let _fnInText = false;  // 각주 기호가 본문에 들어간 적 있으면 true → 비교 완전 중단
     let _fnAutoInsertBusy = false; // 각주 자동삽입 중 재귀 oninput 방지
     let _verseCompleting = false; // 완료 판정 후 중복 절 이동 방지
@@ -3166,6 +3182,54 @@ const SPECIAL_CATEGORIES = [
     dropZone.ondragleave = () => { dropZone.classList.remove('dragover'); };
     dropZone.ondrop      = (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); };
 
+    // ── 모드 카드 드래그드롭 ──────────────────────────────────────────
+    // 각 카드에 파일을 드롭하면 해당 모드로 바로 진입
+    (function setupCardDrop() {
+        const cardDefs = [
+            { id: 'com-mode-box',                          mode: 'commentary' },
+            { selector: ".action-card[onclick*='strict']", mode: 'strict'     },
+        ];
+        cardDefs.forEach(({ id, selector, mode }) => {
+            const card = id ? document.getElementById(id) : document.querySelector(selector);
+            if (!card) return;
+            card.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                card.classList.add('card-dragover');
+            });
+            card.addEventListener('dragleave', (e) => {
+                if (!card.contains(e.relatedTarget)) card.classList.remove('card-dragover');
+            });
+            card.addEventListener('drop', (e) => {
+                e.preventDefault();
+                card.classList.remove('card-dragover');
+                const file = e.dataTransfer.files[0];
+                if (!file) return;
+                pendingModeAfterLoad = mode;
+                handleFile(file);
+            });
+        });
+
+        // 편집 모드 카드: 고유 loadEditFile 직접 호출
+        const editCard = document.querySelector('.action-card.card-edit');
+        if (editCard) {
+            editCard.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                editCard.classList.add('card-dragover');
+            });
+            editCard.addEventListener('dragleave', (e) => {
+                if (!editCard.contains(e.relatedTarget)) editCard.classList.remove('card-dragover');
+            });
+            editCard.addEventListener('drop', (e) => {
+                e.preventDefault();
+                editCard.classList.remove('card-dragover');
+                const file = e.dataTransfer.files[0];
+                if (!file) return;
+                startEditMode();
+                loadEditFile(file);
+            });
+        }
+    }());
+
     // ── 입력창(typing-frame) 드래그드롭 ──────────────────────────────────
     // 본문이 로드된 상태에서만 활성화. contenteditable 충돌 방지를 위해 부모에 등록.
     (function setupInputDrop() {
@@ -3370,7 +3434,10 @@ const SPECIAL_CATEGORIES = [
                     applyBibleRTL(bibleData.length > 0 && detectRTL(bibleData[0].text));
                     buildBookNav();
                     initTypingMode();
-                    loadVerse(0);
+                    const _pm = pendingModeAfterLoad; pendingModeAfterLoad = null;
+                    if (_pm === 'commentary') { startCommentaryMode(); }
+                    else if (_pm === 'strict') { startFreeWrite('strict'); loadVerse(0); }
+                    else { loadVerse(0); }
                 }
         };
         reader.readAsArrayBuffer(currentRawFile);
@@ -3432,7 +3499,10 @@ const SPECIAL_CATEGORIES = [
                     applyBibleRTL(bibleData.length > 0 && detectRTL(bibleData[0].text));
                     buildBookNav();
                     initTypingMode();
-                    loadVerse(0);
+                    const _pm = pendingModeAfterLoad; pendingModeAfterLoad = null;
+                    if (_pm === 'commentary') { startCommentaryMode(); }
+                    else if (_pm === 'strict') { startFreeWrite('strict'); loadVerse(0); }
+                    else { loadVerse(0); }
                 }
             } catch (err) {
                 alert('BDB 파일을 읽는 중 오류가 발생했습니다.\n' + err.message);
@@ -4226,7 +4296,7 @@ const SPECIAL_CATEGORIES = [
         nc.value = data.ch;
         // 절 목록 채우기
         const verses = bibleData.filter(d => d.book === data.book && d.ch === data.ch);
-        nv.innerHTML = '<option value="">절 선택</option>' + verses.map(v => `<option value="${bibleData.indexOf(v)}">${v.vs}절</option>`).join('');
+        nv.innerHTML = '<option value="">절</option>' + verses.map(v => `<option value="${bibleData.indexOf(v)}">${v.vs}절</option>`).join('');
         nv.value = idx;
     }
 
@@ -4411,7 +4481,7 @@ const SPECIAL_CATEGORIES = [
         nb.onchange = () => {
             const chapters = [...new Set(bibleData.filter(d => d.book === nb.value).map(d => d.ch))].sort((a,b) => a-b);
             document.getElementById('nav-chapter').innerHTML = `<option value="">${chSelectPlaceholder(nb.value)}</option>` + chOptions(nb.value, chapters);
-            document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>';
+            document.getElementById('nav-verse').innerHTML = '<option value="">절</option>';
             // 책 선택 시 1장 자동 선택
             const nc = document.getElementById('nav-chapter');
             if (nc.options.length > 1) { nc.selectedIndex = 1; nc.dispatchEvent(new Event('change')); }
@@ -4419,7 +4489,7 @@ const SPECIAL_CATEGORIES = [
         };
         document.getElementById('nav-chapter').onchange = () => {
             const verses = bibleData.filter(d => d.book === nb.value && d.ch === parseInt(document.getElementById('nav-chapter').value));
-            document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>' + verses.map(v => `<option value="${bibleData.indexOf(v)}">${v.vs}절</option>`).join('');
+            document.getElementById('nav-verse').innerHTML = '<option value="">절</option>' + verses.map(v => `<option value="${bibleData.indexOf(v)}">${v.vs}절</option>`).join('');
             const nv = document.getElementById('nav-verse');
             if (nv.options.length > 1) nv.selectedIndex = 1;
         };
@@ -4432,7 +4502,7 @@ const SPECIAL_CATEGORIES = [
         nb.onchange = () => {
             const maxCh = MAX_CHAPTERS[nb.value] || 1;
             document.getElementById('nav-chapter').innerHTML = `<option value="">${chSelectPlaceholder(nb.value)}</option>` + chOptionsRange(nb.value, maxCh);
-            document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>';
+            document.getElementById('nav-verse').innerHTML = '<option value="">절</option>';
             // 책 선택 시 1장 자동 선택
             const nc = document.getElementById('nav-chapter');
             if (nc.options.length > 1) { nc.selectedIndex = 1; nc.dispatchEvent(new Event('change')); }
@@ -4441,7 +4511,7 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('nav-chapter').onchange = () => {
             const book = nb.value, ch = parseInt(document.getElementById('nav-chapter').value);
             const maxVs = (MAX_VERSES[book] && MAX_VERSES[book][ch - 1]) || 30;
-            document.getElementById('nav-verse').innerHTML = '<option value="">절 선택</option>' +
+            document.getElementById('nav-verse').innerHTML = '<option value="">절</option>' +
                 Array.from({length: maxVs}, (_, i) => `<option value="${i+1}">${i+1}절</option>`).join('');
             const nv = document.getElementById('nav-verse');
             if (nv.options.length > 1) nv.selectedIndex = 1;
@@ -7150,12 +7220,14 @@ const SPECIAL_CATEGORIES = [
                 comBook = nb.value;
                 const chs = [...new Set(bibleData.filter(d => d.book === comBook).map(d => d.ch))].sort((a,b) => a-b);
                 nc.innerHTML = `<option value="">${chSelectPlaceholder(comBook)}</option>` + chOptions(comBook, chs);
-                nv.innerHTML = '<option value="">절 선택</option>';
+                nv.innerHTML = '<option value="">절</option>';
+                if (nc.options.length > 1) { nc.selectedIndex = 1; nc.dispatchEvent(new Event('change')); }
             };
             nc.onchange = () => {
                 comChapter = parseInt(nc.value) || 1;
                 const vss = bibleData.filter(d => d.book === comBook && d.ch === comChapter);
-                nv.innerHTML = '<option value="">절 선택</option>' + vss.map(v => `<option value="${v.vs}">${v.vs}절</option>`).join('');
+                nv.innerHTML = '<option value="">절</option>' + vss.map(v => `<option value="${v.vs}">${v.vs}절</option>`).join('');
+                if (nv.options.length > 1) nv.selectedIndex = 1;
             };
         } else {
             // 성경 파일 없음 → 개역개정4판 데이터 기반
@@ -7165,13 +7237,15 @@ const SPECIAL_CATEGORIES = [
                 comBook = nb.value;
                 const maxCh = MAX_CHAPTERS[comBook] || 1;
                 nc.innerHTML = `<option value="">${chSelectPlaceholder(comBook)}</option>` + chOptionsRange(comBook, maxCh);
-                nv.innerHTML = '<option value="">절 선택</option>';
+                nv.innerHTML = '<option value="">절</option>';
+                if (nc.options.length > 1) { nc.selectedIndex = 1; nc.dispatchEvent(new Event('change')); }
             };
             nc.onchange = () => {
                 comChapter = parseInt(nc.value) || 1;
                 const maxVs = (MAX_VERSES[comBook] && MAX_VERSES[comBook][comChapter - 1]) || 30;
-                nv.innerHTML = '<option value="">절 선택</option>' +
+                nv.innerHTML = '<option value="">절</option>' +
                     Array.from({length: maxVs}, (_, i) => `<option value="${i+1}">${i+1}절</option>`).join('');
+                if (nv.options.length > 1) nv.selectedIndex = 1;
             };
         }
 
@@ -7243,6 +7317,12 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('com-content').innerHTML = existing ? trimComHtml(existing.content) : '';
         document.getElementById('com-refer').value       = existing ? existing.refer   : comAutoRefer();
         updateComStatus();
+
+        // 하단 바 장/절 라벨 갱신
+        const chLbl = document.getElementById('com-bottom-ch-label');
+        const vsLbl = document.getElementById('com-bottom-vs-label');
+        if (chLbl) chLbl.textContent = `${comChapter}장`;
+        if (vsLbl) vsLbl.textContent = `${comVerse}절`;
     }
 
     function syncComNav(book, chapter, verse) {
@@ -7407,6 +7487,46 @@ const SPECIAL_CATEGORIES = [
             } else if (comChapter > 1) {
                 comChapter--;
                 comVerse = (MAX_VERSES[comBook] && MAX_VERSES[comBook][comChapter - 1]) || 30;
+            }
+        }
+        comLoadCurrent();
+    }
+
+    function comPrevChapter() {
+        comSave(false);
+        const slot0 = bibleDataSets[0]?.data || [];
+        if (slot0.length) {
+            const firstOfChapter = slot0.findIndex(d => d.book === comBook && d.ch === comChapter);
+            const prevIdx = slot0.slice(0, firstOfChapter).reverse().findIndex(d => d.ch !== comChapter || d.book !== comBook);
+            if (prevIdx >= 0) {
+                const target = slot0[firstOfChapter - 1 - prevIdx];
+                const prevChStart = slot0.findIndex(d => d.book === target.book && d.ch === target.ch);
+                comBibleIndex = prevChStart; comBook = slot0[prevChStart].book; comChapter = slot0[prevChStart].ch; comVerse = slot0[prevChStart].vs;
+            }
+        } else {
+            if (comChapter > 1) { comChapter--; comVerse = 1; }
+            else {
+                const bookIdx = BOOK_NUM.indexOf(comBook);
+                if (bookIdx > 1) { comBook = BOOK_NUM[bookIdx - 1]; comChapter = MAX_CHAPTERS[comBook] || 1; comVerse = 1; }
+            }
+        }
+        comLoadCurrent();
+    }
+
+    function comNextChapter() {
+        comSave(false);
+        const slot0 = bibleDataSets[0]?.data || [];
+        if (slot0.length) {
+            const nextIdx = slot0.findIndex(d => (d.book === comBook && d.ch > comChapter) || d.book !== comBook && BOOK_NUM.indexOf(d.book) > BOOK_NUM.indexOf(comBook));
+            if (nextIdx >= 0) {
+                comBibleIndex = nextIdx; comBook = slot0[nextIdx].book; comChapter = slot0[nextIdx].ch; comVerse = slot0[nextIdx].vs;
+            }
+        } else {
+            const maxCh = MAX_CHAPTERS[comBook] || 1;
+            if (comChapter < maxCh) { comChapter++; comVerse = 1; }
+            else {
+                const bookIdx = BOOK_NUM.indexOf(comBook);
+                if (bookIdx > 0 && bookIdx < BOOK_NUM.length - 1) { comBook = BOOK_NUM[bookIdx + 1]; comChapter = 1; comVerse = 1; }
             }
         }
         comLoadCurrent();
@@ -7655,23 +7775,81 @@ const SPECIAL_CATEGORIES = [
         }
     }
 
-    // 성경 역본 로드 (AAB/BDB/ZIP)
+    // 성경 역본 로드 (AAB/BDB/ZIP/TXT)
     function loadEditFile(file) {
         const name = file.name.toLowerCase();
         showEditResult('');
         if (name.endsWith('.zip')) {
-            // ZIP → 내부에서 .aab/.bdb 추출
+            // ZIP → 내부에서 .aab/.bdb/.txt 추출
             JSZip.loadAsync(file).then(zip => {
-                const entry = Object.values(zip.files).find(f => /\.(aab|bdb)$/i.test(f.name));
-                if (!entry) return showEditResult('ZIP 내에서 AAB/BDB 파일을 찾지 못했습니다.', true);
-                entry.async('arraybuffer').then(buf => loadEditBuffer(buf, entry.name, file.name));
+                const entry = Object.values(zip.files).find(f => /\.(aab|bdb|txt)$/i.test(f.name));
+                if (!entry) return showEditResult('ZIP 내에서 AAB/BDB/TXT 파일을 찾지 못했습니다.', true);
+                if (/\.txt$/i.test(entry.name)) {
+                    entry.async('arraybuffer').then(buf => loadEditTxt(buf, file.name));
+                } else {
+                    entry.async('arraybuffer').then(buf => loadEditBuffer(buf, entry.name, file.name));
+                }
             }).catch(err => showEditResult('ZIP 파일 오류: ' + err.message, true));
         } else if (name.endsWith('.aab') || name.endsWith('.bdb')) {
             const reader = new FileReader();
             reader.onload = e => loadEditBuffer(e.target.result, file.name, file.name);
             reader.readAsArrayBuffer(file);
+        } else if (name.endsWith('.txt')) {
+            const reader = new FileReader();
+            reader.onload = e => loadEditTxt(e.target.result, file.name);
+            reader.readAsArrayBuffer(file);
         } else {
-            showEditResult('AAB · BDB · ZIP 파일만 지원합니다.', true);
+            showEditResult('AAB · BDB · ZIP · TXT 파일만 지원합니다.', true);
+        }
+    }
+
+    // TXT 성경 파일 파싱 및 편집 데이터 로드 (형식: "책 장:절 | 본문")
+    // processBibleFile과 동일한 방식: ArrayBuffer → detectEncoding → ABBR_ALIAS 적용
+    function loadEditTxt(buffer, origName) {
+        try {
+            // 인코딩 자동 감지 (UTF-8 / EUC-KR)
+            const encoding = detectEncoding(buffer);
+            const text = new TextDecoder(encoding).decode(buffer);
+
+            const lines = text.split(/\r?\n/);
+            const parsed = [];
+            lines.forEach(line => {
+                if (!line.includes('|')) return;
+                const pipeIdx = line.indexOf('|');
+                const k = line.slice(0, pipeIdx);
+                const btext = line.slice(pipeIdx + 1).trim();
+                const m = k.match(/^(.+?)\s+(\d+):(\d+)/);
+                if (!m) return;
+                // ABBR_ALIAS 적용 (요일→요1, 요이→요2, 요삼→요3)
+                const rawBook = m[1].trim();
+                const bookAbbr = ABBR_ALIAS[rawBook] || rawBook;
+                const bookNum = BOOK_NUM.indexOf(bookAbbr);
+                if (bookNum <= 0) return;
+                parsed.push({ book: bookAbbr, bookNum, ch: parseInt(m[2]), vs: parseInt(m[3]), btext });
+            });
+            if (!parsed.length) return showEditResult('TXT 파일에서 성경 데이터를 파싱하지 못했습니다.\n형식: "책 장:절 | 본문"', true);
+
+            editBibleData = parsed;
+            editFileLoaded = true;
+            editBibleFileName = origName.replace(/\.[^.]+$/, '');
+
+            const dz = document.getElementById('edit-drop-zone');
+            dz.classList.add('loaded');
+            dz.onclick = null;
+            dz.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                        <span style="display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px; background:#4caf82; border-radius:5px; flex-shrink:0;">
+                            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                        <span style="font-size:1.05rem; font-weight:700; color:#1a1a1a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${origName}</span>
+                        <span style="font-size:0.9rem; color:#aaa; white-space:nowrap; flex-shrink:0;"><strong>${editBibleData.length.toLocaleString()}</strong>절 로드됨</span>
+                    </div>
+                    <button onclick="resetEditFile(event)" style="font-size:0.75rem; padding:4px 10px; border:1px solid #ccc; border-radius:5px; background:#fff; color:#888; cursor:pointer; font-family:var(--font-main); white-space:nowrap; flex-shrink:0;">교체</button>
+                </div>`;
+            activateEditCards();
+        } catch(err) {
+            showEditResult('TXT 파일 읽기 오류: ' + err.message, true);
         }
     }
 
@@ -7739,9 +7917,9 @@ const SPECIAL_CATEGORIES = [
             <div style="font-size:1.1rem; font-weight:700; color:var(--accent); margin-bottom:6px;">성경 역본 파일 로드</div>
             <div style="font-size:0.85rem; color:#7a8a80; margin-bottom:10px;">편집할 역본 파일을 불러오세요</div>
             <div style="display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem;">
-                📂 AAB · BDB · ZIP 드래그드롭 또는 클릭
+                📂 AAB · BDB · TXT · ZIP 드래그드롭 또는 클릭
             </div>
-            <input type="file" id="edit-file-input" accept=".bdb,.aab,.zip" style="display:none;">`;
+            <input type="file" id="edit-file-input" accept=".bdb,.aab,.txt,.zip" style="display:none;">`;
         dz.onclick = () => document.getElementById('edit-file-input').click();
         initEditMode();
         // 카드 비활성화
@@ -7787,6 +7965,14 @@ const SPECIAL_CATEGORIES = [
         if (afterLbl) {
             afterLbl.textContent = which === 'title' ? '🏷️ 표제어 적용 후' : '🔄 단어 치환 후';
         }
+        // 단어 치환 패널 전환 시 즉시 미리보기 갱신
+        if (which === 'replace' && epCurrentIdx >= 0) {
+            epShowVerse(epCurrentIdx);
+        }
+        // 표제어 패널 전환 시에도 미리보기 갱신 (치환 잔상 제거)
+        if (which === 'title' && epCurrentIdx >= 0) {
+            epShowVerse(epCurrentIdx);
+        }
     }
 
     function editPanelBack() {
@@ -7824,22 +8010,21 @@ const SPECIAL_CATEGORIES = [
         const headings = HEADINGS_DATA[ver.value] || {};
         const total = Object.keys(headings).length;
 
-        // 현재 역본에서 표제어 있는 절 / 없는 절 카운트
-        let hasTitle = 0, noTitle = 0;
-        editBibleData.forEach(v => {
-            const existing = extractExistingTitle(v.btext);
-            if (existing) hasTitle++; else noTitle++;
-        });
+        // 현재 역본에서 매칭 절 카운트
         const matched = editBibleData.filter(v => {
             const key = `${bookAbbrToHeadingKey(v.book)}_${v.ch}_${v.vs}`;
             return !!headings[key];
         }).length;
 
         preview.innerHTML = `
-            <div style="display:flex; gap:14px; flex-wrap:wrap;">
-                <span style="color:#3a6a58;"><strong>${total}</strong>개 표제어 데이터</span>
-                <span style="color:#5a7aab;"><strong>${matched}</strong>절에 매칭</span>
-                <span style="color:#8a7a60;">현재 역본: 표제어 있음 <strong>${hasTitle}</strong>절 / 없음 <strong>${noTitle}</strong>절</span>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span style="background:#e8f2ec; color:#1a6a40; font-size:13px; font-weight:500; padding:4px 12px; border-radius:20px; white-space:nowrap;">
+                    <span style="font-size:19px; font-weight:700; vertical-align:middle;">${total}</span>개 표제어 데이터
+                </span>
+                <span style="color:#aaa; font-size:13px;">→</span>
+                <span style="background:#eef3fb; color:#1a4a8a; font-size:13px; font-weight:500; padding:4px 12px; border-radius:20px; white-space:nowrap;">
+                    <span style="font-size:19px; font-weight:700; vertical-align:middle;">${matched}</span>절에 매칭
+                </span>
             </div>`;
 
         btn.disabled = false;
@@ -7951,8 +8136,16 @@ const SPECIAL_CATEGORIES = [
             <input type="text" placeholder="수정할 단어" style="flex:1; padding:6px 9px; border:1px solid var(--rule); border-radius:6px; font-size:0.85rem; font-family:var(--font-main); outline:none;" class="edit-replace-from">
             <span style="color:#aaa; font-size:0.85rem; flex-shrink:0;">→</span>
             <input type="text" placeholder="변경할 단어" style="flex:1; padding:6px 9px; border:1px solid var(--rule); border-radius:6px; font-size:0.85rem; font-family:var(--font-main); outline:none;" class="edit-replace-to">
-            <button onclick="document.getElementById('replace-row-${id}').remove()" style="width:26px; height:26px; border:1px solid #ddd; border-radius:5px; background:#fff; color:#aaa; cursor:pointer; font-size:0.9rem; flex-shrink:0; line-height:1; padding:0;">×</button>`;
+            <button onclick="document.getElementById('replace-row-${id}').remove(); epRefreshReplacePreview();" style="width:26px; height:26px; border:1px solid #ddd; border-radius:5px; background:#fff; color:#aaa; cursor:pointer; font-size:0.9rem; flex-shrink:0; line-height:1; padding:0;">×</button>`;
         container.appendChild(row);
+        // 입력 시 실시간 미리보기 갱신 (debounce 300ms)
+        let _rt = null;
+        row.querySelectorAll('input[type="text"]').forEach(inp => {
+            inp.addEventListener('input', () => {
+                clearTimeout(_rt);
+                _rt = setTimeout(epRefreshReplacePreview, 300);
+            });
+        });
     }
 
     function getReplaceRules() {
@@ -8083,6 +8276,8 @@ const SPECIAL_CATEGORIES = [
             chapters.map(c => `<option value="${c}">${c}장</option>`).join('');
         document.getElementById('ep-chapter').onchange = epChapterChange;
         document.getElementById('ep-verse').innerHTML = '<option value="">절</option>';
+        const nc = document.getElementById('ep-chapter');
+        if (nc.options.length > 1) { nc.selectedIndex = 1; nc.dispatchEvent(new Event('change')); }
     }
 
     function epChapterChange() {
@@ -8092,6 +8287,8 @@ const SPECIAL_CATEGORIES = [
         const verses = editBibleData.filter(v => v.bookNum === bookNum && v.ch === ch);
         document.getElementById('ep-verse').innerHTML = '<option value="">절</option>' +
             verses.map((v,i) => `<option value="${editBibleData.indexOf(v)}">${v.vs}절</option>`).join('');
+        const nv = document.getElementById('ep-verse');
+        if (nv.options.length > 1) nv.selectedIndex = 1;
     }
 
     function epJumpTo() {
@@ -8166,9 +8363,16 @@ const SPECIAL_CATEGORIES = [
             box.appendChild(fnLine);
         }
 
+        // ── 현재 활성 패널 감지 ──
+        const replacePanel = document.getElementById('edit-panel-replace');
+        const isReplaceMode = replacePanel && replacePanel.style.display !== 'none';
+
         // 오른쪽 창
         if (previewBox) {
-            if (verEl) {
+            if (isReplaceMode) {
+                // 단어 치환 패널: 치환 결과 미리보기
+                epRenderReplacePreview(v, previewBox, sectionTitle);
+            } else if (verEl) {
                 let html2 = '';
                 if (st2) {
                     html2 += `<div style="font-weight:700; color:#2d6a4f; background:#eaf4ee; border-bottom:1px solid #b8dfc8; margin:-14px -16px 10px; padding:7px 16px; font-size:0.88rem; letter-spacing:0.02em;">${st2}</div>`;
@@ -8210,6 +8414,97 @@ const SPECIAL_CATEGORIES = [
         const vl = document.getElementById('ep-verse-label');
         if (vl) vl.textContent = `${v.vs}절`;
         document.getElementById('ep-verse-info').textContent = `${v.book} ${v.ch}:${v.vs}`;
+    }
+
+    // ── 단어 치환 미리보기 렌더러 ──────────────────────────────────────────
+    function epRenderReplacePreview(v, previewBox, origSectionTitle) {
+        const baptism = document.querySelector('input[name="edit-baptism"]:checked')?.value || 'none';
+        const customRules = getReplaceRules();
+
+        // 원본 btext에 치환 규칙 적용
+        let replaced = v.btext;
+        if (baptism === 'sel_to_chim') { replaced = replaced.replace(/세례/g, '침례'); }
+        else if (baptism === 'chim_to_sel') { replaced = replaced.replace(/침례/g, '세례'); }
+        customRules.forEach(r => {
+            if (!r.from) return;
+            try {
+                const re = new RegExp(r.from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                replaced = replaced.replace(re, r.to);
+            } catch(e) {}
+        });
+
+        const changed = replaced !== v.btext;
+        const { sectionTitle, mainText, fnItems } = parseBtext(replaced);
+
+        // 표제어 칸 (원본 유지)
+        let html2 = '';
+        if (origSectionTitle) {
+            html2 += `<div style="font-weight:700; color:#2d6a4f; background:#eaf4ee; border-bottom:1px solid #b8dfc8; margin:-14px -16px 10px; padding:7px 16px; font-size:0.88rem; letter-spacing:0.02em;">${origSectionTitle}</div>`;
+        }
+
+        // 치환된 단어를 <mark>로 강조
+        let highlightedMain = mainText;
+        if (changed) {
+            const targets = [];
+            if (baptism === 'sel_to_chim') targets.push('침례');
+            if (baptism === 'chim_to_sel') targets.push('세례');
+            customRules.forEach(r => { if (r.to) targets.push(r.to); });
+            targets.forEach(t => {
+                if (!t) return;
+                try {
+                    const re = new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                    highlightedMain = highlightedMain.replace(re,
+                        m => `<mark style="background:#ff4d4d;color:#fff;border-radius:2px;padding:0 1px;">${m}</mark>`);
+                } catch(e) {}
+            });
+        }
+
+        html2 += btextToRefHtml(highlightedMain);
+
+        if (!changed) {
+            html2 += `<div style="margin-top:8px;font-size:0.78rem;color:#b0b8b4;border-top:1px solid #e8eee8;padding-top:6px;">이 절에는 치환 대상 단어가 없습니다</div>`;
+        }
+
+        const oldFn = previewBox.querySelector('.ep-fn-line');
+        if (oldFn) oldFn.remove();
+        const fnHTML = buildFnLineHTML(fnItems);
+        previewBox.innerHTML = html2 || '<span style="color:#bbb;">본문 없음</span>';
+        if (fnHTML) {
+            const fnLine = document.createElement('div');
+            fnLine.className = 'ref-text-fn-line ep-fn-line';
+            fnLine.style.cssText = 'margin:10px -16px -14px; padding:6px 16px 10px; border-radius:0 0 8px 8px;';
+            fnLine.innerHTML = fnHTML;
+            previewBox.appendChild(fnLine);
+        }
+
+        // 높이 동기화
+        const box = document.getElementById('ep-text-box');
+        requestAnimationFrame(() => {
+            box.style.height = '';
+            previewBox.style.height = '';
+            const h = Math.max(box.scrollHeight, previewBox.scrollHeight);
+            box.style.height = h + 'px';
+            previewBox.style.height = h + 'px';
+        });
+    }
+
+    // 침례/세례 라디오 변경 → 라벨 하이라이트 + 즉시 미리보기 갱신
+    function epBaptismChange(radio) {
+        ['none','chim_to_sel','sel_to_chim'].forEach(v => {
+            const lbl = document.getElementById('lbl-baptism-' + v);
+            if (!lbl) return;
+            const active = v === radio.value;
+            lbl.style.borderColor = active ? 'var(--accent)' : 'var(--rule)';
+            lbl.style.background  = active ? '#e8f2ec' : '#fff';
+            lbl.style.color       = active ? 'var(--accent)' : '';
+            lbl.style.fontWeight  = active ? '700' : '';
+        });
+        epRefreshReplacePreview();
+    }
+
+    // 치환 규칙/옵션 변경 시 현재 절 미리보기 자동 갱신
+    function epRefreshReplacePreview() {
+        if (epCurrentIdx >= 0) epShowVerse(epCurrentIdx);
     }
 
     function epPrevChapter() {
