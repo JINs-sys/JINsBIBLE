@@ -8800,6 +8800,8 @@ const SPECIAL_CATEGORIES = [
         initEditMode();            // 편집 모드 초기화
     }
     initApp();
+    // 초기 상태를 히스토리에 쌓아 뒤로가기를 앱 내부에서 가로챔
+    history.pushState({ mode: 'landing' }, '');
 
 </script>
 
@@ -8813,14 +8815,24 @@ const SPECIAL_CATEGORIES = [
         });
     }
 
-    /* ── 모바일 뒤로가기: 모드 종료 ── */
+    /* ── 모바일 뒤로가기: 모드 종료 또는 앱 종료 확인 ── */
     window.addEventListener('popstate', function(e) {
         if (commentaryMode) {
             exitCommentaryMode();
+            history.pushState({ mode: 'landing' }, '');
         } else if (editMode) {
             exitEditMode();
+            history.pushState({ mode: 'landing' }, '');
         } else if (freeWriteMode) {
             exitFreeWrite();
+            history.pushState({ mode: 'landing' }, '');
+        } else {
+            // 랜딩 화면에서 뒤로가기 → 앱 종료 확인
+            if (confirm('앱을 종료하시겠습니까?')) {
+                history.back(); // 실제로 나가기
+            } else {
+                history.pushState({ mode: 'landing' }, ''); // 취소 시 복구
+            }
         }
     });
 
