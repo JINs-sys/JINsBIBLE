@@ -4228,6 +4228,7 @@ const SPECIAL_CATEGORIES = [
     // ── 나만의 성경역본 진입 ──────────────────────────────────────────────
     // mode: 'free' (default) — 나만의 성경역본 / 'strict' — 필사 모드
     function startFreeWrite(mode) {
+        history.pushState({ mode: mode || 'free' }, '');
         freeWriteMode = true;
         // 초기화 버튼: 나만의 성경역본 모드에서만 동적 생성
         (function() {
@@ -6554,6 +6555,7 @@ const SPECIAL_CATEGORIES = [
 
     // ── 주석 작성 모드 ────────────────────────────────────────────────
     function startCommentaryMode() {
+        history.pushState({ mode: 'commentary' }, '');
         commentaryMode = true;
         document.body.classList.add('active-mode');
         applyUIState('commentary');
@@ -7737,6 +7739,7 @@ const SPECIAL_CATEGORIES = [
     var editMode = false;
 
     function startEditMode() {
+        history.pushState({ mode: 'edit' }, '');
         editMode = true;
         document.body.classList.add('active-mode');
         applyUIState('editmode');
@@ -8817,6 +8820,17 @@ const SPECIAL_CATEGORIES = [
                 .catch(() => { /* sw.js 없음 — 무시 */ });
         });
     }
+
+    /* ── 모바일 뒤로가기: 모드 종료 ── */
+    window.addEventListener('popstate', function(e) {
+        if (commentaryMode) {
+            exitCommentaryMode();
+        } else if (editMode) {
+            exitEditMode();
+        } else if (freeWriteMode) {
+            exitFreeWrite();
+        }
+    });
 
     /* ── 빌드 체크섬: 파일 내용 기반 4자리 hex — 업로드 확인용 ── */
     (function() {
