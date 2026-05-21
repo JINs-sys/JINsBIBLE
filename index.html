@@ -8106,7 +8106,11 @@ const SPECIAL_CATEGORIES = [
         // 불러온 파일명 (확장자 포함 — 드롭존에 표시된 원본 파일명에서 가져옴)
         const dzNameEl = document.querySelector('#edit-drop-zone span[style*="font-weight:700"]');
         const loadedName = dzNameEl ? dzNameEl.textContent.trim() : (typeof editBibleFileName !== 'undefined' && editBibleFileName ? editBibleFileName : '불러온파일');
-
+    // ════════════════════════════════════════════════════════════════════
+    // 🏷️  표제어 모드  — 표제어 삽입 · 교체
+    //   · applyHeadings()   : 5종 표제어 일괄 적용
+    //   · epRenderVerse()   : 미리보기 본문 렌더링
+    // ════════════════════════════════════════════════════════════════════
         preview.innerHTML = `
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <span style="background:#e8f2ec; color:#1a6a40; font-size:13px; font-weight:500; padding:4px 12px; border-radius:20px; white-space:nowrap;">
@@ -8115,12 +8119,6 @@ const SPECIAL_CATEGORIES = [
                 <span style="color:#aaa; font-size:13px;">→</span>
                 <span style="background:#eef3fb; color:#1a4a8a; font-size:13px; font-weight:500; padding:4px 12px; border-radius:20px; white-space:nowrap;">
                     ${loadedName} <span style="font-size:19px; font-weight:700; vertical-align:middle;">${matched}</span>절에 매칭
-
-    // ════════════════════════════════════════════════════════════════════
-    // 🏷️  표제어 모드  — 표제어 삽입 · 교체
-    //   · applyHeadings()   : 5종 표제어 일괄 적용
-    //   · epRenderVerse()   : 미리보기 본문 렌더링
-    // ════════════════════════════════════════════════════════════════════
                 </span>
             </div>`;
 
