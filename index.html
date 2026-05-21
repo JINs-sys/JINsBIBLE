@@ -391,6 +391,8 @@
         .free-nav-btn:hover { background:#ede8de; }
         /* 주석 내보내기 전용 — 모바일 min-height 룰 영향 없이 고정 높이 */
         .com-export-btn { background: var(--accent); color: #fff; border: 1px solid var(--accent); cursor: pointer; padding: 0 12px; height: 28px; min-height: 28px; max-height: 28px; border-radius: 4px; font-size: 0.8rem; font-family: var(--font-main); transition: background 0.12s; white-space: nowrap; flex-shrink: 0; align-self: center; }
+        .com-import-btn { background: #fff; color: var(--accent); border: 1px solid var(--accent); cursor: pointer; padding: 0 12px; height: 28px; min-height: 28px; max-height: 28px; border-radius: 4px; font-size: 0.8rem; font-family: var(--font-main); transition: background 0.12s, color 0.12s; white-space: nowrap; flex-shrink: 0; align-self: center; }
+        .com-import-btn:hover { background: var(--accent); color: #fff; }
         .com-export-btn:hover { background: #1e3329; border-color: #1e3329; }
         .btn-nav { background: none; border: 1px solid var(--rule); cursor: pointer; padding: 0 12px; height: 33px; border-radius: 4px; font-size: 0.82rem; color: var(--ink-soft); font-family: var(--font-main); transition: background 0.12s, border-color 0.12s, color 0.12s; white-space: nowrap; }
         .btn-nav:hover { background: #f0ece3; border-color: #b0a898; color: var(--ink); }
@@ -706,11 +708,13 @@
             color: #5a5750; word-break: break-all; white-space: pre-wrap;
             min-height: 32px;
         }
-        .com-ref-panel.no-bible { color: #c8c4bc; font-style: italic; font-size: 0.82rem; min-height: 32px; padding: 7px 18px; }
+        .com-ref-panel.no-bible { font-size: 0.82rem; min-height: 32px; padding: 10px 18px; line-height: 1.9; }
+        .com-ref-panel.no-bible .hint-main { display: block; color: #888480; font-size: 0.83rem; }
+        .com-ref-panel.no-bible .hint-sub { display: block; font-size: 0.76rem; color: #b8b4ac; }
         .com-ref-fn-line { display:block; padding: 2px var(--padding-val) 6px; font-family:'Georgia','Nanum Myeongjo',serif; font-size:0.72rem; color:#8a8076; font-style:italic; line-height:1.6; border-top:1px dashed #e4dfd4; white-space:normal; word-break:break-all; }
         .com-ref-fn-line .fn-sup { font-size:0.72em; vertical-align:super; line-height:0; font-style:normal; }
         /* RTL (히브리어 등) */
-        .com-ref-panel[dir="rtl"] { text-align: right; font-family: 'SBL Hebrew', 'Ezra SIL', 'Times New Roman', serif; letter-spacing: 0.02em; }
+        .com-ref-panel[dir="rtl"] { text-align: right; font-family: 'SBL Hebrew', 'Ezra SIL', 'Times New Roman', serif; letter-spacing: 0.02em; font-size: 2rem; line-height: 1.5; }
         #com-content[dir="rtl"] { text-align: right; direction: rtl; }
         .com-rtl-btn.active { background: #e4f0eb !important; color: var(--accent) !important; }
 
@@ -1218,6 +1222,14 @@
                 padding-right: 14px;
             }
         }
+        /* ── 전역 스크롤바: 얇고 일정 시간 후 숨김 ── */
+        * { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.18) transparent; }
+        *::-webkit-scrollbar { width: 4px; height: 4px; }
+        *::-webkit-scrollbar-track { background: transparent; }
+        *::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); border-radius: 4px; }
+        *::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.32); }
+        .scrollbar-hidden::-webkit-scrollbar-thumb { background: transparent !important; }
+        .scrollbar-hidden { scrollbar-color: transparent transparent !important; }
     </style>
 </head>
 <body>
@@ -1314,7 +1326,9 @@
             <div class="action-card-icon">📝</div>
             <div class="action-card-title">나만의 주석</div>
             <div class="action-card-desc">성경 본문을 보며 책·장·절 단위<br>주석을 작성하고 AAB로 내보냅니다.</div>
-            <div class="action-card-drop-hint">📂 TXT · AAB · BDB · ZIP 드래그드롭</div>
+            <div class="action-card-drop-hint">📂 성경본문 : TXT · AAB · BDB · ZIP(최대 5개)</div>
+            <div class="action-card-drop-hint">📂 주석파일 : CDB (AAB 주석 파일 추가 예정)</div>
+
         </div>
         <div class="action-card" onclick="startFreeWrite('strict')">
             <div class="action-card-icon">✍️</div>
@@ -1627,6 +1641,8 @@
                     <option value="txt">TXT</option>
                 </select>
                 <button class="com-export-btn" onclick="exportCommentary()">↓ 내보내기</button>
+                <button class="com-import-btn" onclick="triggerComFileLoad()" title="작업파일(CDB·TXT) 불러오기">↑ 작업파일</button>
+                <button class="com-import-btn" onclick="triggerBibleSlotLoad()" title="성경본문(AAB·BDB·TXT·ZIP) 불러오기" style="margin-left:2px;">↑ 성경본문</button>
             </div>
         </div>
 
@@ -1758,8 +1774,6 @@
             <div class="com-bottom-bar">
                 <div class="com-bottom-row1">
                     <button class="btn-action" onclick="comSave(true)" title="현재 절 주석을 메모리에 저장">임시 저장</button>
-                    <button class="btn-action" onclick="document.getElementById('com-resume-input').click()" title="이전에 TXT로 내보낸 주석 파일 이어하기">불러오기</button>
-                    <input type="file" id="com-resume-input" accept=".txt" style="display:none;">
                     <button class="btn-action" onclick="comDeleteCurrent()" style="color:#c0a898; white-space:nowrap;" title="현재 위치 주석 삭제">삭제</button>
                     <span class="com-status" id="com-status"></span>
                 </div>
@@ -2347,6 +2361,7 @@
 
     // ── 주석 작성 모드 ────────────────────────────────────────────────────
     let commentaryMode = false;
+    let commentaryEntryHadData = false; // 주석 진입 전 bibleData 보유 여부
     let commentaryWritingData = [];      // 작성된 주석 아이템 배열
     let currentComType = 'verse';        // 'verse' | 'chapter' | 'intro'
     let comBook = '', comChapter = 1, comVerse = 1;
@@ -3238,8 +3253,7 @@ const SPECIAL_CATEGORIES = [
     // 각 카드에 파일을 드롭하면 해당 모드로 바로 진입
     (function setupCardDrop() {
         const cardDefs = [
-            { id: 'com-mode-box',                          mode: 'commentary' },
-            { selector: ".action-card[onclick*='strict']", mode: 'strict'     },
+            { selector: ".action-card[onclick*='strict']", mode: 'strict' },
         ];
         cardDefs.forEach(({ id, selector, mode }) => {
             const card = id ? document.getElementById(id) : document.querySelector(selector);
@@ -3260,6 +3274,68 @@ const SPECIAL_CATEGORIES = [
                 handleFile(file);
             });
         });
+
+        // 주석 모드 카드: 주석 모드 전용 처리 (성경본문 슬롯으로 로드)
+        const comCard = document.getElementById('com-mode-box');
+        if (comCard) {
+            comCard.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                comCard.classList.add('card-dragover');
+            });
+            comCard.addEventListener('dragleave', (e) => {
+                if (!comCard.contains(e.relatedTarget)) comCard.classList.remove('card-dragover');
+            });
+            comCard.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                comCard.classList.remove('card-dragover');
+                const files = [...(e.dataTransfer.files || [])];
+                if (!files.length) return;
+
+                // ZIP 확장
+                const expanded = [];
+                for (const f of files) {
+                    if (f.name.toLowerCase().endsWith('.zip')) {
+                        const inner = await expandZip(f);
+                        expanded.push(...inner);
+                    } else {
+                        expanded.push(f);
+                    }
+                }
+                const allowed = ['.txt', '.bdb', '.aab'];
+                const validFiles = expanded.filter(f => allowed.some(ext => f.name.toLowerCase().endsWith(ext)));
+                if (!validFiles.length) return alert('TXT · BDB · AAB · ZIP 파일만 지원합니다.');
+
+                const loadIntoCommentary = (filesToLoad) => {
+                    startCommentaryMode();
+                    setTimeout(() => {
+                        const remaining = MAX_BIBLE_SLOTS - bibleDataSets.length;
+                        const toLoad = filesToLoad.slice(0, remaining);
+                        if (filesToLoad.length > remaining) alert(`슬롯이 ${remaining}개 남아 ${toLoad.length}개만 불러옵니다.`);
+                        let loaded = 0;
+                        toLoad.forEach(f => {
+                            parseBibleFile(f, (slotName, data) => {
+                                if (!data.length) return;
+                                bibleDataSets.push({ name: slotName, data });
+                                if (bibleDataSets.length === 1) bibleData = data;
+                                loaded++;
+                                if (loaded === toLoad.length) {
+                                    activeRefTab = bibleDataSets.length - 1;
+                                    buildComNav();
+                                    renderRefTabs();
+                                    comLoadCurrent();
+                                }
+                            });
+                        });
+                    }, 50);
+                };
+
+                if (validFiles.length > 5) {
+                    showZipMultiPickerPopup(validFiles, MAX_BIBLE_SLOTS, loadIntoCommentary);
+                } else {
+                    loadIntoCommentary(validFiles);
+                }
+            });
+        }
 
         // 편집 모드 카드: 고유 loadEditFile 직접 호출
         const editCard = document.querySelector('.action-card.card-edit');
@@ -3304,6 +3380,7 @@ const SPECIAL_CATEGORIES = [
 
         tf.addEventListener('drop', (e) => {
             ui.classList.remove('drag-over');
+            if (commentaryMode) return; // 주석 모드는 com-ref-wrap 드롭존이 처리
             if (!bibleData.length) return;
             const refEl = document.getElementById('reference-text');
             if (refEl && refEl.contains(e.target)) return;
@@ -3426,6 +3503,75 @@ const SPECIAL_CATEGORIES = [
 
         box.querySelector('#zip-cancel-btn').onclick = () => overlay.remove();
         overlay.onclick = (ev) => { if (ev.target === overlay) overlay.remove(); };
+    }
+
+    // ZIP 다중 선택 팝업 (주석 모드용 — 파일 5개 이상일 때)
+    function showZipMultiPickerPopup(files, maxSelect, onConfirm) {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.38);z-index:99999;display:flex;align-items:center;justify-content:center;';
+        const box = document.createElement('div');
+        // 파일 수에 따라 목록 높이 동적 결정: 1개당 ~49px + 여유, 최소 200px, 최대 화면의 60%
+        const itemH = 49;
+        const listH = Math.min(Math.max(files.length * itemH, 200), Math.floor(window.innerHeight * 0.6));
+        box.style.cssText = `background:#fff;border-radius:12px;padding:20px 18px;width:min(340px,92vw);box-shadow:0 8px 32px rgba(0,0,0,0.18);font-family:'Pretendard Variable',sans-serif;`;
+
+        // 오버레이 클릭 시 닫기 — render() 밖에서 한 번만 등록
+        overlay.addEventListener('click', (ev) => { if (ev.target === overlay) overlay.remove(); });
+
+        const selected = new Set();
+        const isFull = () => selected.size >= maxSelect;
+
+        const render = () => {
+            const selCount = selected.size;
+            const full = isFull();
+            const subMsg = full
+                ? `<span style="color:#2d4a3e;font-weight:700;">✓ ${maxSelect}개 모두 선택됐습니다!</span>`
+                : `불러올 파일을 선택하세요 (최대 ${maxSelect}개, <b>${selCount}/${maxSelect}</b> 선택됨)`;
+            box.innerHTML = `
+                <div style="font-size:0.92rem;font-weight:700;margin-bottom:4px;color:#1a1815;">📦 ZIP 안의 파일 선택</div>
+                <div style="font-size:0.78rem;color:#999;margin-bottom:12px;">${subMsg}</div>
+                <div id="zip-multi-list" style="display:flex;flex-direction:column;gap:5px;height:${listH}px;overflow-y:auto;margin-bottom:14px;"></div>
+                <div style="display:flex;gap:8px;">
+                    <button id="zip-multi-cancel" style="flex:1;border:1px solid #d9d2c1;background:none;border-radius:6px;padding:8px;font-size:0.82rem;cursor:pointer;color:#888;font-family:inherit;">취소</button>
+                    <button id="zip-multi-confirm" style="flex:2;border:none;border-radius:6px;padding:8px;font-size:0.83rem;cursor:pointer;font-family:inherit;font-weight:600;background:${selCount > 0 ? '#2d4a3e' : '#ccc'};color:#fff;transition:background 0.15s;" ${selCount === 0 ? 'disabled' : ''}>불러오기 (${selCount}개)</button>
+                </div>`;
+
+            const list = box.querySelector('#zip-multi-list');
+            files.forEach((f, i) => {
+                const isChecked = selected.has(i);
+                const isDisabled = !isChecked && selected.size >= maxSelect;
+                const icon = f.name.toLowerCase().endsWith('.txt') ? '📄' : '🗄️';
+                const item = document.createElement('button');
+                item.style.cssText = `display:flex;align-items:center;gap:10px;text-align:left;width:100%;border:1px solid ${isChecked ? '#2d4a3e' : '#d9d2c1'};border-radius:6px;padding:9px 12px;background:${isChecked ? '#f0f7f4' : isDisabled ? '#f9f9f7' : '#faf9f6'};cursor:${isDisabled ? 'not-allowed' : 'pointer'};font-size:0.83rem;font-family:inherit;color:${isDisabled ? '#bbb' : '#1a1815'};transition:background 0.12s;`;
+                item.innerHTML = `<span style="font-size:1rem;flex-shrink:0;">${isChecked ? '☑️' : '⬜'}</span><span style="font-size:0.9rem;flex-shrink:0;">${icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f.name}</span>`;
+                item.addEventListener('click', (ev) => {
+                    ev.stopPropagation(); // 버블링 차단 — 오버레이 클릭 방지
+                    if (isDisabled) return;
+                    if (selected.has(i)) selected.delete(i);
+                    else if (selected.size < maxSelect) selected.add(i);
+                    render();
+                });
+                list.appendChild(item);
+            });
+
+            box.querySelector('#zip-multi-cancel').onclick = (ev) => { ev.stopPropagation(); overlay.remove(); };
+
+            const confirmBtn = box.querySelector('#zip-multi-confirm');
+            confirmBtn.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                if (selCount === 0) return;
+                overlay.remove();
+                onConfirm(files.filter((_, i) => selected.has(i)));
+            });
+            if (selCount > 0) {
+                confirmBtn.onmouseover  = () => confirmBtn.style.background = '#1f3329';
+                confirmBtn.onmouseleave = () => confirmBtn.style.background = '#2d4a3e';
+            }
+        };
+
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+        render();
     }
 
     function detectEncoding(buffer) {
@@ -6452,6 +6598,55 @@ const SPECIAL_CATEGORIES = [
         comRenderSpecialGrid();
     }
 
+    // ── CDB book 번호 → 약어 매핑 (1~66) ────────────────────────────────
+    const CDB_BOOK_ABBR = [
+        null, // 0 placeholder
+        '창','출','레','민','신','수','삿','룻','삼상','삼하',  // 1-10
+        '왕상','왕하','대상','대하','스','느','에','욥','시','잠', // 11-20
+        '전','아','사','렘','애','겔','단','호','욜','암',         // 21-30
+        '옵','욘','미','나','합','습','학','슥','말',              // 31-39
+        '마','막','눅','요','행','롬','고전','고후','갈','엡',     // 40-49
+        '빌','골','살전','살후','딤전','딤후','딛','몬','히','약', // 50-59
+        '벧전','벧후','요1','요2','요3','유','계'                  // 60-66
+    ];
+
+    // ── CDB 주석 파일 파싱 ───────────────────────────────────────────────
+    async function loadCdbCommentary(file, callback) {
+        try {
+            const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+            const buf = await file.arrayBuffer();
+            const db = new SQL.Database(new Uint8Array(buf));
+            const result = db.exec('SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse');
+            db.close();
+            if (!result.length) { alert('CDB 파일에서 데이터를 찾을 수 없습니다.'); return; }
+            const rows = result[0].values;
+            const loaded = [];
+            for (const [book, chapter, verse, btext] of rows) {
+                const bookAbbr = CDB_BOOK_ABBR[book];
+                if (!bookAbbr || !BOOK_TO_CODE[bookAbbr]) continue;
+                const content = trimComHtml((btext || '').trim());
+                if (!content) continue;
+                const bookCode = BOOK_TO_CODE[bookAbbr];
+                let type, startChapter, endChapter, verseNum, refer;
+                if (chapter === 0) {
+                    type = 'intro'; startChapter = 0; endChapter = 0; verseNum = null;
+                    refer = BOOK_NAMES[bookAbbr] + ' 개론';
+                } else if (verse === 0) {
+                    type = 'chapter'; startChapter = chapter; endChapter = chapter; verseNum = null;
+                    refer = bookAbbr + ' ' + chapter + '장 개요';
+                } else {
+                    type = 'verse'; startChapter = chapter; endChapter = chapter; verseNum = verse;
+                    refer = bookAbbr + ' ' + chapter + ':' + verse;
+                }
+                const key = comItemKey(bookAbbr, startChapter, verseNum, type);
+                loaded.push({ _key: key, bookCode, startChapter, endChapter, verse: verseNum, refer, content, chapterMap: [startChapter] });
+            }
+            callback(loaded, file.name.replace(/\.cdb$/i, ''));
+        } catch(err) {
+            alert('CDB 파일 읽기 오류: ' + err.message);
+        }
+    }
+
     // ── 주석 TXT 불러오기 ─────────────────────────────────────────────
     function initComResumeInput() {
         const resumeInput = document.getElementById('com-resume-input');
@@ -6459,96 +6654,19 @@ const SPECIAL_CATEGORIES = [
         resumeInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const rawLines = ev.target.result.split(/\r?\n/);
 
-                // ── 여러 줄로 쪼개진 HTML 합치기 ──────────────────────────
-                // 새 항목 시작 = "책약어 장:절|", "책 개론|", "책 N장 개요|"
-                const isEntryStart = (line) => {
-                    const p = line.indexOf('|');
-                    if (p < 0) return false;
-                    const ref = line.slice(0, p).trim();
-                    return ref.match(/^\S+\s+\d+:\d+$/) ||   // 절 주석
-                           ref.match(/^.+?\s+개론$/)         ||   // 책 개론
-                           ref.match(/^\S+\s+\d+장\s*개요$/);     // 장 개요
-                };
-                const lines = [];
-                for (const raw of rawLines) {
-                    if (raw.startsWith('#') || raw.trim() === '') { lines.push(raw); continue; }
-                    if (isEntryStart(raw)) { lines.push(raw); }
-                    else if (lines.length > 0) { lines[lines.length - 1] += raw; } // HTML 이어붙이기
-                }
-                // ────────────────────────────────────────────────────────
+            // ── CDB 분기 ──────────────────────────────────────────────
+            if (file.name.toLowerCase().endsWith('.cdb')) {
+                showComStatus('CDB 불러오는 중…');
+                loadCdbCommentary(file, (loaded, nameGuess) => {
+                    showComStatus(`✓ ${loaded.length}개 불러오기 완료 (CDB)`);
+                    applyLoadedCommentary(loaded, nameGuess);
+                });
+                e.target.value = '';
+                return;
+            }
 
-                const loaded = [];
-                const FULLNAME_TO_ABBR = {};
-                Object.entries(BOOK_NAMES).forEach(([abbr, full]) => { FULLNAME_TO_ABBR[full] = abbr; });
-
-                for (const line of lines) {
-                    if (!line.trim() || line.startsWith('#')) continue;
-                    const pipeIdx = line.indexOf('|');
-                    if (pipeIdx < 0) continue;
-                    const refer  = line.slice(0, pipeIdx).trim();
-                    const content = trimComHtml(line.slice(pipeIdx + 1).trim());
-                    if (!content) continue;
-
-                    let bookAbbr = '', startChapter = 1, endChapter = 1, verse = null, type = 'verse';
-
-                    // ① 책 개론: "창세기 개론" / "창 개론"
-                    const introMatch = refer.match(/^(.+?)\s+개론$/);
-                    if (introMatch) {
-                        const b = FULLNAME_TO_ABBR[introMatch[1]] || introMatch[1];
-                        if (BOOK_TO_CODE[b]) {
-                            bookAbbr = b; startChapter = 0; endChapter = 0; verse = null; type = 'intro';
-                        }
-                    }
-
-                    // ② 장 개요: "창 1장 개요"
-                    if (!bookAbbr) {
-                        const chapMatch = refer.match(/^(\S+)\s+(\d+)장\s*개요$/);
-                        if (chapMatch) {
-                            const b = FULLNAME_TO_ABBR[chapMatch[1]] || chapMatch[1];
-                            if (BOOK_TO_CODE[b]) {
-                                bookAbbr = b; startChapter = parseInt(chapMatch[2]); endChapter = startChapter; verse = null; type = 'chapter';
-                            }
-                        }
-                    }
-
-                    // ③ 절 주석: "창 1:1"
-                    if (!bookAbbr) {
-                        const verseMatch = refer.match(/^(\S+)\s+(\d+):(\d+)$/);
-                        if (verseMatch) {
-                            const b = FULLNAME_TO_ABBR[verseMatch[1]] || verseMatch[1];
-                            if (BOOK_TO_CODE[b]) {
-                                bookAbbr = b; startChapter = parseInt(verseMatch[2]); endChapter = startChapter;
-                                verse = parseInt(verseMatch[3]); type = 'verse';
-                            }
-                        }
-                    }
-
-                    if (!bookAbbr) continue; // 파싱 실패한 줄 무시
-
-                    const key = comItemKey(bookAbbr, startChapter, verse, type);
-                    const bookCode = BOOK_TO_CODE[bookAbbr];
-                    const chapterMap = startChapter === 0 ? [0] : [startChapter];
-                    loaded.push({ _key: key, bookCode, startChapter, endChapter, verse, refer, content, chapterMap });
-                }
-
-                if (!loaded.length) { alert('불러올 주석 데이터가 없습니다.\nTXT 내보내기로 저장한 파일을 선택해주세요.'); return; }
-
-                if (commentaryWritingData.length > 0) {
-                    if (!confirm(`기존 작업(${commentaryWritingData.length}개)을 불러온 데이터(${loaded.length}개)로 교체할까요?`)) return;
-                }
-                commentaryWritingData = loaded;
-                // 파일 이름에서 컬렉션 이름 추출
-                const nameGuess = file.name.replace(/\.txt$/i, '');
-                if (nameGuess) document.getElementById('com-collection-name').value = nameGuess;
-                updateComStatus();
-                comLoadCurrent();
-                showComStatus(`✓ ${loaded.length}개 불러오기 완료`);
-            };
-            reader.readAsText(file, 'UTF-8');
+            loadTxtCommentaryFile(file, applyLoadedCommentary);
             e.target.value = '';
         });
     }
@@ -6557,6 +6675,7 @@ const SPECIAL_CATEGORIES = [
     function startCommentaryMode() {
         history.pushState({ mode: 'commentary' }, '');
         commentaryMode = true;
+        commentaryEntryHadData = bibleData.length > 0; // 진입 전 데이터 보유 여부 기억
         document.body.classList.add('active-mode');
         applyUIState('commentary');
         document.getElementById('verse-title').innerText = '나만의 주석';
@@ -6566,7 +6685,7 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('btn-home').style.display         = 'inline-flex';
         document.getElementById('btn-home').onclick               = exitCommentaryMode;
         // 드롭존 바인딩 (UI 표시 후)
-        setTimeout(initRefDropZone, 0);
+        setTimeout(() => { initRefDropZone(); }, 0);
         // 모바일: 주석 네비바 크기 축소 — CSS로 처리 (JS style 조작 시 가상키보드 트리거 방지)
         // com-type-bar 너비를 nav-bar(이동 버튼 끝)에 맞춤
         setTimeout(syncComTypeBarWidth, 0);
@@ -6586,7 +6705,8 @@ const SPECIAL_CATEGORIES = [
         }
         commentaryMode = false;
         document.body.classList.remove('active-mode');
-        applyUIState(bibleData.length ? 'freewrite' : 'landing');
+        // 진입 전 데이터가 없었으면 landing으로, 있었으면 freewrite로
+        applyUIState(commentaryEntryHadData ? 'freewrite' : 'landing');
         document.getElementById('verse-title').innerText = 'JINs Bible';
         document.getElementById('com-header-verse').style.display = 'none';
         document.getElementById('com-header-verse').textContent = '';
@@ -6643,7 +6763,7 @@ const SPECIAL_CATEGORIES = [
 			▷샘플 본문보기(5개 역본)
 		</button>`;
 
-			panelBox.innerHTML = `<div class="com-ref-panel no-bible">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요 · TXT · BDB · AAB · ZIP 가능</div>`;
+			panelBox.innerHTML = `<div class="com-ref-panel no-bible"><span class="hint-main">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요</span><span class="hint-sub">성경본문: TXT · BDB · AAB · ZIP</span><span class="hint-sub">주석파일: CDB</span></div>`;
 			return;
 		}
 
@@ -6990,10 +7110,38 @@ const SPECIAL_CATEGORIES = [
             input = document.createElement('input');
             input.type = 'file'; input.id = 'com-bible-slot-input';
             input.accept = '.txt,.bdb,.aab,.zip'; input.style.display = 'none';
+            input.multiple = true;
             input.addEventListener('change', onBibleSlotFileSelected);
             document.body.appendChild(input);
         }
-        input.value = ''; // 같은 파일 재선택 허용
+        input.value = '';
+        input.click();
+    }
+
+    // ── 작업파일(CDB·TXT) 전용 불러오기 ──────────────────────────────
+    function triggerComFileLoad() {
+        let input = document.getElementById('com-workfile-input');
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'file'; input.id = 'com-workfile-input';
+            input.accept = '.cdb,.txt'; input.style.display = 'none';
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                input.value = '';
+                if (!file) return;
+                if (file.name.toLowerCase().endsWith('.cdb')) {
+                    showComStatus('CDB 불러오는 중…');
+                    loadCdbCommentary(file, (loaded, nameGuess) => {
+                        showComStatus(`✓ ${loaded.length}개 불러오기 완료 (CDB)`);
+                        applyLoadedCommentary(loaded, nameGuess);
+                    });
+                } else {
+                    loadTxtCommentaryFile(file, applyLoadedCommentary);
+                }
+            });
+            document.body.appendChild(input);
+        }
+        input.value = '';
         input.click();
     }
 
@@ -7055,39 +7203,137 @@ const SPECIAL_CATEGORIES = [
         wrap.addEventListener('drop', async (e) => {
             e.preventDefault();
             wrap.classList.remove('dragover');
-            let files = [...(e.dataTransfer.files || [])];
+            const files = [...(e.dataTransfer.files || [])];
             if (!files.length) return;
+            handleComDropFiles(files);
+        });
+    }
+    // initRefDropZone → initApp()에서 직접 호출
 
-            // zip 파일 확장
-            const expanded = [];
-            for (const f of files) {
-                if (f.name.toLowerCase().endsWith('.zip')) {
-                    const inner = await expandZip(f);
-                    expanded.push(...inner);
-                } else {
-                    expanded.push(f);
-                }
+    
+    // ── TXT 주석파일 파싱+로드 공통 함수 ──────────────────────────────
+    function loadTxtCommentaryFile(file, callback) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const rawLines = ev.target.result.split(/\r?\n/);
+            const isEntryStart = (line) => {
+                const p = line.indexOf('|');
+                if (p < 0) return false;
+                const ref = line.slice(0, p).trim();
+                return ref.match(/^\S+\s+\d+:\d+$/) ||
+                       ref.match(/^.+?\s+개론$/)       ||
+                       ref.match(/^\S+\s+\d+장\s*개요$/);
+            };
+            const lines = [];
+            for (const raw of rawLines) {
+                if (raw.startsWith('#') || raw.trim() === '') { lines.push(raw); continue; }
+                if (isEntryStart(raw)) { lines.push(raw); }
+                else if (lines.length > 0) { lines[lines.length - 1] += raw; }
             }
-            files = expanded;
+            const loaded = [];
+            const FULLNAME_TO_ABBR = {};
+            Object.entries(BOOK_NAMES).forEach(([abbr, full]) => { FULLNAME_TO_ABBR[full] = abbr; });
+            for (const line of lines) {
+                if (!line.trim() || line.startsWith('#')) continue;
+                const pipeIdx = line.indexOf('|');
+                if (pipeIdx < 0) continue;
+                const refer   = line.slice(0, pipeIdx).trim();
+                const content = trimComHtml(line.slice(pipeIdx + 1).trim());
+                if (!content) continue;
+                let bookAbbr = '', startChapter = 1, endChapter = 1, verse = null, type = 'verse';
+                const introMatch = refer.match(/^(.+?)\s+개론$/);
+                if (introMatch) {
+                    const b = FULLNAME_TO_ABBR[introMatch[1]] || introMatch[1];
+                    if (BOOK_TO_CODE[b]) { bookAbbr = b; startChapter = 0; endChapter = 0; verse = null; type = 'intro'; }
+                }
+                if (!bookAbbr) {
+                    const chapMatch = refer.match(/^(\S+)\s+(\d+)장\s*개요$/);
+                    if (chapMatch) {
+                        const b = FULLNAME_TO_ABBR[chapMatch[1]] || chapMatch[1];
+                        if (BOOK_TO_CODE[b]) { bookAbbr = b; startChapter = parseInt(chapMatch[2]); endChapter = startChapter; verse = null; type = 'chapter'; }
+                    }
+                }
+                if (!bookAbbr) {
+                    const verseMatch = refer.match(/^(\S+)\s+(\d+):(\d+)$/);
+                    if (verseMatch) {
+                        const b = FULLNAME_TO_ABBR[verseMatch[1]] || verseMatch[1];
+                        if (BOOK_TO_CODE[b]) { bookAbbr = b; startChapter = parseInt(verseMatch[2]); endChapter = startChapter; verse = parseInt(verseMatch[3]); type = 'verse'; }
+                    }
+                }
+                if (!bookAbbr) continue;
+                const key = comItemKey(bookAbbr, startChapter, verse, type);
+                const bookCode = BOOK_TO_CODE[bookAbbr];
+                const chapterMap = startChapter === 0 ? [0] : [startChapter];
+                loaded.push({ _key: key, bookCode, startChapter, endChapter, verse, refer, content, chapterMap });
+            }
+            callback(loaded, file.name.replace(/\.txt$/i, ''));
+        };
+        reader.readAsText(file, 'UTF-8');
+    }
 
-            const allowed = ['.txt', '.bdb', '.aab'];
-            const validFiles = files.filter(f => allowed.some(ext => f.name.toLowerCase().endsWith(ext)));
-            if (!validFiles.length) return alert('TXT · BDB · AAB · ZIP 파일만 지원합니다.');
+    function applyLoadedCommentary(loaded, nameGuess) {
+        if (!loaded.length) { alert('불러올 주석 데이터가 없습니다.\nTXT 내보내기로 저장한 파일을 선택해주세요.'); return; }
+        if (commentaryWritingData.length > 0) {
+            if (!confirm(`기존 작업(${commentaryWritingData.length}개)을 불러온 데이터(${loaded.length}개)로 교체할까요?`)) return;
+        }
+        commentaryWritingData = loaded;
+        if (nameGuess) document.getElementById('com-collection-name').value = nameGuess;
+        updateComStatus();
+        comLoadCurrent();
+        showComStatus(`✓ ${loaded.length}개 불러오기 완료`);
+    }
 
-            const remaining = MAX_BIBLE_SLOTS - bibleDataSets.length;
-            if (remaining <= 0) return alert(`최대 ${MAX_BIBLE_SLOTS}개까지 추가할 수 있습니다.`);
+    async function handleComDropFiles(rawFiles) {
+        // ZIP 확장
+        const expanded = [];
+        for (const f of rawFiles) {
+            if (f.name.toLowerCase().endsWith('.zip')) {
+                const inner = await expandZip(f);
+                expanded.push(...inner);
+            } else {
+                expanded.push(f);
+            }
+        }
 
-            const toLoad = validFiles.slice(0, remaining);
-            if (validFiles.length > remaining) alert(`슬롯이 ${remaining}개 남아 ${toLoad.length}개만 불러옵니다.`);
+        // ── 파일 분류 ──────────────────────────────────────────────────
+        const cdbFiles  = expanded.filter(f => f.name.toLowerCase().endsWith('.cdb'));
+        const dbFiles   = expanded.filter(f => f.name.toLowerCase().endsWith('.bdb') || f.name.toLowerCase().endsWith('.aab'));
+        const txtFiles  = expanded.filter(f => f.name.toLowerCase().endsWith('.txt'));
 
+        // ── .cdb → 무조건 주석파일, 슬롯 무관 ──
+        if (cdbFiles.length > 0) {
+            const file = cdbFiles[0];
+            showComStatus('CDB 불러오는 중…');
+            loadCdbCommentary(file, (loaded, nameGuess) => {
+                showComStatus(`✓ ${loaded.length}개 불러오기 완료 (CDB)`);
+                applyLoadedCommentary(loaded, nameGuess);
+            });
+            return;
+        }
+
+        // ── .txt 단독 → 주석파일, 슬롯 무관 ──
+        if (txtFiles.length > 0 && !dbFiles.length) {
+            loadTxtCommentaryFile(txtFiles[0], applyLoadedCommentary);
+            return;
+        }
+
+        // ── 성경본문: .bdb/.aab (또는 .bdb/.aab + .txt 혼합) ──
+        const bibleFiles = [...dbFiles, ...txtFiles];
+        if (!bibleFiles.length) {
+            return alert('지원하지 않는 파일 형식입니다.\nCDB·TXT (주석파일) 또는 BDB·AAB·ZIP (성경본문)만 가능합니다.');
+        }
+        const remaining = MAX_BIBLE_SLOTS - bibleDataSets.length;
+        if (remaining <= 0) return alert(`성경본문은 최대 ${MAX_BIBLE_SLOTS}개까지 추가할 수 있습니다.`);
+        const loadBible = (filesToLoad) => {
+            const toLoad = filesToLoad.slice(0, remaining);
+            if (filesToLoad.length > remaining) alert(`슬롯이 ${remaining}개 남아 ${toLoad.length}개만 불러옵니다.`);
             let loaded = 0;
-            toLoad.forEach(file => {
-                parseBibleFile(file, (slotName, data) => {
+            toLoad.forEach(f => {
+                parseBibleFile(f, (slotName, data) => {
                     if (!data.length) return;
                     bibleDataSets.push({ name: slotName, data });
                     if (bibleDataSets.length === 1) bibleData = data;
                     loaded++;
-                    // 모두 로드된 후 한 번만 UI 갱신
                     if (loaded === toLoad.length) {
                         activeRefTab = bibleDataSets.length - 1;
                         buildComNav();
@@ -7096,9 +7342,13 @@ const SPECIAL_CATEGORIES = [
                     }
                 });
             });
-        });
+        };
+        if (bibleFiles.length > 5) {
+            showZipMultiPickerPopup(bibleFiles, remaining, loadBible);
+        } else {
+            loadBible(bibleFiles);
+        }
     }
-    // initRefDropZone → initApp()에서 직접 호출
 
     // 초기화 버튼 후 자동 바로입장
     function initAutoFreeWrite() {
@@ -7189,23 +7439,34 @@ const SPECIAL_CATEGORIES = [
             if (!inner.length) return;
             const remaining = MAX_BIBLE_SLOTS - bibleDataSets.length;
             if (remaining <= 0) return alert(`최대 ${MAX_BIBLE_SLOTS}개까지 추가할 수 있습니다.`);
-            const toLoad = inner.slice(0, remaining);
-            if (inner.length > remaining) alert(`슬롯이 ${remaining}개 남아 ${toLoad.length}개만 불러옵니다.`);
-            let loaded = 0;
-            toLoad.forEach(f => {
-                parseBibleFile(f, (slotName, data) => {
-                    if (!data.length) return;
-                    bibleDataSets.push({ name: slotName, data });
-                    if (bibleDataSets.length === 1) bibleData = data;
-                    loaded++;
-                    if (loaded === toLoad.length) {
-                        activeRefTab = bibleDataSets.length - 1;
-                        buildComNav();
-                        renderRefTabs();
-                        comLoadCurrent();
-                    }
+
+            // ZIP 안에 파일이 5개 이상이면 선택 팝업 표시
+            const loadSelected = (filesToLoad) => {
+                const toLoad = filesToLoad.slice(0, remaining);
+                if (filesToLoad.length > remaining) alert(`슬롯이 ${remaining}개 남아 ${toLoad.length}개만 불러옵니다.`);
+                let loaded = 0;
+                toLoad.forEach(f => {
+                    parseBibleFile(f, (slotName, data) => {
+                        if (!data.length) return;
+                        bibleDataSets.push({ name: slotName, data });
+                        if (bibleDataSets.length === 1) bibleData = data;
+                        loaded++;
+                        if (loaded === toLoad.length) {
+                            activeRefTab = bibleDataSets.length - 1;
+                            buildComNav();
+                            renderRefTabs();
+                            comLoadCurrent();
+                        }
+                    });
                 });
-            });
+            };
+
+            if (inner.length >= 5) {
+                // 파일 선택 팝업 (다중 선택 가능, 최대 remaining개)
+                showZipMultiPickerPopup(inner, remaining, loadSelected);
+            } else {
+                loadSelected(inner);
+            }
             return;
         }
 
@@ -7277,66 +7538,76 @@ const SPECIAL_CATEGORIES = [
     }
     window.addEventListener('resize', syncComTypeBarWidth);
 
+    // 장 옵션 목록만 채움 (값·상태 변경 없음)
+    function populateComChapters(book) {
+        const nc = document.getElementById('com-nav-chapter');
+        const nv = document.getElementById('com-nav-verse');
+        if (!book) return;
+        if (bibleData.length) {
+            const chs = [...new Set(bibleData.filter(d => d.book === book).map(d => d.ch))].sort((a,b) => a-b);
+            nc.innerHTML = `<option value="">${chSelectPlaceholder(book)}</option>` + chOptions(book, chs);
+        } else {
+            const maxCh = MAX_CHAPTERS[book] || 1;
+            nc.innerHTML = `<option value="">${chSelectPlaceholder(book)}</option>` + chOptionsRange(book, maxCh);
+        }
+        nv.innerHTML = '<option value="">절</option>';
+    }
+    // 절 옵션 목록만 채움 (값·상태 변경 없음)
+    function populateComVerses(book, chapter) {
+        const nv = document.getElementById('com-nav-verse');
+        if (!book || !chapter) return;
+        if (bibleData.length) {
+            const vss = bibleData.filter(d => d.book === book && d.ch === chapter);
+            nv.innerHTML = '<option value="">절</option>' + vss.map(v => `<option value="${v.vs}">${v.vs}절</option>`).join('');
+        } else {
+            const maxVs = (MAX_VERSES[book] && MAX_VERSES[book][chapter - 1]) || 30;
+            nv.innerHTML = '<option value="">절</option>' +
+                Array.from({length: maxVs}, (_, i) => `<option value="${i+1}">${i+1}절</option>`).join('');
+        }
+    }
+
     function buildComNav() {
         const nb = document.getElementById('com-nav-book');
         const nc = document.getElementById('com-nav-chapter');
         const nv = document.getElementById('com-nav-verse');
 
+        // 책 목록 채우기
         if (bibleData.length) {
-            // 성경 파일 로드됨 → 실제 데이터 기반
             const books = [...new Set(bibleData.map(d => d.book))];
             nb.innerHTML = '<option value="">책 선택</option>' +
                 books.map(b => `<option value="${b}">${getBookName(b)}</option>`).join('');
-            nb.onchange = () => {
-                comBook = nb.value;
-                const chs = [...new Set(bibleData.filter(d => d.book === comBook).map(d => d.ch))].sort((a,b) => a-b);
-                nc.innerHTML = `<option value="">${chSelectPlaceholder(comBook)}</option>` + chOptions(comBook, chs);
-                nv.innerHTML = '<option value="">절</option>';
-                if (nc.options.length > 1) { nc.selectedIndex = 1; nc.dispatchEvent(new Event('change')); }
-            };
-            nc.onchange = () => {
-                comChapter = parseInt(nc.value) || 1;
-                const vss = bibleData.filter(d => d.book === comBook && d.ch === comChapter);
-                nv.innerHTML = '<option value="">절</option>' + vss.map(v => `<option value="${v.vs}">${v.vs}절</option>`).join('');
-                if (nv.options.length > 1) nv.selectedIndex = 1;
-            };
         } else {
-            // 성경 파일 없음 → 개역개정4판 데이터 기반
             nb.innerHTML = '<option value="">책 선택</option>' +
                 BOOK_NUM.slice(1).map(b => `<option value="${b}">${getBookName(b)}</option>`).join('');
-            nb.onchange = () => {
-                comBook = nb.value;
-                const maxCh = MAX_CHAPTERS[comBook] || 1;
-                nc.innerHTML = `<option value="">${chSelectPlaceholder(comBook)}</option>` + chOptionsRange(comBook, maxCh);
-                nv.innerHTML = '<option value="">절</option>';
-                if (nc.options.length > 1) { nc.selectedIndex = 1; nc.dispatchEvent(new Event('change')); }
-            };
-            nc.onchange = () => {
-                comChapter = parseInt(nc.value) || 1;
-                const maxVs = (MAX_VERSES[comBook] && MAX_VERSES[comBook][comChapter - 1]) || 30;
-                nv.innerHTML = '<option value="">절</option>' +
-                    Array.from({length: maxVs}, (_, i) => `<option value="${i+1}">${i+1}절</option>`).join('');
-                if (nv.options.length > 1) nv.selectedIndex = 1;
-            };
         }
 
-        // 첫 번째 책으로 초기화
+        // onchange: 옵션 목록만 갱신, 자동 이동·comBook/comChapter 변경 없음
+        nb.onchange = () => {
+            populateComChapters(nb.value);
+        };
+        nc.onchange = () => {
+            populateComVerses(nb.value || comBook, parseInt(nc.value) || 1);
+        };
+
+        // 첫 번째 책으로 초기화 (comBook이 없을 때만)
         if (!comBook) {
-            if (bibleData.length) {
-                nb.value = comBook = bibleData[0].book;
-                nb.onchange();
-                setTimeout(() => {
-                    nc.value = '1'; nc.onchange();
-                    setTimeout(() => { nv.value = '1'; comChapter = 1; comVerse = 1; }, 0);
-                }, 0);
-            } else {
-                nb.value = comBook = BOOK_NUM[1];
-                nb.onchange();
-                setTimeout(() => {
-                    nc.value = '1'; nc.onchange();
-                    setTimeout(() => { nv.value = '1'; comChapter = 1; comVerse = 1; }, 0);
-                }, 0);
-            }
+            const initBook = bibleData.length ? bibleData[0].book : BOOK_NUM[1];
+            nb.value = comBook = initBook;
+            populateComChapters(initBook);
+            setTimeout(() => {
+                nc.value = '1'; comChapter = 1;
+                populateComVerses(initBook, 1);
+                setTimeout(() => { nv.value = '1'; comVerse = 1; }, 0);
+            }, 0);
+        } else {
+            // 이미 위치가 있으면 현재 값으로 옵션 목록만 채워줌
+            nb.value = comBook;
+            populateComChapters(comBook);
+            setTimeout(() => {
+                nc.value = String(comChapter);
+                populateComVerses(comBook, comChapter);
+                setTimeout(() => { nv.value = String(comVerse); }, 0);
+            }, 0);
         }
     }
 
@@ -7400,10 +7671,17 @@ const SPECIAL_CATEGORIES = [
         const nb = document.getElementById('com-nav-book');
         const nc = document.getElementById('com-nav-chapter');
         const nv = document.getElementById('com-nav-verse');
-        if (nb.value !== book) { nb.value = book; nb.dispatchEvent(new Event('change')); }
+        // 옵션 목록 갱신 (dispatchEvent 없이 직접 값만 세팅)
+        if (nb.value !== book) {
+            nb.value = book;
+            populateComChapters(book);
+        }
         setTimeout(() => {
-            if (nc.value != chapter) { nc.value = chapter; nc.dispatchEvent(new Event('change')); }
-            setTimeout(() => { nv.value = verse; }, 0);
+            if (nc.value != String(chapter)) {
+                nc.value = String(chapter);
+                populateComVerses(book, parseInt(chapter) || 1);
+            }
+            setTimeout(() => { nv.value = String(verse); }, 0);
         }, 0);
     }
 
@@ -8835,6 +9113,36 @@ const SPECIAL_CATEGORIES = [
             setTimeout(() => { toast.remove(); _backPressedOnce = false; }, 2000);
         }
     });
+
+    // ── 스크롤바 자동 숨김 ──────────────────────────────────────────
+    (function() {
+        let timers = new WeakMap();
+        function onScroll(e) {
+            const el = e.currentTarget;
+            el.classList.remove('scrollbar-hidden');
+            clearTimeout(timers.get(el));
+            timers.set(el, setTimeout(() => el.classList.add('scrollbar-hidden'), 1200));
+        }
+        function attachScrollHide(el) {
+            if (el._scrollHideReady) return;
+            el._scrollHideReady = true;
+            el.classList.add('scrollbar-hidden');
+            el.addEventListener('scroll', onScroll, { passive: true });
+        }
+        function scanAll() {
+            document.querySelectorAll('*').forEach(el => {
+                const st = getComputedStyle(el);
+                if (st.overflowY === 'auto' || st.overflowY === 'scroll' ||
+                    st.overflowX === 'auto' || st.overflowX === 'scroll') {
+                    attachScrollHide(el);
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            scanAll();
+            new MutationObserver(scanAll).observe(document.body, { childList: true, subtree: true });
+        });
+    })();
 
 </script>
 
