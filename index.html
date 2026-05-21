@@ -8804,18 +8804,6 @@ const SPECIAL_CATEGORIES = [
     history.replaceState({ mode: 'landing' }, '');
     history.pushState({ mode: 'landing' }, '');
 
-</script>
-
-    <script>
-    /* ── 모바일 터치 — sw.js가 있는 환경에서만 등록 */
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            fetch('./sw.js', { method: 'HEAD' })
-                .then(r => { if (r.ok) navigator.serviceWorker.register('./sw.js').then(r => console.log('SW 등록:', r.scope)); })
-                .catch(() => { /* sw.js 없음 — 무시 */ });
-        });
-    }
-
     /* ── 모바일 뒤로가기: 모드 종료 또는 앱 종료 확인 ── */
     let _backPressedOnce = false;
     window.addEventListener('popstate', function(e) {
@@ -8829,32 +8817,36 @@ const SPECIAL_CATEGORIES = [
             exitFreeWrite();
             history.pushState({ mode: 'landing' }, '');
         } else {
-            // 랜딩 화면에서 뒤로가기 → 한 번 더 누르면 종료 안내
             if (_backPressedOnce) {
-                // 두 번째 뒤로가기: 실제 종료 허용 (pushState 안 함)
-                return;
+                return; // 두 번째 뒤로가기: 실제 종료 허용
             }
             _backPressedOnce = true;
-            history.pushState({ mode: 'landing' }, ''); // 스택 복구
-            // 토스트 메시지 표시
-            (function() {
-                const existing = document.getElementById('_exit-toast');
-                if (existing) existing.remove();
-                const toast = document.createElement('div');
-                toast.id = '_exit-toast';
-                toast.textContent = '한 번 더 누르면 종료됩니다';
-                toast.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);' +
-                    'background:rgba(30,28,24,0.82);color:#fff;padding:10px 22px;border-radius:20px;' +
-                    'font-size:0.84rem;z-index:99999;pointer-events:none;font-family:var(--font-main);' +
-                    'white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,0.18);';
-                document.body.appendChild(toast);
-                setTimeout(() => {
-                    toast.remove();
-                    _backPressedOnce = false;
-                }, 2000);
-            })();
+            history.pushState({ mode: 'landing' }, '');
+            const existing = document.getElementById('_exit-toast');
+            if (existing) existing.remove();
+            const toast = document.createElement('div');
+            toast.id = '_exit-toast';
+            toast.textContent = '한 번 더 누르면 종료됩니다';
+            toast.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);' +
+                'background:rgba(30,28,24,0.82);color:#fff;padding:10px 22px;border-radius:20px;' +
+                'font-size:0.84rem;z-index:99999;pointer-events:none;font-family:var(--font-main);' +
+                'white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,0.18);';
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.remove(); _backPressedOnce = false; }, 2000);
         }
     });
+
+</script>
+
+    <script>
+    /* ── 모바일 터치 — sw.js가 있는 환경에서만 등록 */
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            fetch('./sw.js', { method: 'HEAD' })
+                .then(r => { if (r.ok) navigator.serviceWorker.register('./sw.js').then(r => console.log('SW 등록:', r.scope)); })
+                .catch(() => { /* sw.js 없음 — 무시 */ });
+        });
+    }
 
     /* ── 빌드 체크섬: 파일 내용 기반 4자리 hex — 업로드 확인용 ── */
     (function() {
