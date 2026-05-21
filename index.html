@@ -919,6 +919,16 @@
                 width: 100%;
                 box-sizing: border-box;
             }
+            #com-nav-bar .nav-select {
+                height: 36px;
+                font-size: 0.84rem;
+                flex: 1;
+            }
+            #com-nav-bar .btn-nav {
+                height: 36px;
+                padding: 0 10px;
+                font-size: 0.84rem;
+            }
             #com-nav-bar .nav-row-prevnext .btn-nav-prev,
             #com-nav-bar .nav-row-prevnext .btn-nav-next {
                 flex: 1;
@@ -6555,14 +6565,7 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('btn-home').onclick               = exitCommentaryMode;
         // 드롭존 바인딩 (UI 표시 후)
         setTimeout(initRefDropZone, 0);
-        // 모바일: 주석 네비바 크기 축소 (CSS specificity 우회)
-        if (window.innerWidth <= 600) {
-            document.querySelectorAll('#com-nav-bar .nav-select').forEach(el => {
-                el.style.height = '36px'; el.style.fontSize = '0.84rem'; el.style.flex = 'none';
-            });
-            const navBtn = document.querySelector('#com-nav-bar .btn-nav');
-            if (navBtn) { navBtn.style.height = '36px'; navBtn.style.padding = '0 10px'; navBtn.style.fontSize = '0.84rem'; }
-        }
+        // 모바일: 주석 네비바 크기 축소 — CSS로 처리 (JS style 조작 시 가상키보드 트리거 방지)
         // com-type-bar 너비를 nav-bar(이동 버튼 끝)에 맞춤
         setTimeout(syncComTypeBarWidth, 0);
         // 이미 로드된 파일이 있으면 슬롯 동기화
