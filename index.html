@@ -799,11 +799,12 @@
         }
         .com-bottom-row1, .com-bottom-row2 { display: contents; }
         @media (max-width: 600px) {
-            .com-bottom-bar { flex-direction: column; align-items: stretch; gap: 6px; }
-            .com-bottom-row1 { display: flex; align-items: center; gap: 5px; }
-            .com-bottom-row2 { display: flex; align-items: center; gap: 4px; }
+            .com-bottom-bar { flex-direction: row; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: nowrap; }
+            .com-bottom-row1 { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+            .com-bottom-row2 { display: flex; align-items: center; gap: 4px; flex-shrink: 0; margin-left: auto; }
             .com-bottom-pc-div { display: none; }
         }
+        .com-import-row { display: contents; }
         .com-status { font-size: 0.72rem; color: #8aab9e; margin-left: 6px; font-weight: 600; }
         .chart-book { margin-bottom: 20px; }
         .chart-book-name { font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; border-bottom: 1px solid var(--rule); padding-bottom: 4px; }
@@ -1156,6 +1157,7 @@
             .progress-sep-total { display: none !important; }
 
             /* ── 주석 모드 — 내보내기 버튼 높이 (원래대로) ── */
+            .com-import-row { display: flex; gap: 6px; flex: 0 0 100%; justify-content: flex-end; }
             .com-bar-right .btn-apply {
                 min-height: unset;
                 height: 32px;
@@ -1641,8 +1643,10 @@
                     <option value="txt">TXT</option>
                 </select>
                 <button class="com-export-btn" onclick="exportCommentary()">↓ 내보내기</button>
+                <div class="com-import-row">
                 <button class="com-import-btn" onclick="triggerComFileLoad()" title="작업파일(CDB·TXT) 불러오기">↑ 작업파일</button>
-                <button class="com-import-btn" onclick="triggerBibleSlotLoad()" title="성경본문(AAB·BDB·TXT·ZIP) 불러오기" style="margin-left:2px;">↑ 성경본문</button>
+                <button class="com-import-btn" onclick="triggerBibleSlotLoad()" title="성경본문(AAB·BDB·TXT·ZIP) 불러오기">↑ 성경본문</button>
+                </div>
             </div>
         </div>
 
