@@ -914,6 +914,18 @@
             .nav-row-prevnext .btn-nav-next {
                 flex: 1;
             }
+            /* 나만의 주석 모드: com-nav-bar 너비 및 버튼 flex 강제 적용 */
+            #com-nav-bar {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            #com-nav-bar .nav-row-prevnext .btn-nav-prev,
+            #com-nav-bar .nav-row-prevnext .btn-nav-next {
+                flex: 1;
+                height: 36px;
+                font-size: 0.88rem;
+                padding: 0 8px;
+            }
             /* 구분선: 모바일에서 숨김 */
             .nav-prevnext-divider { display: none; }
             /* 모바일: 버튼 라벨 표시 */
