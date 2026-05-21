@@ -1176,7 +1176,7 @@
             .com-export-btn { order: 10; flex-shrink: 0; }
             .com-import-row {
                 order: 10;
-                display: flex;
+                display: none;
                 gap: 6px;
                 flex: 0 0 auto;
                 justify-content: flex-start;
@@ -6776,17 +6776,17 @@ const SPECIAL_CATEGORIES = [
 		if (bibleDataSets.length === 0) {
 			// [검토 결과] 왼쪽 버튼과 동일한 렌더링 환경을 위해 display, weight, line-height를 강제 동기화함
 		tabBar.innerHTML = `
-		<button class="com-ref-tab-add" onclick="triggerBibleSlotLoad()" 
+		<button class="com-ref-tab-add" onclick="triggerCombinedLoad()" 
 			style="font-size:0.82rem; font-weight:600; color:#5a5750; gap:5px; display:inline-flex; align-items:center; vertical-align:middle; line-height:1;">
 			<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
 				<path d="M6 1v7M3 5l3 3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
 				<path d="M1 10h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-			</svg>본문 불러오기
+			</svg>성경 본문 또는 작업 파일 불러오기
 		</button>
 		<button class="sample-btn" onclick="loadComSampleBible()" 
 			style="margin-left:auto; background:none; border:none; cursor:pointer; font-size:0.82rem; font-weight:600; color:#d4776e; display:inline-flex; align-items:center; vertical-align:middle; line-height:1; padding:2px 4px;" 
 			title="창세기 1장 샘플 5개 역본 불러오기">
-			▷샘플 본문보기(5개 역본)
+			▷샘플 본문...
 		</button>`;
 
 			panelBox.innerHTML = `<div class="com-ref-panel no-bible"><span class="hint-main">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요</span><span class="hint-sub">성경본문: TXT · BDB · AAB · ZIP</span><span class="hint-sub">주석파일: CDB</span></div>`;
@@ -7164,6 +7164,26 @@ const SPECIAL_CATEGORIES = [
                 } else {
                     loadTxtCommentaryFile(file, applyLoadedCommentary);
                 }
+            });
+            document.body.appendChild(input);
+        }
+        input.value = '';
+        input.click();
+    }
+
+    // ── 통합 불러오기 (성경본문 + 작업파일) ─────────────────────────────
+    function triggerCombinedLoad() {
+        let input = document.getElementById('com-combined-input');
+        if (!input) {
+            input = document.createElement('input');
+            input.type = 'file'; input.id = 'com-combined-input';
+            input.accept = '.txt,.bdb,.aab,.zip,.cdb'; input.style.display = 'none';
+            input.multiple = true;
+            input.addEventListener('change', async (e) => {
+                const files = Array.from(e.target.files);
+                input.value = '';
+                if (!files.length) return;
+                await handleComDropFiles(files);
             });
             document.body.appendChild(input);
         }
