@@ -1157,11 +1157,33 @@
             .progress-sep-total { display: none !important; }
 
             /* ── 주석 모드 — 내보내기 버튼 높이 (원래대로) ── */
-            .com-import-row { display: flex; gap: 6px; flex: 0 0 100%; justify-content: flex-end; }
             .com-bar-right .btn-apply {
                 min-height: unset;
                 height: 32px;
             }
+
+            /* ── 주석 모드 상단바: 두 줄 레이아웃 ── */
+            /* 첫 번째 줄: 파일이름 + 뱃지 (order:0) */
+            /* 두 번째 줄: 포맷select + 내보내기 + 작업파일 + 성경본문 (order:10) */
+            .com-bar-right {
+                flex-wrap: wrap;
+                row-gap: 6px;
+            }
+            .com-bar-label { order: 0; }
+            .com-collection-name { order: 0; flex: 1 1 100px; }
+            .com-count-badge { order: 0; flex-shrink: 0; }
+            #com-save-format { order: 10; flex: 0 0 auto; }
+            .com-export-btn { order: 10; flex-shrink: 0; }
+            .com-import-row {
+                order: 10;
+                display: flex;
+                gap: 6px;
+                flex: 0 0 auto;
+                justify-content: flex-start;
+            }
+
+            /* ── 하단 "저장된 주석 있음" → 핀 이모지만 표시 ── */
+            .com-status .com-status-text { display: none; }
 
             /* ── 주석 모드 — 본문 불러오기 탭바 높이 (자동) ── */
 
@@ -7891,7 +7913,7 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('com-count-badge').textContent = `${count}개`;
         const key = comItemKey(comBook, comChapter, comVerse, currentComType);
         const has = commentaryWritingData.some(it => it._key === key);
-        document.getElementById('com-status').textContent = has ? '📌 저장된 주석 있음' : '';
+        document.getElementById('com-status').innerHTML = has ? '📌<span class="com-status-text"> 저장된 주석 있음</span>' : '';
     }
 
     function showComStatus(msg) {
