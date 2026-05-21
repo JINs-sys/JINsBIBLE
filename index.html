@@ -17,6 +17,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
+        /* ════════════════════════════════════════════════════════════════
+           🌐  공통 · 전역 CSS  (공유 변수, 레이아웃, 네비바, 버튼)
+           ════════════════════════════════════════════════════════════════ */
         :root {
             --ink: #1a1815; --ink-soft: #4a4740; --paper: #f6f2e9; --paper-white: #ffffff;
             --rule: #d9d2c1; --accent: #2d4a3e; --font-main: 'Pretendard Variable', sans-serif;
@@ -60,6 +63,10 @@
         }
 
         /* 진행률 접힘 디자인 */
+        /* ════════════════════════════════════════════════════════════════
+           📖  성경역본 모드 + 필사 모드  — 공통 CSS
+           (진행도 바, 참고 본문 박스, 각주 입력, 자유 도구 버튼)
+           ════════════════════════════════════════════════════════════════ */
         .progress-collapsed { display: flex; flex-direction: column; gap: 5px; }
         .progress-collapsed-row { display: flex; align-items: center; justify-content: space-between; }
         .progress-chips { display: flex; gap: 8px; flex-wrap: nowrap; align-items: center; white-space: nowrap; overflow: hidden; }
@@ -243,8 +250,6 @@
         /* 주석 네비바 — PC에서 높이 통일 */
         #com-nav-bar .nav-select { height: 33px; padding: 0 8px; }
         #com-nav-bar .btn-nav    { height: 33px; min-height: unset; padding: 0 12px; }
-        /* PC: com-nav-bar는 column, 내부 nav-row-top이 row로 1줄 구성 (.nav-row-top 전역 규칙 상속) */
-        #com-nav-bar.nav-bar { flex-direction: column; align-items: stretch; gap: 6px; width: 100%; }
         body.active-mode #com-nav-bar.nav-bar { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
         /* ep-nav-bar는 편집 패널 내부에 있으므로 sticky 제외 */
         body.active-mode #ep-nav-bar.nav-bar { position: static; margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; border-bottom: none; padding-top: 0; }
@@ -357,6 +362,10 @@
         .mode-select { display: flex; gap: 18px; align-items: center; margin-bottom: 15px; font-size: 0.9rem; }
         .mode-select label { display: flex; align-items: center; gap: 5px; cursor: pointer; }
 
+        /* ════════════════════════════════════════════════════════════════
+           ✍️  필사 모드  — 전용 CSS
+           (타이핑 프레임, 글자 비교 색상, 타이핑 통계)
+           ════════════════════════════════════════════════════════════════ */
         .typing-frame { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; background-color: var(--paper-white); }
         .verse-box { background-color: #f8f7f2; color: #5a5750; border-bottom: 1px solid var(--rule); border-radius: 10px 10px 0 0; }
         .fmt-toolbar { display:flex; align-items:center; padding:1px 4px; border-top:1px solid var(--rule); background:#faf9f6; border-radius: 0 0 10px 10px; overflow-x:auto; overflow-y:visible; scrollbar-width:none; -ms-overflow-style:none; }
@@ -505,6 +514,10 @@
         #commentary-write-ui { display: none; }
 
         /* 상단 설정바 */
+        /* ════════════════════════════════════════════════════════════════
+           📝  주석 모드  — 전용 CSS
+           (주석 헤더 바, 탭, 편집 툴바, 형광펜, 색상, 특수문자)
+           ════════════════════════════════════════════════════════════════ */
         .com-settings-bar {
             display: flex; align-items: stretch; gap: 0;
             background: var(--paper-white);
@@ -1140,44 +1153,7 @@
                 border-radius: 2px;
             }
 
-            /* ── 주석 모드 — 네비바 2줄 분리 ── */
-            #com-nav-bar.nav-bar {
-                width: 100%;
-                gap: 6px;
-            }
-            /* com-nav-bar 내부 nav-row-top도 column으로 */
-            #com-nav-bar .nav-row-top {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 6px;
-            }
-            /* 1줄: 책/장/절 select + 이동 */
-            #com-nav-bar .nav-row-selects {
-                width: 100%;
-                flex: unset;
-            }
-            #com-nav-bar .nav-row .nav-select {
-                flex: 1;
-                height: var(--com-row-h);
-                font-size: 0.84rem;
-            }
-            /* 2줄: 이전/다음 — 너비 100%, 버튼 균등 분할 */
-            #com-nav-bar .nav-row-prevnext {
-                width: 100%;
-                flex-shrink: unset;
-                gap: 6px;
-            }
-            #com-nav-bar .nav-row-prevnext .btn-nav-prev,
-            #com-nav-bar .nav-row-prevnext .btn-nav-next {
-                flex: 1;
-                height: var(--com-row-h);
-            }
-            #com-nav-bar .nav-row .btn-nav {
-                height: var(--com-row-h);
-                font-size: 0.84rem;
-                padding: 0 12px;
-                flex-shrink: 0;
-            }
+            /* ── 주석 모드 — 네비바: 제네릭 nav 규칙으로 처리 (별도 오버라이드 불필요) ── */
 
             /* ── 주석 모드 — 탭+제목 행: 모바일에서 전체 너비 분할, 높이 통일 ── */
             #com-tab-row {
@@ -1364,6 +1340,13 @@
         </div>
     </div>
 
+    <!-- ════════════════════════════════════════════════════════════════
+         📖  성경역본 모드  UI  (#exercise-ui 공유)
+         ✍️  필사 모드  UI  (#exercise-ui 공유)
+         ────────────────────────────────────────────────────────────────
+         진입: startFreeWrite()  /  startFreeWrite('strict')
+         종료: exitFreeWrite()
+         ════════════════════════════════════════════════════════════════ -->
     <div id="exercise-ui" style="display:none;">
         <div class="progress-container" id="progress-container">
             <!-- 항상 보이는 요약 행 -->
@@ -1610,6 +1593,12 @@
             <div class="com-bar-right" style="flex:1;">
                 <span class="com-bar-label">파일 이름</span>
                 <input class="com-collection-name" id="com-collection-name" type="text" placeholder="나만의주석" value="나만의주석" title="JSON 내보내기 시 파일 ID로 사용됩니다. 영문을 포함해 입력하면 좋습니다.">
+    <!-- ════════════════════════════════════════════════════════════════
+         📝  주석 모드  UI  (#commentary-write-ui)
+         ────────────────────────────────────────────────────────────────
+         진입: startCommentaryMode()
+         종료: exitCommentaryMode()
+         ════════════════════════════════════════════════════════════════ -->
                 <span class="com-count-badge" id="com-count-badge">0개</span>
                 <select class="nav-select" id="com-save-format" style="height:28px; font-size:0.78rem; flex-shrink:0;" title="AAB: 바이너리 · TXT: 서식 포함 백업/이어하기">
                     <option value="aab">AAB</option>
@@ -1621,7 +1610,7 @@
 
         <!-- 네비게이션 + 주석 유형 선택 (너비 통일) -->
         <div style="display:flex; flex-direction:column; align-items:stretch; gap:0;">
-            <div class="nav-bar visible" id="com-nav-bar" style="margin-bottom:6px; width:100%;">
+            <div class="nav-bar visible" id="com-nav-bar" style="margin-bottom:6px;">
                 <div class="nav-row-top">
                     <div class="nav-row nav-row-selects">
                         <select class="nav-select" id="com-nav-book"><option value="">책 선택</option></select>
@@ -1780,6 +1769,14 @@
 
         <!-- 현재 역본 불러오기 버튼 (bibleData가 있을 때만 표시) -->
         <div id="edit-use-loaded-bar" style="margin-top:-8px; margin-bottom:14px; padding:10px 14px; background:#f0f8f4; border:1px solid #a8d4bc; border-radius:8px; align-items:center; justify-content:space-between; gap:10px; display:none;">
+    <!-- ════════════════════════════════════════════════════════════════
+         🏷️  표제어 모드  UI  (#edit-mode-ui > #edit-panel-title)
+         🔄  단어치환 모드  UI  (#edit-mode-ui > #edit-panel-replace)
+         ────────────────────────────────────────────────────────────────
+         진입: startEditMode()
+         기능 선택: showEditPanel('title') / showEditPanel('replace')
+         종료: exitEditMode()
+         ════════════════════════════════════════════════════════════════ -->
             <div>
                 <div style="font-size:0.85rem; font-weight:700; color:#2d6a4f;">📖 현재 역본 사용</div>
                 <div id="edit-loaded-name" style="font-size:0.75rem; color:#5a9a78; margin-top:2px;"></div>
@@ -4227,6 +4224,14 @@ const SPECIAL_CATEGORIES = [
         _typoCheckActive = false;
         // 참고본문 비교 색상 무조건 초기화 (span 있든 없든)
         const refBody = document.querySelector('#reference-text .ref-text-body');
+
+    // ════════════════════════════════════════════════════════════════════
+    // 📖  성경역본 모드  +  ✍️ 필사 모드  — 진입 / 종료 / 네비 / 저장
+    //   · startFreeWrite(mode)  : 'free'=성경역본  'strict'=필사
+    //   · exitFreeWrite()
+    //   · forcePrev/Next/PrevChapter/NextChapter/jumpTo
+    //   · saveCurrentVerse / loadVerse
+    // ════════════════════════════════════════════════════════════════════
         if (refBody) {
             const orig = refBody.dataset.origText
                 || (bibleData && bibleData[currentIndex] && bibleData[currentIndex].text)
@@ -5425,6 +5430,13 @@ const SPECIAL_CATEGORIES = [
                 parts.push(`<span class="ref-char ${cls}">${ch}</span>`);
                 nsCount++;
                 if (extraAfter.has(nsCount)) {
+
+    // ════════════════════════════════════════════════════════════════════
+    // ✍️  필사 모드  — 전용 로직
+    //   · renderCompareIntoStrict()  : 글자 비교 렌더링
+    //   · handleTypingInput()        : IME 한글 입력 처리
+    //   · updateTypingStats()        : 오타/정확도/CPM 통계
+    // ════════════════════════════════════════════════════════════════════
                     parts.push('<span class="ref-char char-extra-space">▽</span>');
                 }
                 stripIdx++;
@@ -6046,6 +6058,14 @@ const SPECIAL_CATEGORIES = [
         document.execCommand('formatBlock', false, 'blockquote');
     }
 
+
+    // ════════════════════════════════════════════════════════════════════
+    // 📝  주석 모드  — 편집 툴바 · 서식 · 특수문자 · 불러오기
+    //   · comFmt / comInsertBlockquote / comInsertHR
+    //   · comToggleFontSize / comToggleHighlight / comApplyColor
+    //   · comToggleSpecialPicker
+    //   · importCommentaryTxt
+    // ════════════════════════════════════════════════════════════════════
     // ── 수평선 삽입 ──────────────────────────────────────────────────
     function comInsertHR() {
         const ed = document.getElementById('com-content');
@@ -6555,6 +6575,14 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('com-header-verse').textContent = '';
         // 헤더 버튼 복원
         document.getElementById('btn-com-back').style.display     = 'none';
+
+    // ════════════════════════════════════════════════════════════════════
+    // 📝  주석 모드  — 진입 / 네비 / 저장 / 내보내기
+    //   · startCommentaryMode() / exitCommentaryMode()
+    //   · comPrev / comNext / comPrevChapter / comNextChapter / comJumpTo
+    //   · comSave / comDeleteCurrent / exportCommentary
+    //   · loadComEntry / setComType
+    // ════════════════════════════════════════════════════════════════════
         document.getElementById('btn-home').style.display         = 'inline-flex';
         document.getElementById('btn-home').onclick               = () => location.reload();
     }
@@ -7751,6 +7779,12 @@ const SPECIAL_CATEGORIES = [
         editBibleData = bibleData.map(v => {
             const bookIdx = BOOK_NUM.indexOf(v.book);
             return {
+
+    // ════════════════════════════════════════════════════════════════════
+    // 🏷️  표제어 모드  +  🔄 단어치환 모드  — 진입 / 패널 전환
+    //   · startEditMode() / exitEditMode()
+    //   · showEditPanel('title') / showEditPanel('replace')
+    // ════════════════════════════════════════════════════════════════════
                 book: v.book,
                 bookNum: bookIdx >= 0 ? bookIdx : 1,
                 ch: v.ch,
@@ -8081,6 +8115,12 @@ const SPECIAL_CATEGORIES = [
                 <span style="color:#aaa; font-size:13px;">→</span>
                 <span style="background:#eef3fb; color:#1a4a8a; font-size:13px; font-weight:500; padding:4px 12px; border-radius:20px; white-space:nowrap;">
                     ${loadedName} <span style="font-size:19px; font-weight:700; vertical-align:middle;">${matched}</span>절에 매칭
+
+    // ════════════════════════════════════════════════════════════════════
+    // 🏷️  표제어 모드  — 표제어 삽입 · 교체
+    //   · applyHeadings()   : 5종 표제어 일괄 적용
+    //   · epRenderVerse()   : 미리보기 본문 렌더링
+    // ════════════════════════════════════════════════════════════════════
                 </span>
             </div>`;
 
@@ -8246,6 +8286,12 @@ const SPECIAL_CATEGORIES = [
             // 사용자 정의
             customRules.forEach(r => {
                 if (!r.from) return;
+
+    // ════════════════════════════════════════════════════════════════════
+    // 🔄  단어치환 모드  — 단어 일괄 변경
+    //   · addReplaceRow() / applyWordReplace()
+    //   · renderReplacePreview()
+    // ════════════════════════════════════════════════════════════════════
                 const re = new RegExp(r.from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
                 const before = t;
                 t = t.replace(re, r.to);
@@ -8808,6 +8854,11 @@ const SPECIAL_CATEGORIES = [
             if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
                 ['user-input','footnote-input'].forEach(function(id) {
                     var el = document.getElementById(id);
+
+    // ════════════════════════════════════════════════════════════════════
+    // 🚀  앱 초기화  — initApp()
+    //   · 이벤트 리스너, 드래그드롭, 모바일 터치, 스크롤
+    // ════════════════════════════════════════════════════════════════════
                     if (!el) return;
                     el.addEventListener('focus', function() {
                         setTimeout(function() { el.scrollIntoView({ behavior:'smooth', block:'center' }); }, 350);
