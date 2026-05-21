@@ -93,7 +93,7 @@
         .action-card:hover { border-color: #8aab9e; background: #f2f8f5; box-shadow: 0 2px 12px rgba(45,74,62,0.09); transform: translateY(-1px); }
         .action-card-icon { font-size: 1.5rem; line-height: 1; }
         .action-card-title { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
-        .action-card-desc { font-size: 0.75rem; color: #999; line-height: 1.5; }
+        .action-card-desc { font-size: 0.75rem; color: #633232; line-height: 1.5; }
         .action-card.card-commentary { border-color: #a8c8bc; background: linear-gradient(135deg, #eef6f2 0%, #f4f8f6 100%); }
         .action-card.card-commentary:hover { border-color: var(--accent); background: #e4f2ec; box-shadow: 0 2px 12px rgba(45,74,62,0.12); }
         .action-card.card-dragover { border-color: var(--accent) !important; background: #e0f2ea !important; box-shadow: 0 0 0 3px rgba(45,106,70,0.18) !important; transform: scale(1.025) !important; }
@@ -1290,7 +1290,7 @@
     <div class="action-grid" id="action-grid">
         <div class="action-card card-commentary" id="com-mode-box" onclick="startCommentaryMode()">
             <div class="action-card-icon">📝</div>
-            <div class="action-card-title">나만의 주석 작성</div>
+            <div class="action-card-title">나만의 주석</div>
             <div class="action-card-desc">성경 본문을 보며 책·장·절 단위<br>주석을 작성하고 AAB로 내보냅니다.</div>
             <div class="action-card-drop-hint">📂 TXT · AAB · BDB · ZIP 드래그드롭</div>
         </div>
@@ -1760,7 +1760,7 @@
         <!-- ① 파일 로드 드롭존 -->
         <div id="edit-drop-zone" class="file-upload-container" style="margin-bottom:16px;" onclick="document.getElementById('edit-file-input').click()">
             <div style="font-size:1.1rem; font-weight:700; color:var(--accent); margin-bottom:6px;">성경 역본 파일 로드</div>
-            <div style="font-size:0.85rem; color:#7a8a80; margin-bottom:10px;">편집할 역본 파일을 불러오세요</div>
+            <div style="font-size:0.85rem; color:#7a8a80; margin-bottom:10px;">편집할 성경역본을 불러오세요</div>
             <div style="display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem;">
                 📂 AAB · BDB · TXT · ZIP 드래그드롭 또는 클릭
             </div>
@@ -1857,7 +1857,7 @@
                         <span style="font-size:0.82rem; font-weight:600; color:var(--ink-soft); letter-spacing:0.01em;">표제어 적용 후</span>
                     </div>
                     <div id="ep-text-box-preview" style="background:#fdfaf5; border:1px solid #d4e8dc; border-radius:8px; padding:14px 16px; min-height:80px; font-family:var(--font-main); font-size:1rem; line-height:1.7; color:var(--ink); word-break:break-all; white-space:pre-wrap; overflow:hidden;">
-                        <span style="color:#c0b4a4; font-size:0.85rem;">역본 선택 후 표제어가 반영된 본문이 표시됩니다</span>
+                        <span style="color:#c0b4a4; font-size:0.85rem;">아래에서 “표제어 역본”을 선택하면 해당 표제어가 반영된 본문이 표시됩니다.</span>
                     </div>
                 </div>
             </div>
@@ -3800,7 +3800,7 @@ const SPECIAL_CATEGORIES = [
         if (!label) return;
         const checked = document.querySelector('input[name="typing-mode"]:checked');
         if (!checked) { label.style.display = 'none'; return; }
-        label.textContent = checked.value === 'free' ? '성경역본 수정 / 각주추가' : '성경 따라 쓰기';
+        label.textContent = checked.value === 'free' ? '표제어 / 본문 / 각주 교정 작업' : '성경 따라 쓰기';
         label.style.display = 'block';
     }
 
@@ -6535,7 +6535,7 @@ const SPECIAL_CATEGORIES = [
         commentaryMode = true;
         document.body.classList.add('active-mode');
         applyUIState('commentary');
-        document.getElementById('verse-title').innerText = '주석 작성';
+        document.getElementById('verse-title').innerText = '나만의 주석';
         document.getElementById('com-header-verse').style.display = 'inline';
         // 헤더 버튼 전환 — 홈 버튼을 주석 종료로 교체
         document.getElementById('btn-com-back').style.display     = 'none';
@@ -8501,7 +8501,7 @@ const SPECIAL_CATEGORIES = [
                     previewBox.appendChild(fnLine2);
                 }
             } else {
-                previewBox.innerHTML = '<span style="color:#c0b4a4; font-size:0.85rem;">역본 선택 후 표제어가 반영된 본문이 표시됩니다</span>';
+                previewBox.innerHTML = '<span style="color:#bbb; font-size:0.85rem;">아래에서 “표제어 역본”을 선택하면 해당 표제어가 반영된 본문이 표시됩니다.</span>';
             }
         }
 
