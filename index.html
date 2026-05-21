@@ -7858,16 +7858,8 @@ const SPECIAL_CATEGORIES = [
         const name = file.name.toLowerCase();
         showEditResult('');
         if (name.endsWith('.zip')) {
-            // ZIP → 내부에서 .aab/.bdb/.txt 추출
-            JSZip.loadAsync(file).then(zip => {
-                const entry = Object.values(zip.files).find(f => /\.(aab|bdb|txt)$/i.test(f.name));
-                if (!entry) return showEditResult('ZIP 내에서 AAB/BDB/TXT 파일을 찾지 못했습니다.', true);
-                if (/\.txt$/i.test(entry.name)) {
-                    entry.async('arraybuffer').then(buf => loadEditTxt(buf, file.name));
-                } else {
-                    entry.async('arraybuffer').then(buf => loadEditBuffer(buf, entry.name, file.name));
-                }
-            }).catch(err => showEditResult('ZIP 파일 오류: ' + err.message, true));
+            // ZIP → 역본 모드와 동일하게 파일 선택 팝업 표시
+            processZipFile(file, (picked) => loadEditFile(picked));
         } else if (name.endsWith('.aab') || name.endsWith('.bdb')) {
             const reader = new FileReader();
             reader.onload = e => loadEditBuffer(e.target.result, file.name, file.name);
