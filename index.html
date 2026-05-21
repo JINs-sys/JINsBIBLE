@@ -4308,7 +4308,7 @@ const SPECIAL_CATEGORIES = [
         // 헤더 타이틀 = 모드 이름 (라디오 라벨과 동일하게 통일)
         document.getElementById('verse-title').innerText = '나만의 성경역본';
         updateHeaderMode();
-        input.focus();
+        if (window.innerWidth > 600) input.focus(); // 모바일: 가상키보드 방지
         // 필사 모드 요청 시 자동 전환 (onchange 트리거 → UI/타이틀 갱신)
         if (mode === 'strict') {
             const strictRadio = document.querySelector('input[name="typing-mode"][value="strict"]');
