@@ -8800,7 +8800,8 @@ const SPECIAL_CATEGORIES = [
         initEditMode();            // 편집 모드 초기화
     }
     initApp();
-    // 초기 상태를 히스토리에 쌓아 뒤로가기를 앱 내부에서 가로챔
+    // 현재 상태를 landing으로 교체 후 하나 더 쌓아서 뒤로가기를 앱 내부에서 가로챔
+    history.replaceState({ mode: 'landing' }, '');
     history.pushState({ mode: 'landing' }, '');
 
 </script>
@@ -8816,6 +8817,7 @@ const SPECIAL_CATEGORIES = [
     }
 
     /* ── 모바일 뒤로가기: 모드 종료 또는 앱 종료 확인 ── */
+    let _backPressedOnce = false;
     window.addEventListener('popstate', function(e) {
         if (commentaryMode) {
             exitCommentaryMode();
@@ -8827,12 +8829,30 @@ const SPECIAL_CATEGORIES = [
             exitFreeWrite();
             history.pushState({ mode: 'landing' }, '');
         } else {
-            // 랜딩 화면에서 뒤로가기 → 앱 종료 확인
-            if (confirm('앱을 종료하시겠습니까?')) {
-                history.back(); // 실제로 나가기
-            } else {
-                history.pushState({ mode: 'landing' }, ''); // 취소 시 복구
+            // 랜딩 화면에서 뒤로가기 → 한 번 더 누르면 종료 안내
+            if (_backPressedOnce) {
+                // 두 번째 뒤로가기: 실제 종료 허용 (pushState 안 함)
+                return;
             }
+            _backPressedOnce = true;
+            history.pushState({ mode: 'landing' }, ''); // 스택 복구
+            // 토스트 메시지 표시
+            (function() {
+                const existing = document.getElementById('_exit-toast');
+                if (existing) existing.remove();
+                const toast = document.createElement('div');
+                toast.id = '_exit-toast';
+                toast.textContent = '한 번 더 누르면 종료됩니다';
+                toast.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);' +
+                    'background:rgba(30,28,24,0.82);color:#fff;padding:10px 22px;border-radius:20px;' +
+                    'font-size:0.84rem;z-index:99999;pointer-events:none;font-family:var(--font-main);' +
+                    'white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,0.18);';
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.remove();
+                    _backPressedOnce = false;
+                }, 2000);
+            })();
         }
     });
 
