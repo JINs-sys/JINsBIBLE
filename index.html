@@ -3873,7 +3873,7 @@ const SPECIAL_CATEGORIES = [
 
             const input = document.getElementById('user-input');
             input.setAttribute('data-placeholder', isFree ? (input.dataset.freePlaceholder || '원문 수정 및 필사를 자유롭게 하세요') : '위와 동일하게 입력 시 다음 절로 자동 이동됩니다.');
-            input.focus();
+            if (window.innerWidth > 600) input.focus(); // 모바일: 가상키보드 방지
             updateHeaderMode();
             updateNavChapterLabel();  // 모드 전환 시 이전/다음 버튼 텍스트 갱신
         };
