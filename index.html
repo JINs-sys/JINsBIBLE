@@ -4534,7 +4534,7 @@ const SPECIAL_CATEGORIES = [
     }
 
     // ── 샘플 본문 로드 (GitHub AAB fetch) ──────────────────────────────────
-    const SAMPLE_AAB_URL = 'https://jins-sys.github.io/JINsBIBLE/%ED%95%9C%EA%B8%80%EA%B0%9C%EC%97%AD.aab';
+    const SAMPLE_AAB_URL = 'https://jins-sys.github.io/JINsBIBLE/GAE.aab';
 
     async function loadSampleBible() {
         // 버튼 비활성화 및 로딩 표시
@@ -4554,8 +4554,7 @@ const SPECIAL_CATEGORIES = [
 
         try {
             const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
-            const sqliteBuf = arrayBuffer.slice(8); // AAB = 8바이트 헤더 + SQLite
-            const db = new SQL.Database(new Uint8Array(sqliteBuf));
+            const db = new SQL.Database(new Uint8Array(arrayBuffer.slice(8)));
             const res = db.exec("SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse");
             db.close();
 
@@ -4601,7 +4600,7 @@ const SPECIAL_CATEGORIES = [
             dz.style.display = '';
             dz.innerHTML = `
                 <div id="drop-text">
-                    <strong style="color:var(--accent)">✅ 성경 로드 완료: 한글개역.aab</strong>
+                    <strong style="color:var(--accent)">✅ 성경 로드 완료: GAE.aab</strong>
                     <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 결과 파일(TXT) 또는 성경 파일(AAB·BDB)을 이곳에 드롭하세요.</p>
                 </div>
                 <input type="file" id="file-input" accept=".txt,.aab,.bdb" style="display:none;">`;
