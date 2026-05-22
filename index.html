@@ -4475,7 +4475,7 @@ const SPECIAL_CATEGORIES = [
         const body  = refEl.querySelector('.ref-text-body');
         if (body) {
             body.classList.add('ref-empty');
-            body.innerHTML = '<button onclick="loadSampleBible()" style="display:inline-block;background:none;border:none;cursor:pointer;font-size:0.82rem;color:#d4776e;font-family:var(--font-main);padding:0;line-height:1.5;text-align:left;font-weight:500;" title="개역개정 창세기 1장 샘플 불러오기">▷ 샘플본문 click</button><span class="ref-empty-upload-hint">참고 성경역본<br>불러오기<br>(파일 드롭 가능)<br>TXT·AAB·BDB·ZIP →</span>';
+            body.innerHTML = '<button onclick="loadSampleBible()" style="display:inline-block;background:none;border:none;cursor:pointer;font-size:0.82rem;color:#d4776e;font-family:var(--font-main);padding:0;line-height:1.5;text-align:left;font-weight:500;" title="한글개역 전체 성경 불러오기 (GitHub)">▷ 샘플본문(개역한글) click</button><span class="ref-empty-upload-hint">참고 성경역본<br>불러오기<br>(파일 드롭 가능)<br>TXT·AAB·BDB·ZIP →</span>';
         }
         updateRefSideMenuLabel();
         // 헤더 타이틀 = 모드 이름 (라디오 라벨과 동일하게 통일)
@@ -4533,24 +4533,58 @@ const SPECIAL_CATEGORIES = [
         nv.value = idx;
     }
 
-    // ── 샘플 본문 로드 (개역개정 창세기 1:1~1:10) ──────────────────────────
-    const SAMPLE_BIBLE_DATA = [
-        { title:'창 1:1',  text:'<천지 창조> 태초에 하나님이 천지를 창조하시니라' },
-        { title:'창 1:2',  text:'땅이 ¹⁾혼돈하고 공허하며 흑암이 깊음 위에 있고 하나님의 영은 수면 위에 운행하시니라 【1) 또는 형체가 없는】' },
-        { title:'창 1:3',  text:'하나님이 이르시되 빛이 있으라 하시니 빛이 있었고' },
-        { title:'창 1:4',  text:'빛이 하나님이 보시기에 좋았더라 하나님이 빛과 어둠을 나누사' },
-        { title:'창 1:5',  text:'하나님이 빛을 낮이라 부르시고 어둠을 밤이라 부르시니라 저녁이 되고 아침이 되니 이는 첫째 날이니라' },
-        { title:'창 1:6',  text:'하나님이 이르시되 물 가운데에 궁창이 있어 물과 물로 나뉘라 하시고' },
-        { title:'창 1:7',  text:'하나님이 궁창을 만드사 궁창 아래의 물과 궁창 위의 물로 나뉘게 하시니 그대로 되니라' },
-        { title:'창 1:8',  text:'하나님이 궁창을 하늘이라 부르시니라 저녁이 되고 아침이 되니 이는 둘째 날이니라' },
-        { title:'창 1:9',  text:'하나님이 이르시되 천하의 물이 한 곳으로 모이고 뭍이 드러나라 하시니 그대로 되니라' },
-        { title:'창 1:10', text:'하나님이 뭍을 땅이라 부르시고 모인 물을 바다라 부르시니 하나님이 보시기에 좋았더라' },
-    ].map(d => ({ ...d, book:'창', ch:1, vs: parseInt(d.title.split(':')[1]) }));
+    // ── 샘플 본문 로드 (GitHub AAB fetch) ──────────────────────────────────
+    const SAMPLE_AAB_URL = 'https://jins-sys.github.io/JINsBIBLE/%ED%95%9C%EA%B8%80%EA%B0%9C%EC%97%AD.aab';
 
-    function loadSampleBible() {
-        bibleData = SAMPLE_BIBLE_DATA;
+    async function loadSampleBible() {
+        // 버튼 비활성화 및 로딩 표시
+        const btn = document.querySelector('[onclick="loadSampleBible()"]');
+        if (btn) { btn.disabled = true; btn.textContent = '⏳ 불러오는 중...'; }
+
+        let arrayBuffer;
+        try {
+            const res = await fetch(SAMPLE_AAB_URL);
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            arrayBuffer = await res.arrayBuffer();
+        } catch (err) {
+            if (btn) { btn.disabled = false; btn.textContent = '▷ 샘플본문(개역한글) click'; }
+            alert('샘플 성경을 불러오지 못했습니다.\n' + err.message);
+            return;
+        }
+
+        try {
+            const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+            const sqliteBuf = arrayBuffer.slice(8); // AAB = 8바이트 헤더 + SQLite
+            const db = new SQL.Database(new Uint8Array(sqliteBuf));
+            const res = db.exec("SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse");
+            db.close();
+
+            if (!res.length || !res[0].values.length) {
+                alert('성경 데이터를 찾을 수 없습니다.');
+                if (btn) { btn.disabled = false; btn.textContent = '▷ 샘플본문(개역한글) click'; }
+                return;
+            }
+
+            bibleData = res[0].values.map(([book, chapter, verse, btext]) => {
+                const bookAbbr = BOOK_NUM[book] || '';
+                if (!bookAbbr) return null;
+                return {
+                    title: `${bookAbbr} ${chapter}:${verse}`,
+                    text: btext ? normalizeBtext(btext.trim()) : '',
+                    book: bookAbbr,
+                    ch: parseInt(chapter),
+                    vs: parseInt(verse)
+                };
+            }).filter(d => d && d.book);
+
+        } catch (err) {
+            alert('AAB 파일 파싱 중 오류가 발생했습니다.\n' + err.message);
+            if (btn) { btn.disabled = false; btn.textContent = '▷ 샘플본문(개역한글) click'; }
+            return;
+        }
+
         currentIndex = 0;
-        fileNameBase = '샘플_개역한글';
+        fileNameBase = '한글개역';
 
         // 현재 선택된 모드(필사/나만의) 유지
         const currentMode = document.querySelector('input[name="typing-mode"]:checked')?.value || 'free';
@@ -4564,13 +4598,13 @@ const SPECIAL_CATEGORIES = [
         if (dz) {
             dz.classList.add('loaded');
             dz.onclick = null;
-            dz.style.display = '';  // 혹시 숨겨진 경우 복원
+            dz.style.display = '';
             dz.innerHTML = `
                 <div id="drop-text">
-                    <strong style="color:var(--accent)">✅ 샘플 로드 완료: 창세기 1:1~1:10 (개역개정)</strong>
+                    <strong style="color:var(--accent)">✅ 성경 로드 완료: 한글개역.aab</strong>
                     <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 결과 파일(TXT) 또는 성경 파일(AAB·BDB)을 이곳에 드롭하세요.</p>
                 </div>
-                <input type="file" id="file-input" accept=".txt" style="display:none;">`;
+                <input type="file" id="file-input" accept=".txt,.aab,.bdb" style="display:none;">`;
             dz.ondragover  = e => { e.preventDefault(); dz.classList.add('dragover'); };
             dz.ondragleave = () => { dz.classList.remove('dragover'); };
             dz.ondrop      = e => { e.preventDefault(); dz.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); };
@@ -4579,9 +4613,9 @@ const SPECIAL_CATEGORIES = [
         // freeWrite 전용 UI 숨기기
         document.getElementById('mode-select-freewrite').style.display = 'none';
         const typingFrame = document.querySelector('.typing-frame');
-        if (typingFrame) { typingFrame.classList.remove('free-write-active'); typingFrame.classList.add('strict-active'); typingFrame.classList.remove('strict-active'); }
+        if (typingFrame) { typingFrame.classList.remove('free-write-active'); }
 
-        // 현재 모드 라디오 복원 (필사면 필사, 나만의면 나만의 유지)
+        // 현재 모드 라디오 복원
         const targetRadio = document.querySelector(`input[name="typing-mode"][value="${currentMode}"]`);
         if (targetRadio) {
             targetRadio.checked = true;
@@ -4597,16 +4631,17 @@ const SPECIAL_CATEGORIES = [
         buildBookNav();
         initTypingMode();
         loadVerse(0);
+
         // 샘플 안내 표시
         let notice = document.getElementById('sample-notice');
         if (!notice) {
             notice = document.createElement('div');
             notice.id = 'sample-notice';
             notice.style.cssText = 'position:absolute;bottom:6px;right:10px;font-size:0.62rem;color:#aaa;line-height:1.5;text-align:right;pointer-events:none;transition:right 0.25s ease;';
-            notice.innerHTML = '샘플본문입니다.<br>창세기 1장 10절까지만 있습니다.';
             const refEl = document.getElementById('reference-text');
             if (refEl) refEl.appendChild(notice);
         }
+        notice.innerHTML = '샘플 본문은 한글개역 성경입니다.';
         notice.style.display = 'block';
     }
 
