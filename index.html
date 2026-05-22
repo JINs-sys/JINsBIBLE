@@ -9248,6 +9248,23 @@ const SPECIAL_CATEGORIES = [
             const id = (h >>> 0).toString(16).slice(-4).toUpperCase();
             const el = document.getElementById('build-id');
             if (el) el.textContent = '#' + id;
+
+            // 체크섬 3회 클릭 → JSON 편집기 열기
+            if (el) {
+                let _cnt = 0, _timer = null;
+                el.style.cursor = 'default';
+                el.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    _cnt++;
+                    clearTimeout(_timer);
+                    _timer = setTimeout(function() { _cnt = 0; }, 1200);
+                    if (_cnt >= 3) {
+                        _cnt = 0;
+                        clearTimeout(_timer);
+                        window.open('https://jins-sys.github.io/JINsBIBLE/json_editor.html', '_blank');
+                    }
+                });
+            }
         } catch(e) {}
     })();
     </script>
