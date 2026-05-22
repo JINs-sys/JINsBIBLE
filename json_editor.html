@@ -1425,74 +1425,7 @@ if(dbox){
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape')jeHideAll();});
 
-/* ── 모바일 뒤로가기 처리 (v2) ── */
-(function(){
-  /* 현재 화면 단계 반환
-     0 = 모두 닫힘(앱 메인)
-     1 = 핀 화면
-     2 = 목록 화면
-     3 = 편집 화면 */
-  function _jeStage(){
-    var pinOv=_$('je-pin-ov'), edOv=_$('je-ed-ov'), editOv=_$('je-edit-ov');
-    if(pinOv&&pinOv.classList.contains('je-show')) return 1;
-    if(edOv&&edOv.classList.contains('je-show')){
-      if(editOv&&editOv.style.display!=='none') return 3;
-      return 2;
-    }
-    return 0;
-  }
-
-  /* ── 앱 열림 플래그 ── */
-  var _je_appOpen = false;
-
-  /* history 초기화: base 하나만 */
-  history.replaceState({jeStage:'base'},'','');
-
-  /* 앱이 처음 열릴 때 sentinel 하나 push (중복 방지) */
-  function _jeEnsureOpen(){
-    if(!_je_appOpen){
-      _je_appOpen = true;
-      history.pushState({jeStage:'app'},'','');
-    }
-  }
-
-  /* ── 래핑: 로컬 변수를 직접 캡처 (window.xxx 덮어쓰기 문제 우회) ──
-     주의: 이 IIFE는 window.jeShowPin/jeOpenEdit 할당(1604줄) 이전에 실행되므로
-     반드시 지역변수 jeShowPin/jeOpenEdit 를 직접 참조해야 한다. */
-  var _origShowPin = jeShowPin;
-  window.jeShowPin = function(){
-    _origShowPin.apply(this, arguments);
-    _jeEnsureOpen();
-  };
-
-  var _origOpenEdit = jeOpenEdit;
-  window.jeOpenEdit = function(){
-    _origOpenEdit.apply(this, arguments);
-    _jeEnsureOpen();
-  };
-
-  window.addEventListener('popstate', function(e){
-    _je_appOpen = false;
-    var stage = _jeStage();
-
-    /* 편집 화면 → 목록 */
-    if(stage === 3){
-      jeBackToList();
-      history.pushState({jeStage:'app'},'','');
-      _je_appOpen = true;
-      return;
-    }
-
-    /* 목록/핀 → 오버레이 닫기
-       sentinel을 다시 push하지 않음 → 다음 뒤로가기가 실제 이전 페이지로 이동 */
-    if(stage === 2 || stage === 1){
-      jeHideAll();
-      return;
-    }
-
-    /* stage===0: 이미 닫힌 상태 — 자연스럽게 이전 페이지로 */
-  });
-})();
+/* 뒤로가기 처리는 DOMContentLoaded에서 index.html 방식으로 */
 
 /* JSON 편집기 세로 크기 드래그 */
 (function(){
@@ -1545,12 +1478,10 @@ window.jeSetSort=jeSetSort;
 window.jeSetBookFilter=jeSetBookFilter;
 window._jeBF=function(btn){jeSetBookFilter(btn.getAttribute("data-bf"));};
 window.jeDeleteItem=jeDeleteItem;
-/* window.jeShowPin 은 뒤로가기 래퍼가 이미 설정함 — 여기서 덮어쓰지 않음 */
-window.jeHideAll=jeHideAll;
+window.jeShowPin=jeShowPin; window.jeHideAll=jeHideAll;
 window.jePickFile=jePickFile; window.jeFileChosen=jeFileChosen;
 window.jeOnSearch=jeOnSearch; window.jeClearSearch=jeClearSearch;
-/* window.jeOpenEdit 도 뒤로가기 래퍼가 설정함 */
-window.jeExport=jeExport;
+window.jeExport=jeExport; window.jeOpenEdit=jeOpenEdit;
 window.jeStartEdit=jeStartEdit;
 
 /* 한글 IME 조합 완료 시 _memoText 동기화 */
@@ -1620,7 +1551,46 @@ _jeInitBibleDrop();
 })();
 })();
 </script>
-<script>document.addEventListener("DOMContentLoaded",function(){if(window.jeShowPin)jeShowPin();});</script>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
+  if(window.jeShowPin) jeShowPin();
+
+  /* ── 모바일 뒤로가기 (index.html 동일 방식) ──
+     jeShowPin() 직후 연속으로 replaceState + pushState → sentinel 확보 */
+  history.replaceState({ je: 'base' }, '');
+  history.pushState({ je: 'app' }, '');
+
+  /* jeOpenEdit 래핑: 편집 화면 진입 시 추가 push */
+  var _oe = window.jeOpenEdit;
+  window.jeOpenEdit = function(){
+    _oe.apply(this, arguments);
+    history.pushState({ je: 'edit' }, '');
+  };
+
+  window.addEventListener('popstate', function(){
+    var pinOv = document.getElementById('je-pin-ov');
+    var edOv  = document.getElementById('je-ed-ov');
+    var editOv = document.getElementById('je-edit-ov');
+
+    var pinShow  = pinOv  && pinOv.classList.contains('je-show');
+    var edShow   = edOv   && edOv.classList.contains('je-show');
+    var editShow = editOv && editOv.style.display !== 'none' && editOv.style.display !== '';
+
+    /* 편집 화면 → 목록 */
+    if(edShow && editShow){
+      if(window.jeBackToList) jeBackToList();
+      history.pushState({ je: 'app' }, '');
+      return;
+    }
+    /* 목록/핀 → 닫기 */
+    if(edShow || pinShow){
+      if(window.jeHideAll) jeHideAll();
+      return;
+    }
+    /* 완전히 닫힌 상태 → 자연스럽게 이전 페이지로 */
+  });
+});
+</script>
 
 <script>
 /* ── 파일 체크섬 (CRC32) ── */
