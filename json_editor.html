@@ -346,6 +346,11 @@ var _BN = {GEN:'창세기',EXO:'출애굽기',LEV:'레위기',NUM:'민수기',DE
 
 var _pin='', _pinOk=false, _data=null, _search='', _editIdx=null, _memoText='', _origMemo='', _anyDirty=false;
 
+/* ── 같은 기기 자동 인증: localStorage에 토큰이 있으면 PIN 생략 ── */
+var _LS_KEY='je_auth_v1';
+var _LS_VAL=btoa('je_'+_PIN);
+try{ if(localStorage.getItem(_LS_KEY)===_LS_VAL) _pinOk=true; }catch(e){}
+
 /* 가상 키보드 기기(터치 전용) 여부 — pointer:coarse & hover:none 조합으로 판별 */
 function _jeIsTouchDevice(){
   return window.matchMedia('(pointer:coarse) and (hover:none)').matches;
@@ -905,6 +910,7 @@ function _pd(d){
     for(var i=0;i<4;i++){var x=_$('je-d'+i);if(x)x.className='je-dot on';}
     setTimeout(function(){
       _pinOk=true;
+      try{ localStorage.setItem(_LS_KEY,_LS_VAL); }catch(e){}
       _$('je-pin-ov').classList.remove('je-show');
       _$('je-ed-ov').classList.add('je-show');
       _pin=''; _renderList();
