@@ -330,7 +330,7 @@
     </div>
   </div>
 </div>
-<div id="je-toolbar"><button onclick="jeFmt('b')" title="굵게"><b>B</b></button><button onclick="jeFmt('i')" title="기울임" class="je-tb-i">I</button><button onclick="jeFmt('u')" title="밑줄" class="je-tb-u">U</button><button onclick="jeFmt('s')" title="취소선" class="je-tb-s">S</button><button onclick="jeFmt('j')" title="예수님 말씀 J태그" class="je-tb-j">J</button><button onclick="jePickColor(this)" title="글자 색상" id="je-color-btn">A<span id="je-color-dot" style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#E24B4A;margin-left:2px;vertical-align:middle;"></span></button><div class="je-tb-div"></div><button onclick="jeTrimBlankLines()" title="연속 빈 줄을 1줄로 정리" style="font-size:0.72rem;">빈줄정리</button></div><textarea id="je-ta" placeholder="메모를 입력하세요..." oninput="jeOnMemoInput(this.value)" style="display:none"></textarea><div id="je-ce" contenteditable="false" spellcheck="false" data-placeholder="메모를 입력하세요..." oninput="jeCeInput()"></div><div id="je-resize-bar" title="드래그하여 창 높이 조절"></div></div></div>
+<div id="je-toolbar"><button onclick="jeFmt('b')" title="굵게"><b>B</b></button><button onclick="jeFmt('i')" title="기울임" class="je-tb-i">I</button><button onclick="jeFmt('u')" title="밑줄" class="je-tb-u">U</button><button onclick="jeFmt('s')" title="취소선" class="je-tb-s">S</button><button onclick="jeFmt('j')" title="예수님 말씀 J태그" class="je-tb-j">J</button><button onclick="jePickColor(this)" title="글자 색상" id="je-color-btn">A<span id="je-color-dot" style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#E24B4A;margin-left:2px;vertical-align:middle;"></span></button><div class="je-tb-div"></div><button onclick="jeTrimDupLines()" title="연속된 빈 줄을 1줄로 압축" style="font-size:0.72rem;">두줄정리</button><button onclick="jeTrimAllBlankLines()" title="모든 빈 줄 삭제" style="font-size:0.72rem;">빈줄정리</button></div><textarea id="je-ta" placeholder="메모를 입력하세요..." oninput="jeOnMemoInput(this.value)" style="display:none"></textarea><div id="je-ce" contenteditable="false" spellcheck="false" data-placeholder="메모를 입력하세요..." oninput="jeCeInput()"></div><div id="je-resize-bar" title="드래그하여 창 높이 조절"></div></div></div>
 
 <input type="file" id="je-file-inp" accept=".json" style="display:none" onchange="jeFileChosen(this)">
 
@@ -340,6 +340,11 @@ var _PIN = '0410';
 var _BN = {GEN:'창세기',EXO:'출애굽기',LEV:'레위기',NUM:'민수기',DEU:'신명기',JOS:'여호수아',JDG:'사사기',RUT:'룻기','1SA':'사무엘상','2SA':'사무엘하','1KI':'열왕기상','2KI':'열왕기하','1CH':'역대상','2CH':'역대하',EZR:'에스라',NEH:'느헤미야',EST:'에스더',JOB:'욥기',PSA:'시편',PRO:'잠언',ECC:'전도서',SNG:'아가',ISA:'이사야',JER:'예레미야',LAM:'예레미야애가',EZK:'에스겨',DAN:'다니엘',HOS:'호세아',JOL:'요엘',AMO:'아모스',OBA:'오바닸',JON:'요나',MIC:'미가',NAM:'나훘',HAB:'하박국',ZEP:'스바냐',HAG:'학개',ZEC:'스가라',MAL:'말라기',MAT:'마태복음',MRK:'마가복음',LUK:'누가복음',JHN:'요한복음',ACT:'사도행전',ROM:'로마서','1CO':'고린도전서','2CO':'고린도후서',GAL:'갈라디아서',EPH:'에베소서',PHP:'빌립보서',COL:'골로새서','1TH':'데살로니가전서','2TH':'데살로니가후서','1TI':'디모데전서','2TI':'디모데후서',TIT:'디도서',PHM:'빌레뮬서',HEB:'히브리서',JAS:'야고보서','1PE':'베드로전서','2PE':'베드로후서','1JN':'요한일서','2JN':'요한이서','3JN':'요한삼서',JUD:'유다서',REV:'요한계시록'};
 
 var _pin='', _pinOk=false, _data=null, _search='', _editIdx=null, _memoText='', _origMemo='', _anyDirty=false;
+
+/* 가상 키보드 기기(터치 전용) 여부 — pointer:coarse & hover:none 조합으로 판별 */
+function _jeIsTouchDevice(){
+  return window.matchMedia('(pointer:coarse) and (hover:none)').matches;
+}
 var _jeBibleData=[]; /* JSON 편집기 전용 역본 데이터 */
 var _jeBibleName=''; /* 역본 파일명 */
 
@@ -1036,11 +1041,18 @@ function jeOpenEdit(idx, tab){
   /* 툴바: 북마크만 서식 버튼 의미 있음 — 설교/형광펜도 일단 표시 */
   _$('je-list-ov').style.display='none';
   var eo=_$('je-edit-ov'); eo.style.display='flex';
-  /* 읽기 모드로 리셋 */
-  var ceR=_$('je-ce'); if(ceR) ceR.setAttribute('contenteditable','false');
-  var ebR=_$('je-edit-btn'), sbR=_$('je-save-btn');
-  if(ebR) ebR.style.display='';
-  if(sbR) sbR.style.display='none';
+  /* 터치 기기: 읽기 모드로 시작 + 수정 버튼 표시
+     PC/마우스: 바로 편집 모드 + 수정 버튼 숨김 */
+  var ceR=_$('je-ce'); var ebR=_$('je-edit-btn'), sbR=_$('je-save-btn');
+  if(_jeIsTouchDevice()){
+    if(ceR) ceR.setAttribute('contenteditable','false');
+    if(ebR) ebR.style.display='';
+    if(sbR) sbR.style.display='none';
+  } else {
+    if(ceR) ceR.setAttribute('contenteditable','true');
+    if(ebR) ebR.style.display='none';
+    if(sbR) sbR.style.display='';
+  }
 
   /* ── 성경 본문 패널 ── */
   var vp=_$('je-verse-panel'), vt=_$('je-verse-text'), vs=_$('je-verse-src');
@@ -1142,11 +1154,13 @@ function jeSave(){
   item.createdAt=_now;
   _origMemo=_memoText; _anyDirty=true; _updSave();
   _toast('저장됨 ✓ ('+_memoText.length+'자)');
-  /* 저장 후 읽기 모드로 복귀 */
-  var ce2=_$('je-ce'); if(ce2) ce2.setAttribute('contenteditable','false');
-  var eb2=_$('je-edit-btn'), sb2=_$('je-save-btn');
-  if(eb2) eb2.style.display='';
-  if(sb2) sb2.style.display='none';
+  /* 저장 후: 터치 기기만 읽기 모드로 복귀, PC는 편집 유지 */
+  var ce2=_$('je-ce'); var eb2=_$('je-edit-btn'), sb2=_$('je-save-btn');
+  if(_jeIsTouchDevice()){
+    if(ce2) ce2.setAttribute('contenteditable','false');
+    if(eb2) eb2.style.display='';
+    if(sb2) sb2.style.display='none';
+  }
   
 }
 /* ── 메타 패널 ── */
@@ -1247,7 +1261,17 @@ function jeMetaSave(){
   _anyDirty=true;
   var btn=_$('je-mf-save-btn'); if(btn) btn.style.background='#2d4a3e';
   _toast('구절 정보 저장됨 ✓');
-  _renderList();
+  /* 편집 화면 유지 — 목록으로 이동하지 않음 */
+  /* 목록 카운트·내보내기 버튼만 갱신 */
+  var item2=(_data[_jeTab]||[])[_editIdx];
+  if(item2){
+    var listSub=_$('je-list-sub');
+    if(listSub){
+      var bms=_data.bookmarks||[], srs=_data.sermons||[], hls=_data.highlights||[];
+      listSub.innerHTML='북마크 '+bms.length+'개 · 설교 '+srs.length+'개 · 형광펜 '+hls.length+'개'+(_anyDirty?' <span style="color:#b8860b;font-weight:600">· 수정됨</span>':'');
+    }
+    var expBtn=_$('je-exp-btn'); if(expBtn) expBtn.style.display=_anyDirty?'':'none';
+  }
 }
 /* textarea 선택영역 태그 감싸기 */
 function jeFmt(type){
@@ -1302,98 +1326,54 @@ function jePickColor(btn){
   document.body.appendChild(pop);
   setTimeout(function(){document.addEventListener('click',function h(){if(pop.parentNode)document.body.removeChild(pop);document.removeEventListener('click',h);},{once:true});},10);
 }
-function jeTrimBlankLines(){
+/* ── 두줄정리: 연속된 빈 줄 → 한 줄로 압축 (수정 모드에서만) ── */
+function jeTrimDupLines(){
   var ce=_$('je-ce'); if(!ce) return;
-  /* 항상 최신 ce 내용으로 _memoText 동기화 */
-  _memoText=_htmlToTags(ce.innerHTML);
-
-  /* 선택 영역 확인 */
-  var sel=window.getSelection();
-  var hasSelection=sel&&sel.rangeCount>0&&!sel.getRangeAt(0).collapsed&&ce.contains(sel.anchorNode);
-
-  if(hasSelection){
-    /* ── 범위 지정 있음: 누를 때마다 빈 줄 하나씩 제거 ── */
-    /* contenteditable에서 <br>이 \n으로 안 잡히므로
-       ce 전체 HTML을 \n 기준 줄 배열로 파싱 후
-       선택 범위의 시작/끝 줄 번호를 charOffset으로 계산 */
-
-    /* ce 안의 텍스트를 줄 단위로 쪼개되, 각 줄의 시작 charOffset도 기록 */
-    var ceText=_memoText; /* _memoText가 \n 기준 정규 텍스트 */
-    var allLines=ceText.split('\n');
-
-    /* 선택 범위가 ce 안에서 몇 번째 줄부터 몇 번째 줄까지인지 구하기:
-       Range를 ce 처음부터 selStart/selEnd까지 cloneRange해서 toString() length 사용 */
-    var range=sel.getRangeAt(0);
-
-    var preRange=document.createRange();
-    preRange.setStart(ce,0);
-    preRange.setEnd(range.startContainer,range.startOffset);
-    /* preRange.toString()은 <br>을 무시하므로 직접 HTML→text 변환 */
-    var preHtml=preRange.cloneContents();
-    var tmpPre=document.createElement('div');
-    tmpPre.appendChild(preHtml);
-    /* <br>을 \n으로 */
-    var preText=tmpPre.innerHTML.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]*>/g,'');
-    var startChar=preText.length;
-
-    var fullRange=document.createRange();
-    fullRange.setStart(ce,0);
-    fullRange.setEnd(range.endContainer,range.endOffset);
-    var fullHtml=fullRange.cloneContents();
-    var tmpFull=document.createElement('div');
-    tmpFull.appendChild(fullHtml);
-    var fullText=tmpFull.innerHTML.replace(/<br\s*\/?>/gi,'\n').replace(/<[^>]*>/g,'');
-    var endChar=fullText.length;
-
-    /* startChar/endChar 로 줄 번호 산출 */
-    var pos=0; var startLine=-1; var endLine=-1;
-    for(var i=0;i<allLines.length;i++){
-      var lineEnd=pos+allLines[i].length;
-      if(startLine===-1 && startChar<=lineEnd) startLine=i;
-      if(endChar<=lineEnd+1){endLine=i;break;}
-      pos=lineEnd+1; /* +1은 \n */
-    }
-    if(startLine===-1) startLine=0;
-    if(endLine===-1) endLine=allLines.length-1;
-
-    /* 선택 범위(startLine~endLine) 안의 빈 줄 전체 제거 */
-    var before=allLines.slice(0,startLine);
-    var selected=allLines.slice(startLine,endLine+1);
-    var after=allLines.slice(endLine+1);
-
-    var cleaned=[]; var removed=0;
-    for(var i=0;i<selected.length;i++){
-      if(selected[i].trim()===''){removed++;continue;}
-      cleaned.push(selected[i]);
-    }
-    if(removed===0){_toast('선택 범위에 빈 줄 없음');return;}
-
-    var newMemo=before.concat(cleaned,after).join('\n');
-    ce.innerHTML=_tagsToHtml(newMemo);
-    _memoText=newMemo;
-    _$('je-hdr-cnt').textContent=_nf(_memoText.length)+'\uc790';
-    _updSave();
-    _toast('선택 범위 빈 줄 '+removed+'개 제거됨');
-
-  } else {
-    /* ── 범위 지정 없음: 두 줄 이상 연속 빈 줄 → 한 줄로 압축 ── */
-    var lines=_memoText.split('\n');
-    var out=[]; var prevBlank=false; var removed=0;
-    for(var i=0;i<lines.length;i++){
-      var blank=lines[i].trim()==='';
-      /* 빈 줄이 연속될 때(prevBlank이면서 blank)만 건너뜀 → 2줄 이상 연속만 압축 */
-      if(blank&&prevBlank){removed++;continue;}
-      out.push(lines[i]);
-      prevBlank=blank;
-    }
-    var newMemo=out.join('\n');
-    ce.innerHTML=_tagsToHtml(newMemo);
-    _memoText=newMemo;
-    _$('je-hdr-cnt').textContent=_nf(_memoText.length)+'\uc790';
-    _updSave();
-    _toast(removed>0?'빈 줄 '+removed+'개 정리됨':'정리할 빈 줄 없음');
+  if(ce.getAttribute('contenteditable')==='false'){
+    _toast('수정 버튼을 먼저 눌러주세요');
+    return;
   }
+  _memoText=_htmlToTags(ce.innerHTML);
+  var lines=_memoText.split('\n');
+  var out=[]; var prevBlank=false; var removed=0;
+  for(var i=0;i<lines.length;i++){
+    var blank=lines[i].trim()==='';
+    if(blank&&prevBlank){removed++;continue;}
+    out.push(lines[i]);
+    prevBlank=blank;
+  }
+  var newMemo=out.join('\n');
+  ce.innerHTML=_tagsToHtml(newMemo);
+  _memoText=newMemo;
+  _$('je-hdr-cnt').textContent=_nf(_memoText.length)+'\uc790';
+  _updSave();
+  _toast(removed>0?'연속 빈 줄 '+removed+'개 정리됨':'정리할 연속 빈 줄 없음');
 }
+
+/* ── 빈줄정리: 모든 빈 줄 삭제 (수정 모드에서만) ── */
+function jeTrimAllBlankLines(){
+  var ce=_$('je-ce'); if(!ce) return;
+  if(ce.getAttribute('contenteditable')==='false'){
+    _toast('수정 버튼을 먼저 눌러주세요');
+    return;
+  }
+  _memoText=_htmlToTags(ce.innerHTML);
+  var lines=_memoText.split('\n');
+  var out=[]; var removed=0;
+  for(var i=0;i<lines.length;i++){
+    if(lines[i].trim()===''){removed++;continue;}
+    out.push(lines[i]);
+  }
+  var newMemo=out.join('\n');
+  ce.innerHTML=_tagsToHtml(newMemo);
+  _memoText=newMemo;
+  _$('je-hdr-cnt').textContent=_nf(_memoText.length)+'\uc790';
+  _updSave();
+  _toast(removed>0?'빈 줄 '+removed+'개 모두 삭제됨':'삭제할 빈 줄 없음');
+}
+
+/* 구버전 호환 (혹시 외부에서 호출 시) */
+function jeTrimBlankLines(){ jeTrimDupLines(); }
 function jeBackToList(){
   if(_memoText!==_origMemo && !confirm('\uc800\uc7a5\ud558\uc9c0 \uc54a\uace0 \ub3cc\uc544\uac00\uc2dc\uaca0\uc2b5\ub2c8\uae4c?')) return;
   var vp=_$('je-verse-panel'); if(vp) vp.classList.remove('je-vp-show');
@@ -1404,7 +1384,10 @@ function jeBackToList(){
 function jeExport(){
   var b=new Blob([JSON.stringify(_data,null,2)],{type:'application/json'});
   var u=URL.createObjectURL(b), a=document.createElement('a');
-  a.href=u; a.download='bible_'+new Date().toISOString().slice(0,10)+'.json';
+  var _nd=new Date();
+  var _ds=_nd.getFullYear()+String(_nd.getMonth()+1).padStart(2,'0')+String(_nd.getDate()).padStart(2,'0');
+  var _ts=String(_nd.getHours()).padStart(2,'0')+String(_nd.getMinutes()).padStart(2,'0')+String(_nd.getSeconds()).padStart(2,'0');
+  a.href=u; a.download='bible_'+_ds+'_'+_ts+'.json';
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
 }
 
@@ -1430,6 +1413,119 @@ if(dbox){
   };
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape')jeHideAll();});
+
+/* ── 모바일 뒤로가기 처리 ── */
+(function(){
+  /* 현재 화면 단계 반환
+     0 = 모두 닫힘(앱 메인)
+     1 = 핀 화면
+     2 = 목록 화면
+     3 = 편집 화면                                              */
+  function _jeStage(){
+    var pinOv=_$('je-pin-ov'), edOv=_$('je-ed-ov'), editOv=_$('je-edit-ov');
+    if(pinOv&&pinOv.classList.contains('je-show')) return 1;
+    if(edOv&&edOv.classList.contains('je-show')){
+      if(editOv&&editOv.style.display!=='none') return 3;
+      return 2;
+    }
+    return 0;
+  }
+
+  /* history 스택에 상태 쌓기 */
+  function _jePushState(stage){
+    history.pushState({jeStage:stage},'','');
+  }
+
+  /* 기존 함수들을 래핑하여 pushState 삽입 */
+  var _origShowPin=window.jeShowPin;
+  window.jeShowPin=function(){
+    _origShowPin&&_origShowPin.apply(this,arguments);
+    _jePushState(_jeStage());
+  };
+
+  var _origOpenEdit=window.jeOpenEdit;
+  window.jeOpenEdit=function(){
+    _origOpenEdit&&_origOpenEdit.apply(this,arguments);
+    _jePushState(3);
+  };
+
+  /* ── 나가기 안내 토스트 ── */
+  var _jeExitToast=null, _jeExitTimer=null;
+  var _jeExitReady=false;
+
+  function _jeShowExitToast(){
+    if(_jeExitToast) return;
+    _jeExitReady=true;
+    _jeExitToast=document.createElement('div');
+    _jeExitToast.id='je-exit-toast';
+    _jeExitToast.textContent='한 번 더 뒤로 가면 앱을 종료합니다';
+    _jeExitToast.style.cssText=[
+      'position:fixed','bottom:36px','left:50%',
+      'transform:translateX(-50%)',
+      'background:rgba(30,30,30,0.88)',
+      'color:#fff',
+      'padding:11px 24px',
+      'border-radius:100px',
+      'font-size:0.84rem',
+      'font-weight:600',
+      'white-space:nowrap',
+      'z-index:99999',
+      'box-shadow:0 4px 18px rgba(0,0,0,0.22)',
+      'pointer-events:none',
+      'font-family:inherit',
+      'animation:je-toast 2.2s ease forwards'
+    ].join(';');
+    document.body.appendChild(_jeExitToast);
+    _jeExitTimer=setTimeout(function(){
+      _jeExitReady=false;
+      if(_jeExitToast&&_jeExitToast.parentNode) _jeExitToast.parentNode.removeChild(_jeExitToast);
+      _jeExitToast=null;
+      history.pushState({jeStage:0},'','');
+    },2200);
+  }
+
+  function _jeHideExitToast(){
+    _jeExitReady=false;
+    if(_jeExitTimer) clearTimeout(_jeExitTimer);
+    _jeExitTimer=null;
+    if(_jeExitToast&&_jeExitToast.parentNode) _jeExitToast.parentNode.removeChild(_jeExitToast);
+    _jeExitToast=null;
+  }
+
+  /* 초기 state */
+  history.replaceState({jeStage:0},'','');
+  history.pushState({jeStage:0},'','');
+
+  window.addEventListener('popstate',function(e){
+    var stage=_jeStage();
+
+    /* 편집 화면 → 목록 */
+    if(stage===3){
+      _jeHideExitToast();
+      jeBackToList();
+      history.pushState({jeStage:2},'','');
+      return;
+    }
+
+    /* 목록/핀 → 닫기 */
+    if(stage===2||stage===1){
+      _jeHideExitToast();
+      jeHideAll();
+      history.pushState({jeStage:0},'','');
+      return;
+    }
+
+    /* 앱 메인 — 두 번째 뒤로가기면 종료, 첫 번째면 토스트 */
+    if(_jeExitReady){
+      _jeHideExitToast();
+      history.go(-1);
+      return;
+    }
+
+    _jeShowExitToast();
+    history.pushState({jeStage:0},'','');
+  });
+})();
 
 /* JSON 편집기 세로 크기 드래그 */
 (function(){
@@ -1498,7 +1594,7 @@ window.jeStartEdit=jeStartEdit;
     if(cnt) cnt.textContent=_memoText.length.toLocaleString()+'자';
   });
 })(); window.jeOnMemoInput=jeOnMemoInput; window.jeCeInput=jeCeInput; window.jeSave=jeSave; window.jeBackToList=jeBackToList;
-window.jeTrimBlankLines=jeTrimBlankLines;
+window.jeTrimBlankLines=jeTrimBlankLines;window.jeTrimDupLines=jeTrimDupLines;window.jeTrimAllBlankLines=jeTrimAllBlankLines;
 window.jeFmt=jeFmt; window.jePickColor=jePickColor;
 
 /* ── 책별 필터바 마우스 스크롤 ── */
