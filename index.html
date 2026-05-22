@@ -6065,23 +6065,30 @@ const SPECIAL_CATEGORIES = [
         } else {
             const lines = typedData.map(d => {
                 let t = d.t;
+                // 표제어 분리: 맨 앞 <...> 패턴 보존 (AAB toAABText와 동일 방식)
+                let titlePrefix = '';
+                const stMatch = t.match(/^<([^>]*)>\s*/);
+                if (stMatch) { titlePrefix = `<${stMatch[1]}>` + ' '; t = t.slice(stMatch[0].length); }
                 // 본문 / 각주 분리
                 const fnSep = t.indexOf('<br>▷');
                 let mainT = fnSep !== -1 ? t.slice(0, fnSep) : t;
                 let fnT   = fnSep !== -1 ? t.slice(fnSep + 5) : '';
-                // 인라인 각주 번호 기호 제거: ¹⁾ ²⁾ ³⁾ 등, ᵃ ᵇ ᶜ 등 (본문에서만)
-                mainT = mainT.replace(/[¹²³⁴⁵⁶⁷⁸⁹⁰]+⁾/g, '').replace(/[ᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷˣʸᶻ]/g, '');
-                // 표제어 <...> 제거 (본문에서만)
-                mainT = mainT.replace(/^<[^>]*>\s*/, '');
-                // HTML 태그 제거 (본문)
-                mainT = mainT.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').trim();
-                // 각주가 있으면 <br>▷ 구분자 유지 (HTML 스타일 태그만 제거)
+                // 스타일 태그만 제거 (표제어 <...>, 각주번호 ¹⁾²⁾, ᵃᵇᶜ 등은 이어하기를 위해 보존)
+                const stripStyle = s => s
+                    .replace(/<font color='[^']*'>([\s\S]*?)<\/font>/g, '$1')
+                    .replace(/\[#[^\]]+\]/g, '')
+                    .replace(/\[\/#[^\]]+\]/g, '');
+                mainT = stripStyle(mainT).replace(/<br\s*\/?>/gi, ' ').replace(/<(?!\/?(b|i|J)\b)[^>]+>/g, '').trim();
+                // 각주가 있으면 <br>▷ 구분자 유지 (각주 내 <br>도 보존)
                 if (fnT.trim()) {
-                    fnT = fnT.replace(/<font color='[^']*'>([^<]*)<\/font>/g, '$1')
-                              .replace(/<[^>]+>/g, '').trim();
-                    return `${d.k} | ${mainT}<br>▷${fnT}`;
+                    fnT = stripStyle(fnT)
+                        .replace(/<br\s*\/?>/gi, '\x00')
+                        .replace(/<[^>]+>/g, '')
+                        .replace(/\x00/g, '<br>')
+                        .trim();
+                    return `${d.k} | ${titlePrefix}${mainT}<br>▷${fnT}`;
                 }
-                return `${d.k} | ${mainT}`;
+                return `${d.k} | ${titlePrefix}${mainT}`;
             });
             const blob = new Blob(['\uFEFF' + lines.join('\n')], { type: 'text/plain;charset=utf-8' });
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fileNameBase + "_결과.txt"; a.click();
