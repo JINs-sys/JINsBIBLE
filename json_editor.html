@@ -1419,13 +1419,13 @@ if(dbox){
 }
 document.addEventListener('keydown',function(e){if(e.key==='Escape')jeHideAll();});
 
-/* ── 모바일 뒤로가기 처리 ── */
+/* ── 모바일 뒤로가기 처리 (v2) ── */
 (function(){
   /* 현재 화면 단계 반환
      0 = 모두 닫힘(앱 메인)
      1 = 핀 화면
      2 = 목록 화면
-     3 = 편집 화면                                              */
+     3 = 편집 화면 */
   function _jeStage(){
     var pinOv=_$('je-pin-ov'), edOv=_$('je-ed-ov'), editOv=_$('je-edit-ov');
     if(pinOv&&pinOv.classList.contains('je-show')) return 1;
@@ -1441,94 +1441,112 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')jeHideAll();
     history.pushState({jeStage:stage},'','');
   }
 
-  /* 기존 함수들을 래핑하여 pushState 삽입 */
-  var _origShowPin=window.jeShowPin;
-  window.jeShowPin=function(){
-    _origShowPin&&_origShowPin.apply(this,arguments);
-    _jePushState(_jeStage());
-  };
-
-  var _origOpenEdit=window.jeOpenEdit;
-  window.jeOpenEdit=function(){
-    _origOpenEdit&&_origOpenEdit.apply(this,arguments);
-    _jePushState(3);
-  };
-
   /* ── 나가기 안내 토스트 ── */
   var _jeExitToast=null, _jeExitTimer=null;
   var _jeExitReady=false;
 
   function _jeShowExitToast(){
-    if(_jeExitToast) return;
+    /* 이미 떠 있으면 타이머만 리셋 */
+    if(_jeExitToast){
+      clearTimeout(_jeExitTimer);
+    } else {
+      _jeExitToast=document.createElement('div');
+      _jeExitToast.id='je-exit-toast';
+      _jeExitToast.textContent='한 번 더 뒤로 가면 앱을 종료합니다';
+      _jeExitToast.style.cssText=[
+        'position:fixed','bottom:36px','left:50%',
+        'transform:translateX(-50%)',
+        'background:rgba(30,30,30,0.88)',
+        'color:#fff',
+        'padding:11px 24px',
+        'border-radius:100px',
+        'font-size:0.84rem',
+        'font-weight:600',
+        'white-space:nowrap',
+        'z-index:99999',
+        'box-shadow:0 4px 18px rgba(0,0,0,0.22)',
+        'pointer-events:none',
+        'font-family:inherit'
+      ].join(';');
+      document.body.appendChild(_jeExitToast);
+    }
     _jeExitReady=true;
-    _jeExitToast=document.createElement('div');
-    _jeExitToast.id='je-exit-toast';
-    _jeExitToast.textContent='한 번 더 뒤로 가면 앱을 종료합니다';
-    _jeExitToast.style.cssText=[
-      'position:fixed','bottom:36px','left:50%',
-      'transform:translateX(-50%)',
-      'background:rgba(30,30,30,0.88)',
-      'color:#fff',
-      'padding:11px 24px',
-      'border-radius:100px',
-      'font-size:0.84rem',
-      'font-weight:600',
-      'white-space:nowrap',
-      'z-index:99999',
-      'box-shadow:0 4px 18px rgba(0,0,0,0.22)',
-      'pointer-events:none',
-      'font-family:inherit',
-      'animation:je-toast 2.2s ease forwards'
-    ].join(';');
-    document.body.appendChild(_jeExitToast);
     _jeExitTimer=setTimeout(function(){
       _jeExitReady=false;
       if(_jeExitToast&&_jeExitToast.parentNode) _jeExitToast.parentNode.removeChild(_jeExitToast);
       _jeExitToast=null;
-      history.pushState({jeStage:0},'','');
-    },2200);
+      _jeExitTimer=null;
+    },2500);
   }
 
   function _jeHideExitToast(){
     _jeExitReady=false;
-    if(_jeExitTimer) clearTimeout(_jeExitTimer);
-    _jeExitTimer=null;
+    if(_jeExitTimer){ clearTimeout(_jeExitTimer); _jeExitTimer=null; }
     if(_jeExitToast&&_jeExitToast.parentNode) _jeExitToast.parentNode.removeChild(_jeExitToast);
     _jeExitToast=null;
   }
 
-  /* 초기 state */
-  history.replaceState({jeStage:0},'','');
-  history.pushState({jeStage:0},'','');
+  /* 기존 함수들을 래핑하여 pushState 삽입 */
+  var _origShowPin=window.jeShowPin;
+  window.jeShowPin=function(){
+    var wasHidden=!(_$('je-pin-ov')&&_$('je-pin-ov').classList.contains('je-show'))
+                &&!(_$('je-ed-ov')&&_$('je-ed-ov').classList.contains('je-show'));
+    _origShowPin&&_origShowPin.apply(this,arguments);
+    _jeHideExitToast();
+    /* 새로 열릴 때만 push */
+    if(wasHidden) _jePushState(_jeStage());
+  };
+
+  var _origOpenEdit=window.jeOpenEdit;
+  window.jeOpenEdit=function(){
+    _origOpenEdit&&_origOpenEdit.apply(this,arguments);
+    _jeHideExitToast();
+    _jePushState(3);
+  };
+
+  /* 초기 state — base + sentinel 두 개 쌓기
+     sentinel이 있어야 메인 화면에서 popstate를 잡을 수 있다 */
+  history.replaceState({jeStage:'base'},'','');
+  history.pushState({jeStage:0},'','');   /* sentinel */
 
   window.addEventListener('popstate',function(e){
+    var st=e.state;
     var stage=_jeStage();
 
-    /* 편집 화면 → 목록 */
+    /* ── 편집 화면 → 목록 ── */
     if(stage===3){
       _jeHideExitToast();
       jeBackToList();
-      history.pushState({jeStage:2},'','');
+      _jePushState(2);
       return;
     }
 
-    /* 목록/핀 → 닫기 */
+    /* ── 목록/핀 → 닫기 ── */
     if(stage===2||stage===1){
       _jeHideExitToast();
       jeHideAll();
+      _jePushState(0);
+      return;
+    }
+
+    /* ── 앱 메인(stage===0) ── */
+    /* base까지 pop됐으면 sentinel 복원 후 처리 */
+    if(!st||st.jeStage==='base'){
       history.pushState({jeStage:0},'','');
-      return;
     }
 
-    /* 앱 메인 — 두 번째 뒤로가기면 종료, 첫 번째면 토스트 */
     if(_jeExitReady){
+      /* 두 번째 뒤로가기 → 실제로 앱 종료(뒤로) */
       _jeHideExitToast();
-      history.go(-1);
+      /* sentinel + base 두 단계 뒤로 */
+      history.go(-2);
       return;
     }
 
+    /* 첫 번째 뒤로가기 → 토스트만 표시, sentinel 유지 */
     _jeShowExitToast();
-    history.pushState({jeStage:0},'','');
+    /* sentinel이 사라졌을 수 있으니 재보충 */
+    _jePushState(0);
   });
 })();
 
