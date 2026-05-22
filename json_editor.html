@@ -1436,117 +1436,55 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')jeHideAll();
     return 0;
   }
 
-  /* history 스택에 상태 쌓기 */
-  function _jePushState(stage){
-    history.pushState({jeStage:stage},'','');
-  }
+  /* ── 앱 열림 플래그 ── */
+  var _je_appOpen = false;
 
-  /* ── 나가기 안내 토스트 ── */
-  var _jeExitToast=null, _jeExitTimer=null;
-  var _jeExitReady=false;
-
-  function _jeShowExitToast(){
-    /* 이미 떠 있으면 타이머만 리셋 */
-    if(_jeExitToast){
-      clearTimeout(_jeExitTimer);
-    } else {
-      _jeExitToast=document.createElement('div');
-      _jeExitToast.id='je-exit-toast';
-      _jeExitToast.textContent='한 번 더 뒤로 가면 앱을 종료합니다';
-      _jeExitToast.style.cssText=[
-        'position:fixed','bottom:36px','left:50%',
-        'transform:translateX(-50%)',
-        'background:rgba(30,30,30,0.88)',
-        'color:#fff',
-        'padding:11px 24px',
-        'border-radius:100px',
-        'font-size:0.84rem',
-        'font-weight:600',
-        'white-space:nowrap',
-        'z-index:99999',
-        'box-shadow:0 4px 18px rgba(0,0,0,0.22)',
-        'pointer-events:none',
-        'font-family:inherit'
-      ].join(';');
-      document.body.appendChild(_jeExitToast);
-    }
-    _jeExitReady=true;
-    _jeExitTimer=setTimeout(function(){
-      _jeExitReady=false;
-      if(_jeExitToast&&_jeExitToast.parentNode) _jeExitToast.parentNode.removeChild(_jeExitToast);
-      _jeExitToast=null;
-      _jeExitTimer=null;
-    },2500);
-  }
-
-  function _jeHideExitToast(){
-    _jeExitReady=false;
-    if(_jeExitTimer){ clearTimeout(_jeExitTimer); _jeExitTimer=null; }
-    if(_jeExitToast&&_jeExitToast.parentNode) _jeExitToast.parentNode.removeChild(_jeExitToast);
-    _jeExitToast=null;
-  }
-
-  /* 기존 함수들을 래핑하여 pushState 삽입 */
-  var _origShowPin=window.jeShowPin;
-  window.jeShowPin=function(){
-    var wasHidden=!(_$('je-pin-ov')&&_$('je-pin-ov').classList.contains('je-show'))
-                &&!(_$('je-ed-ov')&&_$('je-ed-ov').classList.contains('je-show'));
-    _origShowPin&&_origShowPin.apply(this,arguments);
-    _jeHideExitToast();
-    /* 새로 열릴 때만 push */
-    if(wasHidden) _jePushState(_jeStage());
-  };
-
-  var _origOpenEdit=window.jeOpenEdit;
-  window.jeOpenEdit=function(){
-    _origOpenEdit&&_origOpenEdit.apply(this,arguments);
-    _jeHideExitToast();
-    _jePushState(3);
-  };
-
-  /* 초기 state — base + sentinel 두 개 쌓기
-     sentinel이 있어야 메인 화면에서 popstate를 잡을 수 있다 */
+  /* history 초기화: base 하나만 */
   history.replaceState({jeStage:'base'},'','');
-  history.pushState({jeStage:0},'','');   /* sentinel */
 
-  window.addEventListener('popstate',function(e){
-    var st=e.state;
-    var stage=_jeStage();
+  /* 앱이 처음 열릴 때 sentinel 하나 push (중복 방지) */
+  function _jeEnsureOpen(){
+    if(!_je_appOpen){
+      _je_appOpen = true;
+      history.pushState({jeStage:'app'},'','');
+    }
+  }
 
-    /* ── 편집 화면 → 목록 ── */
-    if(stage===3){
-      _jeHideExitToast();
+  /* ── 래핑: 로컬 변수를 직접 캡처 (window.xxx 덮어쓰기 문제 우회) ──
+     주의: 이 IIFE는 window.jeShowPin/jeOpenEdit 할당(1604줄) 이전에 실행되므로
+     반드시 지역변수 jeShowPin/jeOpenEdit 를 직접 참조해야 한다. */
+  var _origShowPin = jeShowPin;
+  window.jeShowPin = function(){
+    _origShowPin.apply(this, arguments);
+    _jeEnsureOpen();
+  };
+
+  var _origOpenEdit = jeOpenEdit;
+  window.jeOpenEdit = function(){
+    _origOpenEdit.apply(this, arguments);
+    _jeEnsureOpen();
+  };
+
+  window.addEventListener('popstate', function(e){
+    _je_appOpen = false;
+    var stage = _jeStage();
+
+    /* 편집 화면 → 목록 */
+    if(stage === 3){
       jeBackToList();
-      _jePushState(2);
+      history.pushState({jeStage:'app'},'','');
+      _je_appOpen = true;
       return;
     }
 
-    /* ── 목록/핀 → 닫기 ── */
-    if(stage===2||stage===1){
-      _jeHideExitToast();
+    /* 목록/핀 → 오버레이 닫기
+       sentinel을 다시 push하지 않음 → 다음 뒤로가기가 실제 이전 페이지로 이동 */
+    if(stage === 2 || stage === 1){
       jeHideAll();
-      _jePushState(0);
       return;
     }
 
-    /* ── 앱 메인(stage===0) ── */
-    /* base까지 pop됐으면 sentinel 복원 후 처리 */
-    if(!st||st.jeStage==='base'){
-      history.pushState({jeStage:0},'','');
-    }
-
-    if(_jeExitReady){
-      /* 두 번째 뒤로가기 → 실제로 앱 종료(뒤로) */
-      _jeHideExitToast();
-      /* sentinel + base 두 단계 뒤로 */
-      history.go(-2);
-      return;
-    }
-
-    /* 첫 번째 뒤로가기 → 토스트만 표시, sentinel 유지 */
-    _jeShowExitToast();
-    /* sentinel이 사라졌을 수 있으니 재보충 */
-    _jePushState(0);
+    /* stage===0: 이미 닫힌 상태 — 자연스럽게 이전 페이지로 */
   });
 })();
 
@@ -1601,10 +1539,12 @@ window.jeSetSort=jeSetSort;
 window.jeSetBookFilter=jeSetBookFilter;
 window._jeBF=function(btn){jeSetBookFilter(btn.getAttribute("data-bf"));};
 window.jeDeleteItem=jeDeleteItem;
-window.jeShowPin=jeShowPin; window.jeHideAll=jeHideAll;
+/* window.jeShowPin 은 뒤로가기 래퍼가 이미 설정함 — 여기서 덮어쓰지 않음 */
+window.jeHideAll=jeHideAll;
 window.jePickFile=jePickFile; window.jeFileChosen=jeFileChosen;
 window.jeOnSearch=jeOnSearch; window.jeClearSearch=jeClearSearch;
-window.jeExport=jeExport; window.jeOpenEdit=jeOpenEdit;
+/* window.jeOpenEdit 도 뒤로가기 래퍼가 설정함 */
+window.jeExport=jeExport;
 window.jeStartEdit=jeStartEdit;
 
 /* 한글 IME 조합 완료 시 _memoText 동기화 */
