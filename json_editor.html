@@ -1587,7 +1587,8 @@ document.addEventListener("DOMContentLoaded", function(){
       if(window.jeHideAll) jeHideAll();
       return;
     }
-    /* 완전히 닫힌 상태 → 자연스럽게 이전 페이지로 */
+    /* 완전히 닫힌 상태 → sentinel 재유지, 이전 페이지로 나가지 않음 */
+    history.pushState({ je: 'app' }, '');
   });
 });
 </script>
