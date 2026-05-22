@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>JINs Bible - JSON 편집기</title>
+    <link rel="icon" type="image/png" sizes="192x192" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAAEb0lEQVR4nO3dPXITSwCFUUnFdojJWAA5VSyRKnIvwBmxF2QCEAX2SJqfnu6evueEr17hsXQ/9Rgj+3xq4OOXz68tPi59e3l6Ptf+mFU+oMGzRo0gdvsARk9Je8VQ9A81emooGcOl1B9k/NRScmubSzJ8Wtp6Gmw6AYyf1rZucFU9hk+P1pwGi08A46dXa7a5KADjp3dLNzo7AOPnKJZsdVYAxs/RzN3swwCMn6Oas927ARg/R/dow8W+EwxHdDMAr/6M4t6WJwMwfkZza9NugYj2LgCv/oxqatuXR/8DjOTtxt0CEU0ARPsbgNsfUvy7dScA0QRAtMvp5PaHPNfNOwGIJgCiCYBoZ/f/JPvQ+gL28PP7j9aXMKRP3762voTi3AIRTQBEEwDRBEA0ARBNAEQTANEEQDQBEE0ARBMA0QRANAEQTQBEEwDRBEA0ARBNAEQTANEEQLQh3xTfozVvKPfm/v05AYgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmjfFT+jlN6KXvg5vsn/PCUA0ARBNAEQTANEEQDQBEE0ARBMA0QRANAEQTQBEEwDRBEA0/xp0wh7/atKvSOqTE4BoAiCaAIgmAKIJgGgCIJoAiCYAogmAaAIgmgCIJgCiCYBoAiCaAIgmAKIJgGjeEVaJd3f1yQlANAEQTQBEEwDRBEA0ARBNAEQTANEEQDQBEE0ARBMA0QRANAEQTQBEEwDRBEA0ARBNAI2t+eV5lCOAhq7jF0E73hTfwNTgr//Nm+frcgJU9ujV3mlQlwAqmjtuEdQjgEqWjloEdQhgZ5++fV09ZhHsTwA7KjHgLQHxmAB2Unq0ItiHAHaw11hFUJ4ACqpxuyKCsgRQSM1hiqAcARTQYpC+OC5DABu1HmHrj390Atigl/H1ch1HJIAVerz96O16jkIAC/U8tJ6vrVcCWOAIA+vxdOqZAGY62qiOdr2tCOCBI7+iHvW6axLAHSMMaITPYU8CuGGk4Yz0uZQmgAkjDubIt3J7EsAbo49k9M9vKQH8kfQKmfJ5ziGAU+YgEj/nKfEBJA8h+XO/ig7AALJu/aZEBpD+pE9JfTziAkh9oudIfGyiAkh8gpdKe4xiAkh7YrdIeqyG/+nQSU9mSSk/rXroE8D4txv9MRw2gNGfuJpGfizPH798fm19EdDKsCcAzCEAogmAaAIg2uXl6fnc+iKghZen57MTgGgCIJoAiHY5nX7fC7W+EKjpunknANEEQLS/AbgNIsW/W3cCEE0ARPsvALdBjO7txt+dACJgVFPbdgtEtMkAnAKM5tamb54AImAU97bsFohodwNwCnB0jzb88AQQAUc1Z7uzboFEwNHM3ezsrwFEwFEs2eqiL4JFQO+WbnTx3wKJgF6t2eamMfuxivRgy4vypu8DOA1obesGiw3YaUBNpV58i30n2GlALSW3tttonQiUtNcLbJVXbTGwRo27iia3LYJgSovb6F9x8wIlHcCPeQAAAABJRU5ErkJggg==">
     <meta name="theme-color" content="#2d4a3e">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/sql-wasm.js"></script>
@@ -19,12 +20,13 @@
 #je-pin-ov,#je-ed-ov{display:none;position:fixed;inset:0;z-index:9500}
 #je-pin-ov{background:#f7f4ee;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;flex-direction:column;align-items:center;justify-content:center}
 #je-pin-ov.je-show{display:flex}
-#je-ed-ov{background:#f7f4ee;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;flex-direction:column;overflow:hidden}
+#je-ed-ov{background:#f4f1eb;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;flex-direction:column;overflow:hidden}
 #je-ed-ov.je-show{display:flex}
 @media (min-width:601px){
-  #je-pin-ov,#je-ed-ov{inset:unset;top:50%;left:50%;transform:translate(-50%,-50%);width:620px;height:80vh;max-height:720px;border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,.22);border:1px solid #e4ddd0}
-  #je-pin-ov{width:420px;height:auto;padding:48px 32px 40px}
+  #je-pin-ov,#je-ed-ov{inset:unset;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:82vh;max-height:740px;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.18);border:1px solid #ddd8ce}
+  #je-pin-ov{width:400px;height:auto;padding:48px 32px 40px}
 }
+/* 핀 UI */
 .je-pin-brand{text-align:center;margin-bottom:44px}
 .je-pin-brand-sub{font-size:.62rem;letter-spacing:.32em;color:#9a9288;text-transform:uppercase;margin-bottom:8px}
 .je-pin-brand-ttl{font-size:1.7rem;font-weight:800;color:#2d4a3e}
@@ -37,20 +39,23 @@
 .je-nk{width:68px;height:68px;border-radius:18px;border:1.5px solid #e4ddd0;background:#fff;color:#1a1815;font-size:1.4rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background .1s,transform .08s;box-shadow:0 1px 4px rgba(0,0,0,.06);-webkit-tap-highlight-color:transparent}
 .je-nk:active{transform:scale(.92);background:#e8f2ee}
 .je-nk.je-nk-c{border-color:#f0cece;background:#fff8f8;color:#b83232}
+/* 애니메이션 */
 @keyframes je-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(9px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
-@keyframes je-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes je-rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes je-toast{0%{opacity:0;transform:translate(-50%,8px)}12%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
 .je-shake{animation:je-shake .5s ease}
-.je-hdr{display:flex;align-items:center;gap:8px;padding:0 14px;height:54px;background:#fff;border-bottom:1px solid #e4ddd0;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+/* 에디터 헤더 */
+.je-hdr{display:flex;align-items:center;gap:8px;padding:0 16px;height:52px;background:#fff;border-bottom:1px solid #ece8e0;flex-shrink:0;}
 .je-hdr-mid{flex:1;text-align:center}
 .je-hdr-ref{font-size:.9rem;font-weight:800;color:#1a1815}
-.je-hdr-cnt{font-size:.66rem;color:#9a9288;margin-top:1px}
-.je-btn-back{background:none;border:none;color:#2d4a3e;font-size:.88rem;font-weight:700;cursor:pointer;padding:8px 2px;font-family:inherit;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.je-hdr-cnt{font-size:.65rem;color:#a8a29a;margin-top:1px}
+.je-btn-back{background:none;border:none;color:#2d4a3e;font-size:.85rem;font-weight:700;cursor:pointer;padding:8px 2px;font-family:inherit;-webkit-tap-highlight-color:transparent;white-space:nowrap}
 .je-btn-back:active{opacity:.6}
-.je-btn-save{border:none;border-radius:10px;padding:8px 16px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit;transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;min-width:54px}
+.je-btn-save{border:none;border-radius:8px;padding:7px 16px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:inherit;transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;min-width:52px}
 .je-btn-save.active{background:#2d4a3e;color:#fff}
-.je-btn-save.idle{background:#e8e4dc;color:#9a9288}
+.je-btn-save.idle{background:#ece8e0;color:#a8a29a}
 .je-btn-save:active{opacity:.75;transform:scale(.95)}
+/* 에디터 본문 */
 #je-ta{display:none}
 #je-ce{flex:1;padding:16px;border:none;outline:none;font-size:1rem;line-height:1.85;color:#1a1815;background:#fff;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;-webkit-overflow-scrolling:touch;overflow-y:auto;box-sizing:border-box;white-space:pre-wrap;word-break:break-all;}
 #je-ce:empty::before{content:attr(data-placeholder);color:#c0bdb6;pointer-events:none;}
@@ -59,13 +64,13 @@
 #je-ce u{text-decoration:underline;}
 #je-ce s{text-decoration:line-through;}
 #je-ce .je-j{color:#d0342c;font-weight:600;}
-#je-verse-panel{background:#f3efe6;border-bottom:1px solid #e4ddd0;flex-shrink:0;padding:9px 16px;display:none;}
+#je-verse-panel{background:#f3efe6;border-bottom:1px solid #e8e3d8;flex-shrink:0;padding:9px 16px;display:none;}
 #je-verse-panel.je-vp-show{display:block;}
 #je-verse-text{font-size:0.85rem;line-height:1.7;color:#3a3730;word-break:keep-all;}
 #je-verse-src{font-size:0.68rem;color:#9a9288;margin-top:3px;}
-/* ── 메타 필드 편집 패널 ── */
-#je-meta-panel{background:#fff;border-bottom:1px solid #e4ddd0;flex-shrink:0;padding:0;}
-#je-meta-toggle{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;cursor:pointer;background:#faf9f6;border-bottom:1px solid #e4ddd0;user-select:none;-webkit-tap-highlight-color:transparent;}
+/* 메타 필드 */
+#je-meta-panel{background:#fff;border-bottom:1px solid #ece8e0;flex-shrink:0;padding:0;}
+#je-meta-toggle{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;cursor:pointer;background:#faf9f6;border-bottom:1px solid #ece8e0;user-select:none;-webkit-tap-highlight-color:transparent;}
 #je-meta-toggle-label{font-size:0.72rem;font-weight:700;color:#2d4a3e;letter-spacing:0.03em;}
 #je-meta-toggle-arrow{font-size:0.7rem;color:#9a9288;transition:transform 0.2s;}
 #je-meta-toggle.open #je-meta-toggle-arrow{transform:rotate(180deg);}
@@ -81,9 +86,10 @@
 .je-mf-input[readonly]{background:#f7f4ee;color:#9a9288;cursor:default;}
 .je-mf-hint{font-size:0.6rem;color:#b8b2aa;margin-top:1px;}
 .je-mf-save-row{display:flex;justify-content:flex-end;margin-top:4px;}
-.je-mf-save-btn{border:none;border-radius:10px;padding:7px 18px;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:inherit;background:#2d4a3e;color:#fff;transition:opacity 0.15s;}
+.je-mf-save-btn{border:none;border-radius:8px;padding:7px 18px;font-weight:700;font-size:0.82rem;cursor:pointer;font-family:inherit;background:#2d4a3e;color:#fff;transition:opacity 0.15s;}
 .je-mf-save-btn:active{opacity:0.75;}
-#je-toolbar{display:flex;align-items:center;gap:2px;padding:5px 10px;background:#faf9f6;border-bottom:1px solid #e4ddd0;flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
+/* 툴바 */
+#je-toolbar{display:flex;align-items:center;gap:2px;padding:5px 10px;background:#faf9f6;border-bottom:1px solid #ece8e0;flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
 #je-toolbar::-webkit-scrollbar{display:none}
 #je-toolbar button{border:none;background:transparent;border-radius:6px;padding:3px 7px;font-size:0.82rem;font-weight:700;color:#4a4740;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .12s;-webkit-tap-highlight-color:transparent;}
 #je-toolbar button:hover{background:#ede9e0;color:#1a1815}
@@ -93,81 +99,101 @@
 #je-toolbar .je-tb-u{text-decoration:underline}
 #je-toolbar .je-tb-s{text-decoration:line-through}
 #je-toolbar .je-tb-j{color:#d0342c}
-#je-resize-bar,#je-resize-bar-list{display:none;height:10px;cursor:ns-resize;background:transparent;flex-shrink:0;position:relative;user-select:none;-webkit-user-select:none}
-#je-resize-bar::before,#je-resize-bar-list::before{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:40px;height:4px;border-radius:2px;background:#d0c9bc}
+/* 크기 조절 핸들 */
+#je-resize-bar,#je-resize-bar-list{display:none;height:8px;cursor:ns-resize;background:transparent;flex-shrink:0;position:relative;user-select:none;-webkit-user-select:none}
+#je-resize-bar::before,#je-resize-bar-list::before{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:32px;height:3px;border-radius:2px;background:#d8d2c8}
 #je-resize-bar:hover::before,#je-resize-bar.dragging::before,#je-resize-bar-list:hover::before,#je-resize-bar-list.dragging::before{background:#2d4a3e}
 @media(min-width:601px){#je-resize-bar,#je-resize-bar-list{display:block}}
+/* 목록 레이아웃 */
 #je-list-ov{display:flex;flex-direction:column;height:100%;overflow:hidden}
-.je-list-hdr{background:#fff;padding:14px 14px 0;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.04)}
-.je-list-hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
-.je-list-ttl{font-size:1.05rem;font-weight:800;color:#2d4a3e}
-.je-list-sub{font-size:.68rem;color:#9a9288;margin-top:1px}
-.je-list-btns{display:flex;gap:8px;flex-shrink:0}
-/* ── 카테고리 탭 ── */
-#je-tab-bar{display:flex;gap:6px;padding:8px 14px 10px;background:#fff;border-bottom:1px solid #e4ddd0;flex-shrink:0;}
-.je-book-filter-bar{display:none;gap:0;padding:6px 14px 8px;background:#fff;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;white-space:nowrap;flex-shrink:0;border-bottom:1px solid #f0ebe2}
-.je-book-filter-bar::-webkit-scrollbar{display:none}
-.je-book-filter-bar.vis{display:flex;align-items:center;flex-wrap:nowrap}
-.je-bfbtn{display:inline-flex;align-items:center;gap:3px;border:1.5px solid #e0d9cf;border-radius:20px;background:#f7f4ee;color:#5a5450;font-size:0.72rem;font-weight:700;padding:4px 10px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;margin-right:5px;line-height:1.5;vertical-align:middle}
-.je-bfbtn:last-child{margin-right:0}
-.je-bfbtn.on{background:#2d4a3e;color:#fff;border-color:#2d4a3e}
-.je-bfbtn.ot.on{background:#8b4a1a;border-color:#8b4a1a}
-.je-bfbtn.nt.on{background:#1a4a8a;border-color:#1a4a8a}
-.je-bfbtn-cnt{font-size:0.65rem;font-weight:600;opacity:.8}
-.je-bfbtn-sep{width:1px;height:16px;background:#d8d2c8;margin:0 6px;flex-shrink:0;align-self:center}
-.je-sort-btn{border:1px solid #e0d9cf;border-radius:20px;background:#f7f4ee;color:#5a5450;font-size:0.72rem;font-weight:700;padding:4px 10px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;line-height:1.5}
-.je-sort-btn.on{background:#2d4a3e;color:#fff;border-color:#2d4a3e}
-.je-sort-bar{display:none;gap:5px;padding:6px 14px 8px;background:#fff;flex-wrap:nowrap;align-items:center;border-bottom:1px solid #f0ebe2}
-.je-sort-bar.vis{display:flex}
-.je-sort-divider{width:1px;height:14px;background:#d8d2c8;flex-shrink:0;margin:0 4px;align-self:center}
-.je-sort-label{font-size:0.72rem;font-weight:600;color:#8a8480;letter-spacing:.01em;flex-shrink:0}
-.je-tab-btn{flex:1;border:1.5px solid #e4ddd0;border-radius:10px;padding:7px 4px;font-size:0.75rem;font-weight:700;cursor:pointer;font-family:inherit;background:#f7f4ee;color:#9a9288;transition:all .15s;-webkit-tap-highlight-color:transparent;white-space:nowrap;}
-.je-tab-btn.active{background:#2d4a3e;color:#fff;border-color:#2d4a3e;}
-.je-tab-btn:not(.active):hover{background:#e8f2ee;border-color:#2d4a3e;color:#2d4a3e;}
-.je-tab-cnt{display:inline-block;margin-left:4px;font-size:0.68rem;opacity:0.75;}
-/* ── 카드 배지 ── */
-.je-card-badge{display:inline-block;font-size:0.6rem;font-weight:700;border-radius:4px;padding:1px 5px;margin-right:5px;flex-shrink:0;vertical-align:baseline;}
-.je-badge-bm{display:none;}
-.je-badge-sr{display:none;}
-.je-badge-hl{display:none;}
-.je-lbtn{border-radius:10px;padding:8px 12px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-color:transparent;transition:opacity .1s}
-.je-lbtn:active{opacity:.7}
-.je-lbtn-exp{background:#2d4a3e;color:#fff}
-.je-lbtn-file{background:#e8f2ee;color:#2d4a3e;border:1.5px solid #2d4a3e}
-.je-lbtn-close{background:#f0ede6;color:#4a4740}
-.je-search-wrap{position:relative;padding:8px 12px 4px}
-.je-search{width:100%;padding:10px 34px 10px 13px;border-radius:10px;border:1.5px solid #e4ddd0;font-size:.9rem;color:#1a1815;background:#f7f4ee;font-family:inherit;outline:none;box-sizing:border-box;-webkit-appearance:none}
-.je-search:focus{border-color:#2d4a3e}
-.je-search-clr{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:#9a9288;cursor:pointer;font-size:1.1rem;padding:4px;line-height:1}
-.je-list-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px 0 40px}
-.je-del-btn{border:none;background:none;color:#ccc;font-size:.8rem;cursor:pointer;padding:2px 4px;border-radius:4px;line-height:1;flex-shrink:0;margin-left:4px;transition:color .12s}
-.je-del-btn:hover{color:#e05050;background:#fff0f0}
-.je-card{margin:0 12px 8px;background:#fff;border-radius:14px;padding:14px 15px;cursor:pointer;border:1px solid #e4ddd0;box-shadow:0 1px 3px rgba(0,0,0,.04);-webkit-tap-highlight-color:transparent;animation:je-rise .22s ease}
-.je-card:active{background:#e8f2ee}
-.je-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;gap:6px}
-.je-card-book{font-size:.88rem;font-weight:800;color:#2d4a3e}
-.je-card-ref{font-size:.78rem;font-weight:600;color:#4a4740;margin-left:4px}
-.je-bk-bm{color:#2d6a4f!important}.je-ref-bm{color:#52967a!important}
-.je-bk-sr{color:#1a1a1a!important}.je-ref-sr{color:#555!important}
-.je-bk-hl{color:#a06010!important}.je-ref-hl{color:#c8820a!important}
-
-.je-card-len{font-size:.68rem;color:#b8860b;background:rgba(184,134,11,.1);padding:2px 7px;border-radius:100px;font-weight:600;white-space:nowrap;flex-shrink:0}
-.je-card-title{font-size:.86rem;color:#1a1815;line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:3px;word-break:break-all}
-.je-card-date{font-size:.66rem;color:#9a9288}
-.je-empty{text-align:center;color:#9a9288;padding:52px 24px;font-size:.88rem}
-#je-drop-ov{display:flex;flex:1;align-items:center;justify-content:center;padding:24px}
-.je-drop-box{width:100%;max-width:340px;border:2px dashed #d4cfc6;border-radius:20px;padding:52px 24px;text-align:center;cursor:pointer;background:#fff;transition:all .2s}
-.je-drop-box.drag{border-color:#2d4a3e;background:#e8f2ee}
-.je-drop-ttl{font-size:.98rem;font-weight:700;color:#1a1815;margin:12px 0 6px}
-.je-drop-sub{font-size:.78rem;color:#9a9288}
-/* ── JSON 편집기 전용 역본 드롭존 ── */
-#je-bible-drop{margin:10px 12px 4px;border:1.5px dashed #b0cfc4;border-radius:12px;background:linear-gradient(135deg,#f7faf8 0%,#fcfbf8 100%);text-align:center;cursor:pointer;padding:13px 16px;transition:all .15s;box-shadow:0 1px 6px rgba(45,74,62,0.06);flex-shrink:0;}
-#je-bible-drop.drag{background:#e9f5ef;border-color:#2d4a3e;box-shadow:0 0 0 3px rgba(45,74,62,0.15);}
-#je-bible-drop.loaded{background:#f2f8f5;border-color:#a0c4b4;cursor:default;padding:9px 16px;}
-#je-bible-drop-txt{font-size:0.78rem;color:#7aab94;}
-#je-bible-drop-txt strong{color:#2d4a3e;}
+/* 헤더 영역 */
+.je-list-hdr{background:#fff;padding:14px 16px 0;flex-shrink:0;border-bottom:1px solid #ece8e0;}
+.je-list-hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px}
+.je-list-ttl{font-size:1rem;font-weight:800;color:#1a1815}
+.je-list-sub{font-size:.67rem;color:#a8a29a;margin-top:2px}
+.je-list-btns{display:flex;gap:6px;flex-shrink:0}
+/* 탭 — 세그먼트 컨트롤 */
+#je-tab-bar{display:flex;gap:0;padding:12px 16px 12px;background:#fff;border-bottom:1px solid #ece8e0;flex-shrink:0;}
+.je-tab-btn{flex:1;border:1.5px solid #ddd8ce;border-right:none;padding:7px 4px;font-size:0.74rem;font-weight:700;cursor:pointer;font-family:inherit;background:#faf9f6;color:#9a9288;transition:all .15s;-webkit-tap-highlight-color:transparent;white-space:nowrap;text-align:center;border-radius:0;}
+.je-tab-btn:first-child{border-radius:9px 0 0 9px;}
+.je-tab-btn:last-child{border-radius:0 9px 9px 0;border-right:1.5px solid #ddd8ce;}
+.je-tab-btn.active{background:#2d4a3e;color:#fff;border-color:#2d4a3e;z-index:1;position:relative;}
+.je-tab-btn:not(.active):hover{background:#e8f0ec;color:#2d4a3e;}
+.je-tab-cnt{display:inline-block;margin-left:3px;font-size:0.66rem;opacity:0.8;}
+/* 성경역본 드롭존 — 미니멀 */
+#je-bible-drop{border:none;border-bottom:1px solid #ece8e0;border-radius:0;background:#faf9f6;text-align:center;cursor:pointer;padding:9px 16px;transition:background .15s;flex-shrink:0;}
+#je-bible-drop.drag{background:#e4f0ea;}
+#je-bible-drop.loaded{background:#f0f7f3;cursor:default;}
+#je-bible-drop-txt{font-size:0.75rem;color:#9ab4aa;}
+#je-bible-drop-txt strong{color:#3d6b5a;font-weight:700;}
 #je-bible-inp{display:none;}
-.je-toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,0);background:#2d4a3e;color:#fff;padding:10px 22px;border-radius:100px;font-size:.85rem;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.16);animation:je-toast 1.8s ease forwards;z-index:10000;white-space:nowrap;pointer-events:none}
+/* 정렬 바 */
+.je-sort-bar{display:none;gap:5px;padding:7px 14px;background:#faf9f6;flex-wrap:nowrap;align-items:center;border-bottom:1px solid #ece8e0;overflow-x:auto;scrollbar-width:none;}
+.je-sort-bar::-webkit-scrollbar{display:none}
+.je-sort-bar.vis{display:flex}
+.je-sort-divider{width:1px;height:13px;background:#ddd8ce;flex-shrink:0;margin:0 3px;align-self:center}
+.je-sort-label{font-size:0.68rem;font-weight:600;color:#a8a29a;letter-spacing:.01em;flex-shrink:0}
+/* 필 버튼 — 정렬/필터 통일 */
+.je-sort-btn,.je-bfbtn{display:inline-flex;align-items:center;gap:3px;border:1.5px solid #ddd8ce;border-radius:100px;background:#fff;color:#5a5450;font-size:0.71rem;font-weight:700;padding:3px 11px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;line-height:1.55;-webkit-tap-highlight-color:transparent;}
+.je-sort-btn:hover,.je-bfbtn:hover{border-color:#b0c8be;color:#2d4a3e;}
+.je-sort-btn.on,.je-bfbtn.on{background:#2d4a3e;color:#fff;border-color:#2d4a3e;}
+.je-bfbtn.ot.on{background:#7a3f12;border-color:#7a3f12;}
+.je-bfbtn.nt.on{background:#1a3f7a;border-color:#1a3f7a;}
+.je-bfbtn-cnt,.je-tab-cnt{font-size:0.63rem;font-weight:600;opacity:.75;}
+.je-bfbtn-sep{width:1px;height:14px;background:#ddd8ce;margin:0 5px;flex-shrink:0;align-self:center}
+/* 책 필터 바 */
+.je-book-filter-bar{display:none;gap:0;padding:7px 14px;background:#faf9f6;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;white-space:nowrap;flex-shrink:0;border-bottom:1px solid #ece8e0;touch-action:pan-x;}
+.je-book-filter-bar::-webkit-scrollbar{display:none}
+.je-book-filter-bar.vis{display:flex;align-items:center;flex-wrap:nowrap;gap:5px;}
+/* 검색창 */
+.je-search-wrap{position:relative;padding:8px 14px 6px;background:#fff;border-bottom:1px solid #ece8e0;}
+.je-search{width:100%;padding:9px 32px 9px 12px;border-radius:9px;border:1.5px solid #ddd8ce;font-size:.87rem;color:#1a1815;background:#faf9f6;font-family:inherit;outline:none;box-sizing:border-box;-webkit-appearance:none;transition:border-color .15s;}
+.je-search:focus{border-color:#2d4a3e;background:#fff;}
+.je-search-clr{position:absolute;right:18px;top:50%;transform:translateY(-50%);background:none;border:none;color:#b0a89e;cursor:pointer;font-size:1rem;padding:4px;line-height:1;}
+#je-ctrl-bar{background:#faf9f6;flex-shrink:0;}
+/* 목록 바디 */
+.je-list-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px 0 40px;}
+.je-list-body::-webkit-scrollbar{width:4px;}
+.je-list-body::-webkit-scrollbar-track{background:transparent;}
+.je-list-body::-webkit-scrollbar-thumb{background:#d4cec6;border-radius:2px;}
+.je-list-body::-webkit-scrollbar-thumb:hover{background:#b0a89e;}
+.je-list-body{scrollbar-width:thin;scrollbar-color:#d4cec6 transparent;}
+/* 삭제 버튼 */
+.je-del-btn{border:none;background:none;color:#d8d2ca;font-size:.78rem;cursor:pointer;padding:3px 5px;border-radius:4px;line-height:1;flex-shrink:0;margin-left:2px;transition:color .12s;}
+.je-del-btn:hover{color:#d84040;background:#fdf0f0;}
+/* 카드 */
+.je-card{margin:0 12px 7px;background:#fff;border-radius:12px;padding:13px 14px;cursor:pointer;border:1px solid #ece8e0;-webkit-tap-highlight-color:transparent;animation:je-rise .2s ease;}
+.je-card:hover{border-color:#c8d8cc;}
+.je-card:active{background:#eef5f0;}
+.je-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:6px}
+.je-card-book{font-size:.86rem;font-weight:800;color:#2d4a3e}
+.je-card-ref{font-size:.76rem;font-weight:600;color:#5a5450;margin-left:4px}
+.je-bk-bm{color:#2d6a4f!important}.je-ref-bm{color:#5a9a78!important}
+.je-bk-sr{color:#222!important}.je-ref-sr{color:#666!important}
+.je-bk-hl{color:#9a5800!important}.je-ref-hl{color:#c07800!important}
+.je-card-len{font-size:.66rem;color:#9a7000;background:rgba(160,120,0,.08);padding:2px 8px;border-radius:100px;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.je-card-title{font-size:.84rem;color:#2a2720;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-bottom:3px;word-break:break-all;}
+.je-card-date{font-size:.64rem;color:#a8a29a;}
+/* 카드 배지 */
+.je-card-badge{display:none;font-size:0.6rem;font-weight:700;border-radius:4px;padding:1px 5px;margin-right:5px;flex-shrink:0;vertical-align:baseline;}
+.je-badge-bm,.je-badge-sr,.je-badge-hl{display:none;}
+/* 빈 상태 */
+.je-empty{text-align:center;color:#a8a29a;padding:52px 24px;font-size:.86rem;}
+/* 파일 드롭 오버레이 */
+#je-drop-ov{display:flex;flex:1;align-items:center;justify-content:center;padding:24px;}
+.je-drop-box{width:100%;max-width:320px;border:2px dashed #cdc8be;border-radius:18px;padding:48px 24px;text-align:center;cursor:pointer;background:#fff;transition:all .2s;}
+.je-drop-box.drag{border-color:#2d4a3e;background:#eaf2ec;}
+.je-drop-ttl{font-size:.95rem;font-weight:700;color:#1a1815;margin:12px 0 6px;}
+.je-drop-sub{font-size:.76rem;color:#a8a29a;}
+/* 헤더 버튼 */
+.je-lbtn{border-radius:8px;padding:7px 14px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;border:none;-webkit-tap-highlight-color:transparent;transition:all .12s;}
+.je-lbtn:active{opacity:.7;}
+.je-lbtn-exp{background:#2d4a3e;color:#fff;}
+.je-lbtn-file{background:#eef5f1;color:#2d4a3e;border:1.5px solid #c0d8cc;}
+.je-lbtn-close{background:#f0ede6;color:#6a6560;}
+.je-lbtn:hover{opacity:.85;}
+/* 토스트 */
+.je-toast{position:fixed;bottom:28px;left:50%;transform:translate(-50%,0);background:#2d4a3e;color:#fff;padding:10px 22px;border-radius:100px;font-size:.84rem;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.14);animation:je-toast 1.8s ease forwards;z-index:10000;white-space:nowrap;pointer-events:none;}
 </style>
 
 <div id="je-ed-overlay-bg" onclick="jeHideAll()" style="display:none;position:fixed;inset:0;z-index:9499;background:rgba(0,0,0,0.45);"></div>
@@ -175,7 +201,7 @@
 
 <div id="je-pin-ov"><div class="je-pin-brand"><div class="je-pin-brand-sub">JINs Bible</div><div class="je-pin-brand-ttl">JSON 편집기</div><div class="je-pin-brand-bar"></div><div class="je-pin-brand-hint">코드 입력</div></div><div class="je-pin-dots" id="je-dots"><div class="je-dot" id="je-d0"></div><div class="je-dot" id="je-d1"></div><div class="je-dot" id="je-d2"></div><div class="je-dot" id="je-d3"></div></div><div class="je-numpad" id="je-numpad"></div></div>
 
-<div id="je-ed-ov"><div id="je-list-ov"><div class="je-list-hdr"><div class="je-list-hdr-top"><div><div class="je-list-ttl">JSON 편집기</div><div class="je-list-sub" id="je-list-sub"></div></div><div class="je-list-btns"><button class="je-lbtn je-lbtn-exp" id="je-exp-btn" style="display:none" onclick="jeExport()">내보내기</button><button class="je-lbtn je-lbtn-file" onclick="jePickFile()">파일 열기</button><button class="je-lbtn je-lbtn-close" onclick="jeHideAll()">닫기</button></div></div></div><div id="je-tab-bar"></div><div id="je-bible-drop" onclick="jeBiblePickFile()"><div id="je-bible-drop-txt">📂 성경역본 불러오기 &nbsp;·&nbsp; TXT · AAB · BDB 드래그드롭 또는 클릭</div></div><input type="file" id="je-bible-inp" accept=".txt,.bdb,.aab,.zip"><div class="je-list-hdr"><div id="je-sort-bar" class="je-sort-bar"><span class="je-sort-label">정렬</span><div class="je-sort-divider"></div><button class="je-sort-btn on" data-sort="bible" onclick="jeSetSort('bible')">성경순</button><button class="je-sort-btn" data-sort="recent" onclick="jeSetSort('recent')">최근작성</button><button class="je-sort-btn" data-sort="oldest" onclick="jeSetSort('oldest')">오래된순</button><button class="je-sort-btn" data-sort="modified" onclick="jeSetSort('modified')">최근수정</button></div><div id="je-book-filter-bar" class="je-book-filter-bar"></div><div class="je-search-wrap" id="je-search-wrap" style="display:none"><input class="je-search" id="je-search" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button class="je-search-clr" onclick="jeClearSearch()">&times;</button></div></div><div id="je-drop-ov"><div class="je-drop-box" id="je-drop-box" onclick="jePickFile()"><div style="font-size:2.6rem">&#128194;</div><div class="je-drop-ttl">JSON 파일 열기</div><div class="je-drop-sub">bible_backup_*.json</div></div></div><div class="je-list-body" id="je-list-body" style="display:none"></div><div id="je-resize-bar-list" title="드래그하여 창 높이 조절"></div></div><div id="je-edit-ov" style="display:none;flex-direction:column;height:100%"><div class="je-hdr"><button class="je-btn-back" onclick="jeBackToList()">&#8592; 목록</button><div class="je-hdr-mid"><div class="je-hdr-ref" id="je-hdr-ref"></div><div class="je-hdr-cnt" id="je-hdr-cnt"></div></div><button class="je-btn-save idle" id="je-save-btn" onclick="jeSave()">저장</button></div><div id="je-verse-panel"><div id="je-verse-text"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><div id="je-verse-src" style="flex:1;font-size:0.78rem;color:#9a9288"></div><div style="display:flex;align-items:center;gap:3px;flex-shrink:0"><button id="je-vp-wrap-btn" onclick="jeToggleVerseWrap()" style="border:none;border-radius:4px;background:transparent;color:#9a9288;font-size:0.7rem;padding:1px 5px;cursor:pointer;transition:all .15s">절별</button><span style="color:#ddd;font-size:0.7rem">|</span><button onclick="jeVerseFontDown()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A-</button><span id="je-vp-fs" style="font-size:0.68rem;color:#b0b0b0;min-width:16px;text-align:center">14</span><button onclick="jeVerseFontUp()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A+</button></div></div></div>
+<div id="je-ed-ov"><div id="je-list-ov"><div class="je-list-hdr"><div class="je-list-hdr-top"><div><div class="je-list-ttl">JSON 편집기</div><div class="je-list-sub" id="je-list-sub"></div></div><div class="je-list-btns"><button class="je-lbtn je-lbtn-exp" id="je-exp-btn" style="display:none" onclick="jeExport()">내보내기</button><button class="je-lbtn je-lbtn-file" onclick="jePickFile()">파일 열기</button><button class="je-lbtn je-lbtn-close" onclick="jeHideAll()">닫기</button></div></div></div><div id="je-tab-bar"></div><div id="je-bible-drop" onclick="jeBiblePickFile()"><div id="je-bible-drop-txt">📂 성경역본 불러오기 &nbsp;·&nbsp; TXT · AAB · BDB 드래그드롭 또는 클릭</div><div id="je-sample-btn" onclick="event.stopPropagation();jeSampleBible()" style="font-size:0.71rem;color:#2d4a3e;font-weight:700;margin-top:3px;cursor:pointer;opacity:0.7;transition:opacity .15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">▷ 샘플본문(개역한글)</div></div><input type="file" id="je-bible-inp" accept=".txt,.bdb,.aab,.zip"><div id="je-ctrl-bar"><div id="je-sort-bar" class="je-sort-bar"><button class="je-sort-btn on" data-sort="bible" onclick="jeSetSort('bible')">성경순</button><button class="je-sort-btn" data-sort="recent" onclick="jeSetSort('recent')">최근작성</button><button class="je-sort-btn" data-sort="oldest" onclick="jeSetSort('oldest')">오래된순</button><button class="je-sort-btn" data-sort="modified" onclick="jeSetSort('modified')">최근수정</button></div><div class="je-search-wrap" id="je-search-wrap" style="display:none"><input class="je-search" id="je-search" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button class="je-search-clr" onclick="jeClearSearch()">&times;</button></div></div><div id="je-book-filter-bar" class="je-book-filter-bar"></div><div id="je-drop-ov"><div class="je-drop-box" id="je-drop-box" onclick="jePickFile()"><div style="font-size:2.6rem">&#128194;</div><div class="je-drop-ttl">JSON 파일 열기</div><div class="je-drop-sub">bible_backup_*.json</div></div></div><div class="je-list-body" id="je-list-body" style="display:none"></div><div id="je-resize-bar-list" title="드래그하여 창 높이 조절"></div></div><div id="je-edit-ov" style="display:none;flex-direction:column;height:100%"><div class="je-hdr"><button class="je-btn-back" onclick="jeBackToList()">&#8592; 목록</button><div class="je-hdr-mid"><div class="je-hdr-ref" id="je-hdr-ref"></div><div class="je-hdr-cnt" id="je-hdr-cnt"></div></div><button class="je-btn-save idle" id="je-save-btn" onclick="jeSave()">저장</button></div><div id="je-verse-panel"><div id="je-verse-text"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><div id="je-verse-src" style="flex:1;font-size:0.78rem;color:#9a9288"></div><div style="display:flex;align-items:center;gap:3px;flex-shrink:0"><button id="je-vp-wrap-btn" onclick="jeToggleVerseWrap()" style="border:none;border-radius:4px;background:transparent;color:#9a9288;font-size:0.7rem;padding:1px 5px;cursor:pointer;transition:all .15s">절별</button><span style="color:#ddd;font-size:0.7rem">|</span><button onclick="jeVerseFontDown()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A-</button><span id="je-vp-fs" style="font-size:0.68rem;color:#b0b0b0;min-width:16px;text-align:center">14</span><button onclick="jeVerseFontUp()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A+</button></div></div></div>
 <div id="je-meta-panel">
   <div id="je-meta-toggle" onclick="jeToggleMeta()">
     <span id="je-meta-toggle-label">📋 구절 정보 수정</span>
@@ -724,6 +750,20 @@ function jeDeleteItem(e, btn){
 }
 /* ══════════════════════════════════════════════════════ */
 
+function jeSampleBible(){
+  var url='https://jins-sys.github.io/JINsBIBLE/GAE.aab';
+  var dt=_$('je-bible-drop-txt');
+  if(dt) dt.innerHTML='⏳ 샘플 불러오는 중다라레라...';
+  fetch(url).then(function(r){
+    if(!r.ok) throw new Error(r.status);
+    return r.arrayBuffer();
+  }).then(function(buf){
+    _jeLoadSqlite(buf,8,'한글개역.aab');
+  }).catch(function(){
+    _toast('샘플 불러오기 실패');
+    _jeBibleDropUpdate();
+  });
+}
 function jeBiblePickFile(){
   if(_jeBibleData.length) return; /* 이미 로드됨 */
   var inp=_$('je-bible-inp'); if(inp){inp.value='';inp.click();}
@@ -968,7 +1008,7 @@ function jeOpenEdit(idx, tab){
         vs.textContent=bookName+' '+ch+':'+vsStart+(vsEnd>vsStart?'-'+vsEnd:'')+(srcName?' · '+srcName:'');
         vp.classList.add('je-vp-show');
       } else { _jeVerseRows=[]; vt.innerHTML=''; vt.textContent='(해당 절을 찾을 수 없습니다)'; vs.textContent=''; vp.classList.add('je-vp-show'); }
-    } else { _jeVerseRows=[]; vt.innerHTML=''; vt.textContent='(역본 없음 — 목록 화면에서 역본을 불러오세요)'; vs.textContent=''; vp.classList.add('je-vp-show'); }
+    } else { _jeVerseRows=[]; vt.innerHTML=''; vt.innerHTML='<span style="color:#b0a89a;font-size:0.85rem">(역본 없음)</span>&nbsp;&nbsp;<button onclick="jeSampleBible()" style="border:none;background:none;color:#2d4a3e;font-size:0.78rem;font-weight:700;cursor:pointer;padding:0;opacity:0.75;transition:opacity .15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.75">▷ 샘플본문(개역한글)</button>'; vs.textContent=''; vp.classList.add('je-vp-show'); }
   }
 
   setTimeout(function(){var ce=_$('je-ce');if(ce)ce.focus();},120);
@@ -1346,7 +1386,43 @@ window.jeExport=jeExport; window.jeOpenEdit=jeOpenEdit;
 window.jeOnMemoInput=jeOnMemoInput; window.jeCeInput=jeCeInput; window.jeSave=jeSave; window.jeBackToList=jeBackToList;
 window.jeTrimBlankLines=jeTrimBlankLines;
 window.jeFmt=jeFmt; window.jePickColor=jePickColor;
-window.jeBiblePickFile=jeBiblePickFile;
+
+/* ── 책별 필터바 마우스 스크롤 ── */
+(function(){
+  var bar = document.getElementById('je-book-filter-bar');
+  if(!bar) return;
+
+  // 휠 → 가로 스크롤
+  bar.addEventListener('wheel', function(e){
+    if(e.deltaY === 0) return;
+    e.preventDefault();
+    bar.scrollLeft += e.deltaY * 1.5;
+  }, {passive: false});
+
+  // 클릭 드래그 → 가로 스크롤
+  var isDragging = false, startX, startScrollLeft;
+  bar.addEventListener('mousedown', function(e){
+    isDragging = true;
+    startX = e.pageX - bar.offsetLeft;
+    startScrollLeft = bar.scrollLeft;
+    bar.style.cursor = 'grabbing';
+    bar.style.userSelect = 'none';
+  });
+  document.addEventListener('mouseup', function(){
+    if(!isDragging) return;
+    isDragging = false;
+    bar.style.cursor = '';
+    bar.style.userSelect = '';
+  });
+  document.addEventListener('mousemove', function(e){
+    if(!isDragging) return;
+    e.preventDefault();
+    var x = e.pageX - bar.offsetLeft;
+    bar.scrollLeft = startScrollLeft - (x - startX);
+  });
+})();
+
+window.jeSampleBible=jeSampleBible; window.jeBiblePickFile=jeBiblePickFile;
 window.jeToggleMeta=jeToggleMeta; window.jeMetaDirty=jeMetaDirty; window.jeMetaSave=jeMetaSave;
 _jeInitBibleDrop();
 
