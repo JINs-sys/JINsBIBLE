@@ -1047,7 +1047,7 @@
             .settings-bar .settings-group:last-child {
                 margin-left: 0 !important;
                 width: 100%;
-                justify-content: flex-end;
+                justify-content: flex-start;
                 flex-wrap: wrap;
                 white-space: normal;
                 gap: 5px;
@@ -2368,20 +2368,6 @@
         document.getElementById('nav-bar').classList.toggle('visible', s.navBar);
         const dz = document.getElementById('drop-zone');
         if (dz && !dz.classList.contains('loaded')) dz.style.display  = s.dropZone;
-        // freewrite: drop-zone을 spacer-after-nav 다음(exercise-ui 앞)으로 이동
-        if (mode === 'freewrite' && dz) {
-            const exUi = document.getElementById('exercise-ui');
-            if (exUi && dz.nextElementSibling !== exUi) {
-                exUi.parentElement.insertBefore(dz, exUi);
-            }
-        }
-        // landing 복귀: drop-zone을 action-grid 앞으로 복원
-        if (mode === 'landing' && dz) {
-            const ag = document.getElementById('action-grid');
-            if (ag && dz.nextElementSibling !== ag) {
-                ag.parentElement.insertBefore(dz, ag);
-            }
-        }
         // 주석 모드 외부 sticky 헤더 show/hide
         const comStickyHeader = document.getElementById('com-sticky-header');
         if (comStickyHeader) comStickyHeader.style.display = (mode === 'commentary') ? 'block' : 'none';
