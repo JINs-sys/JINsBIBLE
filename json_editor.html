@@ -225,30 +225,38 @@
     <div id="je-mf-row-bk">
       <div class="je-mf-row">
         <div class="je-mf-group">
-          <label class="je-mf-label">bookCode</label>
-          <input class="je-mf-input" id="je-mf-bookCode" placeholder="예: ECC" maxlength="4" oninput="jeMetaDirty()">
-          <span class="je-mf-hint">영문 약어 (ECC, JOB, PSA…)</span>
+          <label class="je-mf-label">📜 구약</label>
+          <select class="je-mf-input" id="je-mf-bookSelect-ot" onchange="jeBookSelectChange(this.value,'ot'); jeMetaDirty(); _jeNewItemVersePreview()"></select>
         </div>
         <div class="je-mf-group">
-          <label class="je-mf-label">book 순번</label>
-          <input class="je-mf-input" id="je-mf-book" type="number" min="1" max="66" placeholder="예: 21" oninput="jeMetaDirty()">
-          <span class="je-mf-hint">창=1 … 계=66</span>
+          <label class="je-mf-label">✝️ 신약</label>
+          <select class="je-mf-input" id="je-mf-bookSelect-nt" onchange="jeBookSelectChange(this.value,'nt'); jeMetaDirty(); _jeNewItemVersePreview()"></select>
+        </div>
+      </div>
+      <div class="je-mf-row">
+        <div class="je-mf-group">
+          <label class="je-mf-label">bookCode <span style="font-size:.58rem;color:#b8b2aa">(자동)</span></label>
+          <input class="je-mf-input je-mf-mono" id="je-mf-bookCode" placeholder="자동 입력" maxlength="4" oninput="jeMetaDirty()" readonly style="background:#f7f4ee;color:#9a9288;">
+        </div>
+        <div class="je-mf-group">
+          <label class="je-mf-label">book 순번 <span style="font-size:.58rem;color:#b8b2aa">(자동)</span></label>
+          <input class="je-mf-input" id="je-mf-book" type="number" min="1" max="66" placeholder="자동 입력" oninput="jeMetaDirty()" readonly style="background:#f7f4ee;color:#9a9288;">
         </div>
       </div>
       <div class="je-mf-row">
         <div class="je-mf-group">
           <label class="je-mf-label">chapter 장</label>
-          <input class="je-mf-input" id="je-mf-chapter" type="number" min="1" placeholder="예: 1" oninput="jeMetaDirty()">
+          <input class="je-mf-input" id="je-mf-chapter" type="number" min="1" placeholder="예: 1" oninput="jeMetaDirty(); _jeNewItemVersePreview()">
         </div>
         <div class="je-mf-group">
           <label class="je-mf-label">verse 시작 절</label>
-          <input class="je-mf-input" id="je-mf-verse" type="number" min="1" placeholder="예: 2" oninput="jeMetaDirty()">
+          <input class="je-mf-input" id="je-mf-verse" type="number" min="1" placeholder="예: 2" oninput="jeMetaDirty(); _jeNewItemVersePreview()">
         </div>
       </div>
       <div class="je-mf-row">
         <div class="je-mf-group">
           <label class="je-mf-label">verseEnd 끝 절</label>
-          <input class="je-mf-input" id="je-mf-verseEnd" type="number" min="1" placeholder="단일 절이면 비워두기" oninput="jeMetaDirty()">
+          <input class="je-mf-input" id="je-mf-verseEnd" type="number" min="1" placeholder="단일 절이면 비워두기" oninput="jeMetaDirty(); _jeNewItemVersePreview()">
           <span class="je-mf-hint">단일 절이면 비워두세요 → null</span>
         </div>
         <div class="je-mf-group" style="visibility:hidden"></div>
@@ -260,22 +268,22 @@
       <div class="je-mf-row">
         <div class="je-mf-group">
           <label class="je-mf-label">book 순번</label>
-          <input class="je-mf-input" id="je-mf-sr-book" type="number" min="1" max="66" placeholder="예: 1" oninput="jeMetaDirty()">
+          <input class="je-mf-input" id="je-mf-sr-book" type="number" min="1" max="66" placeholder="예: 1" oninput="jeMetaDirty(); _jeNewItemVersePreview()">
           <span class="je-mf-hint">창=1 … 계=66</span>
         </div>
         <div class="je-mf-group">
           <label class="je-mf-label">chapter 장</label>
-          <input class="je-mf-input" id="je-mf-sr-chapter" type="number" min="1" placeholder="예: 1" oninput="jeMetaDirty()">
+          <input class="je-mf-input" id="je-mf-sr-chapter" type="number" min="1" placeholder="예: 1" oninput="jeMetaDirty(); _jeNewItemVersePreview()">
         </div>
       </div>
       <div class="je-mf-row">
         <div class="je-mf-group">
           <label class="je-mf-label">verseStart 시작 절</label>
-          <input class="je-mf-input" id="je-mf-sr-verseStart" type="number" min="1" placeholder="예: 1" oninput="jeMetaDirty()">
+          <input class="je-mf-input" id="je-mf-sr-verseStart" type="number" min="1" placeholder="예: 1" oninput="jeMetaDirty(); _jeNewItemVersePreview()">
         </div>
         <div class="je-mf-group">
           <label class="je-mf-label">verseEnd 끝 절</label>
-          <input class="je-mf-input" id="je-mf-sr-verseEnd" type="number" min="1" placeholder="비워두면 null" oninput="jeMetaDirty()">
+          <input class="je-mf-input" id="je-mf-sr-verseEnd" type="number" min="1" placeholder="비워두면 null" oninput="jeMetaDirty(); _jeNewItemVersePreview()">
         </div>
       </div>
       <div class="je-mf-row">
@@ -292,18 +300,18 @@
       <div class="je-mf-row">
         <div class="je-mf-group">
           <label class="je-mf-label">book 순번</label>
-          <input class="je-mf-input" id="je-mf-hl-book" type="number" min="1" max="66" placeholder="예: 1" oninput="jeMetaDirty()">
+          <input class="je-mf-input" id="je-mf-hl-book" type="number" min="1" max="66" placeholder="예: 1" oninput="jeMetaDirty(); _jeNewItemVersePreview()">
           <span class="je-mf-hint">창=1 … 계=66</span>
         </div>
         <div class="je-mf-group">
           <label class="je-mf-label">chapter 장</label>
-          <input class="je-mf-input" id="je-mf-hl-chapter" type="number" min="1" placeholder="예: 1" oninput="jeMetaDirty()">
+          <input class="je-mf-input" id="je-mf-hl-chapter" type="number" min="1" placeholder="예: 1" oninput="jeMetaDirty(); _jeNewItemVersePreview()">
         </div>
       </div>
       <div class="je-mf-row">
         <div class="je-mf-group">
           <label class="je-mf-label">verse 절</label>
-          <input class="je-mf-input" id="je-mf-hl-verse" type="number" min="1" placeholder="예: 6" oninput="jeMetaDirty()">
+          <input class="je-mf-input" id="je-mf-hl-verse" type="number" min="1" placeholder="예: 6" oninput="jeMetaDirty(); _jeNewItemVersePreview()">
         </div>
         <div class="je-mf-group">
           <label class="je-mf-label">color 색상</label>
@@ -342,7 +350,42 @@
 <script>
 (function() {
 var _PIN = '0410';
-var _BN = {GEN:'창세기',EXO:'출애굽기',LEV:'레위기',NUM:'민수기',DEU:'신명기',JOS:'여호수아',JDG:'사사기',RUT:'룻기','1SA':'사무엘상','2SA':'사무엘하','1KI':'열왕기상','2KI':'열왕기하','1CH':'역대상','2CH':'역대하',EZR:'에스라',NEH:'느헤미야',EST:'에스더',JOB:'욥기',PSA:'시편',PRO:'잠언',ECC:'전도서',SNG:'아가',ISA:'이사야',JER:'예레미야',LAM:'예레미야애가',EZK:'에스겨',DAN:'다니엘',HOS:'호세아',JOL:'요엘',AMO:'아모스',OBA:'오바닸',JON:'요나',MIC:'미가',NAM:'나훘',HAB:'하박국',ZEP:'스바냐',HAG:'학개',ZEC:'스가라',MAL:'말라기',MAT:'마태복음',MRK:'마가복음',LUK:'누가복음',JHN:'요한복음',ACT:'사도행전',ROM:'로마서','1CO':'고린도전서','2CO':'고린도후서',GAL:'갈라디아서',EPH:'에베소서',PHP:'빌립보서',COL:'골로새서','1TH':'데살로니가전서','2TH':'데살로니가후서','1TI':'디모데전서','2TI':'디모데후서',TIT:'디도서',PHM:'빌레뮬서',HEB:'히브리서',JAS:'야고보서','1PE':'베드로전서','2PE':'베드로후서','1JN':'요한일서','2JN':'요한이서','3JN':'요한삼서',JUD:'유다서',REV:'요한계시록'};
+var _BN = {GEN:'창세기',EXO:'출애굽기',LEV:'레위기',NUM:'민수기',DEU:'신명기',JOS:'여호수아',JDG:'사사기',RUT:'룻기','1SA':'사무엘상','2SA':'사무엘하','1KI':'열왕기상','2KI':'열왕기하','1CH':'역대상','2CH':'역대하',EZR:'에스라',NEH:'느헤미야',EST:'에스더',JOB:'욥기',PSA:'시편',PRO:'잠언',ECC:'전도서',SNG:'아가',ISA:'이사야',JER:'예레미야',LAM:'예레미야애가',EZK:'에스겨',DAN:'다니엘',HOS:'호세아',JOL:'요엘',AMO:'아모스',OBA:'오바닸',JON:'요나',MIC:'미가',NAM:'나훔',HAB:'하박국',ZEP:'스바냐',HAG:'학개',ZEC:'스가랴',MAL:'말라기',MAT:'마태복음',MRK:'마가복음',LUK:'누가복음',JHN:'요한복음',ACT:'사도행전',ROM:'로마서','1CO':'고린도전서','2CO':'고린도후서',GAL:'갈라디아서',EPH:'에베소서',PHP:'빌립보서',COL:'골로새서','1TH':'데살로니가전서','2TH':'데살로니가후서','1TI':'디모데전서','2TI':'디모데후서',TIT:'디도서',PHM:'빌레몬서',HEB:'히브리서',JAS:'야고보서','1PE':'베드로전서','2PE':'베드로후서','1JN':'요한일서','2JN':'요한이서','3JN':'요한삼서',JUD:'유다서',REV:'요한계시록'};
+/* 영문코드 순서 배열 (성경 순) */
+var _BN_ORDER=['GEN','EXO','LEV','NUM','DEU','JOS','JDG','RUT','1SA','2SA','1KI','2KI','1CH','2CH','EZR','NEH','EST','JOB','PSA','PRO','ECC','SNG','ISA','JER','LAM','EZK','DAN','HOS','JOL','AMO','OBA','JON','MIC','NAM','HAB','ZEP','HAG','ZEC','MAL','MAT','MRK','LUK','JHN','ACT','ROM','1CO','2CO','GAL','EPH','PHP','COL','1TH','2TH','1TI','2TI','TIT','PHM','HEB','JAS','1PE','2PE','1JN','2JN','3JN','JUD','REV'];
+/* 셀렉트 초기화 */
+function _jeInitBookSelect(){
+  var selOT=document.getElementById('je-mf-bookSelect-ot');
+  var selNT=document.getElementById('je-mf-bookSelect-nt');
+  if(!selOT||!selNT) return;
+  if(selOT.dataset.built==='1') return;
+  selOT.dataset.built='1';
+  selOT.innerHTML='<option value="">— 구약 선택 —</option>';
+  selNT.innerHTML='<option value="">— 신약 선택 —</option>';
+  for(var i=0;i<39;i++){
+    var c=_BN_ORDER[i];
+    var o=document.createElement('option');
+    o.value=c; o.textContent=String(i+1).padStart(2,'0')+'. '+(_BN[c]||c)+' ('+c+')';
+    selOT.appendChild(o);
+  }
+  for(var i=39;i<_BN_ORDER.length;i++){
+    var c=_BN_ORDER[i];
+    var o=document.createElement('option');
+    o.value=c; o.textContent=String(i+1).padStart(2,'0')+'. '+(_BN[c]||c)+' ('+c+')';
+    selNT.appendChild(o);
+  }
+}
+function jeBookSelectChange(code, which){
+  if(!code) return;
+  /* 반대편 셀렉트 초기화 */
+  var other=document.getElementById(which==='ot'?'je-mf-bookSelect-nt':'je-mf-bookSelect-ot');
+  if(other) other.value='';
+  var bookNum=_BN_ORDER.indexOf(code)+1;
+  var bcEl=document.getElementById('je-mf-bookCode');
+  var bnEl=document.getElementById('je-mf-book');
+  if(bcEl) bcEl.value=code;
+  if(bnEl) bnEl.value=bookNum>0?bookNum:'';
+}
 
 var _pin='', _pinOk=false, _data=null, _search='', _editIdx=null, _memoText='', _origMemo='', _anyDirty=false;
 
@@ -789,7 +832,11 @@ function _renderListItems(){
   }
 
   if(!cnt) html='<div class="je-empty">항목이 없습니다</div>';
-  var body=_$('je-list-body'); body.innerHTML=html;
+  /* "+ 새 항목" 카드를 목록 맨 위에 추가 */
+  var newCardLabel={bookmarks:'📌 새 메모', sermons:'✝️ 새 설교', highlights:'🖊 새 형광펜'}[_jeTab]||'+ 새 항목';
+  var newCard='<div style="margin:0 12px 7px;background:#f0f7f3;border-radius:12px;padding:11px 14px;cursor:pointer;border:1.5px dashed #a8d4bc;display:flex;align-items:center;gap:8px;color:#2d4a3e;font-size:.84rem;font-weight:700;-webkit-tap-highlight-color:transparent;" onclick="jeNewItem()">'
+    +'<span style="font-size:1rem;line-height:1;">＋</span>'+newCardLabel+'</div>';
+  var body=_$('je-list-body'); body.innerHTML=newCard+html;
   var cards=body.querySelectorAll('.je-card');
   for(var j=0;j<cards.length;j++){
     (function(card){
@@ -1151,6 +1198,34 @@ function _updSave(){
   var b=_$('je-save-btn'); if(!b) return;
   b.className='je-btn-save '+(_memoText!==_origMemo?'active':'idle');
 }
+function jeNewItem(){
+  if(!_data) return;
+  var now=new Date();
+  var nowStr=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+'T'+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')+':'+String(now.getSeconds()).padStart(2,'0')+'.000';
+  var uuid=[8,4,4,4,12].map(function(n){var s='';for(var i=0;i<n;i++)s+=(Math.random()*16|0).toString(16);return s;}).join('-');
+  var newItem;
+  if(_jeTab==='bookmarks'){
+    newItem={bookCode:'GEN',book:1,chapter:1,verse:1,verseEnd:null,memo:'',createdAt:nowStr,uuid:uuid};
+  } else if(_jeTab==='sermons'){
+    newItem={book:1,chapter:1,verseStart:1,verseEnd:null,content:'',sermonDate:nowStr.slice(0,10)+'T00:00:00.000',createdAt:nowStr,uuid:uuid};
+  } else {
+    newItem={book:1,chapter:1,verse:1,color:'yellow',createdAt:nowStr,uuid:uuid};
+  }
+  if(!_data[_jeTab]) _data[_jeTab]=[];
+  _data[_jeTab].unshift(newItem);
+  _anyDirty=true;
+  /* 바로 편집 화면으로 — 인덱스 0 (맨 앞에 삽입) */
+  jeOpenEdit(0, _jeTab);
+  /* 메타 패널 자동 펼침 (구절 정보 입력 유도) */
+  var fields=_$('je-meta-fields'), tog=_$('je-meta-toggle');
+  if(fields&&!fields.classList.contains('open')){fields.classList.add('open');if(tog)tog.classList.add('open');}
+  /* 터치 기기도 바로 편집 모드로 */
+  var ce=_$('je-ce'),eb=_$('je-edit-btn'),sb2=_$('je-save-btn');
+  if(ce)ce.setAttribute('contenteditable','true');
+  if(eb)eb.style.display='none';
+  if(sb2)sb2.style.display='';
+  _toast('새 항목 생성됨 — 구절 정보를 입력하세요');
+}
 function jeSave(){
   if(_editIdx===null) return;
   /* 저장 시점에 ce 내용 직접 읽기 */
@@ -1195,7 +1270,15 @@ function _jeFillMeta(item, tab){
   if(hlRow) hlRow.style.display=(tab==='highlights')?'':'none';
 
   if(tab==='bookmarks'){
-    _$('je-mf-bookCode').value=item.bookCode||'';
+    /* 셀렉트 초기화 (최초 1회) */
+    _jeInitBookSelect();
+    var code=item.bookCode||'';
+    var idx=_BN_ORDER.indexOf(code);
+    var selOT=document.getElementById('je-mf-bookSelect-ot');
+    var selNT=document.getElementById('je-mf-bookSelect-nt');
+    if(selOT) selOT.value=(idx>=0&&idx<39)?code:'';
+    if(selNT) selNT.value=(idx>=39)?code:'';
+    _$('je-mf-bookCode').value=code;
     _$('je-mf-book').value=(item.book!=null)?item.book:'';
     _$('je-mf-chapter').value=(item.chapter!=null)?item.chapter:'';
     _$('je-mf-verse').value=(item.verse!=null)?item.verse:'';
@@ -1272,6 +1355,8 @@ function jeMetaSave(){
   _anyDirty=true;
   var btn=_$('je-mf-save-btn'); if(btn) btn.style.background='#2d4a3e';
   _toast('구절 정보 저장됨 ✓');
+  /* 본문 패널 즉시 갱신 */
+  _jeRefreshVersePanel();
   /* 편집 화면 유지 — 목록으로 이동하지 않음 */
   /* 목록 카운트·내보내기 버튼만 갱신 */
   var item2=(_data[_jeTab]||[])[_editIdx];
@@ -1284,6 +1369,87 @@ function jeMetaSave(){
     var expBtn=_$('je-exp-btn'); if(expBtn) expBtn.style.display=_anyDirty?'':'none';
   }
 }
+/* ── 새 항목 생성 시: 책/장/절 입력할 때마다 실시간 본문 미리보기 ── */
+function _jeNewItemVersePreview(){
+  var bd=_jeGetBibleData(), srcName=_jeGetBibleName();
+  var vp=_$('je-verse-panel'), vt=_$('je-verse-text'), vs=_$('je-verse-src');
+  if(!vp||!vt||!vs) return;
+
+  var codeToAbbr={GEN:'창',EXO:'출',LEV:'레',NUM:'민',DEU:'신',JOS:'수',JDG:'삿',RUT:'룻',
+    '1SA':'삼상','2SA':'삼하','1KI':'왕상','2KI':'왕하','1CH':'대상','2CH':'대하',
+    EZR:'스',NEH:'느',EST:'에',JOB:'욥',PSA:'시',PRO:'잠',ECC:'전',SNG:'아',
+    ISA:'사',JER:'렘',LAM:'애',EZK:'겔',DAN:'단',HOS:'호',JOL:'욜',AMO:'암',
+    OBA:'옵',JNH:'욘',JON:'욘',MIC:'미',NAM:'나',HAB:'합',ZEP:'습',HAG:'학',ZEC:'슥',MAL:'말',
+    MAT:'마',MRK:'막',LUK:'눅',JHN:'요',ACT:'행',ROM:'롬',
+    '1CO':'고전','2CO':'고후',GAL:'갈',EPH:'엡',PHP:'빌',COL:'골',
+    '1TH':'살전','2TH':'살후','1TI':'딤전','2TI':'딤후',TIT:'딛',PHM:'몬',
+    HEB:'히',JAS:'약','1PE':'벧전','2PE':'벧후','1JN':'요1','2JN':'요2','3JN':'요3',JUD:'유',REV:'계'};
+
+  var abbr, ch, vsStart, vsEnd, bookName;
+
+  if(_jeTab==='bookmarks'){
+    var codeOT=(_$('je-mf-bookSelect-ot')||{}).value||'';
+    var codeNT=(_$('je-mf-bookSelect-nt')||{}).value||'';
+    var code=codeOT||codeNT;
+    if(!code) return;
+    abbr=codeToAbbr[code]||code;
+    bookName=_BN[code]||code;
+    ch=parseInt((_$('je-mf-chapter')||{}).value)||0;
+    vsStart=parseInt((_$('je-mf-verse')||{}).value)||0;
+    var veVal=parseInt((_$('je-mf-verseEnd')||{}).value);
+    vsEnd=isNaN(veVal)?vsStart:veVal;
+  } else if(_jeTab==='sermons'){
+    var bookNum=parseInt((_$('je-mf-sr-book')||{}).value)||0;
+    if(!bookNum) return;
+    abbr=_JE_BOOK_NUM[bookNum]||'';
+    bookName=_jeBookName(bookNum);
+    ch=parseInt((_$('je-mf-sr-chapter')||{}).value)||0;
+    vsStart=parseInt((_$('je-mf-sr-verseStart')||{}).value)||0;
+    var veVal2=parseInt((_$('je-mf-sr-verseEnd')||{}).value);
+    vsEnd=isNaN(veVal2)?vsStart:veVal2;
+  } else if(_jeTab==='highlights'){
+    var bookNum2=parseInt((_$('je-mf-hl-book')||{}).value)||0;
+    if(!bookNum2) return;
+    abbr=_JE_BOOK_NUM[bookNum2]||'';
+    bookName=_jeBookName(bookNum2);
+    ch=parseInt((_$('je-mf-hl-chapter')||{}).value)||0;
+    vsStart=parseInt((_$('je-mf-hl-verse')||{}).value)||0;
+    vsEnd=vsStart;
+  } else { return; }
+
+  if(!abbr||!ch||!vsStart){
+    /* 아직 정보 부족 — 패널 숨김 */
+    vp.classList.remove('je-vp-show');
+    return;
+  }
+  if(vsEnd<vsStart) vsEnd=vsStart;
+
+  if(!bd.length){
+    /* 역본 없음 안내 표시 */
+    _jeVerseRows=[]; vt.innerHTML='';
+    vt.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#b0a89a;font-size:0.85rem">(역본 없음)</span><button onclick="jeSampleBible()" style="border:none;background:none;color:#2d4a3e;font-size:0.78rem;font-weight:700;cursor:pointer;padding:0;opacity:0.75;transition:opacity .15s;flex-shrink:0;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.75">▷ 샘플본문(개역한글)</button></div>';
+    vs.textContent='';
+    vp.classList.add('je-vp-show');
+    return;
+  }
+
+  var rows=bd.filter(function(d){return d.book===abbr&&d.ch===ch&&d.vs>=vsStart&&d.vs<=vsEnd;});
+  rows.sort(function(a,b){return a.vs-b.vs;});
+  if(rows.length){
+    _jeVerseRows=rows; _jeRenderVt();
+    vs.textContent=bookName+' '+ch+':'+vsStart+(vsEnd>vsStart?'-'+vsEnd:'')+(srcName?' · '+srcName:'');
+    vp.classList.add('je-vp-show');
+    /* 헤더도 실시간 갱신 */
+    var hdrRef=_$('je-hdr-ref');
+    if(hdrRef) hdrRef.textContent=bookName+' '+ch+':'+vsStart+(vsEnd>vsStart?'-'+vsEnd:'');
+  } else {
+    _jeVerseRows=[]; vt.innerHTML='';
+    vt.textContent='(해당 절을 찾을 수 없습니다)';
+    vs.textContent='';
+    vp.classList.add('je-vp-show');
+  }
+}
+
 /* textarea 선택영역 태그 감싸기 */
 function jeFmt(type){
   var ce=_$('je-ce'); if(!ce) return;
@@ -1534,6 +1700,7 @@ window.jeFmt=jeFmt; window.jePickColor=jePickColor;
 
 window.jeSampleBible=jeSampleBible; window.jeBiblePickFile=jeBiblePickFile;
 window.jeToggleMeta=jeToggleMeta; window.jeMetaDirty=jeMetaDirty; window.jeMetaSave=jeMetaSave;
+window.jeNewItem=jeNewItem; window.jeBookSelectChange=jeBookSelectChange;
 _jeInitBibleDrop();
 
 /* build-id 3회 클릭으로 JSON 편집기 열기 */
