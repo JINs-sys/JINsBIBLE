@@ -1035,11 +1035,19 @@
             .settings-bar {
                 flex-wrap: wrap;
                 gap: 6px 0;
-                padding: 8px 10px;
+                padding: 8px 14px;
                 font-size: 0.82rem;
             }
+            /* active-mode sticky 확장 시 모바일 패딩(14px) 기준으로 재설정 */
+            body.active-mode .settings-bar {
+                margin-left: -14px;
+                margin-right: -14px;
+                padding-left: 14px;
+                padding-right: 14px;
+                width: calc(100% + 28px);
+            }
             .settings-group { flex-shrink: 0; }
-            /* 두 그룹 모두 한 줄씩 차지, 양 끝 정렬 */
+            /* 두 그룹 모두 한 줄씩 차지, 좌측 정렬 */
             .settings-bar .settings-group:first-child {
                 width: 100%;
                 justify-content: flex-start;
@@ -2368,6 +2376,20 @@
         document.getElementById('nav-bar').classList.toggle('visible', s.navBar);
         const dz = document.getElementById('drop-zone');
         if (dz && !dz.classList.contains('loaded')) dz.style.display  = s.dropZone;
+        // freewrite: drop-zone을 exercise-ui 바로 앞으로 이동
+        if (mode === 'freewrite' && dz) {
+            const exUi = document.getElementById('exercise-ui');
+            if (exUi && dz.nextElementSibling !== exUi) {
+                exUi.parentElement.insertBefore(dz, exUi);
+            }
+        }
+        // landing 복귀: drop-zone을 action-grid 앞으로 복원
+        if (mode === 'landing' && dz) {
+            const ag = document.getElementById('action-grid');
+            if (ag && dz.nextElementSibling !== ag) {
+                ag.parentElement.insertBefore(dz, ag);
+            }
+        }
         // 주석 모드 외부 sticky 헤더 show/hide
         const comStickyHeader = document.getElementById('com-sticky-header');
         if (comStickyHeader) comStickyHeader.style.display = (mode === 'commentary') ? 'block' : 'none';
