@@ -38,10 +38,92 @@
         .header { margin-bottom: 20px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end; position: sticky; top: 0; z-index: 30; background: var(--paper-white); }
         .title { font-size: 1.5rem; font-weight: 800; margin: 0; color: var(--accent); }
 
-        .settings-bar { display: flex; flex-wrap: nowrap; align-items: center; gap: 10px; background: #f8f7f2; padding: 10px 12px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--rule); font-size: 0.82rem; }
+        .settings-bar { display: flex; flex-wrap: nowrap; align-items: center; gap: 10px; background: #f8f7f2; padding: 10px 12px; border-radius: 0; margin-bottom: 20px; border: 1px solid var(--rule); font-size: 0.82rem; position: relative; }
         /* 작업 모드에서 설정 바 sticky (헤더 바로 아래 고정) */
-        /* sticky 오프셋은 JS가 --sticky-settings-top 변수로 동적 갱신 */
-        body.active-mode .settings-bar { position: sticky; top: var(--sticky-settings-top, 54px); z-index: 29; border-radius: 0 0 8px 8px; margin-left: -30px; margin-right: -30px; padding-left: 30px; padding-right: 30px; }
+        /* sticky 오프셋은 JS가 CSS 변수로 동적 갱신 */
+        /* sticky 요소 사이 고정 간격 spacer — sticky + 배경으로 뒤 콘텐츠 가림 */
+        .sticky-spacer { display: none; height: 0; }
+        body.active-mode #spacer-before-settings {
+            display: block;
+            position: sticky;
+            top: var(--sticky-settings-top-pre, 54px);
+            height: 12px;
+            z-index: 29;
+            background: var(--paper-white);
+            margin-left: -30px; margin-right: -30px;
+            width: calc(100% + 60px);
+        }
+        body.active-mode #spacer-before-nav {
+            display: block;
+            position: sticky;
+            top: var(--sticky-nav-top-pre, 108px);
+            height: 12px;
+            z-index: 28;
+            background: var(--paper-white);
+            margin-left: -30px; margin-right: -30px;
+            width: calc(100% + 60px);
+        }
+        body.active-mode #spacer-after-nav {
+            display: block;
+            height: 12px;
+        }
+        /* 주석 모드에서는 일반 spacer 숨김 (com 전용 spacer 사용) */
+        body.active-mode.commentary-mode #spacer-before-settings,
+        body.active-mode.commentary-mode #spacer-before-nav,
+        body.active-mode.commentary-mode #spacer-after-nav { display: none; }
+        /* active-mode: 헤더와 settings-bar 사이 간격 */
+        body.active-mode .header { margin-bottom: 0; }
+        /* active-mode: settings-bar sticky + 좌우 border 페이드아웃 */
+        body.active-mode .settings-bar {
+            position: sticky;
+            top: var(--sticky-settings-top, 66px);
+            z-index: 29;
+            margin-left: -30px; margin-right: -30px;
+            padding-left: 30px; padding-right: 30px;
+            width: calc(100% + 60px);
+            border-radius: 0;
+            border-top: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
+            border-left: none; border-right: none;
+            background: #f8f7f2;
+            overflow: visible;
+            margin-top: 0; margin-bottom: 0;
+            padding-top: 10px; padding-bottom: 10px;
+        }
+        /* 좌우 끝: 배경 페이드 60px (기존 120px의 절반) */
+        body.active-mode .settings-bar::before,
+        body.active-mode .settings-bar::after,
+        body.active-mode .nav-bar.visible::before,
+        body.active-mode .nav-bar.visible::after,
+        body.active-mode .com-settings-bar::before,
+        body.active-mode .com-settings-bar::after,
+        body.active-mode #com-nav-bar.nav-bar::before,
+        body.active-mode #com-nav-bar.nav-bar::after {
+            content: ''; position: absolute; top: -1px; bottom: -1px;
+            width: 60px; pointer-events: none; z-index: 0;
+        }
+        body.active-mode .settings-bar::before,
+        body.active-mode .nav-bar.visible::before,
+        body.active-mode .com-settings-bar::before,
+        body.active-mode #com-nav-bar.nav-bar::before { left: 0;  background: linear-gradient(to right, #ffffff 0px, transparent 30px); }
+        body.active-mode .settings-bar::after,
+        body.active-mode .nav-bar.visible::after,
+        body.active-mode .com-settings-bar::after,
+        body.active-mode #com-nav-bar.nav-bar::after  { right: 0; background: linear-gradient(to left,  #ffffff 0px, transparent 30px); }
+        /* 선(border) 페이드 30px: 좌우에 흰색 box-shadow로 border를 덮음 */
+        body.active-mode .settings-bar,
+        body.active-mode .nav-bar.visible,
+        body.active-mode .com-settings-bar,
+        body.active-mode #com-nav-bar.nav-bar {
+            box-shadow:
+                inset  30px 0 10px -10px #ffffff,
+                inset -30px 0 10px -10px #ffffff;
+        }
+        /* 페이드 오버레이 위에 콘텐츠가 오도록 */
+        body.active-mode .settings-bar > *,
+        body.active-mode .nav-bar.visible > *,
+        body.active-mode .com-settings-bar > *,
+        body.active-mode #com-nav-bar.nav-bar > * { position: relative; z-index: 1; }
         .settings-group { display: flex; align-items: center; gap: 5px; white-space: nowrap; }
         .settings-bar .btn-action { padding: 5px 10px; font-size: 0.82rem; height: 30px; line-height: 1; }
         .settings-bar .btn-action:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -223,7 +305,7 @@
         .nav-bar { display: none; flex-direction: column; gap: 8px; margin-bottom: 16px; }
         .nav-bar.visible { display: flex; }
         /* 작업 모드: nav-bar(이전장/다음장) sticky — 스크롤해도 항상 화면에 고정 */
-        body.active-mode .nav-bar.visible { position: sticky; top: var(--sticky-nav-top, 114px); z-index: 28; background: var(--paper-white); padding: 8px 0 6px; margin-left: -30px; margin-right: -30px; padding-left: 30px; padding-right: 30px; border-bottom: 1px solid var(--rule); margin-bottom: 12px; }
+        body.active-mode .nav-bar.visible { position: sticky; top: var(--sticky-nav-top, 138px); z-index: 28; background: var(--paper-white); padding: 10px 30px; margin-left: -30px; margin-right: -30px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-bottom: 0; overflow: visible; }
         /* PC: nav-row-top이 selects+prevnext를 한 줄로 묶음 */
         .nav-row-top { display: flex; flex-direction: row; align-items: center; gap: 6px; width: 100%; }
         .nav-row { display: flex; align-items: center; gap: 6px; }
@@ -250,7 +332,6 @@
         /* 주석 네비바 — PC에서 높이 통일 */
         #com-nav-bar .nav-select { height: 33px; padding: 0 8px; }
         #com-nav-bar .btn-nav    { height: 33px; min-height: unset; padding: 0 12px; }
-        body.active-mode #com-nav-bar.nav-bar { margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; }
         /* ep-nav-bar는 편집 패널 내부에 있으므로 sticky 제외 */
         body.active-mode #ep-nav-bar.nav-bar { position: static; margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; border-bottom: none; padding-top: 0; }
 
@@ -526,6 +607,72 @@
             border: 1px solid var(--rule); border-radius: 8px;
             margin-bottom: 12px; overflow: hidden; flex-wrap: wrap;
         }
+        /* 주석 모드: com-spacer-before-settings — 성경역본 spacer-before-settings와 동일 */
+        body.active-mode #com-spacer-before-settings {
+            display: block;
+            position: sticky;
+            top: var(--com-settings-top-pre, 54px);
+            height: 12px;
+            z-index: 30;
+            background: var(--paper-white);
+            margin-left: -30px; margin-right: -30px;
+            width: calc(100% + 60px);
+        }
+        body.active-mode.commentary-mode #com-spacer-after-nav { display: none; }
+        /* 주석 모드: com-spacer-before-nav — 성경역본 spacer-before-nav와 동일 */
+        body.active-mode #com-spacer-before-nav {
+            display: block;
+            position: sticky;
+            top: var(--com-spacer-nav-top, 108px);
+            height: 12px;
+            z-index: 29;
+            background: var(--paper-white);
+            margin-left: -30px; margin-right: -30px;
+            width: calc(100% + 60px);
+        }
+
+        /* 주석 모드: settings-bar sticky — 성경역본 settings-bar와 동일한 구조 */
+        body.active-mode .com-settings-bar {
+            position: sticky;
+            top: var(--com-settings-top, 54px);
+            z-index: 29;
+            border-radius: 0;
+            border-top: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
+            border-left: none; border-right: none;
+            margin-left: -30px; margin-right: -30px;
+            padding-left: 30px; padding-right: 30px;
+            width: calc(100% + 60px);
+            margin-top: 0; margin-bottom: 0;
+            padding-top: 10px; padding-bottom: 10px;
+            background: #f8f7f2;
+            overflow: visible;
+        }
+        /* 주석 모드: com-nav-wrapper — 음수 마진으로 전체 너비, 간격은 spacer가 담당 */
+        body.active-mode #com-nav-wrapper {
+            position: sticky;
+            top: var(--com-nav-top, 120px);
+            z-index: 28;
+            background: var(--paper-white);
+            margin-left: -30px; margin-right: -30px;
+            padding-left: 30px; padding-right: 30px;
+            width: calc(100% + 60px);
+            margin-top: 0; margin-bottom: 0;
+            padding-top: 0;
+        }
+        body.active-mode #com-nav-bar.nav-bar {
+            background: var(--paper-white);
+            margin-left: -30px; margin-right: -30px;
+            padding-left: 30px; padding-right: 30px;
+            width: calc(100% + 60px);
+            padding-top: 10px; padding-bottom: 10px;
+            border-top: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
+            margin-bottom: 0;
+            overflow: visible;
+        }
+        /* placeholder: 미사용 */
+        #com-nav-placeholder { display: none; }
         .com-bar-right {
             display: flex; align-items: center; gap: 8px;
             padding: 7px 10px; flex: 1; min-width: 0; flex-wrap: wrap;
@@ -534,16 +681,37 @@
             font-size: 0.72rem; color: #999; white-space: nowrap;
             flex-shrink: 0;
         }
+        .com-name-wrap {
+            display: inline-flex; flex-direction: column; gap: 3px;
+            flex: 1; min-width: 80px;
+        }
+        .com-name-wrap .com-bar-label {
+            font-size: 0.72rem; color: #aaa; line-height: 1; font-weight: 700;
+        }
+        .com-name-wrap .com-collection-name {
+            flex: none; width: 100%;
+        }
+        .com-bar-right { align-items: flex-end; }
+        .com-bar-right .com-export-btn,
+        .com-bar-right .com-import-btn { align-self: flex-end; }
         .com-collection-name {
             height: 28px; border: 1px solid var(--rule); border-radius: 4px;
             padding: 0 9px; font-size: 0.82rem; font-family: var(--font-main);
             outline: none; color: var(--ink); background: #faf9f6; flex: 1; min-width: 80px;
         }
         .com-collection-name:focus { border-color: var(--accent); background: #fff; }
+        .com-name-wrap { position: relative; }
+        .com-label-row {
+            display: flex; align-items: center; gap: 0;
+            margin-bottom: 3px;
+        }
+        .com-bar-sublabel {
+            font-size: 0.72rem; color: #aaa; font-weight: 300;
+            white-space: nowrap;
+        }
         .com-count-badge {
-            font-size: 0.72rem; background: #e4f2ec; color: var(--accent);
-            border-radius: 10px; padding: 3px 9px; font-weight: 700;
-            border: 1px solid #b8d9cd; white-space: nowrap; flex-shrink: 0;
+            font-size: 0.72rem; color: #a06868; font-weight: 400;
+            white-space: nowrap;
         }
 
         /* 주석 유형 탭 */
@@ -884,6 +1052,17 @@
                 font-size: 0.82rem;
             }
             .settings-group { flex-shrink: 0; }
+            /* 우측 그룹(저장 포맷·저장·이어하기·초기화)이 2번째 줄로 내려갈 때
+               width: 100%로 꽉 채워 justify-content: flex-end로 우측 정렬 */
+            .settings-bar .settings-group:last-child {
+                margin-left: 0 !important;
+                width: 100%;
+                justify-content: flex-end;
+            }
+            /* 한글 보정 그룹은 좌측 정렬 유지 */
+            .settings-bar .settings-group:first-child {
+                flex: 1 1 auto;
+            }
             .settings-bar .btn-action,
             .settings-bar .btn-resume {
                 height: 34px;
@@ -1239,12 +1418,8 @@
             }
             /* 모바일: sticky 바 여백 보정 (container padding 14px) */
             body.active-mode .settings-bar,
-            body.active-mode .nav-bar.visible {
-                margin-left: -14px;
-                margin-right: -14px;
-                padding-left: 14px;
-                padding-right: 14px;
-            }
+            body.active-mode .nav-bar.visible,
+            /* 모바일: com sticky 바는 이미 width:100%, 별도 보정 불필요 */
         }
         /* ── 전역 스크롤바: 얇고 일정 시간 후 숨김 ── */
         * { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.18) transparent; }
@@ -1312,6 +1487,7 @@
     <!-- 하단 페이드 오버레이: chart-view 바깥에서 아래쪽에 겹침 -->
     <div id="chart-fade-bottom" style="display:none; position:relative; z-index:25; height:60px; background:linear-gradient(to top, var(--paper-white) 0%, transparent 100%); pointer-events:none; margin-top:-60px;"></div>
 
+    <div class="sticky-spacer" id="spacer-before-settings"></div>
     <div class="settings-bar" id="settings-bar" style="display:none;">
         <div class="settings-group">
             <strong>한글 보정:</strong>
@@ -1351,7 +1527,7 @@
             <div class="action-card-title">나만의 주석</div>
             <div class="action-card-desc">성경 본문을 보며 책·장·절 단위<br>주석을 작성하고 AAB로 내보냅니다.</div>
             <div class="action-card-drop-hint">📂 성경본문 : TXT · AAB · BDB · ZIP(최대 5개)</div>
-            <div class="action-card-drop-hint">📂 주석파일 : CDB (AAB 주석 파일 추가 예정)</div>
+            <div class="action-card-drop-hint">📂 주석파일 : CDB · AAB(주석)</div>
 
         </div>
         <div class="action-card" onclick="startFreeWrite('strict')">
@@ -1368,6 +1544,7 @@
         </div>
     </div>
 
+    <div class="sticky-spacer" id="spacer-before-nav"></div>
     <div class="nav-bar" id="nav-bar">
         <div class="nav-row-top">
             <div class="nav-row nav-row-selects">
@@ -1399,6 +1576,7 @@
             <input type="radio" name="typing-mode" value="free" checked id="radio-free">
         </div>
     </div>
+    <div class="sticky-spacer" id="spacer-after-nav"></div>
 
     <!-- ════════════════════════════════════════════════════════════════
          📖  성경역본 모드  UI  (#exercise-ui 공유)
@@ -1645,68 +1823,62 @@
         </div>
     </div>
 
+    <!-- ── 주석 모드 sticky 헤더 (commentary-write-ui 밖, container 직접 자식) ── -->
+    <div class="sticky-spacer" id="com-spacer-before-settings" style="display:none;"></div>
+    <div class="com-settings-bar" id="com-settings-bar-outer" style="display:none;">
+        <div class="com-bar-right" style="flex:1;">
+            <div class="com-name-wrap">
+                <div class="com-label-row" style="display:none;">
+                    <span class="com-bar-label">파일명</span><span class="com-bar-sublabel">&nbsp;&nbsp;/&nbsp;&nbsp;주석 개수 :&nbsp;</span><span class="com-count-badge" id="com-count-badge"></span>
+                </div>
+                <input class="com-collection-name" id="com-collection-name" type="text" placeholder="나만의주석" value="나만의주석" title="JSON 내보내기 시 파일 ID로 사용됩니다. 영문을 포함해 입력하면 좋습니다.">
+            </div>
+            <div class="com-import-row">
+            <button class="com-import-btn" onclick="triggerComFileLoad()" title="작업파일(CDB·AAB주석·TXT) 불러오기">↑ 작업파일</button>
+            <button class="com-import-btn" onclick="triggerBibleSlotLoad()" title="성경본문(AAB·BDB·TXT·ZIP) 불러오기">↑ 성경본문</button>
+            </div>
+            <select class="nav-select" id="com-save-format" style="height:28px; font-size:0.78rem; flex-shrink:0; margin-left:auto;" title="AAB: 바이너리 · TXT: 서식 포함 백업/이어하기">
+                <option value="aab">AAB</option>
+                <option value="txt">TXT</option>
+            </select>
+            <button class="com-export-btn" onclick="exportCommentary()">↓ 내보내기</button>
+        </div>
+    </div>
+    <div class="sticky-spacer" id="com-spacer-before-nav" style="display:none;"></div>
+    <div id="com-nav-wrapper" style="display:none;">
+        <div class="nav-bar visible" id="com-nav-bar">
+            <div class="nav-row-top">
+                <div class="nav-row nav-row-selects">
+                    <select class="nav-select" id="com-nav-book"><option value="">책 선택</option></select>
+                    <select class="nav-select" id="com-nav-chapter"><option value="">장</option></select>
+                    <select class="nav-select" id="com-nav-verse"><option value="">절</option></select>
+                    <button class="btn-nav" onclick="comJumpTo()">이동</button>
+                </div>
+                <div class="nav-row nav-row-prevnext">
+                    <button class="btn-nav btn-nav-prev" onclick="comPrevChapter()"><span class="nav-btn-icon">◀</span><span class="nav-btn-label"> 이전장</span></button>
+                    <button class="btn-nav btn-nav-next" onclick="comNextChapter()"><span class="nav-btn-label">다음장 </span><span class="nav-btn-icon">▶</span></button>
+                    <div class="nav-prevnext-divider"></div>
+                    <button class="btn-nav btn-nav-prev" onclick="comPrev()"><span class="nav-btn-icon">◀</span><span class="nav-btn-label"> 이전절</span></button>
+                    <button class="btn-nav btn-nav-next" onclick="comNext()"><span class="nav-btn-label">다음절 </span><span class="nav-btn-icon">▶</span></button>
+                </div>
+            </div>
+        </div>
+        <!-- 주석 유형 탭 + 제목 입력 -->
+        <div id="com-tab-row" style="display:flex; align-items:stretch; gap:8px; margin-bottom:12px; margin-top:12px; width:100%; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
+            <div class="com-type-bar" id="com-type-bar" style="margin-bottom:0; flex-shrink:0;">
+                <button class="com-type-btn"         id="com-type-intro"   onclick="setComType('intro')"><span class="com-type-key">책</span> 개론</button>
+                <button class="com-type-btn"         id="com-type-chapter" onclick="setComType('chapter')"><span class="com-type-key">장</span> 개요</button>
+                <button class="com-type-btn active"  id="com-type-verse"   onclick="setComType('verse')"><span class="com-type-key">절</span> 주석</button>
+            </div>
+            <div class="com-refer-inline">
+                <label>제목</label>
+                <input id="com-refer" type="text" placeholder="자동 입력 · 직접 수정 가능">
+            </div>
+        </div>
+    </div>
+
     <!-- ── 주석 작성 UI ──────────────────────────────────────────────────── -->
     <div id="commentary-write-ui">
-
-        <!-- 상단 설정바 -->
-        <div class="com-settings-bar">
-            <div class="com-bar-right" style="flex:1;">
-                <span class="com-bar-label">파일 이름</span>
-                <input class="com-collection-name" id="com-collection-name" type="text" placeholder="나만의주석" value="나만의주석" title="JSON 내보내기 시 파일 ID로 사용됩니다. 영문을 포함해 입력하면 좋습니다.">
-    <!-- ════════════════════════════════════════════════════════════════
-         📝  주석 모드  UI  (#commentary-write-ui)
-         ────────────────────────────────────────────────────────────────
-         진입: startCommentaryMode()
-         종료: exitCommentaryMode()
-         ════════════════════════════════════════════════════════════════ -->
-                <span class="com-count-badge" id="com-count-badge">0개</span>
-                <select class="nav-select" id="com-save-format" style="height:28px; font-size:0.78rem; flex-shrink:0;" title="AAB: 바이너리 · TXT: 서식 포함 백업/이어하기">
-                    <option value="aab">AAB</option>
-                    <option value="txt">TXT</option>
-                </select>
-                <button class="com-export-btn" onclick="exportCommentary()">↓ 내보내기</button>
-                <div class="com-import-row">
-                <button class="com-import-btn" onclick="triggerComFileLoad()" title="작업파일(CDB·TXT) 불러오기">↑ 작업파일</button>
-                <button class="com-import-btn" onclick="triggerBibleSlotLoad()" title="성경본문(AAB·BDB·TXT·ZIP) 불러오기">↑ 성경본문</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 네비게이션 + 주석 유형 선택 (너비 통일) -->
-        <div style="display:flex; flex-direction:column; align-items:stretch; gap:0;">
-            <div class="nav-bar visible" id="com-nav-bar" style="margin-bottom:6px;">
-                <div class="nav-row-top">
-                    <div class="nav-row nav-row-selects">
-                        <select class="nav-select" id="com-nav-book"><option value="">책 선택</option></select>
-                        <select class="nav-select" id="com-nav-chapter"><option value="">장</option></select>
-                        <select class="nav-select" id="com-nav-verse"><option value="">절</option></select>
-                        <button class="btn-nav" onclick="comJumpTo()">이동</button>
-                    </div>
-                    <div class="nav-row nav-row-prevnext">
-                        <button class="btn-nav btn-nav-prev" onclick="comPrevChapter()"><span class="nav-btn-icon">◀</span><span class="nav-btn-label"> 이전장</span></button>
-                        <button class="btn-nav btn-nav-next" onclick="comNextChapter()"><span class="nav-btn-label">다음장 </span><span class="nav-btn-icon">▶</span></button>
-                        <div class="nav-prevnext-divider"></div>
-                        <button class="btn-nav btn-nav-prev" onclick="comPrev()"><span class="nav-btn-icon">◀</span><span class="nav-btn-label"> 이전절</span></button>
-                        <button class="btn-nav btn-nav-next" onclick="comNext()"><span class="nav-btn-label">다음절 </span><span class="nav-btn-icon">▶</span></button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 주석 유형 탭 + 제목 입력 (가로 배치) -->
-            <div id="com-tab-row" style="display:flex; align-items:stretch; gap:8px; margin-bottom:12px; width:100%; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
-                <!-- 탭 3개: 너비 = 이동 버튼 끝까지 (JS로 동기화) -->
-                <div class="com-type-bar" id="com-type-bar" style="margin-bottom:0; flex-shrink:0;">
-                    <button class="com-type-btn"         id="com-type-intro"   onclick="setComType('intro')"><span class="com-type-key">책</span> 개론</button>
-                    <button class="com-type-btn"         id="com-type-chapter" onclick="setComType('chapter')"><span class="com-type-key">장</span> 개요</button>
-                    <button class="com-type-btn active"  id="com-type-verse"   onclick="setComType('verse')"><span class="com-type-key">절</span> 주석</button>
-                </div>
-                <!-- 제목 입력: 남은 공간 전체 채움 -->
-                <div class="com-refer-inline">
-                    <label>제목</label>
-                    <input id="com-refer" type="text" placeholder="자동 입력 · 직접 수정 가능">
-                </div>
-            </div>
-        </div>
 
         <!-- 본문 + 입력창 -->
         <div class="com-frame">
@@ -2010,7 +2182,7 @@
     </div>
 
     <div id="ver-footer" style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#aaa9a9; margin-top:18px; padding-top:10px; border-top:1px solid var(--rule); position:relative; z-index:1;">
-        <span id="build-id" style="opacity:0.45; font-size:0.68rem; letter-spacing:0.04em; cursor:default; user-select:none;" title="파일 체크섬"></span><span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.6.2</span>
+        <span id="build-id" style="opacity:0.45; font-size:0.68rem; letter-spacing:0.04em; cursor:default; user-select:none;" title="파일 체크섬"></span><span id="ver-tag" style="cursor:default; user-select:none;">JINs Bible 2026 Web | v4.6.3</span>
     </div>
 
     </div>
@@ -2155,6 +2327,16 @@
         document.getElementById('nav-bar').classList.toggle('visible', s.navBar);
         const dz = document.getElementById('drop-zone');
         if (dz && !dz.classList.contains('loaded')) dz.style.display  = s.dropZone;
+        // 주석 모드 외부 sticky 헤더 show/hide
+        const comShow = (mode === 'commentary') ? 'block' : 'none';
+        const comSpacerS = document.getElementById('com-spacer-before-settings');
+        const comSettingsOuter = document.getElementById('com-settings-bar-outer');
+        const comSpacerN = document.getElementById('com-spacer-before-nav');
+        const comNavWrapper = document.getElementById('com-nav-wrapper');
+        if (comSpacerS) comSpacerS.style.display = comShow;
+        if (comSettingsOuter) comSettingsOuter.style.display = (mode === 'commentary') ? 'flex' : 'none';
+        if (comSpacerN) comSpacerN.style.display = comShow;
+        if (comNavWrapper) comNavWrapper.style.display = comShow;
     }
 
     function setHeaderVerseMode(title) {
@@ -3317,49 +3499,14 @@ const SPECIAL_CATEGORIES = [
                 const files = [...(e.dataTransfer.files || [])];
                 if (!files.length) return;
 
-                // ZIP 확장
-                const expanded = [];
-                for (const f of files) {
-                    if (f.name.toLowerCase().endsWith('.zip')) {
-                        const inner = await expandZip(f);
-                        expanded.push(...inner);
-                    } else {
-                        expanded.push(f);
-                    }
-                }
-                const allowed = ['.txt', '.bdb', '.aab'];
-                const validFiles = expanded.filter(f => allowed.some(ext => f.name.toLowerCase().endsWith(ext)));
-                if (!validFiles.length) return alert('TXT · BDB · AAB · ZIP 파일만 지원합니다.');
+                // ── CDB 포함 여부로 .cdb 필터 추가 ──────────────────
+                const allowed = ['.txt', '.bdb', '.aab', '.cdb', '.zip'];
+                const validFiles = files.filter(f => allowed.some(ext => f.name.toLowerCase().endsWith(ext)));
+                if (!validFiles.length) return alert('TXT · BDB · AAB · CDB · ZIP 파일만 지원합니다.');
 
-                const loadIntoCommentary = (filesToLoad) => {
-                    startCommentaryMode();
-                    setTimeout(() => {
-                        const remaining = MAX_BIBLE_SLOTS - bibleDataSets.length;
-                        const toLoad = filesToLoad.slice(0, remaining);
-                        if (filesToLoad.length > remaining) alert(`슬롯이 ${remaining}개 남아 ${toLoad.length}개만 불러옵니다.`);
-                        let loaded = 0;
-                        toLoad.forEach(f => {
-                            parseBibleFile(f, (slotName, data) => {
-                                if (!data.length) return;
-                                bibleDataSets.push({ name: slotName, data });
-                                if (bibleDataSets.length === 1) bibleData = data;
-                                loaded++;
-                                if (loaded === toLoad.length) {
-                                    activeRefTab = bibleDataSets.length - 1;
-                                    buildComNav();
-                                    renderRefTabs();
-                                    comLoadCurrent();
-                                }
-                            });
-                        });
-                    }, 50);
-                };
-
-                if (validFiles.length > 5) {
-                    showZipMultiPickerPopup(validFiles, MAX_BIBLE_SLOTS, loadIntoCommentary);
-                } else {
-                    loadIntoCommentary(validFiles);
-                }
+                // 주석 모드로 진입 후 handleComDropFiles에 위임
+                startCommentaryMode();
+                setTimeout(() => handleComDropFiles(validFiles), 50);
             });
         }
 
@@ -4449,8 +4596,11 @@ const SPECIAL_CATEGORIES = [
             const settingsBar = document.getElementById('settings-bar');
             if (header) {
                 const hH = header.getBoundingClientRect().height;
-                document.documentElement.style.setProperty('--sticky-settings-top', hH + 'px');
-                document.documentElement.style.setProperty('--sticky-nav-top', (hH + (settingsBar ? settingsBar.offsetHeight : 60)) + 'px');
+                const SPACER = 12;
+                document.documentElement.style.setProperty('--sticky-settings-top-pre', hH + 'px');
+                document.documentElement.style.setProperty('--sticky-settings-top', (hH + SPACER) + 'px');
+                document.documentElement.style.setProperty('--sticky-nav-top-pre', (hH + SPACER + (settingsBar ? settingsBar.offsetHeight : 60)) + 'px');
+                document.documentElement.style.setProperty('--sticky-nav-top', (hH + SPACER + (settingsBar ? settingsBar.offsetHeight : 60) + SPACER) + 'px');
             }
         });
         buildFreeNav();
@@ -6129,9 +6279,12 @@ const SPECIAL_CATEGORIES = [
             if (container && header) {
                 const containerTop = container.getBoundingClientRect().top + window.scrollY;
                 const hH = header.getBoundingClientRect().height;
-                const settingsTop = hH;
-                const navTop = hH + (settingsBar && settingsBar.offsetHeight > 0 ? settingsBar.offsetHeight : 0);
+                const SPACER = 12;
+                const settingsTop = hH + SPACER;
+                const navTop = hH + SPACER + (settingsBar && settingsBar.offsetHeight > 0 ? settingsBar.offsetHeight : 0) + SPACER;
+                document.documentElement.style.setProperty('--sticky-settings-top-pre', hH + 'px');
                 document.documentElement.style.setProperty('--sticky-settings-top', settingsTop + 'px');
+                document.documentElement.style.setProperty('--sticky-nav-top-pre', (settingsTop + (settingsBar && settingsBar.offsetHeight > 0 ? settingsBar.offsetHeight : 0)) + 'px');
                 document.documentElement.style.setProperty('--sticky-nav-top', navTop + 'px');
             }
         });
@@ -6714,6 +6867,52 @@ const SPECIAL_CATEGORIES = [
         }
     }
 
+    // ── AAB 주석 여부 감지 (헤더 byte[5] === 0x02 → 주석, 0x01 → 성경) ──
+    async function isAabCommentaryFile(file) {
+        try {
+            const buf = await file.slice(0, 8).arrayBuffer();
+            const b = new Uint8Array(buf);
+            // 매직: 'A','A','B','B' = 0x41 0x41 0x42 0x42
+            return b[0] === 0x41 && b[1] === 0x41 && b[2] === 0x42 && b[3] === 0x42 && b[5] === 0x02;
+        } catch { return false; }
+    }
+
+    // ── AAB 주석 파일 파싱 (CDB와 동일 구조, 8바이트 헤더 제거 후 SQLite) ──
+    async function loadAabCommentary(file, callback) {
+        try {
+            const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+            const rawBuf = await file.arrayBuffer();
+            const db = new SQL.Database(new Uint8Array(rawBuf.slice(8))); // 8바이트 AAB 헤더 제거
+            const result = db.exec('SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse');
+            db.close();
+            if (!result.length) { alert('AAB 주석 파일에서 데이터를 찾을 수 없습니다.'); return; }
+            const loaded = [];
+            for (const [book, chapter, verse, btext] of result[0].values) {
+                const bookAbbr = CDB_BOOK_ABBR[book];
+                if (!bookAbbr || !BOOK_TO_CODE[bookAbbr]) continue;
+                const content = trimComHtml((btext || '').trim());
+                if (!content) continue;
+                const bookCode = BOOK_TO_CODE[bookAbbr];
+                let type, startChapter, endChapter, verseNum, refer;
+                if (chapter === 0) {
+                    type = 'intro'; startChapter = 0; endChapter = 0; verseNum = null;
+                    refer = BOOK_NAMES[bookAbbr] + ' 개론';
+                } else if (verse === 0) {
+                    type = 'chapter'; startChapter = chapter; endChapter = chapter; verseNum = null;
+                    refer = bookAbbr + ' ' + chapter + '장 개요';
+                } else {
+                    type = 'verse'; startChapter = chapter; endChapter = chapter; verseNum = verse;
+                    refer = bookAbbr + ' ' + chapter + ':' + verse;
+                }
+                const key = comItemKey(bookAbbr, startChapter, verseNum, type);
+                loaded.push({ _key: key, bookCode, startChapter, endChapter, verse: verseNum, refer, content, chapterMap: [startChapter] });
+            }
+            callback(loaded, file.name.replace(/\.aab$/i, ''));
+        } catch(err) {
+            alert('AAB 주석 파일 읽기 오류: ' + err.message);
+        }
+    }
+
     // ── 주석 TXT 불러오기 ─────────────────────────────────────────────
     function initComResumeInput() {
         const resumeInput = document.getElementById('com-resume-input');
@@ -6732,6 +6931,22 @@ const SPECIAL_CATEGORIES = [
                 e.target.value = '';
                 return;
             }
+            // ── AAB 분기 ──────────────────────────────────────────────
+            if (file.name.toLowerCase().endsWith('.aab')) {
+                isAabCommentaryFile(file).then(isCommentary => {
+                    if (!isCommentary) {
+                        alert('이 AAB 파일은 성경 본문 파일입니다.\n↑ 성경본문 버튼으로 불러오세요.');
+                        return;
+                    }
+                    showComStatus('AAB 주석 불러오는 중…');
+                    loadAabCommentary(file, (loaded, nameGuess) => {
+                        showComStatus(`✓ ${loaded.length}개 불러오기 완료 (AAB)`);
+                        applyLoadedCommentary(loaded, nameGuess);
+                    });
+                });
+                e.target.value = '';
+                return;
+            }
 
             loadTxtCommentaryFile(file, applyLoadedCommentary);
             e.target.value = '';
@@ -6742,21 +6957,41 @@ const SPECIAL_CATEGORIES = [
     function startCommentaryMode() {
         history.pushState({ mode: 'commentary' }, '');
         commentaryMode = true;
-        commentaryEntryHadData = bibleData.length > 0; // 진입 전 데이터 보유 여부 기억
+        commentaryEntryHadData = bibleData.length > 0;
         document.body.classList.add('active-mode');
+        document.body.classList.add('commentary-mode');
         applyUIState('commentary');
         document.getElementById('verse-title').innerText = '나만의 주석';
         document.getElementById('com-header-verse').style.display = 'inline';
-        // 헤더 버튼 전환 — 홈 버튼을 주석 종료로 교체
         document.getElementById('btn-com-back').style.display     = 'none';
         document.getElementById('btn-home').style.display         = 'inline-flex';
         document.getElementById('btn-home').onclick               = exitCommentaryMode;
-        // 드롭존 바인딩 (UI 표시 후)
         setTimeout(() => { initRefDropZone(); }, 0);
-        // 모바일: 주석 네비바 크기 축소 — CSS로 처리 (JS style 조작 시 가상키보드 트리거 방지)
-        // com-type-bar 너비를 nav-bar(이동 버튼 끝)에 맞춤
         setTimeout(syncComTypeBarWidth, 0);
-        // 이미 로드된 파일이 있으면 슬롯 동기화
+        // 주석 모드 sticky 헤더 표시 (DOM 이동 없음 — 이미 container 직접 자식)
+        requestAnimationFrame(() => {
+            const header      = document.querySelector('.header');
+            const spacer      = document.getElementById('com-spacer-before-settings');
+            const settingsBar = document.getElementById('com-settings-bar-outer');
+            const spacerNav   = document.getElementById('com-spacer-before-nav');
+            const navWrapper  = document.getElementById('com-nav-wrapper');
+            if (!header || !settingsBar || !navWrapper) return;
+
+            // sticky top 계산
+            function calcComStickyTops() {
+                const hH = header.getBoundingClientRect().height;
+                const sH = settingsBar.getBoundingClientRect().height;
+                document.documentElement.style.setProperty('--com-settings-top-pre', hH + 'px');
+                document.documentElement.style.setProperty('--com-settings-top', (hH + 12) + 'px');
+                // spacer-before-nav: settings-bar 바닥 바로 아래
+                document.documentElement.style.setProperty('--com-spacer-nav-top', (hH + 12 + sH) + 'px');
+                document.documentElement.style.setProperty('--com-nav-top', (hH + 12 + sH + 12) + 'px');
+            }
+            calcComStickyTops();
+            window._comResizeObserver = new ResizeObserver(calcComStickyTops);
+            window._comResizeObserver.observe(header);
+            window._comResizeObserver.observe(settingsBar);
+        });
         if (bibleData.length && bibleDataSets.length === 0) {
             bibleDataSets.push({ name: '본문1', data: bibleData });
             activeRefTab = 0;
@@ -6772,6 +7007,7 @@ const SPECIAL_CATEGORIES = [
         }
         commentaryMode = false;
         document.body.classList.remove('active-mode');
+        document.body.classList.remove('commentary-mode');
         // 진입 전 데이터가 없었으면 landing으로, 있었으면 freewrite로
         applyUIState(commentaryEntryHadData ? 'freewrite' : 'landing');
         document.getElementById('verse-title').innerText = 'JINs Bible';
@@ -6779,6 +7015,11 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('com-header-verse').textContent = '';
         // 헤더 버튼 복원
         document.getElementById('btn-com-back').style.display     = 'none';
+        // ResizeObserver 정리
+        if (window._comResizeObserver) {
+            window._comResizeObserver.disconnect();
+            window._comResizeObserver = null;
+        }
 
     // ════════════════════════════════════════════════════════════════════
     // 📝  주석 모드  — 진입 / 네비 / 저장 / 내보내기
@@ -6830,7 +7071,7 @@ const SPECIAL_CATEGORIES = [
 			▷샘플 본문...
 		</button>`;
 
-			panelBox.innerHTML = `<div class="com-ref-panel no-bible"><span class="hint-main">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요</span><span class="hint-sub">성경본문: TXT · BDB · AAB · ZIP</span><span class="hint-sub">주석파일: CDB</span></div>`;
+			panelBox.innerHTML = `<div class="com-ref-panel no-bible"><span class="hint-main">버튼을 클릭하거나 이 영역에 파일을 드래그&amp;드롭하세요</span><span class="hint-sub">성경본문: TXT · BDB · AAB · ZIP</span><span class="hint-sub">주석파일: CDB · AAB</span></div>`;
 			return;
 		}
 
@@ -7185,21 +7426,33 @@ const SPECIAL_CATEGORIES = [
         input.click();
     }
 
-    // ── 작업파일(CDB·TXT) 전용 불러오기 ──────────────────────────────
+    // ── 작업파일(CDB·TXT·AAB주석) 전용 불러오기 ─────────────────────
     function triggerComFileLoad() {
         let input = document.getElementById('com-workfile-input');
         if (!input) {
             input = document.createElement('input');
             input.type = 'file'; input.id = 'com-workfile-input';
-            input.accept = '.cdb,.txt'; input.style.display = 'none';
-            input.addEventListener('change', (e) => {
+            input.accept = '.cdb,.txt,.aab'; input.style.display = 'none';
+            input.addEventListener('change', async (e) => {
                 const file = e.target.files[0];
                 input.value = '';
                 if (!file) return;
-                if (file.name.toLowerCase().endsWith('.cdb')) {
+                const lower = file.name.toLowerCase();
+                if (lower.endsWith('.cdb')) {
                     showComStatus('CDB 불러오는 중…');
                     loadCdbCommentary(file, (loaded, nameGuess) => {
                         showComStatus(`✓ ${loaded.length}개 불러오기 완료 (CDB)`);
+                        applyLoadedCommentary(loaded, nameGuess);
+                    });
+                } else if (lower.endsWith('.aab')) {
+                    const isCommentary = await isAabCommentaryFile(file);
+                    if (!isCommentary) {
+                        alert('이 AAB 파일은 성경 본문 파일입니다.\n주석 파일이 아닙니다.\n↑ 성경본문 버튼으로 불러오세요.');
+                        return;
+                    }
+                    showComStatus('AAB 주석 불러오는 중…');
+                    await loadAabCommentary(file, (loaded, nameGuess) => {
+                        showComStatus(`✓ ${loaded.length}개 불러오기 완료 (AAB)`);
                         applyLoadedCommentary(loaded, nameGuess);
                     });
                 } else {
@@ -7384,36 +7637,97 @@ const SPECIAL_CATEGORIES = [
 
         // ── 파일 분류 ──────────────────────────────────────────────────
         const cdbFiles  = expanded.filter(f => f.name.toLowerCase().endsWith('.cdb'));
-        const dbFiles   = expanded.filter(f => f.name.toLowerCase().endsWith('.bdb') || f.name.toLowerCase().endsWith('.aab'));
+        const aabFiles  = expanded.filter(f => f.name.toLowerCase().endsWith('.aab'));
+        const bdbFiles  = expanded.filter(f => f.name.toLowerCase().endsWith('.bdb'));
         const txtFiles  = expanded.filter(f => f.name.toLowerCase().endsWith('.txt'));
 
-        // ── .cdb → 무조건 주석파일, 슬롯 무관 ──
+        // ── .aab: 헤더로 성경/주석 구분 ───────────────────────────────
+        const comAabFiles = [], bibleAabFiles = [];
+        for (const f of aabFiles) {
+            if (await isAabCommentaryFile(f)) comAabFiles.push(f);
+            else bibleAabFiles.push(f);
+        }
+        const dbFiles    = [...bdbFiles, ...bibleAabFiles];
+        // txt만 있을 때는 주석, db파일과 함께면 성경으로 처리
+        const txtOnlyCommentary = txtFiles.length > 0 && !dbFiles.length;
+        const bibleFiles = [...dbFiles, ...(dbFiles.length ? txtFiles : [])];
+
+        // ── 주석파일 중복 체크 헬퍼 ──────────────────────────────────
+        const isComDuplicate = (nameGuess) => {
+            if (!commentaryWritingData.length) return false;
+            const current = (document.getElementById('com-collection-name')?.value || '').trim();
+            return current === nameGuess.trim();
+        };
+
+        let comHandled = false;
+
+        // ── 주석: CDB ─────────────────────────────────────────────────
         if (cdbFiles.length > 0) {
+            comHandled = true;
             const file = cdbFiles[0];
-            showComStatus('CDB 불러오는 중…');
-            loadCdbCommentary(file, (loaded, nameGuess) => {
-                showComStatus(`✓ ${loaded.length}개 불러오기 완료 (CDB)`);
-                applyLoadedCommentary(loaded, nameGuess);
-            });
-            return;
+            const nameGuess = file.name.replace(/\.cdb$/i, '');
+            if (isComDuplicate(nameGuess)) {
+                alert(`이미 불러온 주석 파일입니다.\n(${nameGuess})`);
+            } else {
+                showComStatus('CDB 불러오는 중…');
+                loadCdbCommentary(file, (loaded, ng) => {
+                    showComStatus(`✓ ${loaded.length}개 불러오기 완료 (CDB)`);
+                    applyLoadedCommentary(loaded, ng);
+                });
+            }
         }
 
-        // ── .txt 단독 → 주석파일, 슬롯 무관 ──
-        if (txtFiles.length > 0 && !dbFiles.length) {
-            loadTxtCommentaryFile(txtFiles[0], applyLoadedCommentary);
-            return;
+        // ── 주석: AAB 주석 ────────────────────────────────────────────
+        if (!comHandled && comAabFiles.length > 0) {
+            comHandled = true;
+            const file = comAabFiles[0];
+            const nameGuess = file.name.replace(/\.aab$/i, '');
+            if (isComDuplicate(nameGuess)) {
+                alert(`이미 불러온 주석 파일입니다.\n(${nameGuess})`);
+            } else {
+                showComStatus('AAB 주석 불러오는 중…');
+                await loadAabCommentary(file, (loaded, ng) => {
+                    showComStatus(`✓ ${loaded.length}개 불러오기 완료 (AAB)`);
+                    applyLoadedCommentary(loaded, ng);
+                });
+            }
         }
 
-        // ── 성경본문: .bdb/.aab (또는 .bdb/.aab + .txt 혼합) ──
-        const bibleFiles = [...dbFiles, ...txtFiles];
+        // ── 주석: TXT 단독 ────────────────────────────────────────────
+        if (!comHandled && txtOnlyCommentary) {
+            comHandled = true;
+            const file = txtFiles[0];
+            const nameGuess = file.name.replace(/\.txt$/i, '');
+            if (isComDuplicate(nameGuess)) {
+                alert(`이미 불러온 주석 파일입니다.\n(${nameGuess})`);
+            } else {
+                loadTxtCommentaryFile(file, applyLoadedCommentary);
+            }
+        }
+
+        // ── 성경본문 ──────────────────────────────────────────────────
         if (!bibleFiles.length) {
-            return alert('지원하지 않는 파일 형식입니다.\nCDB·TXT (주석파일) 또는 BDB·AAB·ZIP (성경본문)만 가능합니다.');
+            if (!comHandled) alert('지원하지 않는 파일 형식입니다.\nCDB·TXT (주석파일) 또는 BDB·AAB·ZIP (성경본문)만 가능합니다.');
+            return;
         }
         const remaining = MAX_BIBLE_SLOTS - bibleDataSets.length;
-        if (remaining <= 0) return alert(`성경본문은 최대 ${MAX_BIBLE_SLOTS}개까지 추가할 수 있습니다.`);
+        if (remaining <= 0) { alert(`성경본문은 최대 ${MAX_BIBLE_SLOTS}개까지 추가할 수 있습니다.`); return; }
+
         const loadBible = (filesToLoad) => {
-            const toLoad = filesToLoad.slice(0, remaining);
-            if (filesToLoad.length > remaining) alert(`슬롯이 ${remaining}개 남아 ${toLoad.length}개만 불러옵니다.`);
+            const loadedNames = new Set(bibleDataSets.map(ds => ds.name));
+            const dupNames = [], uniqueFiles = [];
+            for (const f of filesToLoad) {
+                const sn = f.name.replace(/\.[^.]+$/, '');
+                if (loadedNames.has(sn)) dupNames.push(sn);
+                else uniqueFiles.push(f);
+            }
+            if (dupNames.length) {
+                const msg = dupNames.map(n => `· ${n}`).join('\n');
+                if (!uniqueFiles.length) { alert(`이미 불러온 파일입니다.\n${msg}`); return; }
+                alert(`아래 파일은 이미 불러온 역본이라 건너뜁니다.\n${msg}`);
+            }
+            const toLoad = uniqueFiles.slice(0, remaining);
+            if (uniqueFiles.length > remaining) alert(`슬롯이 ${remaining}개 남아 ${toLoad.length}개만 불러옵니다.`);
             let loaded = 0;
             toLoad.forEach(f => {
                 parseBibleFile(f, (slotName, data) => {
@@ -7430,6 +7744,7 @@ const SPECIAL_CATEGORIES = [
                 });
             });
         };
+
         if (bibleFiles.length > 5) {
             showZipMultiPickerPopup(bibleFiles, remaining, loadBible);
         } else {
@@ -7971,7 +8286,17 @@ const SPECIAL_CATEGORIES = [
     // ── 상태 표시 ────────────────────────────────────────────────────
     function updateComStatus() {
         const count = commentaryWritingData.length;
-        document.getElementById('com-count-badge').textContent = `${count}개`;
+        const badge = document.getElementById('com-count-badge');
+        const labelRow = badge ? badge.closest('.com-label-row') : null;
+        if (count > 0) {
+            badge.textContent = `${count.toLocaleString()}개`;
+            badge.style.display = '';
+            if (labelRow) labelRow.style.display = '';
+        } else {
+            badge.textContent = '';
+            badge.style.display = 'none';
+            if (labelRow) labelRow.style.display = 'none';
+        }
         const key = comItemKey(comBook, comChapter, comVerse, currentComType);
         const has = commentaryWritingData.some(it => it._key === key);
         document.getElementById('com-status').innerHTML = has ? '📌<span class="com-status-text"> 저장된 주석 있음</span>' : '';
