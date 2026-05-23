@@ -750,9 +750,10 @@
             font-family: var(--font-main); font-size: 1rem; line-height: 1.75;
             word-break: break-all; box-sizing: border-box;
             white-space: pre-wrap;
+            caret-color: transparent;
         }
         #com-content:empty::before { content: attr(data-placeholder); color: #d0cdc6; font-size: 0.82rem; line-height: 1.65; pointer-events: none; }
-        #com-content:focus { outline: none; }
+        #com-content:focus { outline: none; caret-color: auto; }
         #com-content blockquote { margin: 6px 0 6px 12px; padding: 4px 12px; border-left: 3px solid #b8c9c4; color: #6a6560; font-style: italic; }
 
         /* 주석 본문 박스 래퍼 */
@@ -1032,27 +1033,30 @@
             /* ── 설정 바 ── */
             .settings-bar {
                 flex-wrap: wrap;
-                gap: 6px;
+                gap: 6px 0;
                 padding: 8px 10px;
                 font-size: 0.82rem;
             }
             .settings-group { flex-shrink: 0; }
-            /* 우측 그룹(저장 포맷·저장·이어하기·초기화)이 2번째 줄로 내려갈 때
-               width: 100%로 꽉 채워 justify-content: flex-end로 우측 정렬 */
+            /* 두 그룹 모두 한 줄씩 차지, 양 끝 정렬 */
+            .settings-bar .settings-group:first-child {
+                width: 100%;
+                justify-content: flex-start;
+            }
             .settings-bar .settings-group:last-child {
                 margin-left: 0 !important;
                 width: 100%;
                 justify-content: flex-end;
-            }
-            /* 한글 보정 그룹은 좌측 정렬 유지 */
-            .settings-bar .settings-group:first-child {
-                flex: 1 1 auto;
+                flex-wrap: wrap;
+                white-space: normal;
+                gap: 5px;
+                row-gap: 5px;
             }
             .settings-bar .btn-action,
             .settings-bar .btn-resume {
                 height: 34px;
                 font-size: 0.82rem;
-                padding: 0 12px;
+                padding: 0 10px;
             }
             .settings-bar .nav-select { height: 34px; font-size: 0.82rem; }
 
@@ -2370,9 +2374,10 @@
 
     function setHeaderVerseMode(title) {
         const vt = document.getElementById('verse-title');
-        if (vt) vt.innerText = (title !== undefined) ? title : freeCurrentKey;
+        if (vt) vt.innerText = '나만의 성경역본';
         const lbl = document.getElementById('header-mode-label');
-        if (lbl) { lbl.textContent = '나만의 성경역본'; lbl.style.display = 'block'; }
+        const ref = (title !== undefined) ? title : freeCurrentKey;
+        if (lbl) { lbl.textContent = ref ? ref : '표제어 / 본문 / 각주 교정 작업'; lbl.style.display = 'block'; }
     }
 
     function applyFmt(cmd, targetEl, opts) {
@@ -4170,6 +4175,12 @@ const SPECIAL_CATEGORIES = [
         if (!label) return;
         const checked = document.querySelector('input[name="typing-mode"]:checked');
         if (!checked) { label.style.display = 'none'; return; }
+        // freeWriteMode이고 절 위치가 있으면 라벨에 절 위치 유지
+        if (freeWriteMode && freeCurrentKey) {
+            label.textContent = freeCurrentKey;
+            label.style.display = 'block';
+            return;
+        }
         label.textContent = checked.value === 'free' ? '표제어 / 본문 / 각주 교정 작업' : '성경 따라 쓰기';
         label.style.display = 'block';
     }
@@ -6998,16 +7009,8 @@ const SPECIAL_CATEGORIES = [
         setTimeout(() => { initRefDropZone(); }, 0);
         setTimeout(syncComTypeBarWidth, 0);
         document.getElementById('com-tab-row').style.display = 'flex';
-        // display 전환 후 브라우저 비동기 포커스까지 차단 (커서 깜박임 방지)
-        setTimeout(() => {
-            const colName = document.getElementById('com-collection-name');
-            if (colName) colName.blur();
-            const comContent = document.getElementById('com-content');
-            if (comContent) comContent.blur();
-            if (document.activeElement && document.activeElement !== document.body) {
-                document.activeElement.blur();
-            }
-        }, 0);
+        const colName = document.getElementById('com-collection-name');
+        if (colName) colName.blur();
         // 주석 모드 sticky 헤더 표시 (DOM 이동 없음 — 이미 container 직접 자식)
         requestAnimationFrame(() => {
             const header        = document.querySelector('.header');
@@ -8088,8 +8091,12 @@ const SPECIAL_CATEGORIES = [
         // 저장된 주석 내용 불러오기
         const key = comItemKey(comBook, comChapter, comVerse, currentComType);
         const existing = commentaryWritingData.find(it => it._key === key);
-        document.getElementById('com-content').innerHTML = existing ? trimComHtml(existing.content) : '';
-        document.getElementById('com-refer').value       = existing ? existing.refer   : comAutoRefer();
+        // contentEditable을 잠깐 false로 전환 → innerHTML 세팅 시 브라우저 자동 포커스 차단
+        const _ed = document.getElementById('com-content');
+        _ed.contentEditable = 'false';
+        _ed.innerHTML = existing ? trimComHtml(existing.content) : '';
+        _ed.contentEditable = 'true';
+        document.getElementById('com-refer').value = existing ? existing.refer : comAutoRefer();
         updateComStatus();
 
         // 하단 바 장/절 라벨 갱신
@@ -8224,7 +8231,10 @@ const SPECIAL_CATEGORIES = [
         const idx = commentaryWritingData.findIndex(it => it._key === key);
         if (idx !== -1) {
             commentaryWritingData.splice(idx, 1);
-            document.getElementById('com-content').innerHTML = '';
+            const _ed2 = document.getElementById('com-content');
+            _ed2.contentEditable = 'false';
+            _ed2.innerHTML = '';
+            _ed2.contentEditable = 'true';
             document.getElementById('com-refer').value = comAutoRefer();
             showComStatus('삭제됨');
             updateComStatus();
