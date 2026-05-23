@@ -81,6 +81,10 @@
         body.active-mode.commentary-mode #spacer-before-settings,
         body.active-mode.commentary-mode #spacer-before-nav,
         body.active-mode.commentary-mode #spacer-after-nav { display: none; }
+        /* 편집 모드에서는 settings/nav sticky spacer 불필요 — 모두 숨김 */
+        body.active-mode.edit-mode #spacer-before-settings,
+        body.active-mode.edit-mode #spacer-before-nav,
+        body.active-mode.edit-mode #spacer-after-nav { display: none !important; }
         /* active-mode: 헤더와 settings-bar 사이 간격 */
         body.active-mode .header { margin-bottom: 0; padding-bottom: 8px; }
         /* active-mode: settings-bar sticky + 좌우 border 페이드아웃 */
@@ -1919,9 +1923,9 @@
         <div id="drop-text">
             <div style="font-size:1.4rem; font-weight:700; color:var(--accent); margin-bottom:20px;">나만의 성경 역본</div>
             <div style="font-size:0.88rem; color:#7a8a80; margin-bottom:14px;">참고할 성경역본을 불러와 나만의 역본을 작성합니다</div>
-            <div style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem; margin-bottom:1px;">
+            <div style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem; margin-bottom:0;">
                 📂 TXT · AAB · BDB · ZIP 드래그드롭 또는 클릭
-            </div><br>
+            </div>
             <button class="btn-noref" onclick="event.stopPropagation(); startFreeWrite();">📝 바로 시작</button>
         </div>
         <input type="file" id="file-input" accept=".txt,.bdb">
@@ -2400,7 +2404,7 @@
     <div id="edit-mode-ui" style="display:none;">
 
         <!-- ① 파일 로드 드롭존 -->
-        <div id="edit-drop-zone" class="file-upload-container" style="margin-bottom:16px;" onclick="document.getElementById('edit-file-input').click()">
+        <div id="edit-drop-zone" class="file-upload-container" style="margin-top:16px; margin-bottom:20px; padding:20px;" onclick="document.getElementById('edit-file-input').click()">
             <div style="font-size:1.1rem; font-weight:700; color:var(--accent); margin-bottom:6px;">성경 역본 파일 로드</div>
             <div style="font-size:0.85rem; color:#7a8a80; margin-bottom:10px;">편집할 성경역본을 불러오세요</div>
             <div style="display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem;">
@@ -2410,7 +2414,7 @@
         </div>
 
         <!-- 현재 역본 불러오기 버튼 (bibleData가 있을 때만 표시) -->
-        <div id="edit-use-loaded-bar" style="margin-top:-8px; margin-bottom:14px; padding:10px 14px; background:#f0f8f4; border:1px solid #a8d4bc; border-radius:8px; align-items:center; justify-content:space-between; gap:10px; display:none;">
+        <div id="edit-use-loaded-bar" style="margin-top:0; margin-bottom:10px; padding:10px 14px; background:#f0f8f4; border:1px solid #a8d4bc; border-radius:8px; align-items:center; justify-content:space-between; gap:10px; display:none;">
     <!-- ════════════════════════════════════════════════════════════════
          🏷️  표제어 모드  UI  (#edit-mode-ui > #edit-panel-title)
          🔄  단어치환 모드  UI  (#edit-mode-ui > #edit-panel-replace)
@@ -2589,7 +2593,7 @@
 
     </div>
 
-    <div id="ver-footer" style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#aaa9a9; margin-top:0; padding-top:8px; border-top:1px solid var(--rule); position:relative; z-index:1; flex-shrink:0;">
+    <div id="ver-footer" style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#aaa9a9; margin-top:16px; padding-top:8px; border-top:1px solid var(--rule); position:relative; z-index:1; flex-shrink:0;">
         <span id="build-id" style="opacity:0.45; font-size:0.68rem; letter-spacing:0.04em; cursor:default; user-select:none;" title="파일 체크섬"></span><span id="ver-tag" style="cursor:default; user-select:none;"><span id="jins-trigger" style="cursor:default; user-select:none;">JINs</span> Bible 2026 Web | v4.6.3</span>
     </div>
 
@@ -8862,6 +8866,7 @@ const SPECIAL_CATEGORIES = [
         history.pushState({ mode: 'edit' }, '');
         editMode = true;
         document.body.classList.add('active-mode');
+        document.body.classList.add('edit-mode');
         applyUIState('editmode');
 
         // ── [편집 모드] 헤더 타이틀 설정 ──────────────────────────────
@@ -8889,6 +8894,7 @@ const SPECIAL_CATEGORIES = [
     function exitEditMode() {
         editMode = false;
         document.body.classList.remove('active-mode');
+        document.body.classList.remove('edit-mode');
         applyUIState('landing');
         document.getElementById('verse-title').innerText = 'JINs Bible';
         const lbl = document.getElementById('header-mode-label');
