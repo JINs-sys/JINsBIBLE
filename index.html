@@ -4655,6 +4655,8 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('btn-chart').style.display = 'inline-block';
         const freeRadio = document.querySelector('input[name="typing-mode"][value="free"]');
         if (freeRadio) freeRadio.checked = true;
+        // 역본 모드 진입 시 통계바 명시적으로 숨김 (이전에 필사 모드였을 경우 잔류 방지)
+        if (!mode || mode === 'free') showTypingStats(false);
         // 입력창 소형 폰트 클래스 직접 적용
         const typingFrame = document.querySelector('.typing-frame');
         if (typingFrame) typingFrame.classList.add('free-write-active');
