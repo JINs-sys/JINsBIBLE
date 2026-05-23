@@ -144,6 +144,7 @@
         .file-upload-container.loaded {
             padding: 10px 20px; background-color: #f2f8f5; border-color: #a0c4b4; cursor: default; transform: none;
         }
+        .file-upload-container.loaded p { margin: 4px 0 0 0; }
 
         /* 진행률 접힘 디자인 */
         /* ════════════════════════════════════════════════════════════════
@@ -2367,6 +2368,20 @@
         document.getElementById('nav-bar').classList.toggle('visible', s.navBar);
         const dz = document.getElementById('drop-zone');
         if (dz && !dz.classList.contains('loaded')) dz.style.display  = s.dropZone;
+        // freewrite: drop-zone을 spacer-after-nav 다음(exercise-ui 앞)으로 이동
+        if (mode === 'freewrite' && dz) {
+            const exUi = document.getElementById('exercise-ui');
+            if (exUi && dz.nextElementSibling !== exUi) {
+                exUi.parentElement.insertBefore(dz, exUi);
+            }
+        }
+        // landing 복귀: drop-zone을 action-grid 앞으로 복원
+        if (mode === 'landing' && dz) {
+            const ag = document.getElementById('action-grid');
+            if (ag && dz.nextElementSibling !== ag) {
+                ag.parentElement.insertBefore(dz, ag);
+            }
+        }
         // 주석 모드 외부 sticky 헤더 show/hide
         const comStickyHeader = document.getElementById('com-sticky-header');
         if (comStickyHeader) comStickyHeader.style.display = (mode === 'commentary') ? 'block' : 'none';
@@ -5205,8 +5220,13 @@ const SPECIAL_CATEGORIES = [
         if(idx >= bibleData.length) return alert("성경 끝까지 완료했습니다!");
         currentIndex = idx;
         const data = bibleData[idx];
-        document.getElementById('verse-title').innerText = getVerseTitle(data.title);
-        updateHeaderMode();
+        // freeWriteMode에선 타이틀 '나만의 성경역본' 유지, 절 위치는 label로
+        if (freeWriteMode) {
+            setHeaderVerseMode(getVerseTitle(data.title));
+        } else {
+            document.getElementById('verse-title').innerText = getVerseTitle(data.title);
+            updateHeaderMode();
+        }
         updateNavChapterLabel();
         // 본문 텍스트만 갱신 (.ref-text-body 만 교체)
         const refEl = document.getElementById('reference-text');
