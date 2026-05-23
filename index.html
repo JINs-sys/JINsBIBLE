@@ -1865,7 +1865,7 @@
                 <div class="com-label-row" style="display:none;">
                     <span class="com-bar-label">파일명</span><span class="com-bar-sublabel">&nbsp;&nbsp;/&nbsp;&nbsp;주석 개수 :&nbsp;</span><span class="com-count-badge" id="com-count-badge"></span>
                 </div>
-                <input class="com-collection-name" id="com-collection-name" type="text" placeholder="나만의주석" value="나만의주석" title="JSON 내보내기 시 파일 ID로 사용됩니다. 영문을 포함해 입력하면 좋습니다.">
+                <input class="com-collection-name" id="com-collection-name" type="text" placeholder="나만의주석" value="나만의주석" tabindex="-1" title="JSON 내보내기 시 파일 ID로 사용됩니다. 영문을 포함해 입력하면 좋습니다.">
             </div>
             <div class="com-import-row">
             <button class="com-import-btn" onclick="triggerComFileLoad()" title="작업파일(CDB·AAB주석·TXT) 불러오기">↑ 작업파일</button>
@@ -1909,7 +1909,7 @@
         </div>
         <div class="com-refer-inline">
             <label>제목</label>
-            <input id="com-refer" type="text" placeholder="자동 입력 · 직접 수정 가능">
+            <input id="com-refer" type="text" placeholder="자동 입력 · 직접 수정 가능" tabindex="-1">
         </div>
     </div>
 
@@ -1925,7 +1925,7 @@
                 <!-- 패널들 (JS로 생성) -->
                 <div class="com-ref-panels hide-labels" id="com-ref-panels"></div>
             </div>
-            <div id="com-content" contenteditable="true" spellcheck="false"
+            <div id="com-content" contenteditable="true" spellcheck="false" tabindex="-1"
                 data-placeholder="주석 내용을 여기에 입력하세요.&#10;&#10;절 주석: 해당 절에 대한 원어, 신학적 해설 등&#10;장 개요: 장 전체의 흐름과 구조 요약&#10;책 개론: 저자, 배경, 주제 등 책 전체 소개"></div>
 
             <!-- 입력창 리사이즈 바 -->
@@ -6998,6 +6998,16 @@ const SPECIAL_CATEGORIES = [
         setTimeout(() => { initRefDropZone(); }, 0);
         setTimeout(syncComTypeBarWidth, 0);
         document.getElementById('com-tab-row').style.display = 'flex';
+        // display 전환 후 브라우저 비동기 포커스까지 차단 (커서 깜박임 방지)
+        setTimeout(() => {
+            const colName = document.getElementById('com-collection-name');
+            if (colName) colName.blur();
+            const comContent = document.getElementById('com-content');
+            if (comContent) comContent.blur();
+            if (document.activeElement && document.activeElement !== document.body) {
+                document.activeElement.blur();
+            }
+        }, 0);
         // 주석 모드 sticky 헤더 표시 (DOM 이동 없음 — 이미 container 직접 자식)
         requestAnimationFrame(() => {
             const header        = document.querySelector('.header');
