@@ -609,6 +609,8 @@
             margin-bottom: 12px; overflow: hidden; flex-wrap: wrap;
         }
         /* 주석 모드: 단일 sticky wrapper -- wrapper만 음수 마진으로 확장 */
+        /* ── PC 전용: 주석 모드 sticky (모바일은 아래 @media max-width:600px 참고) ── */
+        @media (min-width: 601px) {
         body.active-mode #com-sticky-header {
             position: sticky;
             top: var(--com-sticky-top, 54px);
@@ -622,7 +624,6 @@
         body.active-mode.commentary-mode #com-spacer-after-nav { display: none; }
         body.active-mode #com-spacer-before-settings,
         body.active-mode #com-spacer-before-nav { display: none !important; }
-        /* settings-bar: wrapper 안에서 width:100%, 음수 마진 없음 */
         body.active-mode .com-settings-bar {
             position: relative;
             border-radius: 0;
@@ -654,6 +655,7 @@
             margin-bottom: 0;
             overflow: visible;
         }
+        } /* end @media min-width:601px */
         /* placeholder: 미사용 */
         #com-nav-placeholder { display: none; }
         .com-bar-right {
@@ -1403,6 +1405,54 @@
             body.active-mode .settings-bar,
             body.active-mode .nav-bar.visible,
             /* 모바일: com sticky 바는 이미 width:100%, 별도 보정 불필요 */
+
+            /* ── 모바일 전용: 주석 모드 sticky ── */
+            body.active-mode #com-sticky-header {
+                position: sticky;
+                top: var(--com-sticky-top, 54px);
+                z-index: 29;
+                margin-left: -14px; margin-right: -14px;
+                width: calc(100% + 28px);
+                display: flex; flex-direction: column;
+                padding-top: 10px;
+                background: var(--paper-white);
+            }
+            body.active-mode #com-spacer-before-settings,
+            body.active-mode #com-spacer-before-nav { display: none !important; }
+            body.active-mode.commentary-mode #com-spacer-after-nav { display: none !important; }
+            body.active-mode .com-settings-bar {
+                position: relative;
+                border-radius: 0;
+                border: none;
+                border-top: 1px solid var(--rule);
+                border-bottom: 1px solid var(--rule);
+                padding: 8px 14px;
+                margin: 0;
+                width: 100%;
+                background: #f8f7f2;
+                overflow: visible;
+                flex-shrink: 0;
+                box-shadow: none;
+            }
+            body.active-mode .com-settings-bar > .com-bar-right {
+                padding-left: 0; padding-right: 0;
+            }
+            body.active-mode #com-nav-wrapper {
+                padding: 0; margin: 0; width: 100%;
+                background: var(--paper-white);
+            }
+            body.active-mode #com-nav-bar.nav-bar {
+                position: static;
+                background: var(--paper-white);
+                margin: 0;
+                padding: 6px 14px;
+                width: 100%;
+                border-top: none;
+                border-bottom: 1px solid var(--rule);
+                margin-bottom: 0;
+                overflow: visible;
+                box-shadow: none;
+            }
         }
         /* ── 전역 스크롤바: 얇고 일정 시간 후 숨김 ── */
         * { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.18) transparent; }
@@ -1851,7 +1901,7 @@
     </div><!-- /#com-sticky-header -->
 
     <!-- 주석 유형 탭 + 제목 입력 (sticky 밖) -->
-    <div id="com-tab-row" style="display:flex; align-items:stretch; gap:8px; margin-bottom:12px; margin-top:12px; width:100%; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
+    <div id="com-tab-row" style="display:none; align-items:stretch; gap:8px; margin-bottom:12px; margin-top:12px; width:100%; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
         <div class="com-type-bar" id="com-type-bar" style="margin-bottom:0; flex-shrink:0;">
             <button class="com-type-btn"         id="com-type-intro"   onclick="setComType('intro')"><span class="com-type-key">책</span> 개론</button>
             <button class="com-type-btn"         id="com-type-chapter" onclick="setComType('chapter')"><span class="com-type-key">장</span> 개요</button>
@@ -6947,6 +6997,7 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('btn-home').onclick               = exitCommentaryMode;
         setTimeout(() => { initRefDropZone(); }, 0);
         setTimeout(syncComTypeBarWidth, 0);
+        document.getElementById('com-tab-row').style.display = 'flex';
         // 주석 모드 sticky 헤더 표시 (DOM 이동 없음 — 이미 container 직접 자식)
         requestAnimationFrame(() => {
             const header        = document.querySelector('.header');
@@ -6976,6 +7027,7 @@ const SPECIAL_CATEGORIES = [
         commentaryMode = false;
         document.body.classList.remove('active-mode');
         document.body.classList.remove('commentary-mode');
+        document.getElementById('com-tab-row').style.display = 'none';
         // 진입 전 데이터가 없었으면 landing으로, 있었으면 freewrite로
         applyUIState(commentaryEntryHadData ? 'freewrite' : 'landing');
         document.getElementById('verse-title').innerText = 'JINs Bible';
