@@ -72,7 +72,7 @@
         body.active-mode.commentary-mode #spacer-before-nav,
         body.active-mode.commentary-mode #spacer-after-nav { display: none; }
         /* active-mode: 헤더와 settings-bar 사이 간격 */
-        body.active-mode .header { margin-bottom: 0; }
+        body.active-mode .header { margin-bottom: 0; padding-bottom: 8px; }
         /* active-mode: settings-bar sticky + 좌우 border 페이드아웃 */
         body.active-mode .settings-bar {
             position: sticky;
@@ -110,15 +110,16 @@
         body.active-mode .nav-bar.visible::after,
         body.active-mode .com-settings-bar::after,
         body.active-mode #com-nav-bar.nav-bar::after  { right: 0; background: linear-gradient(to left,  #ffffff 0px, transparent 30px); }
-        /* 선(border) 페이드 30px: 좌우에 흰색 box-shadow로 border를 덮음 */
+        /* 선(border) 페이드 30px: 좌우에 흰색 box-shadow로 border를 덮음 (일반 nav/settings만) */
         body.active-mode .settings-bar,
-        body.active-mode .nav-bar.visible,
-        body.active-mode .com-settings-bar,
-        body.active-mode #com-nav-bar.nav-bar {
+        body.active-mode .nav-bar.visible {
             box-shadow:
                 inset  30px 0 10px -10px #ffffff,
                 inset -30px 0 10px -10px #ffffff;
         }
+        /* com 바는 wrapper가 확장 담당 — box-shadow 불필요 */
+        body.active-mode .com-settings-bar,
+        body.active-mode #com-nav-bar.nav-bar { box-shadow: none; }
         /* 페이드 오버레이 위에 콘텐츠가 오도록 */
         body.active-mode .settings-bar > *,
         body.active-mode .nav-bar.visible > *,
@@ -607,66 +608,48 @@
             border: 1px solid var(--rule); border-radius: 8px;
             margin-bottom: 12px; overflow: hidden; flex-wrap: wrap;
         }
-        /* 주석 모드: com-spacer-before-settings — 성경역본 spacer-before-settings와 동일 */
-        body.active-mode #com-spacer-before-settings {
-            display: block;
+        /* 주석 모드: 단일 sticky wrapper -- wrapper만 음수 마진으로 확장 */
+        body.active-mode #com-sticky-header {
             position: sticky;
-            top: var(--com-settings-top-pre, 54px);
-            height: 12px;
-            z-index: 30;
-            background: var(--paper-white);
+            top: var(--com-sticky-top, 54px);
+            z-index: 29;
             margin-left: -30px; margin-right: -30px;
             width: calc(100% + 60px);
+            display: flex; flex-direction: column;
+            padding-top: 10px;
+            background: var(--paper-white);
         }
         body.active-mode.commentary-mode #com-spacer-after-nav { display: none; }
-        /* 주석 모드: com-spacer-before-nav — 성경역본 spacer-before-nav와 동일 */
-        body.active-mode #com-spacer-before-nav {
-            display: block;
-            position: sticky;
-            top: var(--com-spacer-nav-top, 108px);
-            height: 12px;
-            z-index: 29;
-            background: var(--paper-white);
-            margin-left: -30px; margin-right: -30px;
-            width: calc(100% + 60px);
-        }
-
-        /* 주석 모드: settings-bar sticky — 성경역본 settings-bar와 동일한 구조 */
+        body.active-mode #com-spacer-before-settings,
+        body.active-mode #com-spacer-before-nav { display: none !important; }
+        /* settings-bar: wrapper 안에서 width:100%, 음수 마진 없음 */
         body.active-mode .com-settings-bar {
-            position: sticky;
-            top: var(--com-settings-top, 54px);
-            z-index: 29;
+            position: relative;
             border-radius: 0;
+            border: none;
             border-top: 1px solid var(--rule);
             border-bottom: 1px solid var(--rule);
-            border-left: none; border-right: none;
-            margin-left: -30px; margin-right: -30px;
-            padding-left: 30px; padding-right: 30px;
-            width: calc(100% + 60px);
-            margin-top: 0; margin-bottom: 0;
-            padding-top: 10px; padding-bottom: 10px;
+            padding: 8px 30px;
+            margin: 0;
+            width: 100%;
             background: #f8f7f2;
             overflow: visible;
+            flex-shrink: 0;
         }
-        /* 주석 모드: com-nav-wrapper — 음수 마진으로 전체 너비, 간격은 spacer가 담당 */
+        body.active-mode .com-settings-bar > .com-bar-right {
+            padding-left: 0; padding-right: 0;
+        }
         body.active-mode #com-nav-wrapper {
-            position: sticky;
-            top: var(--com-nav-top, 120px);
-            z-index: 28;
+            padding: 0; margin: 0; width: 100%;
             background: var(--paper-white);
-            margin-left: -30px; margin-right: -30px;
-            padding-left: 30px; padding-right: 30px;
-            width: calc(100% + 60px);
-            margin-top: 0; margin-bottom: 0;
-            padding-top: 0;
         }
         body.active-mode #com-nav-bar.nav-bar {
+            position: static;
             background: var(--paper-white);
-            margin-left: -30px; margin-right: -30px;
-            padding-left: 30px; padding-right: 30px;
-            width: calc(100% + 60px);
-            padding-top: 10px; padding-bottom: 10px;
-            border-top: 1px solid var(--rule);
+            margin: 0;
+            padding: 6px 30px;
+            width: 100%;
+            border-top: none;
             border-bottom: 1px solid var(--rule);
             margin-bottom: 0;
             overflow: visible;
@@ -675,7 +658,7 @@
         #com-nav-placeholder { display: none; }
         .com-bar-right {
             display: flex; align-items: center; gap: 8px;
-            padding: 7px 10px; flex: 1; min-width: 0; flex-wrap: wrap;
+            padding: 3px 10px; flex: 1; min-width: 0; flex-wrap: wrap;
         }
         .com-bar-label {
             font-size: 0.72rem; color: #999; white-space: nowrap;
@@ -1823,9 +1806,10 @@
         </div>
     </div>
 
-    <!-- ── 주석 모드 sticky 헤더 (commentary-write-ui 밖, container 직접 자식) ── -->
-    <div class="sticky-spacer" id="com-spacer-before-settings" style="display:none;"></div>
-    <div class="com-settings-bar" id="com-settings-bar-outer" style="display:none;">
+    <!-- ── 주석 모드 sticky 헤더 (단일 wrapper) ── -->
+    <div id="com-sticky-header" style="display:none;">
+    <div class="sticky-spacer" id="com-spacer-before-settings"></div>
+    <div class="com-settings-bar" id="com-settings-bar-outer">
         <div class="com-bar-right" style="flex:1;">
             <div class="com-name-wrap">
                 <div class="com-label-row" style="display:none;">
@@ -1844,8 +1828,8 @@
             <button class="com-export-btn" onclick="exportCommentary()">↓ 내보내기</button>
         </div>
     </div>
-    <div class="sticky-spacer" id="com-spacer-before-nav" style="display:none;"></div>
-    <div id="com-nav-wrapper" style="display:none;">
+    <div class="sticky-spacer" id="com-spacer-before-nav"></div>
+    <div id="com-nav-wrapper">
         <div class="nav-bar visible" id="com-nav-bar">
             <div class="nav-row-top">
                 <div class="nav-row nav-row-selects">
@@ -1863,17 +1847,19 @@
                 </div>
             </div>
         </div>
-        <!-- 주석 유형 탭 + 제목 입력 -->
-        <div id="com-tab-row" style="display:flex; align-items:stretch; gap:8px; margin-bottom:12px; margin-top:12px; width:100%; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
-            <div class="com-type-bar" id="com-type-bar" style="margin-bottom:0; flex-shrink:0;">
-                <button class="com-type-btn"         id="com-type-intro"   onclick="setComType('intro')"><span class="com-type-key">책</span> 개론</button>
-                <button class="com-type-btn"         id="com-type-chapter" onclick="setComType('chapter')"><span class="com-type-key">장</span> 개요</button>
-                <button class="com-type-btn active"  id="com-type-verse"   onclick="setComType('verse')"><span class="com-type-key">절</span> 주석</button>
-            </div>
-            <div class="com-refer-inline">
-                <label>제목</label>
-                <input id="com-refer" type="text" placeholder="자동 입력 · 직접 수정 가능">
-            </div>
+    </div>
+    </div><!-- /#com-sticky-header -->
+
+    <!-- 주석 유형 탭 + 제목 입력 (sticky 밖) -->
+    <div id="com-tab-row" style="display:flex; align-items:stretch; gap:8px; margin-bottom:12px; margin-top:12px; width:100%; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
+        <div class="com-type-bar" id="com-type-bar" style="margin-bottom:0; flex-shrink:0;">
+            <button class="com-type-btn"         id="com-type-intro"   onclick="setComType('intro')"><span class="com-type-key">책</span> 개론</button>
+            <button class="com-type-btn"         id="com-type-chapter" onclick="setComType('chapter')"><span class="com-type-key">장</span> 개요</button>
+            <button class="com-type-btn active"  id="com-type-verse"   onclick="setComType('verse')"><span class="com-type-key">절</span> 주석</button>
+        </div>
+        <div class="com-refer-inline">
+            <label>제목</label>
+            <input id="com-refer" type="text" placeholder="자동 입력 · 직접 수정 가능">
         </div>
     </div>
 
@@ -2328,15 +2314,8 @@
         const dz = document.getElementById('drop-zone');
         if (dz && !dz.classList.contains('loaded')) dz.style.display  = s.dropZone;
         // 주석 모드 외부 sticky 헤더 show/hide
-        const comShow = (mode === 'commentary') ? 'block' : 'none';
-        const comSpacerS = document.getElementById('com-spacer-before-settings');
-        const comSettingsOuter = document.getElementById('com-settings-bar-outer');
-        const comSpacerN = document.getElementById('com-spacer-before-nav');
-        const comNavWrapper = document.getElementById('com-nav-wrapper');
-        if (comSpacerS) comSpacerS.style.display = comShow;
-        if (comSettingsOuter) comSettingsOuter.style.display = (mode === 'commentary') ? 'flex' : 'none';
-        if (comSpacerN) comSpacerN.style.display = comShow;
-        if (comNavWrapper) comNavWrapper.style.display = comShow;
+        const comStickyHeader = document.getElementById('com-sticky-header');
+        if (comStickyHeader) comStickyHeader.style.display = (mode === 'commentary') ? 'block' : 'none';
     }
 
     function setHeaderVerseMode(title) {
@@ -6970,27 +6949,16 @@ const SPECIAL_CATEGORIES = [
         setTimeout(syncComTypeBarWidth, 0);
         // 주석 모드 sticky 헤더 표시 (DOM 이동 없음 — 이미 container 직접 자식)
         requestAnimationFrame(() => {
-            const header      = document.querySelector('.header');
-            const spacer      = document.getElementById('com-spacer-before-settings');
-            const settingsBar = document.getElementById('com-settings-bar-outer');
-            const spacerNav   = document.getElementById('com-spacer-before-nav');
-            const navWrapper  = document.getElementById('com-nav-wrapper');
-            if (!header || !settingsBar || !navWrapper) return;
-
-            // sticky top 계산
-            function calcComStickyTops() {
+            const header        = document.querySelector('.header');
+            const comStickyHdr  = document.getElementById('com-sticky-header');
+            if (!header || !comStickyHdr) return;
+            function calcComStickyTop() {
                 const hH = header.getBoundingClientRect().height;
-                const sH = settingsBar.getBoundingClientRect().height;
-                document.documentElement.style.setProperty('--com-settings-top-pre', hH + 'px');
-                document.documentElement.style.setProperty('--com-settings-top', (hH + 12) + 'px');
-                // spacer-before-nav: settings-bar 바닥 바로 아래
-                document.documentElement.style.setProperty('--com-spacer-nav-top', (hH + 12 + sH) + 'px');
-                document.documentElement.style.setProperty('--com-nav-top', (hH + 12 + sH + 12) + 'px');
+                document.documentElement.style.setProperty('--com-sticky-top', hH + 'px');
             }
-            calcComStickyTops();
-            window._comResizeObserver = new ResizeObserver(calcComStickyTops);
+            calcComStickyTop();
+            window._comResizeObserver = new ResizeObserver(calcComStickyTop);
             window._comResizeObserver.observe(header);
-            window._comResizeObserver.observe(settingsBar);
         });
         if (bibleData.length && bibleDataSets.length === 0) {
             bibleDataSets.push({ name: '본문1', data: bibleData });
