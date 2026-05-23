@@ -32,13 +32,13 @@
         }
         body { margin: 0; background-color: var(--paper); color: var(--ink); font-family: var(--font-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         @media (max-width: 480px) {
-            body:not(.active-mode) { padding: 10px; align-items: flex-start; min-height: 100svh; }
+            body:not(.active-mode) { padding: 0; align-items: stretch; min-height: 100svh; }
         }
         /* 작업 모드 진입 시: 컨테이너를 상단 고정, 세로 점프 방지 */
         body.active-mode { align-items: flex-start; }
         .container { width: 100%; max-width: 620px; background-color: var(--paper-white); padding: 30px; border-radius: 12px; border: 1px solid var(--rule); box-shadow: 0 10px 40px rgba(0,0,0,0.06); position: relative; }
         @media (max-width: 480px) {
-            body:not(.active-mode) .container { padding: 16px 14px; border-radius: 10px; }
+            body:not(.active-mode) .container { padding: 16px 14px; border-radius: 0; border-left: none; border-right: none; border-top: none; min-height: 100svh; box-shadow: none; display: flex; flex-direction: column; }
         }
 
         .header { margin-bottom: 20px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end; position: sticky; top: 0; z-index: 30; background: var(--paper-white); }
@@ -187,9 +187,9 @@
             text-decoration: none; color: inherit;
         }
         @media (max-width: 480px) {
-            body:not(.active-mode) .action-grid { grid-template-columns: 1fr; gap: 7px; margin-bottom: 0; }
+            body:not(.active-mode) .action-grid { grid-template-columns: 1fr; gap: 7px; margin-bottom: 0; flex: 1; }
             body:not(.active-mode) .action-card.card-commentary { grid-row: auto; }
-            body:not(.active-mode) .action-card { padding: 11px 13px; gap: 3px; }
+            body:not(.active-mode) .action-card { padding: 14px 13px; gap: 3px; flex: 1; }
             body:not(.active-mode) .action-card-drop-hint { margin-top: 3px; padding-top: 4px; font-size: 0.68rem; }
         }
         .action-card:hover { border-color: #8aab9e; background: #f2f8f5; box-shadow: 0 2px 12px rgba(45,74,62,0.09); transform: translateY(-1px); }
