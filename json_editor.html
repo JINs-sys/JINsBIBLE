@@ -2265,7 +2265,74 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')jeHideAll();
   window._jeGetBibleData = _jeGetBibleData;
 })();
 
-/* 뒤로가기 처리는 DOMContentLoaded에서 index.html 방식으로 */
+/* ── 브라우저 뒤로가기 가로채기 ──
+   화면 단계별로 history entry를 쌓아서 뒤로가기가 앱 내 이동으로 동작하게 함.
+   단계: 0=닫힘, 1=PIN/목록, 2=편집 */
+(function(){
+  var _histState = 0;
+
+  function _pushState(level){
+    history.pushState({jeLevel: level}, '', location.href.split('#')[0] + '#je' + level);
+    _histState = level;
+  }
+
+  window.addEventListener('popstate', function(e){
+    var level = (e.state && e.state.jeLevel != null) ? e.state.jeLevel : 0;
+
+    if(level < _histState){
+      if(_histState === 2){
+        var editOv = document.getElementById('je-edit-ov');
+        if(editOv && editOv.style.display !== 'none'){
+          jeBackToList();
+          _histState = 1;
+          return;
+        }
+      }
+      if(_histState >= 1){
+        var pinOv = document.getElementById('je-pin-ov');
+        var edOv  = document.getElementById('je-ed-ov');
+        var pinVisible = pinOv && pinOv.classList.contains('je-show');
+        var edVisible  = edOv  && edOv.classList.contains('je-show');
+        if(pinVisible || edVisible){
+          jeHideAll();
+          _histState = 0;
+          return;
+        }
+      }
+    }
+  });
+
+  /* jeShowPin 래핑: 앱 열릴 때 history entry 추가 */
+  var _origShowPin = window.jeShowPin;
+  window.jeShowPin = function(){
+    if(_histState < 1) _pushState(1);
+    if(_origShowPin) _origShowPin();
+  };
+
+  /* jeBackToList 래핑 */
+  var _origBackToList = window.jeBackToList;
+  window.jeBackToList = function(){
+    if(_origBackToList) _origBackToList();
+    _histState = 1;
+  };
+
+  /* jeHideAll 래핑 */
+  var _origHideAll = window.jeHideAll;
+  window.jeHideAll = function(){
+    if(_origHideAll) _origHideAll();
+    _histState = 0;
+  };
+
+  /* 편집 화면 열릴 때 history entry 추가 (MutationObserver로 감지) */
+  document.addEventListener('DOMContentLoaded', function(){
+    var editOvEl = document.getElementById('je-edit-ov');
+    if(!editOvEl) return;
+    new MutationObserver(function(){
+      var isVisible = editOvEl.style.display !== 'none' && editOvEl.style.display !== '';
+      if(isVisible && _histState < 2) _pushState(2);
+    }).observe(editOvEl, {attributes: true, attributeFilter: ['style']});
+  });
+})();
 
 /* JSON 편집기 세로 크기 드래그 */
 (function(){
@@ -2411,14 +2478,7 @@ _jeInitBibleDrop();
 document.addEventListener("DOMContentLoaded", function(){
   if(window.jeShowPin) jeShowPin();
 
-  /* ── 모바일 뒤로가기 완전 차단 ──
-     터치 기기에서만 작동. popstate 발생 시 즉시 다시 pushState로 막음. */
-  if(navigator.maxTouchPoints > 0 || 'ontouchstart' in window){
-    history.pushState({ je: 'block' }, '');
-    window.addEventListener('popstate', function(){
-      history.pushState({ je: 'block' }, '');
-    });
-  }
+  /* 뒤로가기: 상단 _histState 로직에서 처리 */
 
   /* ── 가상키보드 위에 툴바 고정 (모바일 전용) ──
      visualViewport API로 키보드 높이를 감지해
