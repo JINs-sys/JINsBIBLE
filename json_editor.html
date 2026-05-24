@@ -1335,6 +1335,7 @@ var _jeTab='bookmarks'; /* 'bookmarks' | 'sermons' | 'highlights' */
 function _renderList(){
   _$('je-edit-ov').style.display='none';
   _$('je-list-ov').style.display='flex';
+  var _cb2=_$('je-main-checksum-bar'); if(_cb2) _cb2.style.display='flex';
   if(!_data){
     _$('je-drop-ov').style.display='flex';
     _$('je-list-body').style.display='none';
@@ -1469,6 +1470,7 @@ function jeOpenEdit(idx, tab){
 
   /* 툴바: 북마크만 서식 버튼 의미 있음 — 설교/형광펜도 일단 표시 */
   _$('je-list-ov').style.display='none';
+  var _cb=_$('je-main-checksum-bar'); if(_cb) _cb.style.display='none';
   var eo=_$('je-edit-ov'); eo.style.display='flex';
   /* 터치 기기: 읽기 모드로 시작 + 수정 버튼 표시
      PC/마우스: 바로 편집 모드 + 수정 버튼 숨김 */
@@ -2350,6 +2352,7 @@ window.jeStartEdit=jeStartEdit;
 })(); window.jeOnMemoInput=jeOnMemoInput; window.jeCeInput=jeCeInput; window.jeSave=jeSave; window.jeBackToList=jeBackToList;
 window.jeTrimBlankLines=jeTrimBlankLines;window.jeTrimDupLines=jeTrimDupLines;window.jeTrimAllBlankLines=jeTrimAllBlankLines;
 window.jeFmt=jeFmt; window.jePickColor=jePickColor;
+window._jeUpdateDeviceModeBtn=_jeUpdateDeviceModeBtn; window._jeCycleDeviceMode=_jeCycleDeviceMode;
 
 /* ── 책별 필터바 마우스 스크롤 ── */
 (function(){
@@ -2450,9 +2453,8 @@ document.addEventListener("DOMContentLoaded", function(){
 
       var isEditing = ce.getAttribute('contenteditable') === 'true';
 
-      /* ── 버그2: #je-ed-ov top 보정 (버전 올라가는 현상) ──
-         visualViewport.offsetTop > 0 이면 브라우저가 뷰포트를 아래로 밀어
-         fixed 요소 위쪽에 빈 공간 노출. top을 offsetTop으로 상쇄. */
+      /* #je-ed-ov top 보정: visualViewport.offsetTop > 0 이면
+         브라우저가 뷰포트를 아래로 밀어 fixed 요소 위에 빈 공간 노출 */
       if(edOv){
         if(vvOT > 0){
           edOv.style.top = vvOT + 'px';
@@ -2463,18 +2465,15 @@ document.addEventListener("DOMContentLoaded", function(){
         }
       }
 
-      /* ── 버그1: 툴바 reparent ── */
+      /* 툴바 reparent: overflow:hidden 클리핑 탈출 */
       if(kbVisible && isEditing){
         if(!_kbOpen){
           _kbOpen = true;
           _tbOrigParent = tb.parentNode;
           _tbOrigNextSibling = tb.nextSibling;
           _tbOrigStyle = tb.getAttribute('style') || '';
-          /* body로 이동 → overflow:hidden 클리핑 탈출 */
           document.body.appendChild(tb);
         }
-        /* 매 이벤트마다 위치/크기 갱신 */
-        var tbH = tb.offsetHeight || 0;
         tb.style.cssText = [
           'position:fixed','left:0','right:0',
           'bottom:' + kbH + 'px','z-index:99999',
@@ -2482,13 +2481,11 @@ document.addEventListener("DOMContentLoaded", function(){
           'background:#faf9f6','border-top:1px solid #ece8e0',
           'border-bottom:none','box-shadow:0 -2px 8px rgba(0,0,0,0.08)'
         ].join(';');
-        /* je-edit-ov: 툴바 두 줄 높이만큼 하단 패딩으로 가림 방지 */
-        tbH = tb.offsetHeight || 0; /* cssText 적용 후 재측정 */
+        var tbH = tb.offsetHeight || 0;
         var editOv = document.getElementById('je-edit-ov');
         if(editOv) editOv.style.paddingBottom = tbH + 'px';
       } else if(_kbOpen){
         _kbOpen = false;
-        /* 원래 위치로 복귀 */
         if(_tbOrigParent){
           if(_tbOrigNextSibling && _tbOrigNextSibling.parentNode === _tbOrigParent){
             _tbOrigParent.insertBefore(tb, _tbOrigNextSibling);
