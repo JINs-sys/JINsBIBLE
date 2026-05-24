@@ -2423,21 +2423,17 @@ document.addEventListener("DOMContentLoaded", function(){
   }
 
   /* ── 가상키보드 위에 툴바 고정 (모바일 전용) ──
-     문제: #je-toolbar는 #je-ed-ov(overflow:hidden) 안에 있어서
-     position:fixed를 줘도 부모에 클리핑되어 실제로 떠오르지 못함.
-     해결: 키보드 열릴 때 #je-toolbar를 document.body로 reparent하고,
-     닫힐 때 원래 위치(#je-edit-ov 내 #je-ce 앞)로 복귀.
-     버전 올라가는 문제: 삼성 브라우저에서 키보드가 올라오면
-     visualViewport.offsetTop이 생기면서 #je-ed-ov(fixed) 위쪽에
-     빈 공간이 노출됨. → #je-ed-ov의 top을 offsetTop으로 보정. */
+     삼성 브라우저: overflow:hidden 부모 안 fixed는 reparent해도 클리핑됨.
+     해결: 키보드 열릴 때 #je-ed-ov overflow를 visible로 바꾸고
+     툴바를 fixed로 띄움. #je-ce padding-bottom으로 가림 보정.
+     키보드 닫히면 overflow:hidden 복원. */
   (function(){
     var isMobile = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
     if(!isMobile || !window.visualViewport) return;
 
     var _kbOpen = false;
-    var _tbOrigParent = null;
-    var _tbOrigNextSibling = null;
     var _tbOrigStyle = '';
+    var _ceOrigPb = '';
 
     function onViewportResize(){
       var vvH  = window.visualViewport.height;
@@ -2446,58 +2442,41 @@ document.addEventListener("DOMContentLoaded", function(){
       var kbH  = winH - vvH - vvOT;
       var kbVisible = kbH > 80;
 
-      var tb = document.getElementById('je-toolbar');
-      var ce = document.getElementById('je-ce');
-      var edOv = document.getElementById('je-ed-ov');
-      if(!tb || !ce) return;
+      var tb     = document.getElementById('je-toolbar');
+      var ce     = document.getElementById('je-ce');
+      var edOv   = document.getElementById('je-ed-ov');
+      var editOv = document.getElementById('je-edit-ov');
+      if(!tb || !ce || !edOv) return;
 
       var isEditing = ce.getAttribute('contenteditable') === 'true';
 
-      /* #je-ed-ov top 보정: visualViewport.offsetTop > 0 이면
-         브라우저가 뷰포트를 아래로 밀어 fixed 요소 위에 빈 공간 노출 */
-      if(edOv){
-        if(vvOT > 0){
-          edOv.style.top = vvOT + 'px';
-          edOv.style.height = vvH + 'px';
-        } else {
-          edOv.style.top = '';
-          edOv.style.height = '';
-        }
-      }
-
-      /* 툴바 reparent: overflow:hidden 클리핑 탈출 */
       if(kbVisible && isEditing){
         if(!_kbOpen){
           _kbOpen = true;
-          _tbOrigParent = tb.parentNode;
-          _tbOrigNextSibling = tb.nextSibling;
           _tbOrigStyle = tb.getAttribute('style') || '';
-          document.body.appendChild(tb);
+          _ceOrigPb    = ce.style.paddingBottom || '';
+          /* overflow:hidden 제거 → fixed 자식 클리핑 해제 */
+          edOv.style.overflow = 'visible';
         }
         tb.style.cssText = [
           'position:fixed','left:0','right:0',
           'bottom:' + kbH + 'px','z-index:99999',
           'width:100%',
-          'background:#faf9f6','border-top:1px solid #ece8e0',
-          'border-bottom:none','box-shadow:0 -2px 8px rgba(0,0,0,0.08)'
+          'background:#faf9f6',
+          'border-top:1px solid #ece8e0',
+          'border-bottom:none',
+          'box-shadow:0 -2px 8px rgba(0,0,0,0.08)'
         ].join(';');
+        /* cssText 후 실제 높이 측정 (두 줄 전체) */
         var tbH = tb.offsetHeight || 0;
-        var editOv = document.getElementById('je-edit-ov');
+        ce.style.paddingBottom = (tbH + 8) + 'px';
         if(editOv) editOv.style.paddingBottom = tbH + 'px';
       } else if(_kbOpen){
         _kbOpen = false;
-        if(_tbOrigParent){
-          if(_tbOrigNextSibling && _tbOrigNextSibling.parentNode === _tbOrigParent){
-            _tbOrigParent.insertBefore(tb, _tbOrigNextSibling);
-          } else {
-            _tbOrigParent.appendChild(tb);
-          }
-        }
+        edOv.style.overflow = '';
         tb.setAttribute('style', _tbOrigStyle);
-        var editOv2 = document.getElementById('je-edit-ov');
-        if(editOv2) editOv2.style.paddingBottom = '';
-        _tbOrigParent = null;
-        _tbOrigNextSibling = null;
+        ce.style.paddingBottom = _ceOrigPb;
+        if(editOv) editOv.style.paddingBottom = '';
       }
     }
 
