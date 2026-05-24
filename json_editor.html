@@ -2410,7 +2410,65 @@ _jeInitBibleDrop();
 document.addEventListener("DOMContentLoaded", function(){
   if(window.jeShowPin) jeShowPin();
 
-  /* 뒤로가기: history 조작 없음 - 브라우저 기본 동작 그대로 */
+  /* ── 모바일 뒤로가기 완전 차단 ──
+     터치 기기에서만 작동. popstate 발생 시 즉시 다시 pushState로 막음. */
+  if(navigator.maxTouchPoints > 0 || 'ontouchstart' in window){
+    history.pushState({ je: 'block' }, '');
+    window.addEventListener('popstate', function(){
+      history.pushState({ je: 'block' }, '');
+    });
+  }
+
+  /* ── 가상키보드 위에 툴바 고정 (모바일 전용) ──
+     visualViewport API로 키보드 높이를 감지해
+     #je-toolbar를 키보드 바로 위에 fixed로 붙임.
+     키보드가 내려가면 원래 레이아웃(static)으로 복귀. */
+  (function(){
+    var isMobile = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
+    if(!isMobile || !window.visualViewport) return;
+
+    var tb = document.getElementById('je-toolbar');
+    if(!tb) return;
+
+    var _tbOrigStyle = '';
+    var _kbOpen = false;
+
+    function onViewportResize(){
+      var vvH  = window.visualViewport.height;
+      var vvOT = window.visualViewport.offsetTop;
+      var winH = window.innerHeight;
+      var kbH  = winH - vvH - vvOT;
+
+      var ce = document.getElementById('je-ce');
+      var isEditing = ce && ce.getAttribute('contenteditable') === 'true';
+
+      if(kbH > 80 && isEditing){
+        if(!_kbOpen){
+          _tbOrigStyle = tb.getAttribute('style') || '';
+          _kbOpen = true;
+        }
+        tb.style.cssText = [
+          'position:fixed',
+          'left:0',
+          'right:0',
+          'bottom:' + kbH + 'px',
+          'z-index:99999',
+          'background:#faf9f6',
+          'border-top:1px solid #ece8e0',
+          'border-bottom:none',
+          'box-shadow:0 -2px 8px rgba(0,0,0,0.08)'
+        ].join(';');
+      } else {
+        if(_kbOpen){
+          _kbOpen = false;
+          tb.setAttribute('style', _tbOrigStyle);
+        }
+      }
+    }
+
+    window.visualViewport.addEventListener('resize', onViewportResize);
+    window.visualViewport.addEventListener('scroll', onViewportResize);
+  })();
 });
 </script>
 
