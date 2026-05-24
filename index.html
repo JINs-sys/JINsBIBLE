@@ -197,7 +197,7 @@
             body:not(.active-mode) #action-grid .action-card { padding: 12px 13px; gap: 7px; flex: 1; justify-content: center; }
             body:not(.active-mode) #action-grid .action-card-drop-hint { margin-top: 2px; padding-top: 3px; font-size: 0.68rem; line-height: 1.3; }
         }
-        .action-card:hover { border-color: #8aab9e; background: #f2f8f5; box-shadow: 0 2px 12px rgba(45,74,62,0.09); transform: translateY(-1px); }
+        .action-card:hover { border-color: #8aab9e; background: #f2f8f5; box-shadow: 0 3px 14px rgba(45,74,62,0.13); }
         .action-card-icon { font-size: 1.5rem; line-height: 1; }
         .action-card-title { font-size: 0.9rem; font-weight: 700; color: var(--ink); }
         .action-card-desc { font-size: 0.75rem; color: #633232; line-height: 1.5; }
@@ -207,11 +207,11 @@
         .action-card.card-dragover .action-card-icon::after { content: ' 📂'; }
         .action-card-drop-hint { margin-top:6px; font-size:0.72rem; color:#aaa; border-top:1px dashed #e0ddd5; padding-top:6px; }
         /* 드롭존 내 "자료 없이 시작" 버튼 */
-        .btn-noref { display:inline-flex; align-items:center; gap:6px; margin-top:18px; padding:7px 16px; border:1px solid var(--accent); border-radius:6px; background:#fff; color:var(--accent); font-size:0.85rem; font-family:var(--font-main); font-weight:500; cursor:pointer; transition:background 0.15s, transform 0.1s; }
+        .btn-noref { display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1px solid var(--accent); border-radius:6px; background:#fff; color:var(--accent); font-size:0.85rem; font-family:var(--font-main); font-weight:500; cursor:pointer; transition:background 0.15s, transform 0.1s; flex-shrink:0; }
         .btn-noref:hover { background:#f2f8f5; }
         .btn-noref:active { transform:scale(0.98); }
         @media (max-width: 480px) {
-            body:not(.active-mode) .btn-noref { margin-top: 8px; padding: 6px 14px; }
+            body:not(.active-mode) .btn-noref { padding: 6px 14px; }
             body:not(.active-mode) #drop-text > div:first-child { font-size: 1.15rem !important; margin-bottom: 20px !important; }
             body:not(.active-mode) #drop-text > div:nth-child(2) { font-size: 0.8rem !important; margin-bottom: 8px !important; }
             body:not(.active-mode) #drop-text > div:nth-child(3) { font-size: 0.75rem !important; padding: 5px 10px !important; }
@@ -1733,31 +1733,32 @@
 }
 #je-mob-phone.show{display:block;}
 
-/* 기기 외곽 — S26 Ultra: 얇은 베젤, 약간의 라운드만 */
+
+/* 기기 외곽 — S26 Ultra: 얇은 베젤, 자연스러운 라운드 */
 #je-mob-frame{
   position:relative;
   width:442px;          /* 화면 너비(430) + 양쪽 패딩(6+6) */
-  background:#111;
-  border-radius:36px;   /* 실제 폰처럼 적당히만 */
+  background:#d9d9d9;
+  border-radius:20px;
   padding:10px 6px 14px;
   box-shadow:
-    0 0 0 1px rgba(255,255,255,.12),
-    inset 0 0 0 1px rgba(255,255,255,.04);
+    0 0 0 1px rgba(0,0,0,.18),
+    inset 0 0 0 1px rgba(0,0,0,.06);
 }
 /* 볼륨 버튼 (좌) */
 #je-mob-frame::before{
   content:'';position:absolute;
   left:-4px;top:100px;
   width:4px;height:30px;
-  background:#222;border-radius:3px 0 0 3px;
-  box-shadow:0 44px 0 #222;
+  background:#c0c0c0;border-radius:3px 0 0 3px;
+  box-shadow:0 44px 0 #c0c0c0;
 }
 /* 전원 버튼 (우) */
 #je-mob-frame::after{
   content:'';position:absolute;
   right:-4px;top:130px;
   width:4px;height:52px;
-  background:#222;border-radius:0 3px 3px 0;
+  background:#c0c0c0;border-radius:0 3px 3px 0;
 }
 
 /* 상단 노치 영역 */
@@ -1771,15 +1772,15 @@
 /* 펀치홀 카메라 */
 #je-mob-punch{
   width:11px;height:11px;border-radius:50%;
-  background:#000;
-  box-shadow:0 0 0 1px rgba(255,255,255,.08);
+  background:#888;
+  box-shadow:0 0 0 1px rgba(0,0,0,.15);
 }
 /* 드래그 힌트 핸들 */
 #je-mob-drag-hint{
   position:absolute;left:50%;top:50%;
   transform:translate(-50%,-50%);
   width:40px;height:3px;border-radius:2px;
-  background:rgba(255,255,255,.12);
+  background:rgba(0,0,0,.18);
   pointer-events:none;
 }
 
@@ -1811,7 +1812,7 @@
 #je-mob-homebar::before{
   content:'';
   width:100px;height:3px;border-radius:2px;
-  background:rgba(255,255,255,.18);
+  background:rgba(0,0,0,.2);
 }
 
 /* 리사이즈 핸들 (우하단) */
@@ -1923,11 +1924,12 @@
         <div id="drop-text">
             <div style="font-size:1.4rem; font-weight:700; color:var(--accent); margin-bottom:20px;">나만의 성경 역본</div>
             <div style="font-size:0.88rem; color:#7a8a80; margin-bottom:14px;">참고할 성경역본을 불러와 나만의 역본을 작성합니다</div>
-            <div style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem; margin-bottom:0;">
-                📂 TXT · AAB · BDB · ZIP 드래그드롭 또는 클릭
-            </div>
-            <button class="btn-noref" onclick="event.stopPropagation(); startFreeWrite();">📝 바로 시작</button>
-        </div>
+            <div style="display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center;">
+                <div style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem;">
+                    📂 TXT · AAB · BDB · ZIP 드래그드롭 또는 클릭
+                </div>
+                <button class="btn-noref" onclick="event.stopPropagation(); startFreeWrite();">📝 바로 시작</button>
+            </div>        </div>
         <input type="file" id="file-input" accept=".txt,.bdb">
     </div>
 
@@ -11808,8 +11810,6 @@ _jeInitBibleDrop();
 
     /* show 먼저 → offsetWidth/Height 정확히 읽기 */
     phone.classList.add('show');
-
-    /* 폰 프레임 위치: 편집기 창 바로 오른쪽, 없으면 화면 중앙 */
     var r=src.getBoundingClientRect();
     var phoneW=phone.offsetWidth||454;
     var phoneH=phone.offsetHeight||920;
@@ -11923,17 +11923,35 @@ _jeInitBibleDrop();
         vp.innerHTML = '';
 
         var iframe = document.createElement('iframe');
-        iframe.src = window.location.href;
+        /* 항상 430px 모바일 뷰로 고정 렌더 */
+        var sep = window.location.href.indexOf('?') >= 0 ? '&' : '?';
+        iframe.src = window.location.href + sep + '_mw=430';
         iframe.style.cssText = [
           'position:absolute','top:0','left:0',
           'width:430px','height:860px',
           'border:none','border-radius:24px',
           'pointer-events:auto'
         ].join(';');
+        /* 로드 후 내부 viewport를 430px 고정으로 강제 주입 */
+        iframe.onload = function() {
+          try {
+            var idoc = iframe.contentDocument || iframe.contentWindow.document;
+            var meta = idoc.querySelector('meta[name="viewport"]');
+            if (!meta) {
+              meta = idoc.createElement('meta');
+              meta.name = 'viewport';
+              idoc.head.appendChild(meta);
+            }
+            meta.content = 'width=430, initial-scale=1';
+            var style = idoc.createElement('style');
+            style.textContent = 'html,body{max-width:430px!important;min-width:0!important;overflow-x:hidden!important;}';
+            idoc.head.appendChild(style);
+          } catch(e) {}
+        };
+        iframe.scrolling = 'no';
         vp.appendChild(iframe);
 
         phone.classList.add('show');
-
         var phoneW = phone.offsetWidth  || 454;
         var phoneH = phone.offsetHeight || 920;
         var ww = window.innerWidth, wh = window.innerHeight;
