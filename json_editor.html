@@ -3964,8 +3964,10 @@ document.addEventListener('DOMContentLoaded',function(){
     }
     if(tb){
       var cs3 = getComputedStyle(tb);
+      var r = tb.getBoundingClientRect();
       lines.push('toolbar position: ' + cs3.position);
       lines.push('toolbar h: ' + tb.offsetHeight + ' bottom: ' + cs3.bottom);
+      lines.push('toolbar rect: top=' + Math.round(r.top) + ' bottom=' + Math.round(r.bottom));
       lines.push('toolbar inline: ' + (tb.getAttribute('style')||'none'));
     }
     if(vv){
