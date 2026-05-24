@@ -674,10 +674,15 @@ function _jeOpenSermon(idx){
   if(dt === 'pc'){
     if(window.jeSrOpen) jeSrOpen(idx);
   } else if(dt === 'tablet'){
+    /* 태블릿: 전체 화면으로 편집창 열기 */
     var ov = document.getElementById('je-ed-ov');
     if(ov){ ov.style.width='100vw'; ov.style.height='100vh'; ov.style.maxHeight='100vh'; ov.style.borderRadius='0'; }
+    var bg=_$('je-ed-overlay-bg');if(bg)bg.style.display='none';
+    document.body.style.overflow='hidden';
     jeOpenEdit(idx, 'sermons');
   } else {
+    /* 폰: 기존 창(전체 뷰포트) 그대로 사용 */
+    document.body.style.overflow='hidden';
     jeOpenEdit(idx, 'sermons');
   }
 }
@@ -1214,7 +1219,9 @@ function jeShowPin(){
 }
 function jeHideAll(){
   _$('je-pin-ov').classList.remove('je-show');
-  _$('je-ed-ov').classList.remove('je-show');
+  var ov=_$('je-ed-ov');
+  ov.classList.remove('je-show');
+  ov.style.width='';ov.style.height='';ov.style.maxHeight='';ov.style.borderRadius='';
   var bg=_$('je-ed-overlay-bg');if(bg)bg.style.display='none';
   document.body.style.overflow='';
 }
@@ -1547,6 +1554,8 @@ function jeNewItem(){
     } else if(dt === 'tablet'){
       var ov = document.getElementById('je-ed-ov');
       if(ov){ ov.style.width='100vw'; ov.style.height='100vh'; ov.style.maxHeight='100vh'; ov.style.borderRadius='0'; }
+      var bg2=_$('je-ed-overlay-bg');if(bg2)bg2.style.display='none';
+      document.body.style.overflow='hidden';
       jeOpenEdit(0, 'sermons');
       var fields=_$('je-meta-fields'), tog=_$('je-meta-toggle');
       if(fields&&!fields.classList.contains('open')){fields.classList.add('open');if(tog)tog.classList.add('open');}
@@ -1554,6 +1563,7 @@ function jeNewItem(){
       var eb=_$('je-edit-btn'), sb2=_$('je-save-btn');
       if(eb)eb.style.display='none'; if(sb2)sb2.style.display='';
     } else {
+      document.body.style.overflow='hidden';
       jeOpenEdit(0, 'sermons');
       var fields=_$('je-meta-fields'), tog=_$('je-meta-toggle');
       if(fields&&!fields.classList.contains('open')){fields.classList.add('open');if(tog)tog.classList.add('open');}
@@ -2143,6 +2153,13 @@ function jeBackToList(){
   var vp=_$('je-verse-panel'); if(vp) vp.classList.remove('je-vp-show');
   var ov=document.getElementById('je-ed-ov');
   if(ov){ov.style.width='';ov.style.height='';ov.style.maxHeight='';ov.style.borderRadius='';}
+  /* 태블릿 전체창에서 돌아올 때 PC는 overlay-bg 복원, 모바일은 body 스크롤 복원 */
+  var dt=_jeDeviceType();
+  if(dt==='pc'){
+    var bg=_$('je-ed-overlay-bg'); if(bg&&window.innerWidth>600) bg.style.display='block';
+  } else {
+    document.body.style.overflow='';
+  }
   _editIdx=null; _renderList();
 }
 
