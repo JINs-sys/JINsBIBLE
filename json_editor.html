@@ -2410,41 +2410,7 @@ _jeInitBibleDrop();
 document.addEventListener("DOMContentLoaded", function(){
   if(window.jeShowPin) jeShowPin();
 
-  /* ── 모바일 뒤로가기 (index.html 동일 방식) ──
-     jeShowPin() 직후 연속으로 replaceState + pushState → sentinel 확보 */
-  history.replaceState({ je: 'base' }, '');
-  history.pushState({ je: 'app' }, '');
-
-  /* jeOpenEdit 래핑: 편집 화면 진입 시 추가 push */
-  var _oe = window.jeOpenEdit;
-  window.jeOpenEdit = function(){
-    _oe.apply(this, arguments);
-    history.pushState({ je: 'edit' }, '');
-  };
-
-  window.addEventListener('popstate', function(){
-    var pinOv = document.getElementById('je-pin-ov');
-    var edOv  = document.getElementById('je-ed-ov');
-    var editOv = document.getElementById('je-edit-ov');
-
-    var pinShow  = pinOv  && pinOv.classList.contains('je-show');
-    var edShow   = edOv   && edOv.classList.contains('je-show');
-    var editShow = editOv && editOv.style.display !== 'none' && editOv.style.display !== '';
-
-    /* 편집 화면 → 목록 */
-    if(edShow && editShow){
-      if(window.jeBackToList) jeBackToList();
-      history.pushState({ je: 'app' }, '');
-      return;
-    }
-    /* 목록/핀 → 닫기 */
-    if(edShow || pinShow){
-      if(window.jeHideAll) jeHideAll();
-      return;
-    }
-    /* 완전히 닫힌 상태 → sentinel 재유지, 이전 페이지로 나가지 않음 */
-    history.pushState({ je: 'app' }, '');
-  });
+  /* 뒤로가기: history 조작 없음 - 브라우저 기본 동작 그대로 */
 });
 </script>
 
@@ -3894,7 +3860,7 @@ document.addEventListener('DOMContentLoaded',function(){
   <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:0;padding:32px;text-align:center;">
     <div id="je-easter-cross" style="font-size:3.2rem;margin-bottom:18px;animation:je-cross-pulse 2.4s ease-in-out infinite;">✝</div>
     <div style="font-size:0.6rem;letter-spacing:0.38em;color:#4a8a6a;text-transform:uppercase;margin-bottom:14px;">JINs Bible Web</div>
-    <div style="font-size:1.55rem;font-weight:800;color:#e8f2ee;line-height:1.4;margin-bottom:8px;">말씀을 품은<br>개발자를 위하여</div>
+    <div style="font-size:1.55rem;font-weight:800;color:#e8f2ee;line-height:1.4;margin-bottom:8px;">말씀을 품음<br>당신을 위하여</div>
     <div style="font-size:0.78rem;color:#5a9a7a;margin-bottom:32px;line-height:1.7;">이 앱은 하나님의 말씀을 더 가까이하려는<br>한 사람의 작은 헌신으로 만들어졌습니다.</div>
     <div style="font-size:0.65rem;color:#2d5a40;letter-spacing:0.06em;margin-bottom:4px;">버전 1.0.0 &nbsp;·&nbsp; 2026</div>
     <div id="je-easter-verse" style="margin-top:28px;max-width:320px;background:rgba(45,74,62,0.45);border-radius:14px;padding:16px 20px;border:1px solid rgba(74,138,106,0.25);">
