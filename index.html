@@ -61,7 +61,7 @@
             display: block;
             position: sticky;
             top: var(--sticky-nav-top-pre, 108px);
-            height: 12px;
+            height: 6px;
             z-index: 28;
             background: var(--paper-white);
             margin-left: -30px; margin-right: -30px;
@@ -69,7 +69,7 @@
         }
         body.active-mode #spacer-after-nav {
             display: block;
-            height: 12px;
+            height: 6px;
         }
 
         body.active-mode.commentary-mode #spacer-before-settings,
@@ -321,7 +321,7 @@
         .nav-bar { display: none; flex-direction: column; gap: 8px; margin-bottom: 16px; }
         .nav-bar.visible { display: flex; }
 
-        body.active-mode .nav-bar.visible { position: sticky; top: var(--sticky-nav-top, 138px); z-index: 28; background: var(--paper-white); padding: 10px 30px; margin-left: -30px; margin-right: -30px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); margin-bottom: 0; overflow: visible; }
+        body.active-mode .nav-bar.visible { position: sticky; top: var(--sticky-nav-top, 138px); z-index: 28; background: var(--paper-white); padding: 10px 30px; margin-left: -30px; margin-right: -30px; border-top: none; border-bottom: none; margin-bottom: 0; overflow: visible; }
 
         .nav-row-top { display: flex; flex-direction: row; align-items: center; gap: 6px; width: 100%; }
         .nav-row { display: flex; align-items: center; gap: 6px; }
@@ -352,7 +352,7 @@
         #com-nav-bar .nav-select { height: 33px; padding: 0 8px; }
         #com-nav-bar .btn-nav    { height: 33px; min-height: unset; padding: 0 12px; }
 
-        body.active-mode #ep-nav-bar.nav-bar { position: static; margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; border-bottom: none; padding-top: 0; box-shadow: none; overflow: visible; }
+        body.active-mode #ep-nav-bar.nav-bar { position: static; margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0; border-top: none; border-bottom: none; padding-top: 0; box-shadow: none; overflow: visible; }
         body.active-mode #ep-nav-bar.nav-bar::before,
         body.active-mode #ep-nav-bar.nav-bar::after { display: none; }
 
@@ -650,7 +650,7 @@
             padding: 6px 30px;
             width: 100%;
             border-top: none;
-            border-bottom: 1px solid var(--rule);
+            border-bottom: none;
             margin-bottom: 0;
             overflow: visible;
         }
@@ -1430,6 +1430,7 @@
             }
             body.active-mode #com-spacer-before-settings,
             body.active-mode #com-spacer-before-nav { display: none !important; }
+            body.active-mode #spacer-before-nav { display: none !important; }
             body.active-mode.commentary-mode #com-spacer-after-nav { display: none !important; }
             body.active-mode .com-settings-bar {
                 position: relative;
@@ -1459,7 +1460,7 @@
                 padding: 6px 14px;
                 width: 100%;
                 border-top: none;
-                border-bottom: 1px solid var(--rule);
+                border-bottom: none;
                 margin-bottom: 0;
                 overflow: visible;
                 box-shadow: none;
@@ -2235,7 +2236,7 @@
     </div><!-- /#com-sticky-header -->
 
     <!-- 주석 유형 탭 + 제목 입력 (sticky 밖) -->
-    <div id="com-tab-row" style="display:none; align-items:stretch; gap:8px; margin-bottom:12px; margin-top:12px; width:100%; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
+    <div id="com-tab-row" style="display:none; align-items:stretch; gap:8px; margin-bottom:12px; margin-top:4px; width:100%; overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scrollbar-width:none;">
         <div class="com-type-bar" id="com-type-bar" style="margin-bottom:0; flex-shrink:0;">
             <button class="com-type-btn"         id="com-type-intro"   onclick="setComType('intro')"><span class="com-type-key">책</span> 개론</button>
             <button class="com-type-btn"         id="com-type-chapter" onclick="setComType('chapter')"><span class="com-type-key">장</span> 개요</button>
@@ -2424,7 +2425,7 @@
             </div>
 
             <!-- 내비게이션 바 -->
-            <div class="nav-bar visible" id="ep-nav-bar" style="margin-bottom:10px; border-top:1px solid var(--rule); padding-top:8px;">
+            <div class="nav-bar visible" id="ep-nav-bar" style="margin-bottom:10px; padding-top:8px;">
                 <div class="nav-row-top">
                     <div class="nav-row nav-row-selects">
                         <select class="nav-select" id="ep-book"><option value="">책 선택</option></select>
