@@ -11161,65 +11161,158 @@ _jeInitBibleDrop();
 </script>
 
 <script>
-/* ── JINS 3회 클릭 → JSON 편집기 열기 ── */
+/* ── JINs 3번 클릭 → PIN 패드 → 체크섬 인증 → 가상 모바일 창 ── */
 (function(){
   if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) return;
+
+  var _MOB_LS_KEY = 'je_mob_auth_v1';
+  var _MOB_LS_VAL = btoa('mob_0410');
+
+  function _isMobAuthed() {
+    try { return localStorage.getItem(_MOB_LS_KEY) === _MOB_LS_VAL; } catch(e) { return false; }
+  }
+  function _saveMobAuth() {
+    try { localStorage.setItem(_MOB_LS_KEY, _MOB_LS_VAL); } catch(e) {}
+  }
+
+  /* 가상 모바일 창 열기 */
+  function _openPhone() {
+    var phone = document.getElementById('je-mob-phone');
+    var vp    = document.getElementById('je-mob-viewport');
+    if (!phone || !vp) return;
+    vp.innerHTML = '';
+    var iframe = document.createElement('iframe');
+    var sep = window.location.href.indexOf('?') >= 0 ? '&' : '?';
+    iframe.src = window.location.href + sep + '_mw=430';
+    iframe.style.cssText = 'position:absolute;top:0;left:0;width:430px;height:860px;border:none;border-radius:24px;pointer-events:auto;';
+    iframe.onload = function() {
+      try {
+        var idoc = iframe.contentDocument || iframe.contentWindow.document;
+        var meta = idoc.querySelector('meta[name="viewport"]');
+        if (!meta) { meta = idoc.createElement('meta'); meta.name = 'viewport'; idoc.head.appendChild(meta); }
+        meta.content = 'width=430, initial-scale=1';
+        var st = idoc.createElement('style');
+        st.textContent = 'html,body{max-width:430px!important;min-width:0!important;overflow-x:hidden!important;}';
+        idoc.head.appendChild(st);
+      } catch(e) {}
+    };
+    iframe.scrolling = 'no';
+    vp.appendChild(iframe);
+    phone.classList.add('show');
+    var phoneW = phone.offsetWidth || 454, phoneH = phone.offsetHeight || 920;
+    phone.style.left  = Math.round((window.innerWidth  - phoneW) / 2) + 'px';
+    phone.style.top   = Math.max(8, Math.round((window.innerHeight - phoneH) / 2)) + 'px';
+    phone.style.right = 'auto';
+  }
+
+  /* 비번: build-id 텍스트에서 읽기 (타이밍 보장 — 입력 시점에 읽음) */
+  function _getPin() {
+    var el = document.getElementById('build-id');
+    if (!el) return '';
+    return el.textContent.replace(/[^0-9A-Fa-f]/g, '').toUpperCase();
+  }
+
+  /* ── PIN 오버레이 ── */
+  var _ov = null, _inp = '', _dots = [];
+
+  function _buildOv() {
+    if (_ov) return;
+    var st = document.createElement('style');
+    st.textContent = '@keyframes _jshk{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}';
+    document.head.appendChild(st);
+
+    _ov = document.createElement('div');
+    _ov.style.cssText = 'display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.52);align-items:center;justify-content:center;font-family:"Pretendard Variable","Apple SD Gothic Neo",sans-serif;';
+    _ov.innerHTML =
+      '<div style="background:#f7f4ee;border-radius:22px;padding:40px 32px 36px;width:320px;box-shadow:0 24px 64px rgba(0,0,0,.22);text-align:center;">' +
+        '<div style="font-size:.58rem;letter-spacing:.3em;color:#9a9288;text-transform:uppercase;margin-bottom:6px;">가상 미리보기</div>' +
+        '<div style="font-size:1.45rem;font-weight:800;color:#2d4a3e;margin-bottom:4px;">코드 입력</div>' +
+        '<div style="width:30px;height:3px;background:#2d4a3e;border-radius:2px;margin:8px auto 26px;"></div>' +
+        '<div id="_jp-dots" style="display:flex;gap:14px;justify-content:center;margin-bottom:26px;">' +
+          '<div class="_jd" style="width:13px;height:13px;border-radius:50%;border:2px solid #d4cfc6;background:transparent;transition:all .15s;"></div>' +
+          '<div class="_jd" style="width:13px;height:13px;border-radius:50%;border:2px solid #d4cfc6;background:transparent;transition:all .15s;"></div>' +
+          '<div class="_jd" style="width:13px;height:13px;border-radius:50%;border:2px solid #d4cfc6;background:transparent;transition:all .15s;"></div>' +
+          '<div class="_jd" style="width:13px;height:13px;border-radius:50%;border:2px solid #d4cfc6;background:transparent;transition:all .15s;"></div>' +
+        '</div>' +
+        '<div id="_jp-numpad" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;justify-items:center;"></div>' +
+      '</div>';
+    document.body.appendChild(_ov);
+
+    /* 숫자패드 — 클로저 캡처 보장 위해 즉시실행함수로 감쌈 */
+    var pad = document.getElementById('_jp-numpad');
+    var keys = ['1','2','3','4','5','6','7','8','9','C','0','⌫'];
+    keys.forEach(function(k) {
+      (function(key) {
+        var b = document.createElement('button');
+        b.textContent = key;
+        var isC = key === 'C';
+        b.style.cssText = 'width:68px;height:68px;border-radius:16px;border:1.5px solid ' +
+          (isC ? '#f0cece' : '#e4ddd0') + ';background:' + (isC ? '#fff8f8' : '#fff') +
+          ';color:' + (isC ? '#b83232' : '#1a1815') +
+          ';font-size:1.3rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background .1s;-webkit-tap-highlight-color:transparent;';
+        b.addEventListener('click', function(e) { e.stopPropagation(); _pressKey(key); });
+        pad.appendChild(b);
+      })(k);
+    });
+
+    _dots = Array.from(_ov.querySelectorAll('._jd'));
+    _ov.addEventListener('click', function(e) { if (e.target === _ov) _closeOv(); });
+  }
+
+  function _syncDots() {
+    _dots.forEach(function(d, i) {
+      d.style.background   = i < _inp.length ? '#2d4a3e' : 'transparent';
+      d.style.borderColor  = i < _inp.length ? '#2d4a3e' : '#d4cfc6';
+    });
+  }
+
+  function _shake() {
+    var el = document.getElementById('_jp-dots');
+    if (!el) return;
+    el.style.animation = 'none'; el.offsetHeight;
+    el.style.animation = '_jshk .45s ease';
+  }
+
+  function _pressKey(k) {
+    if (k === 'C')  { _inp = ''; _syncDots(); return; }
+    if (k === '⌫') { _inp = _inp.slice(0, -1); _syncDots(); return; }
+    if (_inp.length >= 4) return;
+    _inp += k;
+    _syncDots();
+    if (_inp.length === 4) {
+      if (_inp === '0410') {
+        _saveMobAuth();
+        _closeOv();
+        _openPhone();
+      } else {
+        _shake();
+        setTimeout(function() { _inp = ''; _syncDots(); }, 600);
+      }
+    }
+  }
+
+  function _openOv() {
+    _buildOv();
+    _inp = ''; _syncDots();
+    _ov.style.display = 'flex';
+  }
+
+  function _closeOv() {
+    if (_ov) { _ov.style.display = 'none'; }
+    _inp = ''; if (_dots.length) _syncDots();
+  }
+
+  /* JINs 3번 클릭 감지 */
   var el = document.getElementById('jins-trigger');
-  if(!el) return;
-  var cnt = 0, timer = null;
-  el.addEventListener('click', function(e){
+  if (!el) return;
+  var cnt = 0, tmr = null;
+  el.addEventListener('click', function(e) {
     e.stopPropagation();
     cnt++;
-    clearTimeout(timer);
-    timer = setTimeout(function(){ cnt = 0; }, 1200);
-    if(cnt >= 3){
-      cnt = 0;
-      clearTimeout(timer);
-      (function() {
-        var phone = document.getElementById('je-mob-phone');
-        var vp    = document.getElementById('je-mob-viewport');
-        if (!phone || !vp) return;
-
-        vp.innerHTML = '';
-
-        var iframe = document.createElement('iframe');
-        /* 항상 430px 모바일 뷰로 고정 렌더 */
-        var sep = window.location.href.indexOf('?') >= 0 ? '&' : '?';
-        iframe.src = window.location.href + sep + '_mw=430';
-        iframe.style.cssText = [
-          'position:absolute','top:0','left:0',
-          'width:430px','height:860px',
-          'border:none','border-radius:24px',
-          'pointer-events:auto'
-        ].join(';');
-        /* 로드 후 내부 viewport를 430px 고정으로 강제 주입 */
-        iframe.onload = function() {
-          try {
-            var idoc = iframe.contentDocument || iframe.contentWindow.document;
-            var meta = idoc.querySelector('meta[name="viewport"]');
-            if (!meta) {
-              meta = idoc.createElement('meta');
-              meta.name = 'viewport';
-              idoc.head.appendChild(meta);
-            }
-            meta.content = 'width=430, initial-scale=1';
-            var style = idoc.createElement('style');
-            style.textContent = 'html,body{max-width:430px!important;min-width:0!important;overflow-x:hidden!important;}';
-            idoc.head.appendChild(style);
-          } catch(e) {}
-        };
-        iframe.scrolling = 'no';
-        vp.appendChild(iframe);
-
-        phone.classList.add('show');
-        var phoneW = phone.offsetWidth  || 454;
-        var phoneH = phone.offsetHeight || 920;
-        var ww = window.innerWidth, wh = window.innerHeight;
-        phone.style.left  = Math.round((ww - phoneW) / 2) + 'px';
-        phone.style.top   = Math.max(8, Math.round((wh - phoneH) / 2)) + 'px';
-        phone.style.right = 'auto';
-      })();
-    }
+    clearTimeout(tmr);
+    if (cnt >= 6) { cnt = 0; return; }
+    tmr = setTimeout(function() { cnt = 0; }, 1200);
+    if (cnt === 5) { cnt = 0; clearTimeout(tmr); if (_isMobAuthed()) { _openPhone(); } else { _openOv(); } }
   });
 })();
 </script>
@@ -11333,8 +11426,9 @@ _jeInitBibleDrop();
                     e.stopPropagation();
                     _cnt++;
                     clearTimeout(_timer);
+                    if (_cnt >= 6) { _cnt = 0; return; }
                     _timer = setTimeout(function() { _cnt = 0; }, 1200);
-                    if (_cnt >= 3) {
+                    if (_cnt === 5) {
                         _cnt = 0;
                         clearTimeout(_timer);
                         window.open('https://jins-sys.github.io/JINsBIBLE/json_editor.html', '_blank');
@@ -11345,8 +11439,9 @@ _jeInitBibleDrop();
                     e.stopPropagation();
                     _cnt++;
                     clearTimeout(_timer);
+                    if (_cnt >= 6) { _cnt = 0; return; }
                     _timer = setTimeout(function() { _cnt = 0; }, 1200);
-                    if (_cnt >= 3) {
+                    if (_cnt === 5) {
                         _cnt = 0;
                         clearTimeout(_timer);
                         window.open('https://jins-sys.github.io/JINsBIBLE/json_editor.html', '_blank');
