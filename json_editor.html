@@ -2420,23 +2420,21 @@ document.addEventListener("DOMContentLoaded", function(){
   }
 
   /* ── 가상키보드 위에 툴바 고정 (모바일 전용) ──
-     visualViewport API로 키보드 높이를 감지해
-     #je-toolbar를 키보드 바로 위에 fixed로 붙임.
-     키보드가 내려가면 원래 레이아웃(static)으로 복귀. */
+     문제: #je-toolbar는 #je-ed-ov(overflow:hidden) 안에 있어서
+     position:fixed를 줘도 부모에 클리핑되어 실제로 떠오르지 못함.
+     해결: 키보드 열릴 때 #je-toolbar를 document.body로 reparent하고,
+     닫힐 때 원래 위치(#je-edit-ov 내 #je-ce 앞)로 복귀.
+     버전 올라가는 문제: 삼성 브라우저에서 키보드가 올라오면
+     visualViewport.offsetTop이 생기면서 #je-ed-ov(fixed) 위쪽에
+     빈 공간이 노출됨. → #je-ed-ov의 top을 offsetTop으로 보정. */
   (function(){
     var isMobile = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
     if(!isMobile || !window.visualViewport) return;
 
-    /* 메모 모드: #je-toolbar / #je-ce
-       설교 모드: #je-sr-toolbar / #je-sr-editor */
-    /* #je-toolbar / #je-ce 하나로 메모·설교 공통 처리
-       (설교 탭도 모바일에서 동일한 #je-edit-ov 구조 사용) */
-    /* toolbar(#je-toolbar)와 편집기(#je-ce)는 #je-edit-ov 밖 body 레벨 형제.
-       toolbar를 fixed로 띄울 때 ghost를 삽입하면 #je-ce 공간이 줄어드는 문제 발생.
-       → ghost 없이, #je-ce에 padding-bottom으로 toolbar 높이만큼 공간 확보. */
-    var _tbOrig = '';
-    var _ceOrigPb = '';
     var _kbOpen = false;
+    var _tbOrigParent = null;
+    var _tbOrigNextSibling = null;
+    var _tbOrigStyle = '';
 
     function onViewportResize(){
       var vvH  = window.visualViewport.height;
@@ -2445,38 +2443,64 @@ document.addEventListener("DOMContentLoaded", function(){
       var kbH  = winH - vvH - vvOT;
       var kbVisible = kbH > 80;
 
-      /* 버그2 수정: visualViewport가 스크롤되면 body가 올라가므로 강제 복귀 */
-      if(vvOT > 0) window.scrollTo(0, 0);
-
       var tb = document.getElementById('je-toolbar');
       var ce = document.getElementById('je-ce');
+      var edOv = document.getElementById('je-ed-ov');
       if(!tb || !ce) return;
 
       var isEditing = ce.getAttribute('contenteditable') === 'true';
 
+      /* ── 버그2: #je-ed-ov top 보정 (버전 올라가는 현상) ──
+         visualViewport.offsetTop > 0 이면 브라우저가 뷰포트를 아래로 밀어
+         fixed 요소 위쪽에 빈 공간 노출. top을 offsetTop으로 상쇄. */
+      if(edOv){
+        if(vvOT > 0){
+          edOv.style.top = vvOT + 'px';
+          edOv.style.height = vvH + 'px';
+        } else {
+          edOv.style.top = '';
+          edOv.style.height = '';
+        }
+      }
+
+      /* ── 버그1: 툴바 reparent ── */
       if(kbVisible && isEditing){
         if(!_kbOpen){
-          _tbOrig   = tb.getAttribute('style') || '';
-          _ceOrigPb = ce.style.paddingBottom || '';
-          _kbOpen   = true;
+          _kbOpen = true;
+          _tbOrigParent = tb.parentNode;
+          _tbOrigNextSibling = tb.nextSibling;
+          _tbOrigStyle = tb.getAttribute('style') || '';
+          /* body로 이동 → overflow:hidden 클리핑 탈출 */
+          document.body.appendChild(tb);
         }
-        /* 버그1 수정: cssText 설정 전에 높이를 측정하면 이미 fixed 상태일 때는
-           정확하지 않을 수 있음 → fixed 스타일 먼저 적용 후 offsetHeight 재측정 */
+        /* 매 이벤트마다 위치/크기 갱신 */
+        var tbH = tb.offsetHeight || 0;
         tb.style.cssText = [
           'position:fixed','left:0','right:0',
           'bottom:' + kbH + 'px','z-index:99999',
+          'width:100%',
           'background:#faf9f6','border-top:1px solid #ece8e0',
           'border-bottom:none','box-shadow:0 -2px 8px rgba(0,0,0,0.08)'
         ].join(';');
-        var tbH = tb.offsetHeight || 0; /* fixed 적용 후 실제 높이 측정 */
-        /* je-edit-ov: toolbar 두 줄 전체 높이만큼 하단 패딩 확보 */
+        /* je-edit-ov: 툴바 두 줄 높이만큼 하단 패딩으로 가림 방지 */
+        tbH = tb.offsetHeight || 0; /* cssText 적용 후 재측정 */
         var editOv = document.getElementById('je-edit-ov');
         if(editOv) editOv.style.paddingBottom = tbH + 'px';
       } else if(_kbOpen){
         _kbOpen = false;
-        tb.setAttribute('style', _tbOrig);
+        /* 원래 위치로 복귀 */
+        if(_tbOrigParent){
+          if(_tbOrigNextSibling && _tbOrigNextSibling.parentNode === _tbOrigParent){
+            _tbOrigParent.insertBefore(tb, _tbOrigNextSibling);
+          } else {
+            _tbOrigParent.appendChild(tb);
+          }
+        }
+        tb.setAttribute('style', _tbOrigStyle);
         var editOv2 = document.getElementById('je-edit-ov');
-        if(editOv2) editOv2.style.paddingBottom = _ceOrigPb;
+        if(editOv2) editOv2.style.paddingBottom = '';
+        _tbOrigParent = null;
+        _tbOrigNextSibling = null;
       }
     }
 
