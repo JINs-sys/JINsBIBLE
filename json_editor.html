@@ -2441,6 +2441,12 @@ document.addEventListener("DOMContentLoaded", function(){
       if(!_kbOpen[tbId]){
         _origStyles[tbId] = tb.getAttribute('style') || '';
         _kbOpen[tbId] = true;
+        /* 툴바가 fixed로 빠지면 그 높이만큼 빈자리가 생겨 레이아웃이 무너짐.
+           동일 높이의 ghost 엘리먼트를 툴바 뒤에 삽입해 자리를 보존. */
+        var ghost = document.createElement('div');
+        ghost.id = tbId + '-ghost';
+        ghost.style.cssText = 'height:' + tb.offsetHeight + 'px;flex-shrink:0;';
+        tb.parentNode.insertBefore(ghost, tb.nextSibling);
       }
       tb.style.cssText = [
         'position:fixed',
@@ -2459,6 +2465,9 @@ document.addEventListener("DOMContentLoaded", function(){
       if(_kbOpen[tbId]){
         _kbOpen[tbId] = false;
         tb.setAttribute('style', _origStyles[tbId] || '');
+        /* ghost 제거 */
+        var ghost = document.getElementById(tbId + '-ghost');
+        if(ghost) ghost.parentNode.removeChild(ghost);
       }
     }
 
