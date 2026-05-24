@@ -3936,5 +3936,65 @@ document.addEventListener('DOMContentLoaded',function(){
   </div>
 </div>
 
+
+<div id="je-debug" style="display:none;position:fixed;top:0;left:0;right:0;z-index:999999;background:rgba(0,0,0,0.85);color:#0f0;font-size:11px;font-family:monospace;padding:8px 12px;line-height:1.7;"></div>
+<script>
+(function(){
+  var dbg = document.getElementById('je-debug');
+  if(!dbg) return;
+
+  function showDebug(){
+    dbg.style.display = 'block';
+    var edOv = document.getElementById('je-ed-ov');
+    var editOv = document.getElementById('je-edit-ov');
+    var tb = document.getElementById('je-toolbar');
+    var ce = document.getElementById('je-ce');
+    var vv = window.visualViewport;
+
+    var lines = [];
+    if(edOv){
+      var cs = getComputedStyle(edOv);
+      lines.push('ed-ov overflow: ' + cs.overflow);
+      lines.push('ed-ov position: ' + cs.position);
+      lines.push('ed-ov h: ' + edOv.offsetHeight + ' inline: ' + (edOv.getAttribute('style')||''));
+    }
+    if(editOv){
+      var cs2 = getComputedStyle(editOv);
+      lines.push('edit-ov overflow: ' + cs2.overflow);
+    }
+    if(tb){
+      var cs3 = getComputedStyle(tb);
+      lines.push('toolbar position: ' + cs3.position);
+      lines.push('toolbar h: ' + tb.offsetHeight + ' bottom: ' + cs3.bottom);
+      lines.push('toolbar inline: ' + (tb.getAttribute('style')||'none'));
+    }
+    if(vv){
+      lines.push('vv.h: ' + Math.round(vv.height) + ' vv.offsetTop: ' + Math.round(vv.offsetTop));
+      lines.push('innerH: ' + window.innerHeight + ' kbH: ' + Math.round(window.innerHeight - vv.height - vv.offsetTop));
+    }
+    if(ce){
+      lines.push('ce editable: ' + ce.getAttribute('contenteditable'));
+    }
+    dbg.innerHTML = lines.join('<br>');
+  }
+
+  /* 편집 화면 진입 시 + visualViewport 변화 시 갱신 */
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.id === 'je-edit-btn') setTimeout(showDebug, 300);
+    if(e.target && e.target.textContent === '수정') setTimeout(showDebug, 300);
+  });
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){ setTimeout(showDebug, 100); });
+  }
+  /* 탭 5번으로 디버그 토글 */
+  var _tap=0,_tt=null;
+  document.addEventListener('touchstart', function(){
+    _tap++;
+    clearTimeout(_tt);
+    if(_tap>=5){ _tap=0; if(dbg.style.display==='none'){showDebug();}else{dbg.style.display='none';} return; }
+    _tt=setTimeout(function(){ _tap=0; }, 800);
+  });
+})();
+</script>
 </body>
 </html>
