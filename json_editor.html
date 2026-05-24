@@ -2429,47 +2429,17 @@ document.addEventListener("DOMContentLoaded", function(){
 
     /* 메모 모드: #je-toolbar / #je-ce
        설교 모드: #je-sr-toolbar / #je-sr-editor */
-    var MODES = [
-      { tbId: 'je-toolbar',    ceId: 'je-ce' },
-      { tbId: 'je-sr-toolbar', ceId: 'je-sr-editor' }
-    ];
+    /* ── 메모 모드: #je-toolbar / #je-ce
+          툴바를 fixed로 띄우고 ghost로 자리 보존 (일반 레이아웃)
 
-    var _origStyles = {};
-    var _kbOpen = {};
-
-    function floatToolbar(tb, kbH, tbId){
-      if(!_kbOpen[tbId]){
-        _origStyles[tbId] = tb.getAttribute('style') || '';
-        _kbOpen[tbId] = true;
-        /* 툴바가 fixed로 빠지면 그 높이만큼 빈자리가 생겨 레이아웃이 무너짐.
-           동일 높이의 ghost 엘리먼트를 툴바 뒤에 삽입해 자리를 보존. */
-        var ghost = document.createElement('div');
-        ghost.id = tbId + '-ghost';
-        ghost.style.cssText = 'height:' + tb.offsetHeight + 'px;flex-shrink:0;';
-        tb.parentNode.insertBefore(ghost, tb.nextSibling);
-      }
-      tb.style.cssText = [
-        'position:fixed',
-        'left:0',
-        'right:0',
-        'bottom:' + kbH + 'px',
-        'z-index:99999',
-        'background:#faf9f6',
-        'border-top:1px solid #ece8e0',
-        'border-bottom:none',
-        'box-shadow:0 -2px 8px rgba(0,0,0,0.08)'
-      ].join(';');
-    }
-
-    function resetToolbar(tb, tbId){
-      if(_kbOpen[tbId]){
-        _kbOpen[tbId] = false;
-        tb.setAttribute('style', _origStyles[tbId] || '');
-        /* ghost 제거 */
-        var ghost = document.getElementById(tbId + '-ghost');
-        if(ghost) ghost.parentNode.removeChild(ghost);
-      }
-    }
+       ── 설교 모드: #je-sr-toolbar / #je-sr-editor
+          #je-sr-screen이 overflow:hidden + 고정높이라 fixed가 통하지 않음.
+          대신 #je-sr-content-wrap의 padding-bottom으로 키보드 공간 확보.
+    */
+    var _memoTbOrig = '';
+    var _memoKbOpen = false;
+    var _srKbOpen   = false;
+    var _srCwOrig   = '';
 
     function onViewportResize(){
       var vvH  = window.visualViewport.height;
@@ -2478,17 +2448,53 @@ document.addEventListener("DOMContentLoaded", function(){
       var kbH  = winH - vvH - vvOT;
       var kbVisible = kbH > 80;
 
-      MODES.forEach(function(m){
-        var tb = document.getElementById(m.tbId);
-        var ce = document.getElementById(m.ceId);
-        if(!tb || !ce) return;
-        var isEditing = ce.getAttribute('contenteditable') === 'true';
-        if(kbVisible && isEditing){
-          floatToolbar(tb, kbH, m.tbId);
-        } else {
-          resetToolbar(tb, m.tbId);
+      /* ── 메모 모드 ── */
+      var memoTb = document.getElementById('je-toolbar');
+      var memoCe = document.getElementById('je-ce');
+      if(memoTb && memoCe){
+        var memoEditing = memoCe.getAttribute('contenteditable') === 'true';
+        if(kbVisible && memoEditing){
+          if(!_memoKbOpen){
+            _memoTbOrig = memoTb.getAttribute('style') || '';
+            _memoKbOpen = true;
+            var ghost = document.createElement('div');
+            ghost.id = 'je-toolbar-ghost';
+            ghost.style.cssText = 'height:' + memoTb.offsetHeight + 'px;flex-shrink:0;';
+            memoTb.parentNode.insertBefore(ghost, memoTb.nextSibling);
+          }
+          memoTb.style.cssText = [
+            'position:fixed','left:0','right:0',
+            'bottom:' + kbH + 'px','z-index:99999',
+            'background:#faf9f6','border-top:1px solid #ece8e0',
+            'border-bottom:none','box-shadow:0 -2px 8px rgba(0,0,0,0.08)'
+          ].join(';');
+        } else if(_memoKbOpen){
+          _memoKbOpen = false;
+          memoTb.setAttribute('style', _memoTbOrig);
+          var g = document.getElementById('je-toolbar-ghost');
+          if(g) g.parentNode.removeChild(g);
         }
-      });
+      }
+
+      /* ── 설교 모드 ── */
+      var srTb = document.getElementById('je-sr-toolbar');
+      var srCe = document.getElementById('je-sr-editor');
+      var srCw = document.getElementById('je-sr-content-wrap');
+      if(srTb && srCe && srCw){
+        var srEditing = srCe.getAttribute('contenteditable') === 'true';
+        if(kbVisible && srEditing){
+          if(!_srKbOpen){
+            _srCwOrig = srCw.getAttribute('style') || '';
+            _srKbOpen = true;
+          }
+          /* content-wrap 하단 패딩으로 키보드+툴바 높이만큼 공간 확보 */
+          var tbH = srTb.offsetHeight || 0;
+          srCw.style.paddingBottom = (kbH + tbH) + 'px';
+        } else if(_srKbOpen){
+          _srKbOpen = false;
+          srCw.setAttribute('style', _srCwOrig);
+        }
+      }
     }
 
     window.visualViewport.addEventListener('resize', onViewportResize);
