@@ -2436,7 +2436,7 @@ document.addEventListener("DOMContentLoaded", function(){
        toolbar를 fixed로 띄울 때 ghost를 삽입하면 #je-ce 공간이 줄어드는 문제 발생.
        → ghost 없이, #je-ce에 padding-bottom으로 toolbar 높이만큼 공간 확보. */
     var _tbOrig = '';
-    var _ceOrigPb = '';
+    var _editOvOrigPb = '';
     var _kbOpen = false;
 
     function onViewportResize(){
@@ -2453,27 +2453,29 @@ document.addEventListener("DOMContentLoaded", function(){
       var isEditing = ce.getAttribute('contenteditable') === 'true';
 
       if(kbVisible && isEditing){
+        /* fixed 전환 전에 원본 저장 (최초 1회) */
         if(!_kbOpen){
-          _tbOrig   = tb.getAttribute('style') || '';
-          _ceOrigPb = ce.style.paddingBottom || '';
-          _kbOpen   = true;
+          _tbOrig = tb.getAttribute('style') || '';
+          var editOvPre = document.getElementById('je-edit-ov');
+          _editOvOrigPb = editOvPre ? (editOvPre.style.paddingBottom || '') : '';
+          _kbOpen = true;
         }
-        var tbH = tb.offsetHeight || 0;
-        /* toolbar: 키보드 바로 위 fixed */
+        /* toolbar를 먼저 fixed로 올림 */
         tb.style.cssText = [
           'position:fixed','left:0','right:0',
           'bottom:' + kbH + 'px','z-index:99999',
           'background:#faf9f6','border-top:1px solid #ece8e0',
           'border-bottom:none','box-shadow:0 -2px 8px rgba(0,0,0,0.08)'
         ].join(';');
-        /* je-edit-ov: toolbar 높이만큼 하단 패딩 → ce(flex:1)가 toolbar에 가리지 않음 */
+        /* fixed 후 실제 렌더된 높이로 paddingBottom 설정 (두 줄 모두 포함) */
+        var tbH = tb.getBoundingClientRect().height || tb.offsetHeight || 0;
         var editOv = document.getElementById('je-edit-ov');
-        if(editOv) editOv.style.paddingBottom = tbH + 'px';
+        if(editOv) editOv.style.paddingBottom = (tbH + 2) + 'px';
       } else if(_kbOpen){
         _kbOpen = false;
         tb.setAttribute('style', _tbOrig);
         var editOv2 = document.getElementById('je-edit-ov');
-        if(editOv2) editOv2.style.paddingBottom = _ceOrigPb;
+        if(editOv2) editOv2.style.paddingBottom = _editOvOrigPb;
       }
     }
 
