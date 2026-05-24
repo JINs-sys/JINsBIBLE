@@ -17,6 +17,7 @@
 </head>
 <body>
 <style id="je-style">
+@keyframes je-cross-pulse{0%,100%{text-shadow:0 0 12px rgba(74,212,130,0.4),0 0 32px rgba(74,212,130,0.15)}50%{text-shadow:0 0 24px rgba(74,212,130,0.8),0 0 60px rgba(74,212,130,0.35)}}
 #je-trig{display:none}
 #je-pin-ov,#je-ed-ov{display:none;position:fixed;inset:0;z-index:9500}
 #je-pin-ov{background:#f7f4ee;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;flex-direction:column;align-items:center;justify-content:center}
@@ -391,7 +392,7 @@
 </div>
 </div>
 
-<div id="je-ed-ov"><div id="je-list-ov"><div class="je-list-hdr"><div class="je-list-hdr-top"><div><div class="je-list-ttl">JSON 편집기</div><div class="je-list-sub" id="je-list-sub"></div></div><div class="je-list-btns"><button id="je-mob-preview-btn" class="je-lbtn je-lbtn-file" onclick="jeShowMobilePreview()" title="S26 Ultra 모바일 미리보기">미리보기</button><button class="je-lbtn je-lbtn-exp" id="je-exp-btn" style="display:none" onclick="jeExport()">내보내기</button><button class="je-lbtn je-lbtn-file" onclick="jePickFile()">파일 열기</button><button class="je-lbtn je-pc-only" style="background:#f0ede6;color:#6a6560;" onclick="jeOpenDeviceSettings()" title="설교 뷰어 기기 설정">⚙️</button><button class="je-lbtn je-lbtn-close" onclick="jeHideAll()">닫기</button></div></div></div><div id="je-tab-bar"></div><div id="je-bible-drop"><div id="je-bible-drop-txt" style="display:flex;align-items:center;justify-content:center;gap:10px;"><button onclick="jeBiblePickFile()" style="border:1.5px solid #c0d8cc;border-radius:6px;background:#fff;color:#2d4a3e;font-size:0.75rem;font-weight:700;padding:5px 13px;cursor:pointer;font-family:inherit;transition:all .12s;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='#fff'">📂 성경본문 파일 불러오기</button><span style="color:#d0cbc3;font-size:0.8rem;">|</span><button id="je-sample-btn" onclick="jeSampleBible()" style="border:1.5px solid #c0d8cc;border-radius:6px;background:#fff;color:#2d4a3e;font-size:0.75rem;font-weight:700;padding:5px 13px;cursor:pointer;font-family:inherit;transition:all .12s;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='#fff'">▷ 샘플본문(개역한글)</button></div></div><input type="file" id="je-bible-inp" accept=".txt,.bdb,.aab,.zip"><div id="je-ctrl-bar"><div id="je-sort-bar" class="je-sort-bar"><button class="je-sort-btn on" data-sort="bible" onclick="jeSetSort('bible')">성경순</button><button class="je-sort-btn" data-sort="recent" onclick="jeSetSort('recent')">최근작성</button><button class="je-sort-btn" data-sort="oldest" onclick="jeSetSort('oldest')">오래된순</button><button class="je-sort-btn" data-sort="modified" onclick="jeSetSort('modified')">최근수정</button></div><div class="je-search-wrap" id="je-search-wrap" style="display:none"><input class="je-search" id="je-search" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button class="je-search-clr" onclick="jeClearSearch()">&times;</button></div></div><div id="je-book-filter-bar" class="je-book-filter-bar"></div><div id="je-drop-ov"><div class="je-drop-box" id="je-drop-box" onclick="jePickFile()"><div style="font-size:2.6rem">&#128194;</div><div class="je-drop-ttl">JSON 파일 열기</div><div class="je-drop-sub">bible_backup_*.json</div></div></div><div class="je-list-body" id="je-list-body" style="display:none"></div><div id="je-resize-bar-list" title="드래그하여 창 높이 조절"></div></div><div id="je-edit-ov" style="display:none;flex-direction:column;height:100%"><div class="je-hdr"><button class="je-btn-back" onclick="jeBackToList()">&#8592; 목록</button><div class="je-hdr-mid"><div class="je-hdr-ref" id="je-hdr-ref"></div><div class="je-hdr-cnt" id="je-hdr-cnt"></div></div><button id="je-preview-btn" class="je-lbtn je-lbtn-file" onclick="jeShowMobilePreview()" title="S26 Ultra 모바일 미리보기">미리보기</button><button id="je-edit-btn" onclick="jeStartEdit()">수정</button><button class="je-btn-save idle" id="je-save-btn" onclick="jeSave()" style="display:none">저장</button></div><div id="je-verse-panel"><div id="je-verse-text"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><div id="je-verse-src" style="flex:1;font-size:0.78rem;color:#9a9288"></div><div style="display:flex;align-items:center;gap:3px;flex-shrink:0"><button id="je-vp-wrap-btn" onclick="jeToggleVerseWrap()" style="border:none;border-radius:4px;background:transparent;color:#9a9288;font-size:0.7rem;padding:1px 5px;cursor:pointer;transition:all .15s">절별</button><span style="color:#ddd;font-size:0.7rem">|</span><button onclick="jeVerseFontDown()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A-</button><span id="je-vp-fs" style="font-size:0.68rem;color:#b0b0b0;min-width:16px;text-align:center">14</span><button onclick="jeVerseFontUp()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A+</button></div></div></div>
+<div id="je-ed-ov"><div id="je-list-ov"><div class="je-list-hdr"><div class="je-list-hdr-top"><div><div class="je-list-ttl">JSON 편집기</div><div class="je-list-sub" id="je-list-sub"></div></div><div class="je-list-btns"><button id="je-mob-preview-btn" class="je-lbtn je-lbtn-file" onclick="jeShowMobilePreview()" title="S26 Ultra 모바일 미리보기">미리보기</button><button class="je-lbtn je-lbtn-exp" id="je-exp-btn" style="display:none" onclick="jeExport()">내보내기</button><button class="je-lbtn je-lbtn-file" onclick="jePickFile()">파일 열기</button><button class="je-lbtn je-pc-only" style="background:#f0ede6;color:#6a6560;" onclick="jeOpenDeviceSettings()" title="설교 뷰어 기기 설정">⚙️</button><button id="je-device-mode-btn" class="je-lbtn" style="background:#f0ede6;color:#6a6560;font-size:1rem;min-width:36px;" onclick="_jeCycleDeviceMode()" title="표시 모드 변경">📱</button><button class="je-lbtn je-lbtn-close" onclick="jeHideAll()">닫기</button></div></div></div><div id="je-tab-bar"></div><div id="je-bible-drop"><div id="je-bible-drop-txt" style="display:flex;align-items:center;justify-content:center;gap:10px;"><button onclick="jeBiblePickFile()" style="border:1.5px solid #c0d8cc;border-radius:6px;background:#fff;color:#2d4a3e;font-size:0.75rem;font-weight:700;padding:5px 13px;cursor:pointer;font-family:inherit;transition:all .12s;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='#fff'">📂 성경본문 파일 불러오기</button><span style="color:#d0cbc3;font-size:0.8rem;">|</span><button id="je-sample-btn" onclick="jeSampleBible()" style="border:1.5px solid #c0d8cc;border-radius:6px;background:#fff;color:#2d4a3e;font-size:0.75rem;font-weight:700;padding:5px 13px;cursor:pointer;font-family:inherit;transition:all .12s;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='#fff'">▷ 샘플본문(개역한글)</button></div></div><input type="file" id="je-bible-inp" accept=".txt,.bdb,.aab,.zip"><div id="je-ctrl-bar"><div id="je-sort-bar" class="je-sort-bar"><button class="je-sort-btn on" data-sort="bible" onclick="jeSetSort('bible')">성경순</button><button class="je-sort-btn" data-sort="recent" onclick="jeSetSort('recent')">최근작성</button><button class="je-sort-btn" data-sort="oldest" onclick="jeSetSort('oldest')">오래된순</button><button class="je-sort-btn" data-sort="modified" onclick="jeSetSort('modified')">최근수정</button></div><div class="je-search-wrap" id="je-search-wrap" style="display:none"><input class="je-search" id="je-search" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button class="je-search-clr" onclick="jeClearSearch()">&times;</button></div></div><div id="je-book-filter-bar" class="je-book-filter-bar"></div><div id="je-drop-ov"><div class="je-drop-box" id="je-drop-box" onclick="jePickFile()"><div style="font-size:2.6rem">&#128194;</div><div class="je-drop-ttl">JSON 파일 열기</div><div class="je-drop-sub">bible_backup_*.json</div></div></div><div class="je-list-body" id="je-list-body" style="display:none"></div><div id="je-resize-bar-list" title="드래그하여 창 높이 조절"></div><div id="je-main-checksum-bar" style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:9px 16px 11px;border-top:1px solid #ece8e0;background:#faf9f6;"><span id="je-main-checksum-val" style="font-size:0.68rem;font-family:'Courier New',monospace;color:#b8b4ae;letter-spacing:0.06em;">—</span><div id="je-ver-btn" style="font-size:0.65rem;color:#c0bdb6;letter-spacing:0.04em;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;" onclick="_jeVerTap()">JINs Bible Web &nbsp;v1.0.0</div></div></div><div id="je-edit-ov" style="display:none;flex-direction:column;height:100%"><div class="je-hdr"><button class="je-btn-back" onclick="jeBackToList()">&#8592; 목록</button><div class="je-hdr-mid"><div class="je-hdr-ref" id="je-hdr-ref"></div><div class="je-hdr-cnt" id="je-hdr-cnt"></div></div><button id="je-preview-btn" class="je-lbtn je-lbtn-file" onclick="jeShowMobilePreview()" title="S26 Ultra 모바일 미리보기">미리보기</button><button id="je-edit-btn" onclick="jeStartEdit()">수정</button><button class="je-btn-save idle" id="je-save-btn" onclick="jeSave()" style="display:none">저장</button></div><div id="je-verse-panel"><div id="je-verse-text"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><div id="je-verse-src" style="flex:1;font-size:0.78rem;color:#9a9288"></div><div style="display:flex;align-items:center;gap:3px;flex-shrink:0"><button id="je-vp-wrap-btn" onclick="jeToggleVerseWrap()" style="border:none;border-radius:4px;background:transparent;color:#9a9288;font-size:0.7rem;padding:1px 5px;cursor:pointer;transition:all .15s">절별</button><span style="color:#ddd;font-size:0.7rem">|</span><button onclick="jeVerseFontDown()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A-</button><span id="je-vp-fs" style="font-size:0.68rem;color:#b0b0b0;min-width:16px;text-align:center">14</span><button onclick="jeVerseFontUp()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A+</button></div></div></div>
 <div id="je-meta-panel">
   <div id="je-meta-toggle" onclick="jeToggleMeta()">
     <span id="je-meta-toggle-label">📋 구절 정보 수정</span>
@@ -673,10 +674,46 @@ function _jeIsTouchDevice(){
 }
 /* 기기 종류 판별: phone | tablet | pc */
 function _jeDeviceType(){
-  var coarse = window.matchMedia('(pointer:coarse) and (hover:none)').matches;
+  var forced = localStorage.getItem('_je_device_mode');
+  if(forced === 'phone' || forced === 'tablet' || forced === 'pc') return forced;
+  var coarse = window.matchMedia('(pointer:coarse)').matches;
   if(!coarse) return 'pc';
   var minSide = Math.min(window.screen.width, window.screen.height);
   return minSide >= 600 ? 'tablet' : 'phone';
+}
+function _jeSetDeviceMode(mode){
+  if(mode) localStorage.setItem('_je_device_mode', mode);
+  else localStorage.removeItem('_je_device_mode');
+  /* 즉시 CSS 반영 */
+  var ov = document.getElementById('je-ed-ov');
+  if(ov){
+    if(mode === 'phone' || mode === 'tablet'){
+      ov.style.width='100vw'; ov.style.height='100vh'; ov.style.maxHeight='100vh';
+      ov.style.borderRadius='0'; ov.style.boxShadow='none';
+      ov.style.top='0'; ov.style.left='0'; ov.style.transform='none';
+    } else {
+      ov.style.width=''; ov.style.height=''; ov.style.maxHeight='';
+      ov.style.borderRadius=''; ov.style.boxShadow='';
+      ov.style.top=''; ov.style.left=''; ov.style.transform='';
+    }
+  }
+  _jeUpdateDeviceModeBtn();
+  _toast('표시 모드: ' + (mode==='phone'?'스마트폰':mode==='tablet'?'태블릿':mode==='pc'?'PC':'자동'));
+}
+function _jeUpdateDeviceModeBtn(){
+  var btn = document.getElementById('je-device-mode-btn');
+  if(!btn) return;
+  var forced = localStorage.getItem('_je_device_mode');
+  var auto = _jeDeviceType();
+  if(forced){
+    btn.textContent = forced==='phone'?'📱':forced==='tablet'?'📟':'🖥️';
+    btn.title = '표시 모드: ' + (forced==='phone'?'스마트폰':forced==='tablet'?'태블릿':'PC') + ' (탭하여 자동으로)';
+    btn.style.background='#e8f2ee'; btn.style.color='#2d4a3e';
+  } else {
+    btn.textContent = auto==='phone'?'📱':auto==='tablet'?'📟':'🖥️';
+    btn.title = '표시 모드: 자동(' + auto + ') — 탭하여 변경';
+    btn.style.background='#f0ede6'; btn.style.color='#6a6560';
+  }
 }
 /* 설교 탭 열기: 기기에 따라 분기 */
 function _jeOpenSermon(idx){
@@ -1216,15 +1253,17 @@ function _nf(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
 /* PIN */
 function jeShowPin(){
   if(_pinOk){
-    _$('je-ed-ov').classList.add('je-show');
+    var _showOv=_$('je-ed-ov');
+    if(_jeDeviceType()!=='pc'){_showOv.style.cssText+=';width:100vw!important;height:100vh!important;max-height:100vh!important;border-radius:0!important;box-shadow:none!important;top:0!important;left:0!important;transform:none!important';}
+    _showOv.classList.add('je-show');
     _renderList();
-    if(window.innerWidth>600){var bg=_$('je-ed-overlay-bg');if(bg)bg.style.display='block';}
+    if(_jeDeviceType()==='pc'){var bg=_$('je-ed-overlay-bg');if(bg)bg.style.display='block';}
     else{document.body.style.overflow='hidden';}
     return;
   }
   _pin=''; _buildNumpad(); _updateDots();
   _$('je-pin-ov').classList.add('je-show');
-  if(window.innerWidth>600){var bg=_$('je-ed-overlay-bg');if(bg)bg.style.display='block';}
+  if(_jeDeviceType()==='pc'){var bg=_$('je-ed-overlay-bg');if(bg)bg.style.display='block';}
   else{document.body.style.overflow='hidden';}
 }
 function jeHideAll(){
@@ -1264,9 +1303,11 @@ function _pd(d){
       _pinOk=true;
       try{ localStorage.setItem(_LS_KEY,_LS_VAL); }catch(e){}
       _$('je-pin-ov').classList.remove('je-show');
-      _$('je-ed-ov').classList.add('je-show');
+      var _ov2=_$('je-ed-ov');
+      if(_jeDeviceType()!=='pc'){_ov2.style.width='100vw';_ov2.style.height='100vh';_ov2.style.maxHeight='100vh';_ov2.style.borderRadius='0';_ov2.style.boxShadow='none';_ov2.style.top='0';_ov2.style.left='0';_ov2.style.transform='none';}
+      _ov2.classList.add('je-show');
       _pin=''; _renderList();
-      if(window.innerWidth>600){var bg=_$('je-ed-overlay-bg');if(bg)bg.style.display='block';}
+      if(_jeDeviceType()==='pc'){var bg=_$('je-ed-overlay-bg');if(bg)bg.style.display='block';}
     },280);
   } else {
     var np=_$('je-numpad');
@@ -2162,11 +2203,11 @@ function jeBackToList(){
   if(_memoText!==_origMemo && !confirm('\uc800\uc7a5\ud558\uc9c0 \uc54a\uace0 \ub3cc\uc544\uac00\uc2dc\uaca0\uc2b5\ub2c8\uae4c?')) return;
   var vp=_$('je-verse-panel'); if(vp) vp.classList.remove('je-vp-show');
   var ov=document.getElementById('je-ed-ov');
-  if(ov){ov.style.width='';ov.style.height='';ov.style.maxHeight='';ov.style.borderRadius='';}
+  if(ov){ov.style.width='';ov.style.height='';ov.style.maxHeight='';ov.style.borderRadius='';ov.style.boxShadow='';ov.style.top='';ov.style.left='';ov.style.transform='';}
   /* 태블릿 전체창에서 돌아올 때 PC는 overlay-bg 복원, 모바일은 body 스크롤 복원 */
   var dt=_jeDeviceType();
   if(dt==='pc'){
-    var bg=_$('je-ed-overlay-bg'); if(bg&&window.innerWidth>600) bg.style.display='block';
+    var bg=_$('je-ed-overlay-bg'); if(bg&&_jeDeviceType()==='pc') bg.style.display='block';
   } else {
     document.body.style.overflow='';
   }
@@ -2249,7 +2290,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')jeHideAll();
   function attachBar(bar){
     if(!bar)return;
     bar.addEventListener('mousedown',function(e){
-      if(window.innerWidth<=600)return;
+      if(_jeDeviceType()!=='pc')return;
       e.preventDefault();
       startY=e.clientY;
       startH=ov.offsetHeight;
@@ -2260,7 +2301,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')jeHideAll();
       document.addEventListener('mouseup',onUp);
     });
     bar.addEventListener('touchstart',function(e){
-      if(window.innerWidth<=600)return;
+      if(_jeDeviceType()!=='pc')return;
       startY=e.touches[0].clientY;
       startH=ov.offsetHeight;
       bar.classList.add('dragging');
@@ -2279,6 +2320,21 @@ window.jeDeleteItem=jeDeleteItem;
 window.jeShowPin=jeShowPin; window.jeHideAll=jeHideAll;
 window.jePickFile=jePickFile; window.jeFileChosen=jeFileChosen;
 window.jeOnSearch=jeOnSearch; window.jeClearSearch=jeClearSearch;
+
+function _jeCycleDeviceMode(){
+  var forced = localStorage.getItem('_je_device_mode');
+  var auto = (function(){
+    var c=window.matchMedia('(pointer:coarse)').matches;
+    if(!c) return 'pc';
+    return Math.min(window.screen.width,window.screen.height)>=600?'tablet':'phone';
+  })();
+  var order = ['phone','tablet','pc',null];
+  /* auto이면 null, 그 다음은 phone부터 */
+  var cur = forced || null;
+  var idx = order.indexOf(cur);
+  var next = order[(idx+1) % order.length];
+  _jeSetDeviceMode(next);
+}
 window.jeExport=jeExport; window.jeOpenEdit=jeOpenEdit;
 window.jeStartEdit=jeStartEdit;
 
@@ -2432,9 +2488,14 @@ document.addEventListener("DOMContentLoaded", function(){
       var src=document.documentElement.outerHTML;
       var hash=_crc32(src);
       /* 4자씩 끊어서 가독성 향상 */
-      el.textContent=hash.slice(0,4)+' '+hash.slice(4);
+      var fmt=hash.slice(0,4)+' '+hash.slice(4);
+      el.textContent=fmt;
+      var el2=document.getElementById('je-main-checksum-val');
+      if(el2) el2.textContent=fmt;
     } catch(e){
       el.textContent='ERR';
+      var el2b=document.getElementById('je-main-checksum-val');
+      if(el2b) el2b.textContent='ERR';
     }
   });
 })();
@@ -2988,6 +3049,9 @@ document.addEventListener("DOMContentLoaded", function(){
 /* ── 기기 스펙 테이블 ── */
 var DEVICES = [
   /* ── Galaxy 폰 ── */
+  {id:'s26ultra',  label:'Galaxy S26 Ultra',  type:'phone', w:412, h:916, radius:22, pad:'10px 6px 14px', notch:false, homebar:true, screenR:8,  punch:true},
+  {id:'s26plus',   label:'Galaxy S26+',        type:'phone', w:393, h:873, radius:22, pad:'10px 6px 14px', notch:false, homebar:true, screenR:8,  punch:true},
+  {id:'s26',       label:'Galaxy S26',          type:'phone', w:360, h:780, radius:22, pad:'10px 6px 14px', notch:false, homebar:true, screenR:8,  punch:true},
   {id:'s25ultra',  label:'Galaxy S25 Ultra',  type:'phone', w:412, h:916, radius:22, pad:'10px 6px 14px', notch:false, homebar:true, screenR:8,  punch:true},
   {id:'s25plus',   label:'Galaxy S25+',       type:'phone', w:393, h:873, radius:22, pad:'10px 6px 14px', notch:false, homebar:true, screenR:8,  punch:true},
   {id:'s25',       label:'Galaxy S25',         type:'phone', w:360, h:780, radius:22, pad:'10px 6px 14px', notch:false, homebar:true, screenR:8,  punch:true},
@@ -3666,6 +3730,7 @@ function _srFd(s){return s?s.slice(0,10).replace(/-/g,'.'):''}
 /* ── 드래그/리사이즈 ── */
 var _drag=false,_resize=false,_dOX,_dOY,_dFX,_dFY,_rOX,_rOY,_rScale0;
 document.addEventListener('DOMContentLoaded',function(){
+  _jeUpdateDeviceModeBtn();
   var viewer=document.getElementById('je-sr-viewer');
   var frame=document.getElementById('je-sr-frame');
   var topbar=document.getElementById('je-sr-topbar');
@@ -3741,7 +3806,104 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 })();
+
+/* ── 이스터에그 ── */
+(function(){
+  var _tapCount = 0, _tapTimer = null;
+
+  window._jeVerTap = function(){
+    _tapCount++;
+    var btn = document.getElementById('je-ver-btn');
+    if(btn){ btn.style.color = _tapCount%2 ? '#7ab89a' : '#c0bdb6'; }
+    clearTimeout(_tapTimer);
+    if(_tapCount >= 6){
+      _tapCount = 0;
+      if(btn) btn.style.color = '#c0bdb6';
+      _jeEasterOpen();
+      return;
+    }
+    _tapTimer = setTimeout(function(){ 
+      _tapCount = 0; 
+      if(btn) btn.style.color = '#c0bdb6';
+    }, 1800);
+  };
+
+  window._jeEasterOpen = function(){
+    var el = document.getElementById('je-easter');
+    if(!el) return;
+    el.style.display = 'block';
+    _startStars();
+    /* 십자가 등장 애니메이션 */
+    var cross = document.getElementById('je-easter-cross');
+    if(cross){ cross.style.opacity='0'; cross.style.transform='scale(0.3)'; cross.style.transition='all 0.6s cubic-bezier(0.34,1.56,0.64,1)'; setTimeout(function(){ cross.style.opacity='1'; cross.style.transform='scale(1)'; }, 60); }
+  };
+
+  window._jeEasterClose = function(){
+    var el = document.getElementById('je-easter');
+    if(el){ el.style.opacity='0'; el.style.transition='opacity 0.4s'; setTimeout(function(){ el.style.display='none'; el.style.opacity='1'; el.style.transition=''; }, 400); }
+    _stopStars();
+  };
+
+  /* 별 파티클 */
+  var _starAnim = null;
+  var _stars = [];
+
+  function _startStars(){
+    var canvas = document.getElementById('je-easter-canvas');
+    if(!canvas) return;
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    var ctx = canvas.getContext('2d');
+    _stars = [];
+    for(var i=0;i<90;i++){
+      _stars.push({
+        x: Math.random()*canvas.width,
+        y: Math.random()*canvas.height,
+        r: Math.random()*1.4+0.3,
+        o: Math.random()*0.6+0.1,
+        speed: Math.random()*0.3+0.05,
+        twinkle: Math.random()*Math.PI*2
+      });
+    }
+    function draw(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      _stars.forEach(function(s){
+        s.twinkle += 0.03;
+        s.y -= s.speed;
+        if(s.y < 0) { s.y = canvas.height; s.x = Math.random()*canvas.width; }
+        var alpha = s.o * (0.6 + 0.4*Math.sin(s.twinkle));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(168,212,188,'+alpha+')';
+        ctx.fill();
+      });
+      _starAnim = requestAnimationFrame(draw);
+    }
+    draw();
+  }
+
+  function _stopStars(){
+    if(_starAnim){ cancelAnimationFrame(_starAnim); _starAnim=null; }
+  }
+})();
+
 </script>
+
+
+<div id="je-easter" style="display:none;position:fixed;inset:0;z-index:99999;background:#0d1f17;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;overflow:hidden;">
+  <canvas id="je-easter-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:0;padding:32px;text-align:center;">
+    <div id="je-easter-cross" style="font-size:3.2rem;margin-bottom:18px;animation:je-cross-pulse 2.4s ease-in-out infinite;">✝</div>
+    <div style="font-size:0.6rem;letter-spacing:0.38em;color:#4a8a6a;text-transform:uppercase;margin-bottom:14px;">JINs Bible Web</div>
+    <div style="font-size:1.55rem;font-weight:800;color:#e8f2ee;line-height:1.4;margin-bottom:8px;">말씀을 품은<br>개발자를 위하여</div>
+    <div style="font-size:0.78rem;color:#5a9a7a;margin-bottom:32px;line-height:1.7;">이 앱은 하나님의 말씀을 더 가까이하려는<br>한 사람의 작은 헌신으로 만들어졌습니다.</div>
+    <div style="font-size:0.65rem;color:#2d5a40;letter-spacing:0.06em;margin-bottom:4px;">버전 1.0.0 &nbsp;·&nbsp; 2026</div>
+    <div id="je-easter-verse" style="margin-top:28px;max-width:320px;background:rgba(45,74,62,0.45);border-radius:14px;padding:16px 20px;border:1px solid rgba(74,138,106,0.25);">
+      <div style="font-size:0.82rem;color:#a8d4bc;line-height:1.75;font-style:italic;">"주의 말씀은 내 발에 등이요<br>내 길에 빛이니이다"</div>
+      <div style="font-size:0.62rem;color:#4a8a6a;margin-top:8px;letter-spacing:0.05em;">시편 119:105</div>
+    </div>
+    <button onclick="_jeEasterClose()" style="margin-top:36px;border:1.5px solid rgba(74,138,106,0.5);border-radius:20px;padding:10px 32px;background:transparent;color:#4a8a6a;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:0.05em;-webkit-tap-highlight-color:transparent;transition:all .2s;" onmouseover="this.style.background='rgba(45,74,62,0.5)'" onmouseout="this.style.background='transparent'">닫기</button>
+  </div>
+</div>
 
 </body>
 </html>
