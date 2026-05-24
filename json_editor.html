@@ -2280,25 +2280,31 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')jeHideAll();
     var level = (e.state && e.state.jeLevel != null) ? e.state.jeLevel : 0;
 
     if(level < _histState){
+      /* 편집화면 → 목록으로 */
       if(_histState === 2){
         var editOv = document.getElementById('je-edit-ov');
         if(editOv && editOv.style.display !== 'none'){
           jeBackToList();
           _histState = 1;
+          _pushState(1); /* 목록 entry 복원 */
           return;
         }
       }
+      /* 목록/PIN → 앱 절대 닫지 않고 entry 복원 */
       if(_histState >= 1){
         var pinOv = document.getElementById('je-pin-ov');
         var edOv  = document.getElementById('je-ed-ov');
         var pinVisible = pinOv && pinOv.classList.contains('je-show');
         var edVisible  = edOv  && edOv.classList.contains('je-show');
         if(pinVisible || edVisible){
-          jeHideAll();
-          _histState = 0;
+          _pushState(_histState);
           return;
         }
       }
+    }
+    /* base(0)에 도달해도 entry를 다시 쌓아 앱 종료 방지 */
+    if(level === 0 && _histState >= 1){
+      _pushState(_histState);
     }
   });
 
@@ -2555,6 +2561,11 @@ _jeInitBibleDrop();
 </script>
 <script>
 document.addEventListener("DOMContentLoaded", function(){
+  /* base entry(level 0)를 먼저 확보한 뒤 앱 열기.
+     이렇게 해야 popstate가 항상 jeLevel state를 받아 앱 종료를 차단할 수 있음. */
+  if(!history.state || history.state.jeLevel == null){
+    history.replaceState({jeLevel: 0}, '', location.href.split('#')[0] + '#je0');
+  }
   if(window.jeShowPin) jeShowPin();
 
   /* 뒤로가기: 상단 _histState 로직에서 처리 */
