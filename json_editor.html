@@ -2427,43 +2427,59 @@ document.addEventListener("DOMContentLoaded", function(){
     var isMobile = navigator.maxTouchPoints > 0 || 'ontouchstart' in window;
     if(!isMobile || !window.visualViewport) return;
 
-    var tb = document.getElementById('je-toolbar');
-    if(!tb) return;
+    /* 메모 모드: #je-toolbar / #je-ce
+       설교 모드: #je-sr-toolbar / #je-sr-editor */
+    var MODES = [
+      { tbId: 'je-toolbar',    ceId: 'je-ce' },
+      { tbId: 'je-sr-toolbar', ceId: 'je-sr-editor' }
+    ];
 
-    var _tbOrigStyle = '';
-    var _kbOpen = false;
+    var _origStyles = {};
+    var _kbOpen = {};
+
+    function floatToolbar(tb, kbH, tbId){
+      if(!_kbOpen[tbId]){
+        _origStyles[tbId] = tb.getAttribute('style') || '';
+        _kbOpen[tbId] = true;
+      }
+      tb.style.cssText = [
+        'position:fixed',
+        'left:0',
+        'right:0',
+        'bottom:' + kbH + 'px',
+        'z-index:99999',
+        'background:#faf9f6',
+        'border-top:1px solid #ece8e0',
+        'border-bottom:none',
+        'box-shadow:0 -2px 8px rgba(0,0,0,0.08)'
+      ].join(';');
+    }
+
+    function resetToolbar(tb, tbId){
+      if(_kbOpen[tbId]){
+        _kbOpen[tbId] = false;
+        tb.setAttribute('style', _origStyles[tbId] || '');
+      }
+    }
 
     function onViewportResize(){
       var vvH  = window.visualViewport.height;
       var vvOT = window.visualViewport.offsetTop;
       var winH = window.innerHeight;
       var kbH  = winH - vvH - vvOT;
+      var kbVisible = kbH > 80;
 
-      var ce = document.getElementById('je-ce');
-      var isEditing = ce && ce.getAttribute('contenteditable') === 'true';
-
-      if(kbH > 80 && isEditing){
-        if(!_kbOpen){
-          _tbOrigStyle = tb.getAttribute('style') || '';
-          _kbOpen = true;
+      MODES.forEach(function(m){
+        var tb = document.getElementById(m.tbId);
+        var ce = document.getElementById(m.ceId);
+        if(!tb || !ce) return;
+        var isEditing = ce.getAttribute('contenteditable') === 'true';
+        if(kbVisible && isEditing){
+          floatToolbar(tb, kbH, m.tbId);
+        } else {
+          resetToolbar(tb, m.tbId);
         }
-        tb.style.cssText = [
-          'position:fixed',
-          'left:0',
-          'right:0',
-          'bottom:' + kbH + 'px',
-          'z-index:99999',
-          'background:#faf9f6',
-          'border-top:1px solid #ece8e0',
-          'border-bottom:none',
-          'box-shadow:0 -2px 8px rgba(0,0,0,0.08)'
-        ].join(';');
-      } else {
-        if(_kbOpen){
-          _kbOpen = false;
-          tb.setAttribute('style', _tbOrigStyle);
-        }
-      }
+      });
     }
 
     window.visualViewport.addEventListener('resize', onViewportResize);
