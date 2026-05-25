@@ -42,9 +42,9 @@
         body.active-mode .container { height: auto; min-height: unset; overflow: visible; padding-bottom: 14px; }
         .container { width: 100%; max-width: 620px; background-color: var(--paper-white); padding: 30px; border-radius: 12px; border: 1px solid var(--rule); box-shadow: 0 10px 40px rgba(0,0,0,0.06); position: relative; }
         @media (max-width: 480px) {
-            body:not(.active-mode) .container { padding: 12px 14px 8px; border-radius: 0; border-left: none; border-right: none; border-top: none; height: 100svh; box-shadow: none; display: flex; flex-direction: column; overflow-x: hidden;
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch; gap: 6px; }
+            body:not(.active-mode) .container { padding: 12px 14px 8px; border-radius: 0; border-left: none; border-right: none; border-top: none; min-height: 100svh; height: auto; box-shadow: none; display: flex; flex-direction: column; overflow-x: hidden;
+                overflow-y: visible;
+                -webkit-overflow-scrolling: touch; gap: 6px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
         }
 
         .header { margin-bottom: 20px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end; position: sticky; top: 0; z-index: 30; background: var(--paper-white); }
@@ -156,7 +156,7 @@
             box-shadow: 0 1px 6px rgba(45,74,62,0.06);
         }
         @media (max-width: 480px) {
-            body:not(.active-mode) #drop-zone { padding: 14px 12px; margin-bottom: 0; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+            body:not(.active-mode) #drop-zone { padding: 14px 12px; margin-bottom: 0; flex: none; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         }
         .file-upload-container.dragover { background-color: #e9f5ef; border-color: var(--accent); transform: scale(1.01); box-shadow: 0 0 0 3px rgba(45,74,62,0.15); }
         #file-input { display: none; }
@@ -189,7 +189,7 @@
             text-decoration: none; color: inherit;
         }
         @media (max-width: 480px) {
-            body:not(.active-mode) .action-grid { display: flex; flex-direction: column; gap: 6px; margin-bottom: 0; flex: 3; min-height: 0; overflow: hidden; }
+            body:not(.active-mode) .action-grid { display: flex; flex-direction: column; gap: 6px; margin-bottom: 0; flex: none; min-height: 0; overflow: visible; }
             body:not(.active-mode) #action-grid .action-card.card-commentary { grid-row: auto; }
             body:not(.active-mode) #action-grid .action-card { padding: 12px 13px; gap: 7px; flex: 1; justify-content: center; }
             body:not(.active-mode) #action-grid .action-card-drop-hint { margin-top: 2px; padding-top: 3px; font-size: 0.68rem; line-height: 1.3; }
@@ -248,7 +248,7 @@
             top: 0; left: 0; right: 0; bottom: 0;
             display: flex; flex-direction: row; align-items: center; justify-content: space-between;
             padding: var(--padding-val);
-            font-size: 0.82rem;
+            font-size: 0.82rem !important;
             color: #8a8478;
             line-height: 1.5;
             letter-spacing: 0.01em;
@@ -257,7 +257,7 @@
         }
         .ref-text-body.ref-empty::after { content: ''; display: none; }
         .ref-empty-upload-hint {
-            font-size: 0.82rem; color: #8a8478; text-align: right;
+            font-size: 0.82rem !important; color: #8a8478; text-align: right;
             line-height: 1.5; pointer-events: none; flex-shrink: 0;
         }
         @media (max-width: 600px) {
@@ -5042,7 +5042,7 @@ const SPECIAL_CATEGORIES = [
         const body  = refEl.querySelector('.ref-text-body');
         if (body) {
             body.classList.add('ref-empty');
-            body.innerHTML = '<button onclick="loadSampleBible()" style="display:inline-block;background:none;border:none;cursor:pointer;font-size:0.82rem;color:#d4776e;font-family:var(--font-main);padding:0;line-height:1.5;text-align:left;font-weight:500;" title="한글개역 전체 성경 불러오기 (GitHub)">▷ 샘플본문(개역한글) click</button><span class="ref-empty-upload-hint">참고 성경역본<br>불러오기<br>(파일 드롭 가능)<br>TXT·AAB·BDB·ZIP →</span>';
+            body.innerHTML = '<button onclick="loadSampleBible()" style="display:inline-block;background:none;border:none;cursor:pointer;font-size:0.82rem;color:#d4776e;font-family:var(--font-main);padding:0;line-height:1.5;text-align:left;font-weight:500;flex-shrink:0;" title="한글개역 전체 성경 불러오기 (GitHub)">▷ 샘플본문(개역한글) click</button><span class="ref-empty-upload-hint">참고 성경역본<br>불러오기<br>(파일 드롭 가능)<br>TXT·AAB·BDB·ZIP →</span>';
         }
         updateRefSideMenuLabel();
         document.getElementById('verse-title').innerText = '나만의 성경역본';
@@ -8999,9 +8999,9 @@ const SPECIAL_CATEGORIES = [
         row.id = `replace-row-${id}`;
         row.style.cssText = 'display:flex; align-items:center; gap:6px;';
         row.innerHTML = `
-            <input type="text" placeholder="수정할 단어" style="flex:1; padding:6px 9px; border:1px solid var(--rule); border-radius:6px; font-size:0.85rem; font-family:var(--font-main); outline:none;" class="edit-replace-from">
+            <input type="text" placeholder="수정할 단어" style="flex:1; min-width:0; padding:6px 9px; border:1px solid var(--rule); border-radius:6px; font-size:0.85rem; font-family:var(--font-main); outline:none;" class="edit-replace-from">
             <span style="color:#aaa; font-size:0.85rem; flex-shrink:0;">→</span>
-            <input type="text" placeholder="변경할 단어" style="flex:1; padding:6px 9px; border:1px solid var(--rule); border-radius:6px; font-size:0.85rem; font-family:var(--font-main); outline:none;" class="edit-replace-to">
+            <input type="text" placeholder="변경할 단어" style="flex:1; min-width:0; padding:6px 9px; border:1px solid var(--rule); border-radius:6px; font-size:0.85rem; font-family:var(--font-main); outline:none;" class="edit-replace-to">
             <button onclick="document.getElementById('replace-row-${id}').remove(); epRefreshReplacePreview();" style="width:26px; height:26px; border:1px solid #ddd; border-radius:5px; background:#fff; color:#aaa; cursor:pointer; font-size:0.9rem; flex-shrink:0; line-height:1; padding:0;">×</button>`;
         container.appendChild(row);
         let _rt = null;
