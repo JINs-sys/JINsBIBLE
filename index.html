@@ -1878,17 +1878,21 @@ function jinPopup(title,hint,key){
     document.body.appendChild(_jinEl);
   }
   _jinEl.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2147483647;background:rgba(0,0,0,0.45);display:flex;align-items:flex-start;justify-content:center;padding-top:14vh;box-sizing:border-box;backdrop-filter:blur(2px);';
+  _jinEl.style.display='flex';
   document.getElementById('jin-popup-title').textContent=title;
   document.getElementById('jin-url-area').style.display='none';
 }
 function jinPopupClose(){
-  if(_jinEl)_jinEl.style.display='none';
+  if(_jinEl){ _jinEl.style.cssText='display:none;'; }
   // URL 버튼/영역 상태 초기화
   var a=document.getElementById('jin-url-area');
   var b=document.getElementById('jin-url-btn');
   if(a) a.style.display='none';
   if(b){
+    b.innerHTML='<span style="font-size:1.1rem;">🔗</span> URL에서 불러오기';
     b.style.cssText='width:100%;border:1.5px solid #e8e4de;border-radius:12px;background:#faf9f6;color:#4a4740;padding:14px 16px;cursor:pointer;box-sizing:border-box;text-align:left;font-size:0.9rem;font-weight:500;font-family:inherit;display:flex;align-items:center;gap:10px;transition:background 0.15s,border-color 0.15s;';
+    b.onmouseover=function(){this.style.background='#f0ede8';this.style.borderColor='#c8c0b4';};
+    b.onmouseout=function(){this.style.background='#faf9f6';this.style.borderColor='#e8e4de';};
     b.onclick=jinToggleUrl;
   }
 }
