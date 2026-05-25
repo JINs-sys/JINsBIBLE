@@ -1877,7 +1877,7 @@ function jinPopup(title,hint,key){
     _jinEl.addEventListener('click',function(e){if(e.target===_jinEl)jinPopupClose();});
     document.body.appendChild(_jinEl);
   }
-  _jinEl.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2147483647;background:rgba(0,0,0,0.45);display:flex;align-items:flex-start;justify-content:center;padding-top:14vh;box-sizing:border-box;backdrop-filter:blur(2px);';
+  _jinEl.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2147483647;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;box-sizing:border-box;backdrop-filter:blur(2px);';
   _jinEl.style.display='flex';
   document.getElementById('jin-popup-title').textContent=title;
   document.getElementById('jin-url-area').style.display='none';
