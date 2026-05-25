@@ -1808,41 +1808,67 @@ function jinPopup(title,hint,key){
   if(!_jinEl){
     _jinEl=document.createElement('div');
     var inner=document.createElement('div');
-    inner.style.cssText='background:#fff;border-radius:14px;padding:30px 24px;width:300px;font-family:sans-serif;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.3);';
+    inner.style.cssText='background:#fff;border-radius:18px;padding:28px 26px 24px;width:320px;font-family:"Pretendard Variable",sans-serif;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.22),0 4px 16px rgba(0,0,0,0.10);';
+
+    // 닫기 버튼
     var cb=document.createElement('button');
-    cb.textContent='X';
-    cb.style.cssText='position:absolute;top:10px;right:14px;border:none;background:none;font-size:1.4rem;cursor:pointer;color:#aaa;';
+    cb.innerHTML='&#x2715;';
+    cb.style.cssText='position:absolute;top:14px;right:16px;border:none;background:none;font-size:1rem;cursor:pointer;color:#bbb;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.15s,color 0.15s;';
+    cb.onmouseover=function(){this.style.background='#f0f0f0';this.style.color='#555';};
+    cb.onmouseout=function(){this.style.background='none';this.style.color='#bbb';};
     cb.onclick=jinPopupClose;
+
+    // 타이틀
     var td=document.createElement('div');
     td.id='jin-popup-title';
-    td.style.cssText='font-size:1rem;font-weight:700;color:#2d4a3e;margin-bottom:20px;';
+    td.style.cssText='font-size:1.05rem;font-weight:700;color:#1a1815;margin-bottom:18px;letter-spacing:-0.01em;';
+
+    // 구분선
+    var div=document.createElement('div');
+    div.style.cssText='height:1px;background:#f0ede8;margin-bottom:16px;';
+
+    // 파일 선택 버튼
     var fb=document.createElement('button');
-    fb.style.cssText='width:100%;border:1.5px solid #c8ddd5;border-radius:10px;background:#f5faf8;padding:13px;cursor:pointer;margin-bottom:10px;box-sizing:border-box;text-align:left;font-size:0.9rem;';
-    fb.textContent='파일 선택 (내 기기)';
+    fb.style.cssText='width:100%;border:none;border-radius:12px;background:#2d4a3e;color:#fff;padding:14px 16px;cursor:pointer;margin-bottom:10px;box-sizing:border-box;text-align:left;font-size:0.9rem;font-weight:600;font-family:inherit;display:flex;align-items:center;gap:10px;transition:background 0.15s;';
+    fb.innerHTML='<span style="font-size:1.1rem;">📂</span> 파일 선택 (내 기기)';
+    fb.onmouseover=function(){this.style.background='#1e3329';};
+    fb.onmouseout=function(){this.style.background='#2d4a3e';};
     fb.onclick=jinPickFile;
+
+    // URL 버튼
     var ub=document.createElement('button');
     ub.id='jin-url-btn';
-    ub.style.cssText='width:100%;border:1.5px solid #c8ddd5;border-radius:10px;background:#f5faf8;padding:13px;cursor:pointer;box-sizing:border-box;text-align:left;font-size:0.9rem;transition:background 0.15s,border-color 0.15s;';
-    ub.textContent='URL에서 불러오기';
+    ub.style.cssText='width:100%;border:1.5px solid #e8e4de;border-radius:12px;background:#faf9f6;color:#4a4740;padding:14px 16px;cursor:pointer;box-sizing:border-box;text-align:left;font-size:0.9rem;font-weight:500;font-family:inherit;display:flex;align-items:center;gap:10px;transition:background 0.15s,border-color 0.15s;';
+    ub.innerHTML='<span style="font-size:1.1rem;">🔗</span> URL에서 불러오기';
+    ub.onmouseover=function(){this.style.background='#f0ede8';this.style.borderColor='#c8c0b4';};
+    ub.onmouseout=function(){this.style.background='#faf9f6';this.style.borderColor='#e8e4de';};
     ub.onclick=jinToggleUrl;
+
+    // URL 입력 영역
     var ua=document.createElement('div');
     ua.id='jin-url-area';
-    ua.style.cssText='display:none;margin-top:0;';
+    ua.style.cssText='display:none;margin-top:10px;';
     var ui=document.createElement('input');
     ui.id='jin-url-input';
     ui.type='url';
     ui.placeholder='https://...';
-    ui.style.cssText='width:100%;box-sizing:border-box;border:1.5px solid #c8ddd5;border-radius:8px;padding:14px 11px;font-size:0.88rem;margin-bottom:8px;outline:none;height:56px;';
+    ui.style.cssText='width:100%;box-sizing:border-box;border:1.5px solid #d9d2c1;border-radius:10px;padding:12px 13px;font-size:0.88rem;margin-bottom:8px;outline:none;font-family:inherit;color:#1a1815;background:#fdfcf9;transition:border-color 0.15s;';
+    ui.onfocus=function(){this.style.borderColor='#2d4a3e';};
+    ui.onblur=function(){this.style.borderColor='#d9d2c1';};
     var ul=document.createElement('button');
     ul.id='jin-url-load-btn';
     ul.textContent='불러오기';
-    ul.style.cssText='width:100%;border:none;border-radius:8px;background:#2d4a3e;color:#fff;padding:10px;font-size:0.88rem;font-weight:700;cursor:pointer;box-sizing:border-box;';
+    ul.style.cssText='width:100%;border:none;border-radius:10px;background:#2d4a3e;color:#fff;padding:12px;font-size:0.88rem;font-weight:700;cursor:pointer;box-sizing:border-box;font-family:inherit;transition:background 0.15s;';
+    ul.onmouseover=function(){this.style.background='#1e3329';};
+    ul.onmouseout=function(){this.style.background='#2d4a3e';};
     ul.onclick=jinLoadFromUrl;
     ui.addEventListener('keydown',function(e){if(e.key==='Enter')jinLoadFromUrl();});
     ua.appendChild(ui);
     ua.appendChild(ul);
+
     inner.appendChild(cb);
     inner.appendChild(td);
+    inner.appendChild(div);
     inner.appendChild(fb);
     inner.appendChild(ub);
     inner.appendChild(ua);
@@ -1851,7 +1877,7 @@ function jinPopup(title,hint,key){
     _jinEl.addEventListener('click',function(e){if(e.target===_jinEl)jinPopupClose();});
     document.body.appendChild(_jinEl);
   }
-  _jinEl.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2147483647;background:rgba(0,0,0,0.55);display:flex;align-items:flex-start;justify-content:center;padding-top:14vh;box-sizing:border-box;';
+  _jinEl.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2147483647;background:rgba(0,0,0,0.45);display:flex;align-items:flex-start;justify-content:center;padding-top:14vh;box-sizing:border-box;backdrop-filter:blur(2px);';
   document.getElementById('jin-popup-title').textContent=title;
   document.getElementById('jin-url-area').style.display='none';
 }
@@ -1862,7 +1888,7 @@ function jinPopupClose(){
   var b=document.getElementById('jin-url-btn');
   if(a) a.style.display='none';
   if(b){
-    b.style.cssText='width:100%;border:1.5px solid #c8ddd5;border-radius:10px;background:#f5faf8;padding:13px;cursor:pointer;box-sizing:border-box;text-align:left;font-size:0.9rem;transition:background 0.15s,border-color 0.15s;';
+    b.style.cssText='width:100%;border:1.5px solid #e8e4de;border-radius:12px;background:#faf9f6;color:#4a4740;padding:14px 16px;cursor:pointer;box-sizing:border-box;text-align:left;font-size:0.9rem;font-weight:500;font-family:inherit;display:flex;align-items:center;gap:10px;transition:background 0.15s,border-color 0.15s;';
     b.onclick=jinToggleUrl;
   }
 }
@@ -1892,11 +1918,11 @@ function jinToggleUrl(){
   if(open){
     a.style.display='block';
     // 버튼을 타이틀 라벨 스타일로 전환 (테두리 없이)
-    b.style.cssText='width:100%;border:none;border-radius:0;background:none;padding:13px 0 6px 0;cursor:default;box-sizing:border-box;text-align:left;font-size:0.82rem;font-weight:700;color:#555;pointer-events:none;';
+    b.style.cssText='width:100%;border:none;border-radius:0;background:none;padding:6px 0 4px 0;cursor:default;box-sizing:border-box;text-align:left;font-size:0.78rem;font-weight:700;color:#888;pointer-events:none;letter-spacing:0.02em;display:flex;align-items:center;gap:8px;';
     document.getElementById('jin-url-input').focus();
   } else {
     a.style.display='none';
-    b.style.cssText='width:100%;border:1.5px solid #c8ddd5;border-radius:10px;background:#f5faf8;padding:13px;cursor:pointer;box-sizing:border-box;text-align:left;font-size:0.9rem;transition:background 0.15s,border-color 0.15s;';
+    b.style.cssText='width:100%;border:1.5px solid #e8e4de;border-radius:12px;background:#faf9f6;color:#4a4740;padding:14px 16px;cursor:pointer;box-sizing:border-box;text-align:left;font-size:0.9rem;font-weight:500;font-family:inherit;display:flex;align-items:center;gap:10px;transition:background 0.15s,border-color 0.15s;';
     b.onclick=jinToggleUrl;
   }
 }
