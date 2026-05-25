@@ -29,14 +29,22 @@
         }
         body { margin: 0; background-color: var(--paper); color: var(--ink); font-family: var(--font-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         @media (max-width: 480px) {
-            body:not(.active-mode) { padding: 0; align-items: stretch; min-height: 100svh; height: 100svh; }
+            body:not(.active-mode) {
+    padding: 0;
+    align-items: stretch;
+    min-height: 100dvh;
+    min-height: 100svh;
+    height: auto;
+}
         }
 
         body.active-mode { align-items: flex-start; min-height: unset; }
         body.active-mode .container { height: auto; min-height: unset; overflow: visible; padding-bottom: 14px; }
         .container { width: 100%; max-width: 620px; background-color: var(--paper-white); padding: 30px; border-radius: 12px; border: 1px solid var(--rule); box-shadow: 0 10px 40px rgba(0,0,0,0.06); position: relative; }
         @media (max-width: 480px) {
-            body:not(.active-mode) .container { padding: 12px 14px 8px; border-radius: 0; border-left: none; border-right: none; border-top: none; height: 100svh; box-shadow: none; display: flex; flex-direction: column; overflow: hidden; gap: 6px; }
+            body:not(.active-mode) .container { padding: 12px 14px 8px; border-radius: 0; border-left: none; border-right: none; border-top: none; height: 100svh; box-shadow: none; display: flex; flex-direction: column; overflow-x: hidden;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch; gap: 6px; }
         }
 
         .header { margin-bottom: 20px; border-bottom: 2px solid var(--ink); padding-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end; position: sticky; top: 0; z-index: 30; background: var(--paper-white); }
@@ -206,7 +214,9 @@
             body:not(.active-mode) #drop-text > div:nth-child(3) { font-size: 0.75rem !important; padding: 5px 10px !important; }
         }
 
-        #reference-text { overflow-x: hidden; overflow-y: visible; display: flex; flex-direction: column; align-items: stretch; height: auto; min-height: 140px; transition: max-height 0.3s ease; box-sizing: border-box; position: relative; padding: 0; }
+        #reference-text { overflow-x: hidden; overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; align-items: stretch; height: auto; min-height: 140px; transition: max-height 0.3s ease; box-sizing: border-box; position: relative; padding: 0; }
 
         .ref-section-title {
             display: block; padding: 5px var(--padding-val) 3px;
@@ -1475,6 +1485,16 @@
         *::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.32); }
         .scrollbar-hidden::-webkit-scrollbar-thumb { background: transparent !important; }
         .scrollbar-hidden { scrollbar-color: transparent transparent !important; }
+
+@media (max-width: 480px) {
+    input,
+    select,
+    textarea,
+    button {
+        font-size: 16px !important;
+    }
+}
+
 </style>
 
 <!-- JSON 편집기 스타일 -->
