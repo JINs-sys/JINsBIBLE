@@ -1923,7 +1923,7 @@ function jinToggleUrl(){
     a.style.display='block';
     // 버튼을 타이틀 라벨 스타일로 전환 (테두리 없이)
     b.style.cssText='width:100%;border:none;border-radius:0;background:none;padding:6px 0 4px 0;cursor:default;box-sizing:border-box;text-align:left;font-size:0.78rem;font-weight:700;color:#888;pointer-events:none;letter-spacing:0.02em;display:flex;align-items:center;gap:8px;';
-    document.getElementById('jin-url-input').focus();
+    if (window.innerWidth > 600) document.getElementById('jin-url-input').focus();
   } else {
     a.style.display='none';
     b.style.cssText='width:100%;border:1.5px solid #e8e4de;border-radius:12px;background:#faf9f6;color:#4a4740;padding:14px 16px;cursor:pointer;box-sizing:border-box;text-align:left;font-size:0.9rem;font-weight:500;font-family:inherit;display:flex;align-items:center;gap:10px;transition:background 0.15s,border-color 0.15s;';
@@ -1947,6 +1947,7 @@ async function jinLoadFromUrl(){
       var a=document.createElement('a'); a.href=dlUrl; a.download=''; a.target='_blank';
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
     }
+    jinPopupClose();
     return;
   }
   // Dropbox 공유 링크 → 직접 다운로드
@@ -2081,6 +2082,7 @@ async function jinLoadFromUrl(){
         </div>
     </div>
 
+    <input type="file" id="file-input" accept=".txt,.bdb,.aab,.zip" style="display:none;">
     <div class="file-upload-container" id="drop-zone">
         <div id="drop-text">
             <div style="font-size:1.4rem; font-weight:700; color:var(--accent); margin-bottom:20px;">나만의 성경 역본</div>
@@ -2091,7 +2093,6 @@ async function jinLoadFromUrl(){
                 </div>
                 <button class="btn-noref" onclick="event.stopPropagation(); startFreeWrite();">📝 바로 시작</button>
             </div>        </div>
-        <input type="file" id="file-input" accept=".txt,.bdb">
     </div>
 
     <!-- 랜딩 액션 카드 -->
@@ -2567,13 +2568,13 @@ async function jinLoadFromUrl(){
     <div id="edit-mode-ui" style="display:none;">
 
         <!-- ① 파일 로드 드롭존 -->
+        <input type="file" id="edit-file-input" accept=".bdb,.aab,.txt,.zip" style="display:none;">
         <div id="edit-drop-zone" class="file-upload-container" style="margin-top:16px; margin-bottom:20px; padding:20px;" onclick="jinPopup('파일 불러오기','BDB AAB TXT ZIP','editfile')">
             <div style="font-size:1.1rem; font-weight:700; color:var(--accent); margin-bottom:6px;">성경 역본 파일 로드</div>
             <div style="font-size:0.85rem; color:#7a8a80; margin-bottom:10px;">편집할 성경역본을 불러오세요</div>
             <div style="display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem;">
                 📂 AAB · BDB · TXT · ZIP 드래그드롭 또는 클릭
             </div>
-            <input type="file" id="edit-file-input" accept=".bdb,.aab,.txt,.zip" style="display:none;">
         </div>
 
         <!-- 현재 역본 불러오기 버튼 (bibleData가 있을 때만 표시) -->
@@ -4261,8 +4262,10 @@ const SPECIAL_CATEGORIES = [
                         <div id="drop-text">
                             <strong style="color:var(--accent)">✅ 성경 로드 완료: ${currentRawFile.name}</strong>
                             <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 결과 파일(TXT) 또는 성경 파일(AAB·BDB)을 이곳에 드롭하세요.</p>
-                        </div>
-                        <input type="file" id="file-input" accept=".txt" style="display:none;">`;
+                        </div>`;
+                    // file-input은 drop-zone 밖에 유지 (버블링 방지)
+                    let _fi = document.getElementById('file-input');
+                    if (!_fi) { _fi = document.createElement('input'); _fi.type='file'; _fi.id='file-input'; _fi.accept='.txt,.bdb,.aab,.zip'; _fi.style.display='none'; dz.parentNode.insertBefore(_fi, dz); _fi.onchange = (e) => { handleFile(e.target.files[0]); }; }
                     dz.ondragover  = e => { e.preventDefault(); dz.classList.add('dragover'); };
                     dz.ondragleave = () => { dz.classList.remove('dragover'); };
                     dz.ondrop      = e => { e.preventDefault(); dz.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); };
@@ -4320,8 +4323,10 @@ const SPECIAL_CATEGORIES = [
                         <div id="drop-text">
                             <strong style="color:var(--accent)">✅ 성경 로드 완료: ${currentRawFile.name}</strong>
                             <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 결과 파일(TXT) 또는 성경 파일(AAB·BDB)을 이곳에 드롭하세요.</p>
-                        </div>
-                        <input type="file" id="file-input" accept=".txt,.bdb" style="display:none;">`;
+                        </div>`;
+                    // file-input은 drop-zone 밖에 유지 (버블링 방지)
+                    let _fi2 = document.getElementById('file-input');
+                    if (!_fi2) { _fi2 = document.createElement('input'); _fi2.type='file'; _fi2.id='file-input'; _fi2.accept='.txt,.bdb,.aab,.zip'; _fi2.style.display='none'; dz.parentNode.insertBefore(_fi2, dz); _fi2.onchange = (e) => { handleFile(e.target.files[0]); }; }
                     dz.ondragover  = e => { e.preventDefault(); dz.classList.add('dragover'); };
                     dz.ondragleave = () => { dz.classList.remove('dragover'); };
                     dz.ondrop      = e => { e.preventDefault(); dz.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); };
@@ -4799,7 +4804,7 @@ const SPECIAL_CATEGORIES = [
         if (stBtn2) { stBtn2.style.background = '#c8795a'; stBtn2.style.borderColor = '#c8795a'; }
         if (window._adjustFootnoteHeight) window._adjustFootnoteHeight();
         const cb = document.getElementById('btn-clear-input'); if (cb) cb.style.display = 'none';
-        input.focus();
+        if (window.innerWidth > 600) input.focus();
         autoSaveDebounced();
     }
 
@@ -4837,7 +4842,7 @@ const SPECIAL_CATEGORIES = [
             if (window._adjustFootnoteHeight) window._adjustFootnoteHeight();
         }
 
-        input.focus();
+        if (window.innerWidth > 600) input.focus();
     }
 
     function toggleSectionTitle() {
@@ -5170,8 +5175,10 @@ const SPECIAL_CATEGORIES = [
                 <div id="drop-text">
                     <strong style="color:var(--accent)">✅ 성경 로드 완료: GAE.aab</strong>
                     <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 결과 파일(TXT) 또는 성경 파일(AAB·BDB)을 이곳에 드롭하세요.</p>
-                </div>
-                <input type="file" id="file-input" accept=".txt,.aab,.bdb" style="display:none;">`;
+                </div>`;
+            // file-input은 drop-zone 밖에 유지 (버블링 방지)
+            let _fi3 = document.getElementById('file-input');
+            if (!_fi3) { _fi3 = document.createElement('input'); _fi3.type='file'; _fi3.id='file-input'; _fi3.accept='.txt,.bdb,.aab,.zip'; _fi3.style.display='none'; dz.parentNode.insertBefore(_fi3, dz); _fi3.onchange = (e) => { handleFile(e.target.files[0]); }; }
             dz.ondragover  = e => { e.preventDefault(); dz.classList.add('dragover'); };
             dz.ondragleave = () => { dz.classList.remove('dragover'); };
             dz.ondrop      = e => { e.preventDefault(); dz.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); };
@@ -5355,7 +5362,7 @@ const SPECIAL_CATEGORIES = [
             const existing = typedData.find(d => d.k === freeCurrentKey);
             const input = document.getElementById('user-input');
             input.innerHTML = existing ? fromSaveFormat(existing.t) : '';
-            input.focus();
+            if (window.innerWidth > 600) input.focus();
         } else {
             const idx = parseInt(document.getElementById('nav-verse').value);
             if (!isNaN(idx)) { loadVerse(idx); }
@@ -5723,7 +5730,7 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('progress-text-ch').innerText = `${chPct}% (${chDone}/${chVerses.length}절)`;
         updateProgressSummary();
         syncNavToVerse(data, idx);
-        input.focus();
+        if (window.innerWidth > 600) input.focus();
     }
 
     const COLOR_TO_NAME = {
@@ -5914,7 +5921,7 @@ const SPECIAL_CATEGORIES = [
             const existing = typedData.find(d => d.k === freeCurrentKey);
             const input = document.getElementById('user-input');
             input.innerHTML = existing ? fromSaveFormat(existing.t) : '';
-            input.focus();
+            if (window.innerWidth > 600) input.focus();
             return;
         }
         saveCurrentVerse();
@@ -5953,7 +5960,7 @@ const SPECIAL_CATEGORIES = [
             const existing = typedData.find(d => d.k === freeCurrentKey);
             const input = document.getElementById('user-input');
             input.innerHTML = existing ? fromSaveFormat(existing.t) : '';
-            input.focus();
+            if (window.innerWidth > 600) input.focus();
             return;
         }
         if (currentIndex <= 0) return alert('첫 번째 절입니다!');
@@ -8741,8 +8748,14 @@ const SPECIAL_CATEGORIES = [
             <div style="font-size:0.85rem; color:#7a8a80; margin-bottom:10px;">편집할 역본 파일을 불러오세요</div>
             <div style="display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem;">
                 📂 AAB · BDB · TXT · ZIP 드래그드롭 또는 클릭
-            </div>
-            <input type="file" id="edit-file-input" accept=".bdb,.aab,.txt,.zip" style="display:none;">`;
+            </div>`;
+        // edit-file-input이 drop-zone 밖에 없으면 새로 생성
+        if (!document.getElementById('edit-file-input')) {
+            const newInp = document.createElement('input');
+            newInp.type = 'file'; newInp.id = 'edit-file-input';
+            newInp.accept = '.bdb,.aab,.txt,.zip'; newInp.style.display = 'none';
+            dz.parentNode.insertBefore(newInp, dz);
+        }
         dz.onclick = () => jinPopup('파일 불러오기','BDB AAB TXT ZIP','editfile');
         initEditMode();
         const tc = document.getElementById('edit-fn-title-card');
