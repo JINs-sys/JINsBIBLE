@@ -22,13 +22,14 @@
             --font-size-text: 1.6rem; --line-height-text: 1.5; --padding-val: 18px;
         }
         * { box-sizing: border-box; }
+        html, body { overflow-x: hidden; }
 
         @media (max-width: 480px) {
             #ep-dual-pane { grid-template-columns: 1fr !important; }
         }
         body { margin: 0; background-color: var(--paper); color: var(--ink); font-family: var(--font-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
         @media (max-width: 480px) {
-            body:not(.active-mode) { padding: 0; align-items: stretch; min-height: 100svh; }
+            body:not(.active-mode) { padding: 0; align-items: stretch; min-height: 100svh; height: 100svh; }
         }
 
         body.active-mode { align-items: flex-start; min-height: unset; }
