@@ -35,11 +35,12 @@
         body { margin: 0; background-color: var(--paper); color: var(--ink); font-family: var(--font-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; overflow-x: hidden; }
         @media (max-width: 480px) {
             body:not(.active-mode) { padding: 0; align-items: stretch; min-height: 100svh; }
+            body.active-mode { padding: 0; }
         }
         /* 작업 모드 진입 시: 컨테이너를 상단 고정, 세로 점프 방지 */
         body.active-mode { align-items: flex-start; min-height: unset; }
-        body.active-mode .container { height: auto; min-height: unset; overflow-y: visible; overflow-x: clip; }
-        .container { width: 100%; max-width: 620px; background-color: var(--paper-white); padding: 30px; border-radius: 12px; border: 1px solid var(--rule); box-shadow: 0 10px 40px rgba(0,0,0,0.06); position: relative; overflow-x: clip; }
+        body.active-mode .container { height: auto; min-height: unset; overflow: visible; }
+        .container { width: 100%; max-width: 620px; background-color: var(--paper-white); padding: 30px; border-radius: 12px; border: 1px solid var(--rule); box-shadow: 0 10px 40px rgba(0,0,0,0.06); position: relative; }
         @media (max-width: 480px) {
             body:not(.active-mode) .container { padding: 12px 14px 8px; border-radius: 0; border-left: none; border-right: none; border-top: none; height: 100svh; box-shadow: none; display: flex; flex-direction: column; overflow: hidden; gap: 6px; }
         }
