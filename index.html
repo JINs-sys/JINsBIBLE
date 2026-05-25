@@ -1800,6 +1800,179 @@
 }
 #je-mob-close-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
 </style>
+<script>
+var _jinKey='';
+var _jinEl=null;
+function jinPopup(title,hint,key){
+  _jinKey=key;
+  if(!_jinEl){
+    _jinEl=document.createElement('div');
+    var inner=document.createElement('div');
+    inner.style.cssText='background:#fff;border-radius:14px;padding:30px 24px;width:300px;font-family:sans-serif;position:relative;box-shadow:0 8px 40px rgba(0,0,0,0.3);';
+    var cb=document.createElement('button');
+    cb.textContent='X';
+    cb.style.cssText='position:absolute;top:10px;right:14px;border:none;background:none;font-size:1.4rem;cursor:pointer;color:#aaa;';
+    cb.onclick=jinPopupClose;
+    var td=document.createElement('div');
+    td.id='jin-popup-title';
+    td.style.cssText='font-size:1rem;font-weight:700;color:#2d4a3e;margin-bottom:20px;';
+    var fb=document.createElement('button');
+    fb.style.cssText='width:100%;border:1.5px solid #c8ddd5;border-radius:10px;background:#f5faf8;padding:13px;cursor:pointer;margin-bottom:10px;box-sizing:border-box;text-align:left;font-size:0.9rem;';
+    fb.textContent='파일 선택 (내 기기)';
+    fb.onclick=jinPickFile;
+    var ub=document.createElement('button');
+    ub.id='jin-url-btn';
+    ub.style.cssText='width:100%;border:1.5px solid #c8ddd5;border-radius:10px;background:#f5faf8;padding:13px;cursor:pointer;box-sizing:border-box;text-align:left;font-size:0.9rem;transition:background 0.15s,border-color 0.15s;';
+    ub.textContent='URL에서 불러오기';
+    ub.onclick=jinToggleUrl;
+    var ua=document.createElement('div');
+    ua.id='jin-url-area';
+    ua.style.cssText='display:none;margin-top:0;';
+    var ui=document.createElement('input');
+    ui.id='jin-url-input';
+    ui.type='url';
+    ui.placeholder='https://...';
+    ui.style.cssText='width:100%;box-sizing:border-box;border:1.5px solid #c8ddd5;border-radius:8px;padding:14px 11px;font-size:0.88rem;margin-bottom:8px;outline:none;height:56px;';
+    var ul=document.createElement('button');
+    ul.id='jin-url-load-btn';
+    ul.textContent='불러오기';
+    ul.style.cssText='width:100%;border:none;border-radius:8px;background:#2d4a3e;color:#fff;padding:10px;font-size:0.88rem;font-weight:700;cursor:pointer;box-sizing:border-box;';
+    ul.onclick=jinLoadFromUrl;
+    ui.addEventListener('keydown',function(e){if(e.key==='Enter')jinLoadFromUrl();});
+    ua.appendChild(ui);
+    ua.appendChild(ul);
+    inner.appendChild(cb);
+    inner.appendChild(td);
+    inner.appendChild(fb);
+    inner.appendChild(ub);
+    inner.appendChild(ua);
+    _jinEl.appendChild(inner);
+    inner.addEventListener('click',function(e){e.stopPropagation();});
+    _jinEl.addEventListener('click',function(e){if(e.target===_jinEl)jinPopupClose();});
+    document.body.appendChild(_jinEl);
+  }
+  _jinEl.style.cssText='position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:2147483647;background:rgba(0,0,0,0.55);display:flex;align-items:flex-start;justify-content:center;padding-top:14vh;box-sizing:border-box;';
+  document.getElementById('jin-popup-title').textContent=title;
+  document.getElementById('jin-url-area').style.display='none';
+}
+function jinPopupClose(){
+  if(_jinEl)_jinEl.style.display='none';
+  // URL 버튼/영역 상태 초기화
+  var a=document.getElementById('jin-url-area');
+  var b=document.getElementById('jin-url-btn');
+  if(a) a.style.display='none';
+  if(b){
+    b.style.cssText='width:100%;border:1.5px solid #c8ddd5;border-radius:10px;background:#f5faf8;padding:13px;cursor:pointer;box-sizing:border-box;text-align:left;font-size:0.9rem;transition:background 0.15s,border-color 0.15s;';
+    b.onclick=jinToggleUrl;
+  }
+}
+function jinPickFile(){
+  jinPopupClose();
+  if(_jinKey==='resume') document.getElementById('resume-input').click();
+  if(_jinKey==='comwork') triggerComFileLoad();
+  if(_jinKey==='bibleslot') triggerBibleSlotLoad();
+  if(_jinKey==='main'){ var fi=document.getElementById('file-input'); if(fi){fi.value='';fi.click();} }
+  if(_jinKey==='refbible'){ var ri=document.getElementById('ref-change-input'); if(ri){ri.value='';ri.click();} }
+  if(_jinKey==='editfile'){ var ei=document.getElementById('edit-file-input'); if(ei){ei.value='';ei.click();} }
+  if(_jinKey==='combined'){
+    var ci=document.getElementById('com-combined-input');
+    if(!ci){
+      ci=document.createElement('input'); ci.type='file'; ci.id='com-combined-input';
+      ci.accept='.txt,.bdb,.aab,.zip,.cdb'; ci.style.display='none'; ci.multiple=true;
+      ci.addEventListener('change',async function(e){ var files=Array.from(e.target.files); ci.value=''; if(!files.length)return; await handleComDropFiles(files); });
+      document.body.appendChild(ci);
+    }
+    ci.value=''; ci.click();
+  }
+}
+function jinToggleUrl(){
+  var a=document.getElementById('jin-url-area');
+  var b=document.getElementById('jin-url-btn');
+  var open=a.style.display==='none';
+  if(open){
+    a.style.display='block';
+    // 버튼을 타이틀 라벨 스타일로 전환 (테두리 없이)
+    b.style.cssText='width:100%;border:none;border-radius:0;background:none;padding:13px 0 6px 0;cursor:default;box-sizing:border-box;text-align:left;font-size:0.82rem;font-weight:700;color:#555;pointer-events:none;';
+    document.getElementById('jin-url-input').focus();
+  } else {
+    a.style.display='none';
+    b.style.cssText='width:100%;border:1.5px solid #c8ddd5;border-radius:10px;background:#f5faf8;padding:13px;cursor:pointer;box-sizing:border-box;text-align:left;font-size:0.9rem;transition:background 0.15s,border-color 0.15s;';
+    b.onclick=jinToggleUrl;
+  }
+}
+async function jinLoadFromUrl(){
+  var origUrl=(document.getElementById('jin-url-input').value||'').trim();
+  if(!origUrl){alert('URL을 입력해주세요.');return;}
+  var lb=document.getElementById('jin-url-load-btn');
+  lb.disabled=true; lb.textContent='불러오는 중…';
+
+  // 구글 드라이브 공유 링크 → 직접 다운로드 안내 (CORS 차단으로 직접 fetch 불가)
+  var url=origUrl;
+  var gdMatch=url.match(/(?:drive\.google\.com\/file\/d\/|drive\.google\.com\/open\?id=|docs\.google\.com\/[^/]+\/d\/)([a-zA-Z0-9_-]{20,})/);
+  if(gdMatch){
+    var fileId=gdMatch[1];
+    var dlUrl='https://drive.google.com/uc?export=download&id='+fileId;
+    lb.disabled=false; lb.textContent='불러오기';
+    if(confirm('구글 드라이브 파일은 보안 정책상 직접 불러올 수 없습니다.\n\n아래 순서로 진행해 주세요:\n1. 확인을 누르면 파일이 다운로드됩니다\n2. 다운로드된 파일을 "파일 선택 (내 기기)"으로 불러오세요')){
+      var a=document.createElement('a'); a.href=dlUrl; a.download=''; a.target='_blank';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+    return;
+  }
+  // Dropbox 공유 링크 → 직접 다운로드
+  else if(/dropbox\.com/.test(url)){ url=url.replace(/[?&]dl=0/,'').replace(/dropbox\.com/,'dl.dropboxusercontent.com'); }
+
+  try{
+    var res=await fetch(url);
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    var blob=await res.blob();
+    var fname=origUrl.split('?')[0].split('/').pop()||'file';
+    if(!fname.includes('.')) fname+= '.txt';
+    var file=new File([blob],fname,{type:blob.type});
+    jinPopupClose();
+    if(_jinKey==='resume'){
+      var lower=file.name.toLowerCase();
+      if(lower.endsWith('.bdb')){
+        if(typeof bibleData!=='undefined'&&bibleData.length>0) processBdbFile_forResume(file);
+        else{currentRawFile=file;processBdbFile(0);}
+      }else if(lower.endsWith('.aab')){
+        processAabFile_forResume(file);
+      }else{
+        if(typeof bibleData==='undefined'||!bibleData.length){alert('먼저 원본 성경 파일(BDB/AAB/TXT)을 로드해주세요.');return;}
+        processResultFile(file);
+      }
+    }else if(_jinKey==='bibleslot'){
+      onBibleSlotFileSelected({target:{files:[file]}});
+    }else if(_jinKey==='comwork'){
+      var lower2=file.name.toLowerCase();
+      if(lower2.endsWith('.cdb')){
+        showComStatus('CDB 불러오는 중…');
+        loadCdbCommentary(file,function(loaded,nameGuess){showComStatus('✓ '+loaded.length+'개 불러오기 완료 (CDB)');applyLoadedCommentary(loaded,nameGuess);});
+      }else if(lower2.endsWith('.aab')){
+        var isC=await isAabCommentaryFile(file);
+        if(!isC){alert('이 AAB 파일은 성경 본문 파일입니다.\n↑ 성경본문 버튼으로 불러오세요.');return;}
+        showComStatus('AAB 주석 불러오는 중…');
+        await loadAabCommentary(file,function(loaded,nameGuess){showComStatus('✓ '+loaded.length+'개 불러오기 완료 (AAB)');applyLoadedCommentary(loaded,nameGuess);});
+      }else{
+        loadTxtCommentaryFile(file,applyLoadedCommentary);
+      }
+    }else if(_jinKey==='main'){
+      handleFile(file);
+    }else if(_jinKey==='refbible'){
+      if(typeof bibleData!=='undefined'&&bibleData.length&&!confirm('"'+file.name+'"으로 본문을 교체합니다. 진행하시겠습니까?')) return;
+      bibleData=[];
+      handleFile(file);
+    }else if(_jinKey==='editfile'){
+      loadEditFile(file);
+    }else if(_jinKey==='combined'){
+      await handleComDropFiles([file]);
+    }
+  }catch(e){
+    lb.disabled=false; lb.textContent='불러오기';
+    alert('URL에서 파일을 불러오지 못했습니다.\n(CORS 정책으로 차단되거나 주소가 잘못되었을 수 있습니다)\n\n'+e.message);
+  }
+}
+</script>
 </head>
 <body>
 
@@ -1873,7 +2046,7 @@
                 <option value="aab">AAB</option>
             </select>
             <button class="btn-action" onclick="saveData()">저장</button>
-            <button class="btn-action" id="btn-resume" onclick="document.getElementById('resume-input').click()" title="TXT(작업이어하기) · AAB · BDB">이어하기</button>
+            <button class="btn-action" id="btn-resume" onclick="jinPopup('이어하기','TXT AAB BDB','resume')" title="TXT(작업이어하기) · AAB · BDB">이어하기</button>
             <input type="file" id="resume-input" accept=".txt,.bdb,.aab" style="display:none;">
         </div>
     </div>
@@ -2204,8 +2377,8 @@
                 <input class="com-collection-name" id="com-collection-name" type="text" placeholder="나만의주석" value="나만의주석" tabindex="-1" title="JSON 내보내기 시 파일 ID로 사용됩니다. 영문을 포함해 입력하면 좋습니다.">
             </div>
             <div class="com-import-row">
-            <button class="com-import-btn" onclick="triggerComFileLoad()" title="작업파일(CDB·AAB주석·TXT) 불러오기">↑ 작업파일</button>
-            <button class="com-import-btn" onclick="triggerBibleSlotLoad()" title="성경본문(AAB·BDB·TXT·ZIP) 불러오기">↑ 성경본문</button>
+            <button class="com-import-btn" onclick="jinPopup('작업파일','CDB AAB TXT','comwork')" title="작업파일(CDB·AAB주석·TXT) 불러오기">↑ 작업파일</button>
+            <button class="com-import-btn" onclick="jinPopup('성경본문','TXT AAB BDB ZIP','bibleslot')" title="성경본문(AAB·BDB·TXT·ZIP) 불러오기">↑ 성경본문</button>
             </div>
             <select class="nav-select" id="com-save-format" style="height:28px; font-size:0.78rem; flex-shrink:0; margin-left:auto;" title="AAB: 바이너리 · TXT: 서식 포함 백업/이어하기">
                 <option value="aab">AAB</option>
@@ -2364,7 +2537,7 @@
     <div id="edit-mode-ui" style="display:none;">
 
         <!-- ① 파일 로드 드롭존 -->
-        <div id="edit-drop-zone" class="file-upload-container" style="margin-top:16px; margin-bottom:20px; padding:20px;" onclick="document.getElementById('edit-file-input').click()">
+        <div id="edit-drop-zone" class="file-upload-container" style="margin-top:16px; margin-bottom:20px; padding:20px;" onclick="jinPopup('파일 불러오기','BDB AAB TXT ZIP','editfile')">
             <div style="font-size:1.1rem; font-weight:700; color:var(--accent); margin-bottom:6px;">성경 역본 파일 로드</div>
             <div style="font-size:0.85rem; color:#7a8a80; margin-bottom:10px;">편집할 성경역본을 불러오세요</div>
             <div style="display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem;">
@@ -3693,7 +3866,7 @@ const SPECIAL_CATEGORIES = [
     const fileInput = document.getElementById('file-input');
     const encodingSelector = document.getElementById('encoding-selector');
 
-    dropZone.onclick = () => fileInput.click();
+    dropZone.onclick = () => jinPopup('성경 파일 불러오기','TXT AAB BDB ZIP','main');
     fileInput.onchange = (e) => { handleFile(e.target.files[0]); };
     encodingSelector.onchange = () => {
         if (!currentRawFile) return;
@@ -5160,7 +5333,7 @@ const SPECIAL_CATEGORIES = [
     }
 
     function changeRefBible() {
-        document.getElementById('ref-change-input').click();
+        jinPopup('원문 불러오기/변경','TXT AAB BDB ZIP','refbible');
     }
     function updateRefSideMenuLabel() {
         const loadBtn = document.getElementById('ref-side-load-btn');
@@ -7413,22 +7586,7 @@ const SPECIAL_CATEGORIES = [
     }
 
     function triggerCombinedLoad() {
-        let input = document.getElementById('com-combined-input');
-        if (!input) {
-            input = document.createElement('input');
-            input.type = 'file'; input.id = 'com-combined-input';
-            input.accept = '.txt,.bdb,.aab,.zip,.cdb'; input.style.display = 'none';
-            input.multiple = true;
-            input.addEventListener('change', async (e) => {
-                const files = Array.from(e.target.files);
-                input.value = '';
-                if (!files.length) return;
-                await handleComDropFiles(files);
-            });
-            document.body.appendChild(input);
-        }
-        input.value = '';
-        input.click();
+        jinPopup('파일 불러오기','TXT AAB BDB ZIP CDB','combined');
     }
 
     function parseBibleFile(file, onParsed) {
@@ -8346,12 +8504,30 @@ const SPECIAL_CATEGORIES = [
         document.getElementById('btn-chart').style.display = 'none';
     }
     let HEADINGS_DATA = {};
-    (function() {
-        fetch('data/headings.json')
-            .then(r => r.json())
-            .then(d => { HEADINGS_DATA = d; })
-            .catch(() => { console.warn('headings.json 로드 실패'); });
-    })();
+    let HEADINGS_LOADING = false;
+    let HEADINGS_LOADED = false;
+    const HEADINGS_URL = 'https://jins-sys.github.io/JINsBIBLE/data/headings.json';
+
+    function loadHeadingsData(onDone) {
+        if (HEADINGS_LOADED) { if (onDone) onDone(true); return; }
+        if (HEADINGS_LOADING) { if (onDone) setTimeout(() => loadHeadingsData(onDone), 300); return; }
+        HEADINGS_LOADING = true;
+        fetch(HEADINGS_URL)
+            .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+            .then(d => {
+                HEADINGS_DATA = d;
+                HEADINGS_LOADED = true;
+                HEADINGS_LOADING = false;
+                if (onDone) onDone(true);
+            })
+            .catch(e => {
+                console.warn('headings.json 로드 실패', e);
+                HEADINGS_LOADING = false;
+                if (onDone) onDone(false);
+            });
+    }
+
+    loadHeadingsData();
 
     let editBibleData = [];
     let editFileLoaded = false;
@@ -8537,7 +8713,7 @@ const SPECIAL_CATEGORIES = [
                 📂 AAB · BDB · TXT · ZIP 드래그드롭 또는 클릭
             </div>
             <input type="file" id="edit-file-input" accept=".bdb,.aab,.txt,.zip" style="display:none;">`;
-        dz.onclick = () => document.getElementById('edit-file-input').click();
+        dz.onclick = () => jinPopup('파일 불러오기','BDB AAB TXT ZIP','editfile');
         initEditMode();
         const tc = document.getElementById('edit-fn-title-card');
         const rc = document.getElementById('edit-fn-replace-card');
@@ -8626,6 +8802,16 @@ const SPECIAL_CATEGORIES = [
         const preview = document.getElementById('edit-heading-preview');
         if (!ver) { btn.disabled = true; return; }
 
+        if (!HEADINGS_LOADED) {
+            btn.disabled = true;
+            preview.innerHTML = '<span style="color:#c0b4a4;">표제어 데이터를 불러오는 중…</span>';
+            loadHeadingsData(ok => {
+                if (ok) updateHeadingPreview();
+                else preview.innerHTML = '<span style="color:#c44;">표제어 데이터를 불러오지 못했습니다. 네트워크를 확인하세요.</span>';
+            });
+            return;
+        }
+
         const headings = HEADINGS_DATA[ver.value] || {};
         const total = Object.keys(headings).length;
 
@@ -8688,6 +8874,10 @@ const SPECIAL_CATEGORIES = [
     async function applyHeadings() {
         const ver = document.querySelector('input[name="edit-heading-ver"]:checked');
         if (!ver || !editFileLoaded) return;
+        if (!HEADINGS_LOADED) {
+            alert('표제어 데이터를 아직 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+            return;
+        }
         const headings = HEADINGS_DATA[ver.value] || {};
         const verLabel = ver.value.replace('한글개역','개역').replace('공동번역_개정','공동번역');
 
