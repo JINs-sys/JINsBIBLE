@@ -5614,6 +5614,13 @@ const SPECIAL_CATEGORIES = [
         updateNavChapterLabel();
         const refEl = document.getElementById('reference-text');
         refEl.classList.remove('ref-menu-open', 'is-editing');
+        // 편집 상태 완전 초기화 (모바일에서 is-editing 클래스만 제거되고 dataset이 남는 버그 방지)
+        const _editBody   = refEl.querySelector('.ref-text-body');
+        const _editBtn    = document.getElementById('ref-side-edit-btn');
+        const _cancelBtn  = document.getElementById('ref-side-cancel-btn');
+        if (_editBody) { _editBody.contentEditable = 'false'; _editBody.dataset.editing = ''; }
+        if (_editBtn)  { _editBtn.classList.remove('editing'); _editBtn.textContent = '✏️ 원문 편집'; }
+        if (_cancelBtn) _cancelBtn.style.display = 'none';
         const body  = refEl.querySelector('.ref-text-body');
         if (body) {
             body.classList.remove('ref-empty');
