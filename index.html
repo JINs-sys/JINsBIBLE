@@ -187,6 +187,10 @@
             cursor: pointer; transition: all 0.18s ease;
             border: 1px solid var(--rule); background: #faf9f6;
             text-decoration: none; color: inherit;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
         }
         @media (max-width: 480px) {
             body:not(.active-mode) .action-grid { display: flex; flex-direction: column; gap: 6px; margin-bottom: 0; flex: none; min-height: 0; overflow: visible; }
@@ -204,7 +208,7 @@
         .action-card.card-dragover .action-card-icon::after { content: ' 📂'; }
         .action-card-drop-hint { margin-top:6px; font-size:0.72rem; color:#aaa; border-top:1px dashed #e0ddd5; padding-top:6px; }
 
-        .btn-noref { display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1px solid var(--accent); border-radius:6px; background:#fff; color:var(--accent); font-size:0.85rem; font-family:var(--font-main); font-weight:500; cursor:pointer; transition:background 0.15s, transform 0.1s; flex-shrink:0; }
+        .btn-noref { display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1px solid var(--accent); border-radius:6px; background:#fff; color:var(--accent); font-size:0.85rem; font-family:var(--font-main); font-weight:500; cursor:pointer; transition:background 0.15s, transform 0.1s; flex-shrink:0; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
         .btn-noref:hover { background:#f2f8f5; }
         .btn-noref:active { transform:scale(0.98); }
         @media (max-width: 480px) {
@@ -4019,6 +4023,40 @@ const SPECIAL_CATEGORIES = [
                 loadEditFile(file);
             });
         }
+    }());
+
+    // ── 모바일 action-card 탭 즉시 반응 (300ms 지연 해소) ──────────────
+    (function setupCardTouchFix() {
+        var _touchMoved = false;
+        var _touchStartX = 0, _touchStartY = 0;
+
+        document.querySelectorAll('.action-card').forEach(function(card) {
+            card.addEventListener('touchstart', function(e) {
+                _touchMoved = false;
+                var t = e.touches[0];
+                _touchStartX = t.clientX;
+                _touchStartY = t.clientY;
+            }, { passive: true });
+
+            card.addEventListener('touchmove', function(e) {
+                var t = e.touches[0];
+                if (Math.abs(t.clientX - _touchStartX) > 8 || Math.abs(t.clientY - _touchStartY) > 8) {
+                    _touchMoved = true;
+                }
+            }, { passive: true });
+
+            card.addEventListener('touchend', function(e) {
+                if (_touchMoved) return;
+                // 드래그 오버 상태면 무시 (파일 드롭 중)
+                if (card.classList.contains('card-dragover')) return;
+                e.preventDefault();
+                // onclick 속성에 등록된 함수 직접 실행
+                var onclickAttr = card.getAttribute('onclick');
+                if (onclickAttr) {
+                    try { (new Function(onclickAttr)).call(card); } catch(err) {}
+                }
+            }, { passive: false });
+        });
     }());
 
     (function setupInputDrop() {
