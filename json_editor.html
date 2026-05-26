@@ -4021,9 +4021,7 @@ document.addEventListener('DOMContentLoaded',function(){
     var vp = window.visualViewport;
     if(!vp) return;
     var kbHeight = window.innerHeight - vp.height - vp.offsetTop;
-    /* 삼성 브라우저 URL 힌트바 높이 보정 */
-    var extra = (kbHeight > 0) ? 21 : 0;
-    tb.style.bottom = Math.max(0, kbHeight + extra) + 'px';
+    tb.style.bottom = Math.max(0, kbHeight) + 'px';
   }
   if(window.visualViewport){
     window.visualViewport.addEventListener('resize', _adjustToolbar);
