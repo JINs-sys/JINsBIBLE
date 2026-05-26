@@ -203,8 +203,27 @@
 /* 삭제 버튼 */
 .je-del-btn{border:none;background:none;color:#d8d2ca;font-size:.78rem;cursor:pointer;padding:3px 5px;border-radius:4px;line-height:1;flex-shrink:0;margin-left:2px;transition:color .12s;}
 .je-del-btn:hover{color:#d84040;background:#fdf0f0;}
+/* 카드 스와이프 래퍼 (모바일 좌스와이프→삭제) */
+.je-card-wrap{position:relative;overflow:hidden;margin:0 12px 7px;border-radius:12px;}
+.je-card-del-reveal{
+  position:absolute;right:-72px;top:0;bottom:0;width:72px;
+  background:#d84040;color:#fff;border:none;
+  cursor:pointer;
+  display:none;align-items:center;justify-content:center;
+  flex-direction:column;gap:4px;
+  border-radius:0 12px 12px 0;
+  -webkit-tap-highlight-color:transparent;
+  transition:right .22s ease;
+}
+.je-card-del-reveal .je-del-lbl{font-size:0.6rem;font-weight:700;letter-spacing:0.04em;opacity:0.9;}
+.je-card-wrap.je-swiped .je-card-del-reveal{right:0;}
+@media(max-width:600px){
+  .je-del-btn{display:none!important;}
+  .je-card-del-reveal{display:flex;}
+}
 /* 카드 */
 .je-card{margin:0 12px 7px;background:#fff;border-radius:12px;padding:13px 14px;cursor:pointer;border:1px solid #ece8e0;-webkit-tap-highlight-color:transparent;animation:je-rise .2s ease;}
+.je-card-wrap .je-card{margin:0;will-change:transform;}
 .je-card:hover{border-color:#c8d8cc;}
 .je-card:active{background:#eef5f0;}
 .je-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:6px}
@@ -1054,7 +1073,8 @@ function _renderListItems(){
       if(q&&book.toLowerCase().indexOf(q)<0&&memo.toLowerCase().indexOf(q)<0&&refStr.indexOf(q)<0) continue;
       cnt++;
       var title=_e(_stripTags(_fl(memo))), mLen=memo.length;
-      html+='<div class="je-card" data-tab="bookmarks" data-i="'+bm._origIdx+'">'
+      html+='<div class="je-card-wrap">'
+           +'<div class="je-card" data-tab="bookmarks" data-i="'+bm._origIdx+'">'
            +'<div class="je-card-top">'
            +'<div style="display:flex;align-items:baseline;flex:1;min-width:0;overflow:hidden">'
            +'<span class="je-card-badge je-badge-bm">메모</span>'
@@ -1066,6 +1086,8 @@ function _renderListItems(){
            +'</div>'
            +(title?'<div class="je-card-title">'+title+'</div>':'')
            +'<div class="je-card-date">'+_fd(bm.createdAt)+'</div>'
+           +'</div>'
+           +'<button class="je-card-del-reveal" data-tab="bookmarks" data-i="'+bm._origIdx+'" onclick="jeDeleteItem(event,this)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg><span class="je-del-lbl">삭제</span></button>'
            +'</div>';
     }
   } else if(_jeTab==='sermons'){
@@ -1077,7 +1099,8 @@ function _renderListItems(){
       if(q&&book.toLowerCase().indexOf(q)<0&&content.toLowerCase().indexOf(q)<0&&refStr.indexOf(q)<0) continue;
       cnt++;
       var preview=_e(_stripTags(_fl(content))), cLen=content.length;
-      html+='<div class="je-card" data-tab="sermons" data-i="'+sm._origIdx+'">'
+      html+='<div class="je-card-wrap">'
+           +'<div class="je-card" data-tab="sermons" data-i="'+sm._origIdx+'">'
            +'<div class="je-card-top">'
            +'<div style="display:flex;align-items:baseline;flex:1;min-width:0;overflow:hidden">'
            +'<span class="je-card-badge je-badge-sr">설교</span>'
@@ -1089,6 +1112,8 @@ function _renderListItems(){
            +'</div>'
            +(preview?'<div class="je-card-title">'+preview+'</div>':'')
            +'<div class="je-card-date">'+(dateStr?'설교일 '+dateStr+' · ':'')+_fd(sm.createdAt)+'</div>'
+           +'</div>'
+           +'<button class="je-card-del-reveal" data-tab="sermons" data-i="'+sm._origIdx+'" onclick="jeDeleteItem(event,this)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg><span class="je-del-lbl">삭제</span></button>'
            +'</div>';
     }
   } else if(_jeTab==='highlights'){
@@ -1099,7 +1124,8 @@ function _renderListItems(){
       if(q&&book.toLowerCase().indexOf(q)<0&&refStr.indexOf(q)<0) continue;
       cnt++;
       var colorLabel={'pink':'🌸 분홍','yellow':'💛 노랑','green':'💚 초록','blue':'💙 파랑','purple':'💜 보라'}[hl.color]||(hl.color||'');
-      html+='<div class="je-card" data-tab="highlights" data-i="'+hl._origIdx+'">'
+      html+='<div class="je-card-wrap">'
+           +'<div class="je-card" data-tab="highlights" data-i="'+hl._origIdx+'">'
            +'<div class="je-card-top">'
            +'<div style="display:flex;align-items:baseline;flex:1;min-width:0;overflow:hidden">'
            +'<span class="je-card-badge je-badge-hl">형광</span>'
@@ -1110,6 +1136,8 @@ function _renderListItems(){
            +'<button class="je-del-btn" data-tab="highlights" data-i="'+hl._origIdx+'" onclick="jeDeleteItem(event,this)">✕</button>'
            +'</div>'
            +'<div class="je-card-date">'+_fd(hl.createdAt)+'</div>'
+           +'</div>'
+           +'<button class="je-card-del-reveal" data-tab="highlights" data-i="'+hl._origIdx+'" onclick="jeDeleteItem(event,this)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg><span class="je-del-lbl">삭제</span></button>'
            +'</div>';
     }
   }
@@ -1127,6 +1155,11 @@ function _renderListItems(){
     (function(card){
       card.onclick=function(e){
         if(e.target.classList.contains('je-del-btn')) return;
+        /* 스와이프 열린 상태면 닫기만 */
+        var wrap=card.closest('.je-card-wrap');
+        if(wrap&&wrap.classList.contains('je-swiped')){
+          _jeCardSwipeReset(wrap); return;
+        }
         jeOpenEdit(parseInt(card.getAttribute('data-i')), card.getAttribute('data-tab'));
       };
     })(cards[j]);
@@ -4260,6 +4293,91 @@ document.addEventListener('DOMContentLoaded',function(){
     window.visualViewport.addEventListener('scroll', _adjustToolbar);
   }
   _adjustToolbar();
+})();
+/* ── 카드 좌스와이프 삭제 (모바일 전용) ── */
+function _jeCardSwipeReset(wrap){
+  if(!wrap) return;
+  var card=wrap.querySelector('.je-card');
+  var btn=wrap.querySelector('.je-card-del-reveal');
+  if(card){card.style.transition='transform .22s ease';card.style.transform='';}
+  if(btn){btn.style.transition='right .22s ease';btn.style.right='';}
+  wrap.classList.remove('je-swiped');
+}
+(function(){
+  var REVEAL_W=72;
+  var _wrap=null,_tx=0,_ty=0,_moved=false,_startSwiped=false;
+
+  function _isMob(){ return window.innerWidth<=600; }
+  function _getBody(){ return document.getElementById('je-list-body'); }
+
+  function _onStart(e){
+    if(!_isMob()) return;
+    var t=e.target||e.touches[0].target;
+    if(t.closest&&t.closest('.je-card-del-reveal')) return;
+    var wrap=t.closest&&t.closest('.je-card-wrap');
+    if(!wrap) return;
+    var body=_getBody();
+    if(body) body.querySelectorAll('.je-card-wrap.je-swiped').forEach(function(w){
+      if(w!==wrap) _jeCardSwipeReset(w);
+    });
+    _wrap=wrap;
+    _startSwiped=wrap.classList.contains('je-swiped');
+    var touch=e.touches?e.touches[0]:e;
+    _tx=touch.clientX; _ty=touch.clientY; _moved=false;
+  }
+  function _onMove(e){
+    if(!_wrap||!_isMob()) return;
+    var touch=e.touches?e.touches[0]:e;
+    var dx=touch.clientX-_tx, dy=touch.clientY-_ty;
+    if(!_moved&&Math.abs(dy)>Math.abs(dx)+5){ _wrap=null; return; }
+    if(Math.abs(dx)>4) _moved=true;
+    if(!_moved) return;
+    if(e.cancelable) e.preventDefault();
+    var base=_startSwiped?-REVEAL_W:0;
+    var offset=Math.min(0,Math.max(-REVEAL_W, base+dx));
+    var card=_wrap.querySelector('.je-card');
+    var btn=_wrap.querySelector('.je-card-del-reveal');
+    /* 카드: 왼쪽으로 슬라이드 */
+    if(card){card.style.transition='none';card.style.transform='translateX('+offset+'px)';}
+    /* 버튼: offset이 -72이면 right:0, offset이 0이면 right:-72px */
+    if(btn){btn.style.transition='none';btn.style.right=(-REVEAL_W-offset)+'px';}
+  }
+  function _onEnd(e){
+    if(!_wrap||!_isMob()){ _wrap=null; return; }
+    var touch=e.changedTouches?e.changedTouches[0]:e;
+    var dx=touch.clientX-_tx;
+    var card=_wrap.querySelector('.je-card');
+    var btn=_wrap.querySelector('.je-card-del-reveal');
+    /* 인라인 transition 제거 → CSS class transition 사용 */
+    if(card){card.style.transition='';card.style.transform='';}
+    if(btn){btn.style.transition='';btn.style.right='';}
+    var shouldOpen=_startSwiped?(dx>-20):(dx<-40);
+    if(shouldOpen){
+      /* CSS로 snap: .je-swiped가 card에 transform, btn에 right:0 */
+      var c2=_wrap.querySelector('.je-card');
+      var b2=_wrap.querySelector('.je-card-del-reveal');
+      if(c2){c2.style.transition='transform .22s ease';c2.style.transform='translateX(-'+REVEAL_W+'px)';}
+      if(b2){b2.style.transition='right .22s ease';b2.style.right='0';}
+      _wrap.classList.add('je-swiped');
+    } else {
+      _jeCardSwipeReset(_wrap);
+    }
+    _wrap=null;
+  }
+
+  document.addEventListener('touchstart',_onStart,{passive:true});
+  document.addEventListener('touchmove',_onMove,{passive:false});
+  document.addEventListener('touchend',_onEnd,{passive:true});
+
+  /* 리스트 영역 밖 터치 → 열린 카드 전체 닫기 */
+  document.addEventListener('touchstart',function(e){
+    if(!_isMob()) return;
+    var t=e.touches[0].target;
+    if(t.closest&&!t.closest('.je-card-wrap')){
+      var body=_getBody();
+      if(body) body.querySelectorAll('.je-card-wrap.je-swiped').forEach(_jeCardSwipeReset);
+    }
+  },{passive:true});
 })();
 </script>
 </body>
