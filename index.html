@@ -5399,6 +5399,7 @@ const SPECIAL_CATEGORIES = [
             body.style.outline = '';
             body.style.background = '';
             el.classList.remove('is-editing');
+            el.classList.remove('ref-menu-open');
             editBtn.classList.remove('editing');
             editBtn.textContent = '✏️ 원문 편집';
             document.getElementById('ref-side-cancel-btn').style.display = 'none';
@@ -5420,7 +5421,7 @@ const SPECIAL_CATEGORIES = [
         editBtn.classList.add('editing');
         editBtn.textContent = '💾 편집 저장';
         document.getElementById('ref-side-cancel-btn').style.display = '';
-        body.focus();
+        setTimeout(function(){ body.focus(); }, 100);
     }
     function cancelRefEdit() {
         const el      = document.getElementById('reference-text');
@@ -5434,6 +5435,7 @@ const SPECIAL_CATEGORIES = [
         body.style.outline = '';
         body.style.background = '';
         el.classList.remove('is-editing');
+        el.classList.remove('ref-menu-open');
         editBtn.classList.remove('editing');
         editBtn.textContent = '✏️ 원문 편집';
         document.getElementById('ref-side-cancel-btn').style.display = 'none';
@@ -11963,7 +11965,12 @@ _jeInitBibleDrop();
                 if (!refEl.classList.contains('ref-menu-open')) return;
                 if (refEl.contains(e.target)) {
                     if (e.target.closest('.ref-side-btn')) {
-                        setTimeout(function(){ refEl.classList.remove('ref-menu-open'); }, 50);
+                        setTimeout(function(){
+                            // is-editing 상태이면 메뉴를 닫지 않음 (편집 모드 진입 시 메뉴 유지)
+                            if (!refEl.classList.contains('is-editing')) {
+                                refEl.classList.remove('ref-menu-open');
+                            }
+                        }, 150);
                     }
                     else if (!e.target.closest('.ref-side-menu')) {
                         refEl.classList.remove('ref-menu-open');
