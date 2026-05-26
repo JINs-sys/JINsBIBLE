@@ -5418,10 +5418,11 @@ const SPECIAL_CATEGORIES = [
         body.style.outline = '';
         body.style.background = '';
         el.classList.add('is-editing');
+        el.classList.add('ref-menu-open'); // 모바일: 편집 진입 시 메뉴 유지
         editBtn.classList.add('editing');
         editBtn.textContent = '💾 편집 저장';
         document.getElementById('ref-side-cancel-btn').style.display = '';
-        setTimeout(function(){ body.focus(); }, 100);
+        setTimeout(function(){ body.focus(); }, 300); // 모바일 키보드 대기 시간 확보
     }
     function cancelRefEdit() {
         const el      = document.getElementById('reference-text');
@@ -11981,7 +11982,10 @@ _jeInitBibleDrop();
             }, true);
 
             const mo = new MutationObserver(function(){
-                if (refEl.classList.contains('is-editing')) {
+                // is-editing 진입 시 ref-menu-open을 제거하지 않음
+                // 모바일에서 편집 모드 진입 시 메뉴(저장/취소 버튼)가 유지되어야 함
+                if (!refEl.classList.contains('is-editing')) {
+                    // 편집 종료 시에만 메뉴 닫기
                     refEl.classList.remove('ref-menu-open');
                 }
             });
