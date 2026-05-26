@@ -327,6 +327,13 @@
         @media (max-width: 480px) {
             #reference-text.is-editing .ref-text-body { margin-right: 2px; padding-bottom: 44px; }
             #reference-text.is-editing .ref-side-menu { top: auto; bottom: 0; height: auto; flex-direction: row; flex-wrap: wrap; width: 100%; right: 0 !important; border-left: none; border-top: 1px solid var(--rule); padding: 6px 8px; gap: 6px; background: rgba(255,255,255,0.97); }
+            /* 편집 모드 진입 시 컨테이너 height 고정 해제 → 키보드 올라와도 레이아웃 동결 없음 */
+            body:not(.active-mode) .container.ref-editing-active {
+                height: auto !important;
+                min-height: 100svh;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+            }
         }
         #reference-text.is-editing .ref-text-body:focus { border-color: #a8c4d8; border-style: dashed; outline: none; }
         .ref-side-btn {
@@ -1033,7 +1040,7 @@
                 padding-bottom: 10px;
                 margin-bottom: 14px;
             }
-            .title { font-size: 1.2rem; }
+
 
             .settings-bar {
                 flex-wrap: wrap;
@@ -2030,12 +2037,12 @@ async function jinLoadFromUrl(){
 
 <div class="container">
     <div class="header">
-        <div style="display:flex; align-items:baseline; gap:8px;">
-            <h1 class="title" id="verse-title">JINs Bible</h1>
-            <span id="header-mode-label" style="font-size:0.75rem; color:#aaa; font-weight:400; display:none;"></span>
-            <span id="com-header-verse" style="display:none; font-size:0.82rem; font-weight:400; color:var(--ink-soft); margin-left:2px;"></span>
+        <div style="display:flex; align-items:baseline; gap:8px; min-width:0; flex:1; overflow:hidden;">
+            <h1 class="title" id="verse-title" style="white-space:nowrap; flex-shrink:0; margin:0;">JINs Bible</h1>
+            <span id="header-mode-label" style="font-size:0.75rem; color:#aaa; font-weight:400; display:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;"></span>
+            <span id="com-header-verse" style="display:none; font-size:0.82rem; font-weight:400; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;"></span>
         </div>
-        <div style="display:flex; align-items:center; gap:4px;">
+        <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
             <!-- 주석 모드 전용 버튼 (기본 숨김) -->
             <button class="btn-home" id="btn-com-back" style="display:none; width:auto; padding:0 10px; font-size:0.75rem; color:var(--ink-soft);" onclick="exitCommentaryMode()" title="이전으로">← 이전</button>
             <button class="btn-chart" id="btn-chart" onclick="toggleChart()" title="작업진행표" style="display:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="9" rx="1"/><rect x="10" y="7" width="4" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg></button>
@@ -5403,6 +5410,7 @@ const SPECIAL_CATEGORIES = [
         const el      = document.getElementById('reference-text');
         const body    = el?.querySelector('.ref-text-body');
         const editBtn = document.getElementById('ref-side-edit-btn');
+        const cont    = document.querySelector('.container');
         if (!body) return;
         const wasEditing = body.dataset.editing === '1';
         if (wasEditing) {
@@ -5414,6 +5422,7 @@ const SPECIAL_CATEGORIES = [
             editBtn.classList.remove('editing');
             editBtn.textContent = '✏️ 원문 편집';
             document.getElementById('ref-side-cancel-btn').style.display = 'none';
+            if (cont) cont.classList.remove('ref-editing-active');
             const editedText = body.innerText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
             const idx = (typeof currentIndex !== 'undefined') ? currentIndex : 0;
             if (bibleData[idx]) {
@@ -5433,31 +5442,44 @@ const SPECIAL_CATEGORIES = [
         }
         const idx = (typeof currentIndex !== 'undefined') ? currentIndex : 0;
         const rawText = (bibleData[idx] && bibleData[idx].text != null) ? bibleData[idx].text : body.innerText;
-        // 기존 HTML 노드 전체 제거 후 plain text만 삽입 (레이아웃 스래싱 최소화)
-        body.innerHTML = '';
-        body.textContent = rawText;
-        body.contentEditable = 'true';
-        body.dataset.editing = '1';
-        body.style.outline = '';
-        body.style.background = '';
-        // loadVerse에서 세팅된 인라인 maxHeight/overflowY 해제
-        // 이 값이 남아있으면 편집 시 키보드가 올라와도 영역이 확장되지 않아 freezing처럼 보임
+
+        // 메뉴 닫기 / 높이 해제만 먼저 (레이아웃 변경 최소화)
+        el.classList.remove('ref-menu-open');
         el.style.maxHeight = '';
         el.style.overflowY = '';
-        el.classList.remove('ref-menu-open');
-        // requestAnimationFrame으로 클래스 변경을 한 프레임 뒤로 분리 → iOS 레이아웃 동결 방지
+        if (cont) cont.classList.add('ref-editing-active');
+
+        // 모든 DOM 변경을 requestAnimationFrame 안으로 이동
+        // → contentEditable 전환 + innerHTML 교체가 동시에 일어나면
+        //   삼성 브라우저에서 메인 스레드가 블로킹됨
         requestAnimationFrame(function() {
+            body.innerHTML = '';
+            body.textContent = rawText;
+            body.dataset.editing = '1';
+            body.style.outline = '';
+            body.style.background = '';
             el.classList.add('is-editing');
             editBtn.classList.add('editing');
             editBtn.textContent = '💾 편집 저장';
             document.getElementById('ref-side-cancel-btn').style.display = '';
-            setTimeout(function() { body.focus(); }, 80);
+
+            // contentEditable 전환은 가장 마지막에 — 이 순간 브라우저가 재렌더링함
+            // 한 프레임 더 뒤로 미뤄서 UI 업데이트 완료 후 전환
+            requestAnimationFrame(function() {
+                body.contentEditable = 'true';
+                // 모바일(터치)에서는 focus() 제거 — 직접 탭하면 키보드 올라옴
+                // 데스크톱에서만 자동 focus
+                if (!window.matchMedia('(pointer: coarse)').matches) {
+                    try { body.focus(); } catch(e) {}
+                }
+            });
         });
     }
     function cancelRefEdit() {
         const el      = document.getElementById('reference-text');
         const body    = el?.querySelector('.ref-text-body');
         const editBtn = document.getElementById('ref-side-edit-btn');
+        const cont    = document.querySelector('.container');
         if (!body || body.dataset.editing !== '1') return;
         body.contentEditable = 'false';
         body.dataset.editing = '';
@@ -5467,6 +5489,7 @@ const SPECIAL_CATEGORIES = [
         editBtn.classList.remove('editing');
         editBtn.textContent = '✏️ 원문 편집';
         document.getElementById('ref-side-cancel-btn').style.display = 'none';
+        if (cont) cont.classList.remove('ref-editing-active');
         // 취소 시 원본 HTML로 복원
         const idx = (typeof currentIndex !== 'undefined') ? currentIndex : 0;
         if (bibleData[idx]) loadVerse(idx);
@@ -12006,12 +12029,9 @@ _jeInitBibleDrop();
                 }
             }, true);
 
-            const mo = new MutationObserver(function(){
-                if (refEl.classList.contains('is-editing')) {
-                    refEl.classList.remove('ref-menu-open');
-                }
-            });
-            mo.observe(refEl, { attributes: true, attributeFilter: ['class'] });
+            // MutationObserver 제거 — is-editing 추가 시 ref-menu-open 제거가
+            // 다시 MutationObserver를 발동시켜 무한루프 → freeze 유발
+            // ref-menu-open 제거는 editRefInline() 내에서 직접 처리함
         }
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
