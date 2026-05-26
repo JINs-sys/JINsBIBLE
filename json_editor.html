@@ -67,8 +67,8 @@
 #je-edit-btn{border:none;border-radius:8px;padding:7px 14px;font-weight:700;font-size:.82rem;cursor:pointer;font-family:inherit;background:#2d4a3e;color:#fff;-webkit-tap-highlight-color:transparent;transition:opacity .15s;}
 #je-edit-btn:active{opacity:.75;transform:scale(.95);}
 #je-ce:empty::before{content:attr(data-placeholder);color:#c0bdb6;pointer-events:none;}
-#je-ce b{font-weight:700;}
-#je-ce i{font-style:italic;}
+#je-ce b,#je-ce strong{font-weight:700;}
+#je-ce i,#je-ce em{font-style:italic;}
 #je-ce u{text-decoration:underline;}
 #je-ce s{text-decoration:line-through;}
 #je-ce .je-j{color:#d0342c;font-weight:600;}
@@ -1882,6 +1882,43 @@ function _jeNewItemVersePreview(){
 }
 
 /* textarea 선택영역 태그 감싸기 */
+/* ── B/I/U/S 서식 토글: innerHTML 로드된 태그도 정상 제거 ── */
+function _jeToggleFmt(tag, altTag, cmd){
+  var ce=_$('je-ce');
+  var sel=window.getSelection();
+  if(!sel||!sel.rangeCount) return;
+  var range=sel.getRangeAt(0);
+
+  /* 현재 선택 영역이 해당 서식 안에 있는지 확인 */
+  var anchor=range.commonAncestorContainer;
+  if(anchor.nodeType===3) anchor=anchor.parentNode;
+  var fmtEl=null, cur=anchor;
+  var tagLo=tag.toLowerCase(), altLo=altTag?altTag.toLowerCase():null;
+  while(cur&&cur!==ce){
+    var tn=cur.tagName?cur.tagName.toLowerCase():'';
+    if(tn===tagLo||(altLo&&tn===altLo)){ fmtEl=cur; break; }
+    cur=cur.parentNode;
+  }
+
+  if(fmtEl){
+    /* 이미 서식 안에 있음 → unwrap */
+    var frag=document.createDocumentFragment();
+    var nodes=[];
+    while(fmtEl.firstChild){ nodes.push(fmtEl.firstChild); frag.appendChild(fmtEl.firstChild); }
+    fmtEl.parentNode.replaceChild(frag, fmtEl);
+    /* 선택 영역 복원 */
+    if(nodes.length){
+      try{
+        var r2=document.createRange();
+        r2.setStartBefore(nodes[0]); r2.setEndAfter(nodes[nodes.length-1]);
+        sel.removeAllRanges(); sel.addRange(r2);
+      }catch(e){}
+    }
+  } else {
+    /* 서식 없음 → execCommand로 적용 */
+    document.execCommand(cmd, false, null);
+  }
+}
 function jeFmt(type){
   var ce=_$('je-ce'); if(!ce) return;
   if(ce.getAttribute('contenteditable')==='false'){
@@ -1890,10 +1927,15 @@ function jeFmt(type){
   }
   _jeSnapBefore();
   ce.focus();
-  if(type==='b'){ document.execCommand('bold',false,null); }
-  else if(type==='i'){ document.execCommand('italic',false,null); }
-  else if(type==='u'){ document.execCommand('underline',false,null); }
-  else if(type==='s'){ document.execCommand('strikeThrough',false,null); }
+  /* 모바일/PC: 버튼 클릭으로 날아간 선택 영역 복원 */
+  if(window._jeSavedRange){
+    try{var s=window.getSelection();s.removeAllRanges();s.addRange(window._jeSavedRange);}catch(e){}
+    window._jeSavedRange=null;
+  }
+  if(type==='b'){ _jeToggleFmt('b','strong','bold'); }
+  else if(type==='i'){ _jeToggleFmt('i','em','italic'); }
+  else if(type==='u'){ _jeToggleFmt('u',null,'underline'); }
+  else if(type==='s'){ _jeToggleFmt('s',null,'strikeThrough'); }
   else if(type==='j'){
     var sel=window.getSelection();
     if(!sel||sel.rangeCount===0) return;
@@ -2041,11 +2083,11 @@ function jePickBgColor(btn){
 var _jeUndoStack=[], _jeRedoStack=[], _jeUndoMax=100;
 var _jeLastSnap='';   /* 직전 스냅샷 — 변경 감지용 */
 
-function _jePushUndo(html){
+function _jePushUndo(html, keepRedo){
   if(_jeUndoStack.length && _jeUndoStack[_jeUndoStack.length-1]===html) return;
   _jeUndoStack.push(html);
   if(_jeUndoStack.length>_jeUndoMax) _jeUndoStack.shift();
-  _jeRedoStack=[];
+  if(!keepRedo) _jeRedoStack=[];
 }
 /* 메뉴 동작 전: 현재 상태를 스냅샷으로 저장 */
 function _jeSnapBefore(){
@@ -2075,8 +2117,9 @@ function jeCeUndo(){
 function jeCeRedo(){
   var ce=_$('je-ce'); if(!ce) return;
   if(_jeRedoStack.length===0){_toast('더 이상 앞으로 갈 수 없음');return;}
-  _jePushUndo(ce.innerHTML);
-  var next=_jeRedoStack.pop();
+  var next=_jeRedoStack.pop(); /* 먼저 꺼낸 후 undo 푸시 (undo 내부의 redo 초기화보다 앞에 실행) */
+  if(next===undefined){return;}
+  _jePushUndo(ce.innerHTML, true); /* keepRedo=true: redo 스택 유지 */
   ce.innerHTML=next;
   _jeLastSnap=next;
   _memoText=_htmlToTags(ce.innerHTML);
@@ -4116,6 +4159,26 @@ document.addEventListener('DOMContentLoaded',function(){
 </div>
 
 <script>
+/* ── 서식 툴바: 포커스·선택 영역 보존 ── */
+(function(){
+  var tb=document.getElementById('je-toolbar');
+  if(!tb) return;
+  /* PC: mousedown preventDefault → 버튼 클릭해도 contenteditable 포커스 유지 */
+  tb.addEventListener('mousedown',function(e){
+    var btn=e.target.closest('button');
+    if(btn) e.preventDefault();
+  });
+  /* 모바일: touchstart 시 선택 영역 저장 (touchend 이후 포커스 이동 전) */
+  tb.addEventListener('touchstart',function(e){
+    var btn=e.target.closest('button');
+    if(!btn) return;
+    var sel=window.getSelection();
+    if(sel&&sel.rangeCount>0){
+      try{ window._jeSavedRange=sel.getRangeAt(0).cloneRange(); }catch(err){}
+    }
+  },{passive:true});
+})();
+
 /* ── 좌우 스와이프: 이전/다음 항목 이동 ── */
 (function(){
   var _sx=0, _sy=0, _sTime=0;
