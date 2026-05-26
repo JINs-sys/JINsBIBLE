@@ -1555,6 +1555,33 @@ function _jeUpdateNavBtns(){
   prev.style.opacity=hasPrev?'1':'0.25'; prev.disabled=!hasPrev;
   next.style.opacity=hasNext?'1':'0.25'; next.disabled=!hasNext;
 }
+/* ── 목록 항목 이동 (메모/설교 본문 스와이프용) ── */
+function jeNavListItem(dir){
+  if(_editIdx===null || !_jeNavList || !_jeNavList.length) return;
+  var pos=_jeNavList.indexOf(_editIdx);
+  if(pos<0) return;
+  var newPos=pos+dir;
+  var total=_jeNavList.length;
+  if(newPos<0){
+    var label={bookmarks:'메모',sermons:'설교',highlights:'형광펜'}[_jeTab]||'항목';
+    _toast('◀ 첫 번째 '+label+'입니다 ('+total+'개 중 1번)');
+    /* 살짝 흔들림 효과 */
+    var ce=_$('je-ce'); if(ce){ce.style.transition='transform .15s';ce.style.transform='translateX(10px)';setTimeout(function(){ce.style.transform='';},160);}
+    return;
+  }
+  if(newPos>=total){
+    var label={bookmarks:'메모',sermons:'설교',highlights:'형광펜'}[_jeTab]||'항목';
+    _toast('마지막 '+label+'입니다 ('+total+'개 중 '+total+'번) ▶');
+    var ce=_$('je-ce'); if(ce){ce.style.transition='transform .15s';ce.style.transform='translateX(-10px)';setTimeout(function(){ce.style.transform='';},160);}
+    return;
+  }
+  jeOpenEdit(_jeNavList[newPos], _jeTab);
+  /* 위치 토스트 */
+  var label={bookmarks:'메모',sermons:'설교',highlights:'형광펜'}[_jeTab]||'항목';
+  _toast((dir>0?'▶ ':'◀ ')+(newPos+1)+' / '+total+' '+label);
+}
+window.jeNavListItem=jeNavListItem;
+
 function jeStartEdit(){
   var ce=_$('je-ce'); if(!ce) return;
   ce.setAttribute('contenteditable','true');
@@ -4179,29 +4206,42 @@ document.addEventListener('DOMContentLoaded',function(){
   },{passive:true});
 })();
 
-/* ── 좌우 스와이프: 이전/다음 항목 이동 ── */
+/* ── 좌우 스와이프: 성경절 이동(verse-panel) / 항목 이동(je-ce 뷰모드) ── */
 (function(){
-  var _sx=0, _sy=0, _sTime=0;
+  var _sx=0, _sy=0, _sTime=0, _swipeZone=null;
   document.addEventListener('touchstart',function(e){
-    var vp=document.getElementById('je-verse-panel');
-    if(!vp) return;
-    /* verse-panel 안에서 시작된 터치만 */
     var t=e.touches[0].target;
-    if(!vp.contains(t)) return;
+    _swipeZone=null;
+    /* 성경 절 패널 */
+    var vp=document.getElementById('je-verse-panel');
+    if(vp&&vp.contains(t)){
+      _swipeZone='verse';
+    } else {
+      /* 메모/설교 본문 — 편집 중일 때는 스와이프 비활성 */
+      var ce=document.getElementById('je-ce');
+      if(ce&&ce.contains(t)&&ce.getAttribute('contenteditable')!=='true'){
+        _swipeZone='content';
+      }
+    }
+    if(!_swipeZone) return;
     _sx=e.touches[0].clientX;
     _sy=e.touches[0].clientY;
     _sTime=Date.now();
   },{passive:true});
   document.addEventListener('touchend',function(e){
-    if(!_sTime) return;
+    if(!_sTime||!_swipeZone) return;
     var dx=e.changedTouches[0].clientX-_sx;
     var dy=e.changedTouches[0].clientY-_sy;
     var dt=Date.now()-_sTime;
     _sTime=0;
     /* 수평 40px 이상, 수직보다 1.5배 이상, 400ms 이내 */
     if(Math.abs(dx)<40||Math.abs(dx)<Math.abs(dy)*1.5||dt>400) return;
-    /* 왼쪽 스와이프(dx<0) → 다음(+1), 오른쪽 스와이프(dx>0) → 이전(-1) */
-    if(typeof jeNavItem==='function') jeNavItem(dx<0?1:-1);
+    var dir=dx<0?1:-1; /* 왼쪽→다음(+1), 오른쪽→이전(-1) */
+    if(_swipeZone==='verse'){
+      if(typeof jeNavItem==='function') jeNavItem(dir);
+    } else if(_swipeZone==='content'){
+      if(typeof jeNavListItem==='function') jeNavListItem(dir);
+    }
   },{passive:true});
 })();
 /* ── 툴바 키보드 위로 이동 (모바일 전용) ── */
