@@ -4027,34 +4027,38 @@ const SPECIAL_CATEGORIES = [
 
     // ── 모바일 action-card 탭 즉시 반응 (300ms 지연 해소) ──────────────
     (function setupCardTouchFix() {
-        var _touchMoved = false;
-        var _touchStartX = 0, _touchStartY = 0;
+        var cardMap = [
+            { id: 'com-mode-box',  fn: function() { startCommentaryMode(); } },
+            { selector: ".action-card[onclick*='strict']", fn: function() { startFreeWrite('strict'); } },
+            { selector: '.action-card.card-edit',          fn: function() { startEditMode(); } },
+        ];
 
-        document.querySelectorAll('.action-card').forEach(function(card) {
+        cardMap.forEach(function(def) {
+            var card = def.id
+                ? document.getElementById(def.id)
+                : document.querySelector(def.selector);
+            if (!card) return;
+
+            var moved = false, sx = 0, sy = 0;
+
             card.addEventListener('touchstart', function(e) {
-                _touchMoved = false;
-                var t = e.touches[0];
-                _touchStartX = t.clientX;
-                _touchStartY = t.clientY;
+                moved = false;
+                sx = e.touches[0].clientX;
+                sy = e.touches[0].clientY;
             }, { passive: true });
 
             card.addEventListener('touchmove', function(e) {
-                var t = e.touches[0];
-                if (Math.abs(t.clientX - _touchStartX) > 8 || Math.abs(t.clientY - _touchStartY) > 8) {
-                    _touchMoved = true;
+                if (Math.abs(e.touches[0].clientX - sx) > 8 ||
+                    Math.abs(e.touches[0].clientY - sy) > 8) {
+                    moved = true;
                 }
             }, { passive: true });
 
             card.addEventListener('touchend', function(e) {
-                if (_touchMoved) return;
-                // 드래그 오버 상태면 무시 (파일 드롭 중)
+                if (moved) return;
                 if (card.classList.contains('card-dragover')) return;
                 e.preventDefault();
-                // onclick 속성에 등록된 함수 직접 실행
-                var onclickAttr = card.getAttribute('onclick');
-                if (onclickAttr) {
-                    try { (new Function(onclickAttr)).call(card); } catch(err) {}
-                }
+                def.fn();
             }, { passive: false });
         });
     }());
