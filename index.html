@@ -307,6 +307,10 @@
         #reference-text.is-editing .ref-side-indicator { opacity:0; }
         #reference-text.is-editing { background:#eef4fb; }
         #reference-text.is-editing .ref-text-body { font-size: 1.3rem; border: 1px dashed #d4e2ee; border-radius: 5px; padding: 5px 7px; margin: 2px; margin-right: 118px; transition: border-color 0.2s; outline: none; }
+        @media (max-width: 480px) {
+            #reference-text.is-editing .ref-text-body { margin-right: 2px; padding-bottom: 44px; }
+            #reference-text.is-editing .ref-side-menu { top: auto; bottom: 0; height: auto; flex-direction: row; flex-wrap: wrap; width: 100%; right: 0 !important; border-left: none; border-top: 1px solid var(--rule); padding: 6px 8px; gap: 6px; background: rgba(255,255,255,0.97); }
+        }
         #reference-text.is-editing .ref-text-body:focus { border-color: #a8c4d8; border-style: dashed; outline: none; }
         .ref-side-btn {
             border:1px solid transparent; background:#faf9f6; padding:6px 8px;
@@ -5393,33 +5397,42 @@ const SPECIAL_CATEGORIES = [
             editBtn.classList.remove('editing');
             editBtn.textContent = '✏️ 원문 편집';
             document.getElementById('ref-side-cancel-btn').style.display = 'none';
-            const editedText = body.innerText.trim();
+            // innerText 대신 textContent를 사용하되, <br>→\n 변환을 직접 처리
+            // 편집 전 저장해둔 원본 텍스트를 기반으로 편집된 plain text를 저장
+            const editedText = body.innerText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
             const idx = (typeof currentIndex !== 'undefined') ? currentIndex : 0;
             if (bibleData[idx]) {
                 bibleData[idx].text = editedText;
+                // 저장 후 뷰를 새로 렌더링해 마크업 일관성 유지
+                loadVerse(idx);
                 alert('편집된 원문이 저장되었습니다.');
             } else {
                 alert('편집된 본문이 화면에만 적용됩니다.\n저장하려면 먼저 "원문 불러오기"로 본문을 로드한 뒤 편집해 주세요.');
             }
             return;
         }
+        // 편집 시작 전: plain text로 변환해 contenteditable에 세팅 (HTML 태그 혼입 방지)
+        const idx = (typeof currentIndex !== 'undefined') ? currentIndex : 0;
+        const rawText = (bibleData[idx] && bibleData[idx].text) ? bibleData[idx].text : body.innerText;
+        body.textContent = rawText;
         body.contentEditable = 'true';
         body.dataset.editing = '1';
         body.style.outline = '';
         body.style.background = '';
+        // 모바일에서 ref-menu-open 제거 후 is-editing 추가 (MutationObserver 순서 문제 방지)
+        el.classList.remove('ref-menu-open');
         el.classList.add('is-editing');
         editBtn.classList.add('editing');
         editBtn.textContent = '💾 편집 저장';
         document.getElementById('ref-side-cancel-btn').style.display = '';
-        body.focus();
+        // iOS/Android에서 focus()가 클래스 변경 직후엔 무시되는 경우가 있어 setTimeout 적용
+        setTimeout(function() { body.focus(); }, 50);
     }
     function cancelRefEdit() {
         const el      = document.getElementById('reference-text');
         const body    = el?.querySelector('.ref-text-body');
         const editBtn = document.getElementById('ref-side-edit-btn');
         if (!body || body.dataset.editing !== '1') return;
-        const idx = (typeof currentIndex !== 'undefined') ? currentIndex : 0;
-        if (bibleData[idx]) body.textContent = bibleData[idx].text;
         body.contentEditable = 'false';
         body.dataset.editing = '';
         body.style.outline = '';
@@ -5428,6 +5441,9 @@ const SPECIAL_CATEGORIES = [
         editBtn.classList.remove('editing');
         editBtn.textContent = '✏️ 원문 편집';
         document.getElementById('ref-side-cancel-btn').style.display = 'none';
+        // 취소 시 원본 HTML로 복원
+        const idx = (typeof currentIndex !== 'undefined') ? currentIndex : 0;
+        if (bibleData[idx]) loadVerse(idx);
     }
     function restoreRefOriginal() {
         if (!bibleData.length) return alert('로드된 본문이 없습니다.');
