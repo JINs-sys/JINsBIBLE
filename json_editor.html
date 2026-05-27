@@ -168,11 +168,11 @@
 @media(max-width:600px){#je-mob-preview-btn,#je-preview-btn{display:none!important;}}
 @media(max-width:600px){
   #je-bible-drop{padding:6px 10px;gap:6px;}
-  #je-bible-drop-txt{gap:4px;overflow-x:auto;flex-shrink:1;}
-  #je-new-item-btn{padding:5px 10px!important;font-size:0.72rem!important;}
-  #je-bible-dd-btn{padding:5px 10px!important;font-size:0.72rem!important;}
-  #je-bible-drop .je-inline-search{min-width:60px;padding:5px 8px;}
-  #je-bible-drop .je-inline-search input{font-size:0.75rem;}
+  #je-bible-drop-txt{gap:4px;flex-wrap:nowrap;overflow:hidden;}
+  #je-new-item-btn{padding:5px 10px!important;font-size:0.72rem!important;flex-shrink:0;}
+  #je-bible-dd-btn{padding:5px 10px!important;font-size:0.72rem!important;flex-shrink:0;}
+  #je-bible-drop .je-inline-search{flex:1;min-width:0;width:0;padding:5px 8px;}
+  #je-bible-drop .je-inline-search input{font-size:0.75rem;min-width:0;width:0;}
   #je-bible-dd-menu{min-width:170px;}
 }
 /* 목록 레이아웃 */
@@ -3357,7 +3357,7 @@ document.addEventListener("DOMContentLoaded", function(){
         <div id="je-sr-list-body"></div>
       </div>
       <!-- 편집 뷰 -->
-      <div id="je-sr-edit-view" style="display:none;flex-direction:column;height:100%;overflow:hidden;">
+      <div id="je-sr-edit-view" style="display:none;flex-direction:column;height:100%;">
         <div id="je-sr-hdr">
           <div>
             <div id="je-sr-hdr-ref">새 설교</div>
@@ -3977,6 +3977,9 @@ function _srOpenEdit(idx){
   if(mf) mf.classList.remove('open');
   if(mt) mt.classList.remove('open');
 
+  /* 성경본문 패널 */
+  _srVersePreviewRender(item);
+
   /* 수정/저장 버튼 상태 */
   var etb = document.getElementById('je-sr-edit-toggle');
   var sb = document.getElementById('je-sr-save-btn');
@@ -3984,9 +3987,6 @@ function _srOpenEdit(idx){
   if(sb) sb.style.display='none';
 
   _showView('edit');
-
-  /* 성경본문 패널 *\/
-  _srVersePreviewRender(item);
   /* 툴바 숨김 (읽기모드) */
   var tb = document.getElementById('je-sr-toolbar');
   if(tb) tb.style.display='none';
