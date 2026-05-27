@@ -87,7 +87,7 @@
 #je-ce .je-size-대{font-size:1.35em;font-weight:700;}
 #je-verse-panel{background:#f3efe6;border-bottom:1px solid #e8e3d8;flex-shrink:0;padding:9px 16px;display:none;}
 #je-verse-panel.je-vp-show{display:block;}
-#je-verse-text{font-size:0.85rem;line-height:1.5;color:#3a3730;word-break:keep-all;}
+#je-verse-text{font-size:0.85rem;line-height:1.4;color:#3a3730;word-break:keep-all;}
 #je-verse-src{font-size:0.68rem;color:#9a9288;margin-top:3px;}
 /* 메타 필드 */
 #je-meta-panel{background:#fff;border-bottom:1px solid #ece8e0;flex-shrink:0;padding:0;overflow:hidden;max-width:100%;}
@@ -1059,7 +1059,7 @@ function _jeRenderVt(){
   /* 표제어 렌더 — 볼드, 빨간 계열, 본문 위 */
   if(headings.length){
     var hd=document.createElement('div');
-    hd.style.cssText='font-weight:700;color:#a84040;font-size:0.95em;line-height:1.5;margin-bottom:6px;word-break:keep-all;';
+    hd.style.cssText='font-weight:700;color:#a84040;font-size:0.95em;line-height:1.4;margin-bottom:6px;word-break:keep-all;';
     hd.textContent=headings.join(' ');
     vt.appendChild(hd);
   }
@@ -1070,7 +1070,7 @@ function _jeRenderVt(){
     if(!txt) return;
     if(_jeVerseWrap){
       var div=document.createElement('div');
-      div.style.cssText='display:flex;gap:0.3em;align-items:baseline;margin-bottom:0.4em';
+      div.style.cssText='display:flex;gap:0.3em;align-items:baseline;margin-bottom:0.25em';
       if(multi){var sup=document.createElement('sup');sup.textContent=d.vs;sup.style.cssText='font-size:0.65em;color:#9a9288;vertical-align:super;flex-shrink:0;margin-right:2px';div.appendChild(sup);}
       var sp=document.createElement('span');sp.textContent=txt;div.appendChild(sp);
       vt.appendChild(div);
@@ -3162,7 +3162,7 @@ _jeInitBibleDrop();
     '.je-rp-fz{border:none;background:none;color:#9a9288;cursor:pointer;padding:2px 4px;border-radius:5px;transition:background .12s,color .12s;flex-shrink:0;line-height:1;font-family:inherit;}',
     '.je-rp-fz:hover{background:#e8f2ee;color:#2d4a3e;}',
     /* 본문 */
-    '.je-rp-body{padding:11px 14px 13px;font-size:.88rem;line-height:1.75;color:#2a2520;word-break:keep-all;flex:1;overflow-y:auto;min-height:60px;}',
+    '.je-rp-body{padding:11px 14px 13px;font-size:.88rem;line-height:1.4;color:#2a2520;word-break:keep-all;flex:1;overflow-y:auto;min-height:60px;}',
     '.je-rp-body::-webkit-scrollbar{width:3px;}',
     '.je-rp-body::-webkit-scrollbar-thumb{background:#c8c0b4;border-radius:2px;}',
     /* 절 번호: 위첨자 스타일 */
