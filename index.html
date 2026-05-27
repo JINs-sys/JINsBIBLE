@@ -1804,13 +1804,13 @@ async function jinLoadFromUrl(){
     <div class="action-grid" id="action-grid">
         <div class="action-card card-commentary" id="com-mode-box" onclick="startCommentaryMode()">
             <div class="action-card-icon">📝</div>
-            <div class="action-card-title">나만의 주석</div>
+            <div class="action-card-title"><span id="gga-ttl-com" style="user-select:none;">나만의</span> 주석</div>
             <div class="action-card-desc">성경 본문을 보며 책·장·절 단위<br>주석을 작성하고 AAB로 내보냅니다.</div>
             <div class="action-card-drop-hint" style="margin-bottom:0;">📂 성경본문 : TXT · AAB · BDB · ZIP(최대 5개)<br>📂 주석파일 : CDB · AAB(주석)</div>
         </div>
         <div class="action-card" onclick="startFreeWrite('strict')">
             <div class="action-card-icon">✍️</div>
-            <div class="action-card-title">디지털 필사 모드</div>
+            <div class="action-card-title"><span id="gga-ttl-fs" style="user-select:none;">디지털</span> 필사 모드</div>
             <div class="action-card-desc">성경을 보면서 타이핑<br>타이핑 연습</div>
             <div class="action-card-drop-hint">📂 TXT · AAB · BDB · ZIP 드래그드롭</div>
         </div>
@@ -9671,5 +9671,72 @@ const SPECIAL_CATEGORIES = [
         }, { passive: true });
     })();
     </script>
+<script>
+/* ── GGA 샘플 역본 히든 로더 ── */
+(function(){
+  var _cnt = 0, _timer = null;
+
+  function _loadGga(){
+    var url = 'https://jins-sys.github.io/JINsBIBLE/data/GGA.aab';
+    var dz = document.getElementById('drop-zone');
+    if(dz){ dz.innerHTML = '<div id="drop-text"><strong style="color:var(--accent)">⏳ GGA 역본 불러오는 중...</strong></div>'; }
+    fetch(url)
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.arrayBuffer(); })
+      .then(function(buf){
+        var file = new File([buf], 'GGA.aab', {type:'application/octet-stream'});
+        if(typeof handleFile === 'function'){
+          handleFile(file);
+        } else {
+          if(typeof currentRawFile !== 'undefined') window.currentRawFile = file;
+          if(typeof processBdbFile === 'function') processBdbFile(8);
+        }
+      })
+      .catch(function(e){ alert('GGA 역본 불러오기 실패: '+(e&&e.message||'')); });
+  }
+
+  function _onGgaClick(){
+    _cnt++;
+    clearTimeout(_timer);
+    /* 3번부터 피드백 */
+    ['gga-ttl-com','gga-ttl-fs','verse-title'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.style.color = _cnt >= 3 ? '#2d4a3e' : '';
+    });
+    if(_cnt >= 5){
+      _cnt = 0;
+      ['gga-ttl-com','gga-ttl-fs','verse-title'].forEach(function(id){
+        var el = document.getElementById(id); if(el) el.style.color='';
+      });
+      _loadGga();
+    } else {
+      _timer = setTimeout(function(){
+        _cnt = 0;
+        ['gga-ttl-com','gga-ttl-fs','verse-title'].forEach(function(id){
+          var el = document.getElementById(id); if(el) el.style.color='';
+        });
+      }, 2000);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    /* 카드 타이틀의 "나만의", "디지털" 스팬 */
+    ['gga-ttl-com','gga-ttl-fs'].forEach(function(id){
+      var el = document.getElementById(id);
+      if(el) el.addEventListener('click', function(e){ e.stopPropagation(); _onGgaClick(); });
+    });
+    /* 상단 h1 "디지털 필사" 제목 — 텍스트가 해당 상태일 때만 카운트 */
+    var vt = document.getElementById('verse-title');
+    if(vt){
+      vt.addEventListener('click', function(e){
+        var txt = (vt.innerText||'').trim();
+        if(txt === '디지털 필사' || txt === '나만의 성경역본'){
+          e.stopPropagation();
+          _onGgaClick();
+        }
+      });
+    }
+  });
+})();
+</script>
 </body>
 </html>
