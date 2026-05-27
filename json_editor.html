@@ -76,11 +76,11 @@
 #je-ce u{text-decoration:underline;}
 #je-ce s{text-decoration:line-through;}
 #je-ce .je-j{color:#d0342c;font-weight:600;}
-#je-ce .je-quote{display:block;border-left:3px solid #b0c8be;margin:6px 0;padding:6px 12px;background:#f5f2ec;border-radius:0 6px 6px 0;font-style:italic;color:#4a4740;}
+#je-ce .je-quote{display:inline-block;width:100%;box-sizing:border-box;border-left:3px solid #b0c8be;margin:6px 0;padding:6px 12px;background:#f5f2ec;border-radius:0 6px 6px 0;font-style:italic;color:#4a4740;vertical-align:top;}
 #je-ce .je-hr{display:block;border:none;border-top:1.5px solid #d8d2c8;margin:10px 0;height:0;}
 #je-ce .je-bullet{display:block;padding-left:1.4em;text-indent:-1.1em;margin:3px 0;}
 /* block 요소 바로 뒤 <br>은 화면에서만 숨김 (데이터는 보존) */
-#je-ce .je-quote+br,#je-ce .je-hr+br,#je-ce .je-bullet+br{display:none;}
+#je-ce .je-hr+br,#je-ce .je-bullet+br{display:none;}
 #je-ce .je-bullet::before{content:"• ";color:#2d4a3e;font-weight:700;}
 #je-ce .je-size-소{font-size:0.78em;}
 #je-ce .je-size-중{font-size:1em;}
@@ -1678,30 +1678,18 @@ function jeFileChosen(inp){
   r.onload=function(e){
     try{
       var parsed=JSON.parse(e.target.result);
-      /* 카테고리 단일 파일인지 전체 백업인지 판별 */
       var catKeys=['bookmarks','sermons','highlights'];
       var parsedKeys=Object.keys(parsed);
-      var isSingle=parsedKeys.length===1 && catKeys.indexOf(parsedKeys[0])>=0;
+      var isSingle=parsedKeys.length===1&&catKeys.indexOf(parsedKeys[0])>=0;
       if(isSingle){
-        /* 카테고리 파일: 기존 _data에 해당 카테고리만 병합 */
         var cat=parsedKeys[0];
         if(!_data) _data={bookmarks:[],sermons:[],highlights:[]};
-        var incoming=parsed[cat]||[];
-        var existing=_data[cat]||[];
-        /* UUID 기준 중복 제거 후 병합 */
-        var existUuids={};
-        existing.forEach(function(item){ if(item.uuid) existUuids[item.uuid]=true; });
-        var added=0;
-        incoming.forEach(function(item){
-          if(item.uuid && existUuids[item.uuid]) return; /* 중복 스킵 */
-          existing.push(item); added++;
-        });
-        _data[cat]=existing;
-        _anyDirty=false; _search=''; _jeTab=cat; _renderList();
-        var catLabel={bookmarks:'메모',sermons:'설교',highlights:'형광펜'};
-        _toast((catLabel[cat]||cat)+' '+added+'개 불러옴 (중복 제외)');
+        var incoming=parsed[cat]||[], existing=_data[cat]||[];
+        var existUuids={}; existing.forEach(function(i){if(i.uuid)existUuids[i.uuid]=true;});
+        var added=0; incoming.forEach(function(i){if(i.uuid&&existUuids[i.uuid])return;existing.push(i);added++;});
+        _data[cat]=existing; _anyDirty=false; _search=''; _jeTab=cat; _renderList();
+        _toast(({bookmarks:'메모',sermons:'설교',highlights:'형광펜'}[cat]||cat)+' '+added+'개 불러옴');
       } else {
-        /* 전체 백업 파일: 기존 방식 */
         _data=parsed; _anyDirty=false; _search=''; _renderList();
       }
     }catch(err){alert('JSON \ud30c\uc2f1 \uc624\ub958');}
@@ -1724,22 +1712,21 @@ function _renderList(){
   if(!_data){
     _$('je-drop-ov').style.display='flex';
     _$('je-list-body').style.display='none';
-    /* je-search-wrap hidden (search now inline) */
-    var _expW0=_$('je-exp-btn'); if(_expW0) _expW0.style.display='none';    var fsr0=document.getElementById('je-filter-sort-row');if(fsr0)fsr0.classList.remove('vis');
+    var _eb0=_$('je-exp-btn'); if(_eb0) _eb0.style.display='none';
+    var _bk0=_$('je-backup-btn'); if(_bk0) _bk0.style.display='none';
+    var fsr0=document.getElementById('je-filter-sort-row');if(fsr0)fsr0.classList.remove('vis');
     _$('je-list-sub').innerHTML='<span id="je-hdr-version" style="font-size:0.6rem;color:#b8b2aa;letter-spacing:0.06em;">v1.5.1</span>';
     _renderTabs();
     return;
   }
   _$('je-drop-ov').style.display='none';
   _$('je-list-body').style.display='block';
-  /* je-search-wrap shown (search now inline) */
   _jeUpdExpBtn();
   _renderTabs();
 
   var bms=_data.bookmarks||[], srs=_data.sermons||[], hls=_data.highlights||[];
-  function _subCnt(cat, label, cnt){
-    var isActive=(_jeTab===cat);
-    if(isActive) return '<span style="color:#d0342c;">'+label+' <b>'+cnt+'</b></span>';
+  function _subCnt(cat,label,cnt){
+    if(_jeTab===cat) return '<span style="color:#d0342c;">'+label+' <b>'+cnt+'</b></span>';
     return label+' '+cnt;
   }
   var total=_subCnt('bookmarks','메모',bms.length)+' / '+_subCnt('sermons','설교',srs.length)+' / '+_subCnt('highlights','형광펜',hls.length);
@@ -1753,7 +1740,6 @@ function _renderTabs(){
   var wrap=_$('je-tab-bar'); if(!wrap) return;
   var tabs=['bookmarks','sermons','highlights'];
   var labels={bookmarks:'📌 메모', sermons:'✝️ 설교', highlights:'🖊 형광펜'};
-  var expLabels={bookmarks:'📌 메모 저장', sermons:'✝️ 설교 저장', highlights:'🖊 형광펜 저장'};
   wrap.innerHTML='';
   for(var t=0;t<tabs.length;t++){
     (function(tab){
@@ -1765,7 +1751,6 @@ function _renderTabs(){
       wrap.appendChild(btn);
     })(tabs[t]);
   }
-  /* 저장 버튼 라벨/표시 갱신 */
   _jeUpdExpBtn();
 }
 
@@ -1811,6 +1796,9 @@ function _htmlToTags(html){
   s=s.replace(/<br\s*\/?>/gi,'\n')
      .replace(/<\/div>/gi,'\n').replace(/<div[^>]*>/gi,'')
      .replace(/<\/p>/gi,'\n').replace(/<p[^>]*>/gi,'');
+  /* je-rp-link 스팬 먼저 제거 — 구절 팝업 기능이 DOM에 삽입한 스팬으로
+     중첩 </span>이 생겨 j/quote 정규식이 오작동하는 것을 방지 */
+  s=s.replace(/<span class="je-rp-link">([\s\S]*?)<\/span>/gi,'$1');
   /* 보존할 서식 태그 → 임시 플레이스홀더 (HTML 태그 제거 전에) */
   var P='\x01';
   s=s.replace(/<strong>([\s\S]*?)<\/strong>/gi,P+'b'+P+'$1'+P+'/b'+P)
@@ -1826,14 +1814,13 @@ function _htmlToTags(html){
      .replace(/<font color="([^"]*)">([ \s\S]*?)<\/font>/gi,P+'color=$1'+P+'$2'+P+'/color'+P)
      /* bg 역변환 */
      .replace(/<span style="background:([^";]*)[^"]*">([\s\S]*?)<\/span>/gi,P+'bg=$1'+P+'$2'+P+'/bg'+P)
+     /* bullet/size: quote보다 먼저 처리 — 중첩 </span> 오류 방지 */
+     .replace(/<span class="je-bullet">([\s\S]*?)<\/span>/gi,P+'bullet'+P+'$1'+P+'/bullet'+P)
+     .replace(/<span class="je-size-(소|중|대)">([\s\S]*?)<\/span>/gi,function(_,sz,t){return P+'size='+sz+P+t+P+'/size'+P;})
      /* quote 역변환 */
      .replace(/<span class="je-quote">([\s\S]*?)<\/span>/gi,P+'quote'+P+'$1'+P+'/quote'+P)
      /* hr 역변환 */
      .replace(/<span class="je-hr"><\/span>/gi,P+'hr'+P);
-  /* bullet 역변환 */
-  s=s.replace(/<span class="je-bullet">([\s\S]*?)<\/span>/gi,P+'bullet'+P+'$1'+P+'/bullet'+P);
-  /* size 역변환 */
-  s=s.replace(/<span class="je-size-(소|중|대)">([\s\S]*?)<\/span>/gi,function(_,sz,t){return P+'size='+sz+P+t+P+'/size'+P;});
   /* 나머지 HTML 태그 전부 제거 */
   s=s.replace(/<[^>]*>/g,'');
   /* 플레이스홀더 → 실제 태그 */
@@ -2065,6 +2052,10 @@ window.jeNavListItem=jeNavListItem;
 function jeStartEdit(){
   var ce=_$('je-ce'); if(!ce) return;
   ce.setAttribute('contenteditable','true');
+  /* contenteditable=true 이후에 innerHTML 재설정
+     → _activate가 편집 모드 체크 후 실행 안 함 → je-rp-link 삽입 차단
+     → 읽기 모드에서 생긴 je-rp-link 스팬도 깨끗이 제거 */
+  ce.innerHTML=_tagsToHtml(_memoText);
   var eb=_$('je-edit-btn'), sb=_$('je-save-btn'), tb2=_$('je-tempsave-btn');
   if(eb) eb.style.display='none';
   if(sb) sb.style.display='';
@@ -2130,8 +2121,9 @@ function jeNewItem(){
 }
 function jeSave(){
   if(_editIdx===null) return;
-  /* 저장 시점에 ce 내용 직접 읽기 */
-  var ce0=_$('je-ce'); if(ce0) _memoText=_htmlToTags(ce0.innerHTML);
+  /* _memoText는 jeCeInput()·compositionend로 실시간 동기화
+     ce.innerHTML 재읽기 제거 — 브라우저 contenteditable DOM 정규화로
+     인용구 내 닫힘 문자가 span 밖으로 밀려나는 현상 방지 */
   var items=_data[_jeTab]||[];
   var item=items[_editIdx]; if(!item) return;
   var textField=(_jeTab==='sermons')?'content':'memo';
@@ -2152,7 +2144,8 @@ function jeSave(){
   _a.href=_url; _a.download=(_catFileNames[_jeTab]||'bible_memo')+'_'+_ds+'_'+_ts+'.json';
   document.body.appendChild(_a); _a.click(); document.body.removeChild(_a);
   URL.revokeObjectURL(_url);
-  _toast('저장됨 ✓ ('+_memoText.length+'자) — 파일 다운로드 완료');
+  var _cntLabel={bookmarks:'메모',sermons:'설교',highlights:'형광펜'};
+  _toast((_cntLabel[_jeTab]||'저장')+'됨 ✓ ('+_memoText.length+'자)');
   /* 저장 후: 터치 기기만 읽기 모드로 복귀, PC는 편집 유지 */
   var ce2=_$('je-ce'); var eb2=_$('je-edit-btn'), sb2=_$('je-save-btn'), tb3=_$('je-tempsave-btn');
   if(_jeIsTouchDevice()){
@@ -2232,7 +2225,7 @@ window.jeGoalReset=function(){
 };
 function jeTempSave(){
   if(_editIdx===null) return;
-  var ce0=_$('je-ce'); if(ce0) _memoText=_htmlToTags(ce0.innerHTML);
+  /* ce.innerHTML 재읽기 제거 — jeSave()와 동일한 이유 */
   var items=_data[_jeTab]||[];
   var item=items[_editIdx]; if(!item) return;
   var textField=(_jeTab==='sermons')?'content':'memo';
@@ -2410,11 +2403,11 @@ function jeMetaSave(){
     var listSub=_$('je-list-sub');
     if(listSub){
       var bms=_data.bookmarks||[], srs=_data.sermons||[], hls=_data.highlights||[];
-      function _sc2(cat,label,cnt){var a=(_jeTab===cat);if(a)return '<span style="color:#d0342c;">'+label+' <b>'+cnt+'</b></span>';return label+' '+cnt;}
+      function _sc2(cat,label,cnt){if(_jeTab===cat)return '<span style="color:#d0342c;">'+label+' <b>'+cnt+'</b></span>';return label+' '+cnt;}
       listSub.innerHTML=_sc2('bookmarks','메모',bms.length)+' / '+_sc2('sermons','설교',srs.length)+' / '+_sc2('highlights','형광펜',hls.length)+(_anyDirty?' <span style="color:#b8860b;font-weight:600">· 수정됨</span>':'');
     }
-    var expBtn=_$('je-exp-btn'); if(expBtn) expBtn.style.display=_anyDirty?'':'none';
-    var bkBtn=_$('je-backup-btn'); if(bkBtn) bkBtn.style.display=_anyDirty?'':'none';  }
+    _jeUpdExpBtn();
+  }
 }
 /* ── 새 항목 생성 시: 책/장/절 입력할 때마다 실시간 본문 미리보기 ── */
 function _jeNewItemVersePreview(){
@@ -2916,9 +2909,9 @@ function _jeUpdExpBtn(){
   var eb=_$('je-exp-btn');
   if(eb){ eb.textContent=expLabels[_jeTab]||'저장'; eb.style.display=_anyDirty?'':'none'; }
   var bk=_$('je-backup-btn');
-  if(bk) bk.style.display=_data?'':'none'; /* 데이터 로드 시 항상 표시 */
+  if(bk) bk.style.display=_data?'':'none';
 }
-/* 내보내기 — 현재 탭 카테고리만 저장 */
+/* 카테고리별 저장 (목록 화면 버튼) */
 function jeExport(){
   if(!_data) return;
   var catKey=_jeTab||'bookmarks';
@@ -2929,12 +2922,12 @@ function jeExport(){
   var _nd=new Date();
   var _ds=_nd.getFullYear()+String(_nd.getMonth()+1).padStart(2,'0')+String(_nd.getDate()).padStart(2,'0');
   var _ts=String(_nd.getHours()).padStart(2,'0')+String(_nd.getMinutes()).padStart(2,'0')+String(_nd.getSeconds()).padStart(2,'0');
-  a.href=u; a.download=(fileNames[catKey]||'bible_backup')+'_'+_ds+'_'+_ts+'.json';
+  a.href=u; a.download=(fileNames[catKey]||'bible_memo')+'_'+_ds+'_'+_ts+'.json';
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
   var cntLabel={bookmarks:'메모',sermons:'설교',highlights:'형광펜'};
   _toast((cntLabel[catKey]||catKey)+' '+((_data[catKey]||[]).length)+'개 저장됨 ✓');
 }
-/* 전체 백업 */
+/* 전체 백업 (💾 버튼) */
 function jeExportAll(){
   if(!_data) return;
   var b=new Blob([JSON.stringify(_data,null,2)],{type:'application/json'});
@@ -2965,26 +2958,7 @@ if(dbox){
     var f=e.dataTransfer.files[0];
     if(!f||f.name.slice(-5)!=='.json') return;
     var r=new FileReader();
-    r.onload=function(ev){
-      try{
-        var parsed=JSON.parse(ev.target.result);
-        var catKeys=['bookmarks','sermons','highlights'];
-        var parsedKeys=Object.keys(parsed);
-        var isSingle=parsedKeys.length===1 && catKeys.indexOf(parsedKeys[0])>=0;
-        if(isSingle){
-          var cat=parsedKeys[0];
-          if(!_data) _data={bookmarks:[],sermons:[],highlights:[]};
-          var incoming=parsed[cat]||[], existing=_data[cat]||[];
-          var existUuids={}; existing.forEach(function(item){if(item.uuid)existUuids[item.uuid]=true;});
-          var added=0; incoming.forEach(function(item){if(item.uuid&&existUuids[item.uuid])return;existing.push(item);added++;});
-          _data[cat]=existing; _anyDirty=false; _search=''; _jeTab=cat; _renderList();
-          var catLabel={bookmarks:'메모',sermons:'설교',highlights:'형광펜'};
-          _toast((catLabel[cat]||cat)+' '+added+'개 불러옴 (중복 제외)');
-        } else {
-          _data=parsed; _anyDirty=false; _search=''; _renderList();
-        }
-      }catch(err){alert('JSON \ud30c\uc2f1 \uc624\ub958');}
-    };
+    r.onload=function(ev){try{_data=JSON.parse(ev.target.result);_anyDirty=false;_search='';_renderList();}catch(err){alert('JSON \ud30c\uc2f1 \uc624\ub958');}};
     r.readAsText(f,'utf-8');
   };
 }
@@ -3050,7 +3024,7 @@ window.jeCloseSortMenu=jeCloseSortMenu;
 window.jeShowPin=jeShowPin; window.jeHideAll=jeHideAll;
 window.jePickFile=jePickFile; window.jeFileChosen=jeFileChosen;
 window.jeOnSearch=jeOnSearch; window.jeClearSearch=jeClearSearch;
-window.jeExport=jeExport; window.jeExportAll=jeExportAll; window.jeOpenEdit=jeOpenEdit; window.jeTempSave=jeTempSave;
+window.jeExport=jeExport; window.jeExportAll=jeExportAll; window._jeUpdExpBtn=_jeUpdExpBtn; window.jeOpenEdit=jeOpenEdit; window.jeTempSave=jeTempSave;
 window.jeStartEdit=jeStartEdit;
 
 /* 한글 IME 조합 완료 시 _memoText 동기화 */
@@ -3899,7 +3873,10 @@ _jeInitBibleDrop();
   /* ── 읽기 모드 진입 시 활성화 ── */
   function _activate(){
     var ce = document.getElementById('je-ce');
-    if(ce) _walkText(ce);
+    if(!ce) return;
+    /* 편집 모드에서는 실행 안 함 — DOM 수정으로 인한 인용구 구조 손상 방지 */
+    if(ce.getAttribute('contenteditable') === 'true') return;
+    _walkText(ce);
   }
   var _activateTimer = null;
 
