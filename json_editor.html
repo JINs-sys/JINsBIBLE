@@ -62,7 +62,7 @@
 .je-btn-tempsave:active{opacity:.75;transform:scale(.95)}
 /* 에디터 본문 */
 #je-ta{display:none}
-#je-ce{flex:1;padding:16px;padding-bottom:90px;border:none;outline:none;font-size:1rem;line-height:1.8;color:#1a1815;background:#fff;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;-webkit-overflow-scrolling:touch;overflow-y:auto;box-sizing:border-box;white-space:pre-wrap;word-break:break-all;}
+#je-ce{flex:1;padding:16px;padding-bottom:90px;border:none;outline:none;font-size:var(--je-ce-fs,18px);line-height:var(--je-ce-lh,1.4);color:#1a1815;background:#fff;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;-webkit-overflow-scrolling:touch;overflow-y:auto;box-sizing:border-box;white-space:pre-wrap;word-break:break-all;}
 #je-ce::-webkit-scrollbar{width:4px;}
 #je-ce::-webkit-scrollbar-track{background:transparent;}
 #je-ce::-webkit-scrollbar-thumb{background:#d4cec6;border-radius:2px;}
@@ -477,6 +477,15 @@
 <div id="je-meta-panel">
   <div id="je-meta-toggle" onclick="jeToggleMeta()">
     <span id="je-meta-toggle-label">📋 구절 정보 수정</span>
+    <div style="display:flex;align-items:center;gap:6px;margin-left:auto;margin-right:8px;" onclick="event.stopPropagation()">
+      <div style="display:flex;align-items:center;gap:1px;">
+        <button onclick="jeCeFontDown()" title="글자 작게" style="border:none;background:transparent;border-radius:5px;padding:2px 5px;font-size:0.72rem;color:#a09890;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">A-</button><span id="je-ce-fs" style="font-size:0.66rem;color:#b8b2aa;min-width:20px;text-align:center;font-variant-numeric:tabular-nums;">18</span><button onclick="jeCeFontUp()" title="글자 크게" style="border:none;background:transparent;border-radius:5px;padding:2px 5px;font-size:0.72rem;color:#a09890;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">A+</button>
+      </div>
+      <div style="width:1px;height:12px;background:#ddd8ce;flex-shrink:0;"></div>
+      <div style="display:flex;align-items:center;gap:1px;">
+        <button onclick="jeCeLineDown()" title="행간 줄이기" style="border:none;background:transparent;border-radius:5px;padding:2px 5px;font-size:0.72rem;color:#a09890;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">줄↑</button><span id="je-ce-lh" style="font-size:0.66rem;color:#b8b2aa;min-width:22px;text-align:center;font-variant-numeric:tabular-nums;">1.4</span><button onclick="jeCeLineUp()" title="행간 늘리기" style="border:none;background:transparent;border-radius:5px;padding:2px 5px;font-size:0.72rem;color:#a09890;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">줄↓</button>
+      </div>
+    </div>
     <span id="je-meta-toggle-arrow">▼</span>
   </div>
   <div id="je-meta-fields">
@@ -626,17 +635,13 @@
   <div class="je-tb-left">
     <button onclick="jeCeUndo()" title="되돌리기" style="font-size:1rem;padding:2px 5px;">↺</button><button onclick="jeCeRedo()" title="다시하기" style="font-size:1rem;padding:2px 5px;">↻</button><div class="je-tb-div"></div><button onclick="jeFmt('b')" title="굵게"><b>B</b></button><button onclick="jeFmt('i')" title="기울임" class="je-tb-i">I</button><button onclick="jeFmt('u')" title="밑줄" class="je-tb-u">U</button><button onclick="jeFmt('s')" title="취소선" class="je-tb-s">S</button><div class="je-tb-div"></div><button onclick="jePickColor(this)" title="글자 색상" id="je-color-btn">A<span id="je-color-dot" style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#E24B4A;margin-left:2px;vertical-align:middle;"></span></button><button onclick="jePickBgColor(this)" title="배경색" id="je-bg-btn" style="font-size:0.72rem;font-weight:700;">BG<span id="je-bg-dot" style="display:inline-block;width:5px;height:5px;border-radius:50%;background:#F5C400;margin-left:2px;vertical-align:middle;"></span></button><div class="je-tb-div"></div><button onclick="jeFmt('quote')" title="인용구" style="font-size:0.72rem;">❝</button><button onclick="jeFmt('bullet')" title="불릿 항목" style="display:inline-flex;align-items:center;justify-content:center;"><svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="2" cy="4" r="1.5" fill="currentColor"/><line x1="5" y1="4" x2="15" y2="4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="2" cy="8" r="1.5" fill="currentColor"/><line x1="5" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="2" cy="12" r="1.5" fill="currentColor"/><line x1="5" y1="12" x2="15" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button><button onclick="jeFmt('hr')" title="구분선 삽입" style="font-size:0.72rem;">―</button><div class="je-tb-div"></div><button onclick="jeClearFmt()" title="서식 제거" style="font-size:0.78rem;font-weight:700;color:#888;">T✕</button>
   </div>
-  <div class="je-tb-view-ctrl" title="보기 전용 — 본문 글자 크기 조절">
-    <button onclick="jeCeFontDown()" title="본문 보기 글자 작게" style="font-size:0.72rem;">A-</button><span id="je-ce-fs" style="font-size:0.68rem;min-width:18px;text-align:center;padding:0 1px;">16</span><button onclick="jeCeFontUp()" title="본문 보기 글자 크게" style="font-size:0.72rem;">A+</button>
-  </div>
+
 </div>
 <div class="je-tb-row">
   <div class="je-tb-left">
     <button onclick="jeFmt('size-소')" title="작게" style="font-size:0.68rem;font-weight:700;">소</button><button onclick="jeFmt('size-중')" title="기본" style="font-size:0.78rem;font-weight:700;">중</button><button onclick="jeFmt('size-대')" title="크게" style="font-size:0.92rem;font-weight:700;">대</button><div class="je-tb-div"></div><button onclick="jeTrimDupLines()" title="연속된 빈 줄을 1줄로 압축" style="font-size:0.72rem;">두줄</button><button onclick="jeTrimAllBlankLines()" title="모든 빈 줄 삭제" style="font-size:0.72rem;">빈줄</button>
   </div>
-  <div class="je-tb-view-ctrl" title="보기 전용 — 본문 행간 조절">
-    <button onclick="jeCeLineDown()" title="본문 보기 행간 줄이기" style="font-size:0.72rem;">줄↑</button><span id="je-ce-lh" style="font-size:0.68rem;min-width:22px;text-align:center;padding:0 1px;">1.8</span><button onclick="jeCeLineUp()" title="본문 보기 행간 늘리기" style="font-size:0.72rem;">줄↓</button>
-  </div>
+
 </div>
 </div><textarea id="je-ta" placeholder="메모를 입력하세요..." oninput="jeOnMemoInput(this.value)" style="display:none"></textarea><div id="je-ce" contenteditable="false" spellcheck="false" data-placeholder="메모를 입력하세요..." oninput="jeCeInput()"></div><div id="je-resize-bar" title="드래그하여 창 높이 조절"></div></div></div>
 
@@ -2746,7 +2751,7 @@ function jeCeRedo(){
 function _moveCursorToEnd(el){
   try{var r=document.createRange(),s=window.getSelection();r.selectNodeContents(el);r.collapse(false);s.removeAllRanges();s.addRange(r);}catch(e){}
 }
-var _jeCeLineHeight=1.8;
+var _jeCeLineHeight=1.4;
 function jeCeLineUp(){
   if(_jeCeLineHeight>=3.0) return;
   _jeCeLineHeight=Math.round((_jeCeLineHeight+0.1)*10)/10;
@@ -2758,22 +2763,30 @@ function jeCeLineDown(){
   _jeApplyCeLh();
 }
 function _jeApplyCeLh(){
-  var ce=_$('je-ce'); if(ce) ce.style.lineHeight=_jeCeLineHeight;
+  var ce=_$('je-ce');
+  if(ce) ce.style.lineHeight=_jeCeLineHeight+'';
+  /* je-edit-ov display 토글: 목록 나갔다 오는 것과 동일한 렌더 강제 */
+  var ov=document.getElementById('je-edit-ov');
+  if(ov && ov.style.display!=='none'){
+    ov.style.display='none';
+    void ov.offsetHeight;
+    ov.style.display='flex';
+  }
   var lbl=_$('je-ce-lh'); if(lbl) lbl.textContent=_jeCeLineHeight.toFixed(1);
 }
-var _jeCeFontSize=16;
+var _jeCeFontSize=18;
 function jeCeFontUp(){
-  if(_jeCeFontSize>=28) return;
-  _jeCeFontSize+=2;
+  if(_jeCeFontSize>=30) return;
+  _jeCeFontSize+=1;
   _jeApplyCeFs();
 }
 function jeCeFontDown(){
   if(_jeCeFontSize<=10) return;
-  _jeCeFontSize-=2;
+  _jeCeFontSize-=1;
   _jeApplyCeFs();
 }
 function _jeApplyCeFs(){
-  var ce=_$('je-ce'); if(ce) ce.style.fontSize=_jeCeFontSize+'px';
+  document.documentElement.style.setProperty('--je-ce-fs', _jeCeFontSize+'px');
   var lbl=_$('je-ce-fs'); if(lbl) lbl.textContent=_jeCeFontSize;
 }
 var _jeColor='#E24B4A';
