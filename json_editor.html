@@ -2052,9 +2052,7 @@ window.jeNavListItem=jeNavListItem;
 function jeStartEdit(){
   var ce=_$('je-ce'); if(!ce) return;
   ce.setAttribute('contenteditable','true');
-  /* contenteditable=true 이후에 innerHTML 재설정
-     → _activate가 편집 모드 체크 후 실행 안 함 → je-rp-link 삽입 차단
-     → 읽기 모드에서 생긴 je-rp-link 스팬도 깨끗이 제거 */
+  /* je-rp-link 스팬이 남아있을 수 있으므로 _tagsToHtml(_memoText)로 깨끗하게 재설정 */
   ce.innerHTML=_tagsToHtml(_memoText);
   var eb=_$('je-edit-btn'), sb=_$('je-save-btn'), tb2=_$('je-tempsave-btn');
   if(eb) eb.style.display='none';
@@ -2068,12 +2066,21 @@ function jeStartEdit(){
     range.selectNodeContents(ce); range.collapse(true);
     sel.removeAllRanges(); sel.addRange(range);
   },50);
-  /* 편집 모드에서도 구절 링크 활성화 */
-  if(typeof window._jeRefPopupActivate==='function') setTimeout(window._jeRefPopupActivate, 100);
+  /* 편집 모드에서는 _activate 호출 안 함 — _walkText가 je-quote span 내부 DOM을 조작하면
+     브라우저 contenteditable 정규화로 ) 등 닫힘 문자가 span 밖으로 밀려나
+     저장 후 불러올 때 인용구 뒤에 ) 가 남는 오류 발생 */
 }
 var _jeUndoTimer=null;
 function jeCeInput(){
   var ce=_$('je-ce'); if(!ce) return;
+  /* je-rp-link 스팬을 DOM에서 먼저 unwrap — _walkText가 편집모드에서 삽입한 링크 스팬이
+     브라우저 contenteditable 정규화로 ) 등을 span 밖으로 밀어내기 전에 제거함으로써
+     _memoText에 ) 가 인용구 밖으로 기록되는 오류를 방지 */
+  ce.querySelectorAll('.je-rp-link').forEach(function(sp){
+    var parent=sp.parentNode; if(!parent) return;
+    while(sp.firstChild) parent.insertBefore(sp.firstChild, sp);
+    parent.removeChild(sp);
+  });
   _memoText=_htmlToTags(ce.innerHTML);
   _jeSetCnt(_memoText.length);
   _updSave();
@@ -2251,6 +2258,11 @@ function jeTempSave(){
     if(_editIdx===null) return;
     var ce=_$('je-ce'); if(!ce) return;
     if(ce.getAttribute('contenteditable')==='false') return; /* 읽기모드면 skip */
+    ce.querySelectorAll('.je-rp-link').forEach(function(sp){
+      var parent=sp.parentNode; if(!parent) return;
+      while(sp.firstChild) parent.insertBefore(sp.firstChild, sp);
+      parent.removeChild(sp);
+    });
     var current=_htmlToTags(ce.innerHTML);
     if(current===_origMemo) return; /* 변경 없으면 skip */
     var items=_data[_jeTab]||[];
@@ -3874,8 +3886,6 @@ _jeInitBibleDrop();
   function _activate(){
     var ce = document.getElementById('je-ce');
     if(!ce) return;
-    /* 편집 모드에서는 실행 안 함 — DOM 수정으로 인한 인용구 구조 손상 방지 */
-    if(ce.getAttribute('contenteditable') === 'true') return;
     _walkText(ce);
   }
   var _activateTimer = null;
