@@ -236,12 +236,41 @@
 .je-goal-btn-ok{background:#2d4a3e;color:#fff;}
 .je-goal-btn-reset{background:#f5ece8;color:#b83232;}
 /* ── 지도 팝업 ── */
-#je-map-modal{display:none;position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,.55);align-items:center;justify-content:center;}
-#je-map-modal.show{display:flex;}
-#je-map-box{background:#fff;border-radius:16px;width:min(760px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;}
-#je-map-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 18px 12px;border-bottom:1px solid #ece8e0;flex-shrink:0;gap:10px;}
+#je-map-modal{display:none;position:fixed;inset:0;z-index:12000;pointer-events:none;}
+#je-map-modal.show{display:block;}
+#je-map-box{
+  pointer-events:all;
+  position:fixed;
+  background:#fff;border-radius:12px;
+  width:660px;height:430px;
+  min-width:320px;min-height:240px;
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.18),0 1px 4px rgba(0,0,0,.08);
+  border:1px solid #ddd8ce;
+  font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;
+}
+#je-map-resize{
+  position:absolute;right:0;bottom:0;width:18px;height:18px;
+  cursor:nwse-resize;z-index:20;pointer-events:all;
+  border-radius:0 0 12px 0;
+  background:linear-gradient(135deg,transparent 40%,#c0bab2 40%,#c0bab2 50%,
+    transparent 50%,transparent 63%,#c0bab2 63%,#c0bab2 73%,transparent 73%);
+}
+#je-map-resize:hover{background:linear-gradient(135deg,transparent 40%,#8a8278 40%,#8a8278 50%,
+    transparent 50%,transparent 63%,#8a8278 63%,#8a8278 73%,transparent 73%);}
+#je-map-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:8px 12px 7px;border-bottom:1px solid #ece8e0;flex-shrink:0;
+  background:#faf9f6;border-radius:12px 12px 0 0;
+  cursor:grab;user-select:none;-webkit-user-select:none;gap:8px;}
+#je-map-hdr:active{cursor:grabbing;}
+@media(max-width:600px){
+  #je-map-box{width:100%!important;height:56vh!important;
+    border-radius:16px 16px 0 0;top:auto!important;left:0!important;bottom:0!important;}
+  #je-map-resize{display:none;}
+}
+
 #je-map-hdr-left{display:flex;flex-direction:column;gap:2px;}
-#je-map-title{font-size:.88rem;font-weight:800;color:#1a1815;}
+#je-map-title{font-size:.80rem;font-weight:700;color:#1a1815;}
 #je-map-ref{font-size:.66rem;color:#a8a29a;}
 #je-map-close{border:none;background:transparent;color:#a8a29a;font-size:1.1rem;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;-webkit-tap-highlight-color:transparent;}
 #je-map-close:hover{background:#f0ece4;color:#5a5450;}
@@ -250,8 +279,13 @@
 .je-map-chip{border:1.5px solid #e4ddd0;border-radius:20px;background:#fff;color:#5a5450;font-size:.68rem;font-weight:700;padding:4px 10px;cursor:pointer;white-space:nowrap;font-family:inherit;transition:all .12s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
 .je-map-chip:hover{border-color:#b0c8be;color:#2d4a3e;}
 .je-map-chip.on{background:#2d4a3e;color:#fff;border-color:#2d4a3e;}
-#je-map-img-wrap{flex:1;overflow-y:auto;display:flex;align-items:center;justify-content:center;padding:14px;background:#f7f4ee;min-height:200px;}
-#je-map-img{max-width:100%;max-height:calc(92vh - 160px);border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,.12);display:none;}
+#je-map-img-wrap{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:0;background:#f7f4ee;min-height:200px;position:relative;cursor:grab;user-select:none;}
+#je-map-img-wrap.grabbing{cursor:grabbing;}
+#je-map-img{max-width:100%;max-height:calc(92vh - 160px);border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,.12);display:none;transform-origin:center center;transition:none;pointer-events:none;}
+#je-map-zoom-ctrl{position:absolute;bottom:10px;right:10px;display:flex;flex-direction:column;gap:4px;z-index:10;}
+.je-map-zoom-btn{border:1px solid #d4cfc6;border-radius:6px;background:rgba(255,255,255,.9);color:#5a5450;font-size:1rem;font-weight:700;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;backdrop-filter:blur(4px);}
+.je-map-zoom-btn:hover{background:#fff;}
+#je-map-zoom-reset{font-size:.6rem;font-weight:700;letter-spacing:-.02em;}
 #je-map-loading{font-size:.8rem;color:#a8a29a;}
 #je-map-footer{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-top:1px solid #ece8e0;flex-shrink:0;background:#faf9f6;}
 #je-map-cap{font-size:.7rem;color:#9a9288;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -3704,13 +3738,18 @@ function _jeMapLoadZip(cb){
   if(_jeMapZip){ cb(null, _jeMapZip); return; }
   if(_jeMapLoading){ setTimeout(function(){ _jeMapLoadZip(cb); }, 200); return; }
   _jeMapLoading = true;
-  // JSZip CDN 로드 (미로드 시)
-  function doFetch(){
-    var mapUrl = (function(){
-        var base = location.href.replace(/[^/]*$/, '');
-        return base + 'data/map1.zip';
-      })();
-    // XHR로 로드 (Service Worker fetch 인터셉트 우회)
+
+  function _doLoad(){
+    // 로컬(file://) 또는 온라인 자동 감지
+    var isLocal = location.protocol === 'file:';
+    if(isLocal){
+      // 로컬: 이미 파일이 로드됐으면 사용, 아니면 안내
+      _jeMapLoading = false;
+      cb(new Error('LOCAL_NO_FILE'));
+      return;
+    }
+    // 온라인: XHR로 로드 (Service Worker 우회)
+    var mapUrl = location.href.replace(/[^/]*$/, '') + 'data/map1.zip';
     var xhr = new XMLHttpRequest();
     xhr.open('GET', mapUrl, true);
     xhr.responseType = 'arraybuffer';
@@ -3718,30 +3757,76 @@ function _jeMapLoadZip(cb){
     xhr.onload = function(){
       if(xhr.status >= 200 && xhr.status < 300){
         JSZip.loadAsync(xhr.response).then(function(zip){
-          _jeMapZip = zip;
-          _jeMapLoading = false;
-          cb(null, zip);
+          _jeMapZip = zip; _jeMapLoading = false; cb(null, zip);
         }).catch(function(e){ _jeMapLoading=false; cb(e); });
       } else {
         _jeMapLoading = false;
-        cb(new Error('HTTP '+xhr.status+' ('+mapUrl+')'));
+        cb(new Error('HTTP '+xhr.status));
       }
     };
-    xhr.onerror = function(){
-      _jeMapLoading = false;
-      cb(new Error('네트워크 오류 — ' + mapUrl));
-    };
+    xhr.onerror = function(){ _jeMapLoading=false; cb(new Error('네트워크 오류')); };
     xhr.send();
   }
+
   if(typeof JSZip !== 'undefined'){
-    doFetch();
+    _doLoad();
   } else {
     var s = document.createElement('script');
     s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-    s.onload = doFetch;
+    s.onload = _doLoad;
     s.onerror = function(){ _jeMapLoading=false; cb(new Error('JSZip 로드 실패')); };
     document.head.appendChild(s);
   }
+}
+
+/* 로컬 파일 직접 열기 */
+function jeMapPickFile(){
+  var inp = document.getElementById('je-map-file-inp');
+  if(!inp) return;
+  inp.onchange = function(){
+    var file = inp.files[0]; if(!file) return;
+    var loading = document.getElementById('je-map-loading');
+    if(loading){ loading.textContent='로딩 중...'; loading.style.display=''; }
+    var img = document.getElementById('je-map-img');
+    if(img) img.style.display='none';
+    var reader = new FileReader();
+    reader.onload = function(e){
+      if(typeof JSZip === 'undefined'){
+        var s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        s.onload = function(){ _jeMapParseZip(e.target.result); };
+        document.head.appendChild(s);
+      } else {
+        _jeMapParseZip(e.target.result);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    inp.value = '';
+  };
+  inp.click();
+}
+function _jeMapParseZip(buf){
+  JSZip.loadAsync(buf).then(function(zip){
+    _jeMapZip = zip;
+    _jeMapLoading = false;
+    // 매핑 데이터를 zip에서 읽어 갱신
+    var mf = zip.file('ezra-mapping.txt');
+    if(mf){
+      mf.async('string').then(function(txt){
+        try{ _EZRA_MAPPING = JSON.parse(txt); }catch(e){}
+        _toast('지도 파일 로드됨 ✓');
+        // 현재 열려있는 모달 갱신
+        var bc = _jeMapGetBookChapter();
+        if(bc) jeOpenMapModal();
+        _jeMapUpdBtn();
+      });
+    } else {
+      _toast('지도 파일 로드됨 ✓');
+      var bc = _jeMapGetBookChapter();
+      if(bc) jeOpenMapModal();
+      _jeMapUpdBtn();
+    }
+  }).catch(function(e){ _toast('ZIP 파일 오류: '+e.message); });
 }
 
 /* 이미지 로드 (캐시 우선) */
@@ -3771,7 +3856,14 @@ function _jeMapShowImg(filename){
 
   _jeMapLoadZip(function(err, zip){
     if(err){
-      if(loading) loading.textContent = '지도 파일을 찾을 수 없습니다.\n(data/map1.zip)';
+      if(err.message === 'LOCAL_NO_FILE'){
+        if(loading){
+          loading.innerHTML = '지도 파일을 불러오세요<br><small style="color:#b8b2aa">(우측 상단 📂 파일 열기 → map1.zip)</small>';
+          loading.style.display = '';
+        }
+      } else {
+        if(loading) loading.textContent = '지도 로드 실패: '+err.message;
+      }
       return;
     }
     var webpName = filename.replace(/\.png$/i, '.webp');
@@ -3780,6 +3872,30 @@ function _jeMapShowImg(filename){
     f.async('blob').then(function(blob){
       var url = URL.createObjectURL(blob);
       _jeMapImgCache[filename] = url;
+      img.onload = function(){
+        /* 이미지 비율에 맞게 창 크기 자동 조절 */
+        var box = document.getElementById('je-map-box');
+        if(box && img.naturalWidth && img.naturalHeight){
+          var hdrH = (document.getElementById('je-map-hdr')||{}).offsetHeight||44;
+          var listH = (document.getElementById('je-map-list-bar')||{}).offsetHeight||36;
+          var footH = (document.getElementById('je-map-footer')||{}).offsetHeight||34;
+          var chrome = hdrH + listH + footH + 4;
+          var vw = window.innerWidth, vh = window.innerHeight;
+          var maxW = Math.min(vw - 40, 820);
+          var maxH = vh - 80;
+          var ratio = img.naturalWidth / img.naturalHeight;
+          var targetW = Math.min(img.naturalWidth, maxW);
+          var targetH = targetW / ratio + chrome;
+          if(targetH > maxH){ targetH = maxH; targetW = (maxH - chrome) * ratio; }
+          targetW = Math.max(320, Math.round(targetW));
+          targetH = Math.max(240, Math.round(targetH));
+          box.style.width  = targetW + 'px';
+          box.style.height = targetH + 'px';
+          /* 중앙 재배치 */
+          box.style.left = Math.round((vw - targetW) / 2) + 'px';
+          box.style.top  = Math.round((vh - targetH) / 2) + 'px';
+        }
+      };
       img.src = url;
       img.style.display = 'block';
       if(loading) loading.style.display = 'none';
@@ -3815,8 +3931,11 @@ function jeOpenMapModal(){
   }
 
   // 모달 표시
+  _mapScale=1; _mapTx=0; _mapTy=0;
+  if(typeof _jeMapSetDefaultPos==='function') _jeMapSetDefaultPos();
   var modal = document.getElementById('je-map-modal');
   if(modal) modal.classList.add('show');
+  setTimeout(_jeMapInitInteraction, 50);
 
   // 첫 이미지 로드
   _jeMapShowImg(_jeMapItems[0].file);
@@ -3836,12 +3955,186 @@ function jeMapNav(dir){
 }
 
 /* 배경 클릭 시 닫기 */
-document.addEventListener('click', function(e){
-  var modal = document.getElementById('je-map-modal');
-  if(modal && modal.classList.contains('show') && e.target===modal) jeMapClose();
-});
+/* ── 지도 창 드래그/리사이즈 (je-comm-win 방식 동일) ── */
+(function(){
+  var _dragging=false, _resizing=false;
+  var _dWX=0,_dWY=0,_dOX=0,_dOY=0;
+  var _rOX=0,_rOY=0,_rOW=0,_rOH=0;
+
+  function _mbox(){ return document.getElementById('je-map-box'); }
+
+  function _setDefaultPos(){
+    var w=_mbox(); if(!w) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var bw=Math.min(660,vw-24), bh=Math.min(430,vh-60);
+    w.style.width=bw+'px'; w.style.height=bh+'px';
+    w.style.left=Math.round((vw-bw)/2)+'px';
+    w.style.top =Math.round((vh-bh)/2)+'px';
+  }
+
+  function _onTBDown(e){
+    if(e.button!==0||e.target.closest('button')) return;
+    var w=_mbox(); if(!w) return;
+    var r=w.getBoundingClientRect();
+    w.style.left=r.left+'px'; w.style.top=r.top+'px';
+    _dWX=r.left; _dWY=r.top; _dOX=e.clientX; _dOY=e.clientY;
+    _dragging=true; document.body.style.userSelect='none';
+    e.preventDefault();
+  }
+  function _onRzDown(e){
+    if(e.button!==0) return;
+    var w=_mbox(); if(!w) return;
+    var r=w.getBoundingClientRect();
+    _rOX=e.clientX; _rOY=e.clientY; _rOW=r.width; _rOH=r.height;
+    _resizing=true; document.body.style.userSelect='none';
+    e.preventDefault(); e.stopPropagation();
+  }
+  document.addEventListener('mousemove',function(e){
+    var w=_mbox(); if(!w) return;
+    if(_dragging){
+      var nx=Math.max(0,Math.min(_dWX+e.clientX-_dOX, window.innerWidth-80));
+      var ny=Math.max(0,Math.min(_dWY+e.clientY-_dOY, window.innerHeight-40));
+      w.style.left=nx+'px'; w.style.top=ny+'px';
+    }
+    if(_resizing){
+      w.style.width =Math.max(320,_rOW+e.clientX-_rOX)+'px';
+      w.style.height=Math.max(240,_rOH+e.clientY-_rOY)+'px';
+    }
+  });
+  document.addEventListener('mouseup',function(){
+    _dragging=false; _resizing=false; document.body.style.userSelect='';
+  });
+
+  document.addEventListener('DOMContentLoaded',function(){
+    var tb=document.getElementById('je-map-hdr');
+    if(tb) tb.addEventListener('mousedown',_onTBDown);
+    var rh=document.getElementById('je-map-resize');
+    if(rh) rh.addEventListener('mousedown',_onRzDown);
+    _setDefaultPos();
+  });
+
+  window.addEventListener('resize',function(){
+    var w=_mbox(); if(!w) return;
+    var r=w.getBoundingClientRect();
+    if(r.right>window.innerWidth)  w.style.left=Math.max(0,window.innerWidth -r.width)+'px';
+    if(r.bottom>window.innerHeight) w.style.top=Math.max(0,window.innerHeight-r.height)+'px';
+  });
+
+  window._jeMapSetDefaultPos = _setDefaultPos;
+})();
+
+
+/* ══ 지도 줌/드래그/핀치 ════════════════════════════════════════════ */
+var _mapScale = 1, _mapTx = 0, _mapTy = 0;
+var _mapDrag = null;
+var _mapPinch = null;
+
+function _mapApplyTransform(){
+  var img = document.getElementById('je-map-img');
+  if(!img) return;
+  img.style.transform = 'translate('+_mapTx+'px,'+_mapTy+'px) scale('+_mapScale+')';
+}
+
+/* ＋／－ 버튼: 창 크기 조절 */
+function jeMapZoom(delta){
+  var box = document.getElementById('je-map-box');
+  if(!box) return;
+  var r = box.getBoundingClientRect();
+  var nw = Math.min(Math.max(320, r.width  + delta * 120), window.innerWidth  - 24);
+  var nh = Math.min(Math.max(240, r.height + delta * 90),  window.innerHeight - 24);
+  box.style.width  = nw + 'px';
+  box.style.height = nh + 'px';
+  /* 중앙 유지 */
+  box.style.left = Math.max(0, Math.round((window.innerWidth  - nw) / 2)) + 'px';
+  box.style.top  = Math.max(0, Math.round((window.innerHeight - nh) / 2)) + 'px';
+}
+
+function jeMapZoomReset(){
+  if(typeof _jeMapSetDefaultPos==='function') _jeMapSetDefaultPos();
+  _mapScale=1; _mapTx=0; _mapTy=0; _mapApplyTransform();
+}
+
+function _jeMapInitInteraction(){
+  var wrap = document.getElementById('je-map-img-wrap');
+  if(!wrap || wrap._mapInited) return;
+  wrap._mapInited = true;
+
+  /* ── 마우스 드래그 (PC) ── */
+  wrap.addEventListener('mousedown', function(e){
+    if(e.button !== 0) return;
+    _mapDrag = {startX: e.clientX - _mapTx, startY: e.clientY - _mapTy};
+    wrap.classList.add('grabbing');
+    e.preventDefault();
+  });
+  window.addEventListener('mousemove', function(e){
+    if(!_mapDrag) return;
+    _mapTx = e.clientX - _mapDrag.startX;
+    _mapTy = e.clientY - _mapDrag.startY;
+    _mapApplyTransform();
+  });
+  window.addEventListener('mouseup', function(){
+    if(_mapDrag){ _mapDrag = null; wrap.classList.remove('grabbing'); }
+  });
+
+  /* ── 마우스 휠 줌 (PC) ── */
+  wrap.addEventListener('wheel', function(e){
+    e.preventDefault();
+    var delta = e.deltaY > 0 ? -0.15 : 0.15;
+    _mapScale = Math.min(5, Math.max(0.5, _mapScale + delta));
+    _mapApplyTransform();
+  }, {passive: false});
+
+  /* ── 터치 핀치/드래그 (모바일) ── */
+  wrap.addEventListener('touchstart', function(e){
+    if(e.touches.length === 1){
+      _mapDrag = {startX: e.touches[0].clientX - _mapTx, startY: e.touches[0].clientY - _mapTy};
+      _mapPinch = null;
+    } else if(e.touches.length === 2){
+      _mapDrag = null;
+      var dx = e.touches[0].clientX - e.touches[1].clientX;
+      var dy = e.touches[0].clientY - e.touches[1].clientY;
+      _mapPinch = {dist: Math.hypot(dx, dy), scale: _mapScale, tx: _mapTx, ty: _mapTy};
+    }
+    e.preventDefault();
+  }, {passive: false});
+
+  wrap.addEventListener('touchmove', function(e){
+    if(e.touches.length === 1 && _mapDrag){
+      _mapTx = e.touches[0].clientX - _mapDrag.startX;
+      _mapTy = e.touches[0].clientY - _mapDrag.startY;
+      _mapApplyTransform();
+    } else if(e.touches.length === 2 && _mapPinch){
+      var dx = e.touches[0].clientX - e.touches[1].clientX;
+      var dy = e.touches[0].clientY - e.touches[1].clientY;
+      var dist = Math.hypot(dx, dy);
+      var ratio = dist / _mapPinch.dist;
+      _mapScale = Math.min(5, Math.max(0.5, _mapPinch.scale * ratio));
+      _mapApplyTransform();
+    }
+    e.preventDefault();
+  }, {passive: false});
+
+  wrap.addEventListener('touchend', function(){
+    _mapDrag = null; _mapPinch = null;
+  });
+
+  /* ── 더블탭/더블클릭 리셋 ── */
+  var _lastTap = 0;
+  wrap.addEventListener('touchend', function(){
+    var now = Date.now();
+    if(now - _lastTap < 280){ jeMapZoomReset(); }
+    _lastTap = now;
+  });
+  wrap.addEventListener('dblclick', function(){ jeMapZoomReset(); });
+}
+
+window.jeMapZoom      = jeMapZoom;
+window.jeMapZoomReset = jeMapZoomReset;
+/* ═══════════════════════════════════════════════════════════════════ */
 
 window.jeOpenMapModal = jeOpenMapModal;
+window.jeMapPickFile  = jeMapPickFile;
+window._jeMapParseZip = _jeMapParseZip;
 window.jeMapClose     = jeMapClose;
 window.jeMapNav       = jeMapNav;
 window._jeMapUpdBtn   = _jeMapUpdBtn;
@@ -7810,13 +8103,27 @@ window.addEventListener('load', function(){
         <div id="je-map-title">관련 지도</div>
         <div id="je-map-ref"></div>
       </div>
-      <button id="je-map-close" onclick="jeMapClose()">✕</button>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button id="je-map-load-btn" onclick="jeMapPickFile()" title="지도 파일 직접 열기 (로컬용)"
+          style="border:1px solid #d4cfc6;border-radius:6px;background:#faf9f6;color:#7a7268;font-size:0.68rem;font-weight:600;padding:0 9px;height:24px;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent;"
+          onmouseover="this.style.background='#ece8e0'" onmouseout="this.style.background='#faf9f6'">
+          📂 파일 열기
+        </button>
+        <button id="je-map-close" onclick="jeMapClose()">✕</button>
+      </div>
     </div>
+    <input type="file" id="je-map-file-inp" accept=".zip" style="display:none">
     <div id="je-map-list-bar"></div>
     <div id="je-map-img-wrap">
       <div id="je-map-loading">지도를 선택하세요</div>
       <img id="je-map-img" alt="성경지도">
+      <div id="je-map-zoom-ctrl">
+        <button class="je-map-zoom-btn" onclick="jeMapZoom(0.25)" title="확대">＋</button>
+        <button class="je-map-zoom-btn" id="je-map-zoom-reset" onclick="jeMapZoomReset()" title="원래 크기">1:1</button>
+        <button class="je-map-zoom-btn" onclick="jeMapZoom(-0.25)" title="축소">－</button>
+      </div>
     </div>
+    <div id="je-map-resize"></div>
     <div id="je-map-footer">
       <span id="je-map-cap"></span>
       <div style="display:flex;align-items:center;gap:2px;flex-shrink:0;">
