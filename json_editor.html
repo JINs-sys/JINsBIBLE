@@ -709,7 +709,7 @@
   </div>
 </div></div>
 
-<div id="je-comm-panel"><div id="je-comm-hdr" onclick="jeToggleCommInline()" style="display:flex;align-items:center;justify-content:space-between;padding:5px 14px 5px;background:#eef3ee;border-bottom:1px solid #c8d8c4;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;"><div style="display:flex;align-items:center;gap:5px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7aaa8a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg><span id="je-comm-inline-name-lbl" style="font-size:0.68rem;font-weight:700;color:#3a5448;letter-spacing:0.03em;">주석</span><span id="je-comm-inline-ref-lbl" style="font-size:0.66rem;color:#7a9a88;"></span></div><div style="display:flex;align-items:center;gap:2px;"><button onclick="event.stopPropagation();jeCommFontDown()" style="border:none;background:transparent;color:#7a9a88;font-size:0.67rem;font-weight:700;padding:1px 4px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;">A-</button><span id="je-comm-inline-fs-val" style="font-size:0.66rem;color:#9abba8;min-width:16px;text-align:center;">14</span><button onclick="event.stopPropagation();jeCommFontUp()" style="border:none;background:transparent;color:#7a9a88;font-size:0.67rem;font-weight:700;padding:1px 4px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;">A+</button><span id="je-comm-inline-arrow" style="font-size:0.64rem;color:#9abba8;transition:transform .2s;display:inline-block;margin-left:3px;">▾</span></div></div><div id="je-comm-inline-nodata" style="font-size:0.79rem;color:#9abba8;padding:7px 16px 9px;background:#f5f8f4;display:none;">(이 절의 주석 없음)</div><div id="je-comm-inline-body" style="overflow-y:auto;max-height:260px;padding:10px 18px 14px;background:#f5f8f4;font-family:'Georgia','Nanum Myeongjo',serif;font-size:14px;line-height:1.78;color:#1e3540;word-break:keep-all;display:none;"></div><div id="je-comm-resize-bar" title="드래그하여 높이 조절" style="height:16px;background:transparent;border-top:1px solid #dde8dd;cursor:row-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:none;user-select:none;position:relative;"><div style="width:40px;height:4px;border-radius:3px;background:#a8c8b4;"></div></div></div>
+<div id="je-comm-panel"><div id="je-comm-hdr" onclick="jeToggleCommInline()" style="display:flex;align-items:center;justify-content:space-between;padding:5px 14px 5px;background:#eef3ee;border-bottom:1px solid #c8d8c4;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;"><div style="display:flex;align-items:center;gap:5px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7aaa8a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg><span id="je-comm-inline-name-lbl" style="font-size:0.68rem;font-weight:700;color:#3a5448;letter-spacing:0.03em;">주석</span><span id="je-comm-inline-ref-lbl" style="font-size:0.66rem;color:#7a9a88;"></span></div><div style="display:flex;align-items:center;gap:2px;"><button onclick="event.stopPropagation();jeCommFontDown()" style="border:none;background:transparent;color:#7a9a88;font-size:0.67rem;font-weight:700;padding:1px 4px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;">A-</button><span id="je-comm-inline-fs-val" style="font-size:0.66rem;color:#9abba8;min-width:16px;text-align:center;">14</span><button onclick="event.stopPropagation();jeCommFontUp()" style="border:none;background:transparent;color:#7a9a88;font-size:0.67rem;font-weight:700;padding:1px 4px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;">A+</button><span id="je-comm-inline-arrow" style="font-size:0.64rem;color:#9abba8;transition:transform .2s;display:inline-block;margin-left:3px;">▾</span></div></div><div id="je-comm-inline-nodata" style="font-size:0.79rem;color:#9abba8;padding:7px 16px 9px;background:#f5f8f4;display:none;">(이 절의 주석 없음)</div><div id="je-comm-inline-body" style="overflow-y:auto;max-height:260px;padding:10px 18px 14px;background:#f5f8f4;font-family:'Georgia','Nanum Myeongjo',serif;font-size:14px;line-height:1.4;color:#1e3540;word-break:keep-all;display:none;"></div><div id="je-comm-resize-bar" title="드래그하여 높이 조절" style="height:16px;background:transparent;border-top:1px solid #dde8dd;cursor:row-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:none;user-select:none;position:relative;"><div style="width:40px;height:4px;border-radius:3px;background:#a8c8b4;"></div></div></div>
 <div id="je-meta-panel">
   <div id="je-meta-toggle" onclick="jeToggleMeta()">
     <span id="je-meta-toggle-label">📋 구절 정보 수정</span>
@@ -5033,7 +5033,7 @@ window._jeCreatePopoutWin = function _jeCreatePopoutWin(tab, idx, item) {
     + '<button title="닫기" class="_popout-close" onclick="_jeClosePopout(' + id + ')">✕</button>'
     + '</div></div>'
     /* 본문 */
-    + '<div class="_popout-body" style="flex:1;overflow-y:auto;padding:14px 18px 18px;font-size:15px;line-height:1.85;color:#2a2520;word-break:keep-all;">'
+    + '<div class="_popout-body" style="flex:1;overflow-y:auto;padding:14px 18px 18px;font-size:15px;line-height:1.4;color:#2a2520;word-break:keep-all;">'
     + (bodyHtml || '<span style="color:#b0a89a;font-size:0.85rem;">(내용 없음)</span>')
     + '</div>'
     /* 리사이즈 핸들 */
@@ -6510,7 +6510,7 @@ document.addEventListener("DOMContentLoaded", function(){
 /* 성경본문 패널 */
 #je-sr-verse-panel{background:#f3efe6;border-bottom:1px solid #e8e3d8;padding:9px 14px;display:none;flex-shrink:0;}
 #je-sr-verse-panel.show{display:block;}
-#je-sr-verse-text{font-size:.85rem;line-height:1.7;color:#3a3730;word-break:keep-all;}
+#je-sr-verse-text{font-size:.85rem;line-height:1.4;color:#3a3730;word-break:keep-all;}
 #je-sr-verse-src{font-size:.66rem;color:#9a9288;margin-top:3px;}
 /* 메타 토글 */
 #je-sr-meta-toggle{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;cursor:pointer;background:#faf9f6;border-bottom:1px solid #ece8e0;font-size:.7rem;font-weight:700;color:#2d4a3e;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
@@ -6524,7 +6524,7 @@ document.addEventListener("DOMContentLoaded", function(){
 #je-sr-meta-fields .je-mf-input{width:100%;min-width:0;box-sizing:border-box;height:38px;}
 #je-sr-mf-row-sr{display:flex;flex-direction:column;gap:8px;}
 /* 편집 영역 */
-#je-sr-editor{padding:16px 16px 40px;min-height:100%;box-sizing:border-box;outline:none;font-size:20px;line-height:1.55;text-align:justify;color:#1a1815;font-family:inherit;white-space:pre-wrap;word-break:break-all;}
+#je-sr-editor{padding:16px 16px 40px;min-height:100%;box-sizing:border-box;outline:none;font-size:20px;line-height:1.4;text-align:justify;color:#1a1815;font-family:inherit;white-space:pre-wrap;word-break:break-all;}
 #je-sr-editor:empty::before{content:'설교 내용을 입력하세요...';color:#c0bdb6;pointer-events:none;}
 #je-sr-editor[contenteditable=false]{cursor:default;caret-color:transparent;background:#fdfcf9;}
 #je-sr-editor b{font-weight:700;}
@@ -6542,7 +6542,7 @@ document.addEventListener("DOMContentLoaded", function(){
   border-left:3px solid #8a8480;
   font-style:italic;
   color:#3a3730;
-  line-height:1.72;
+  line-height:1.4;
   position:relative;
 }
 #je-sr-editor .je-quote::before{
