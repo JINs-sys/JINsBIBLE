@@ -4424,8 +4424,8 @@ function _commUpdToggleBtn() {
   var btn = document.getElementById('je-comm-toggle-btn');
   if (!btn) return;
   var open = _commIsOpen();
-  if (open) { btn.style.background='#d0e8d4'; btn.style.borderColor='#7aaa8a'; btn.classList.add('active'); }
-  else      { btn.style.background=''; btn.style.borderColor=''; btn.classList.remove('active'); }
+  if (open) { btn.style.background=''; btn.style.borderColor=''; btn.style.color='#2d4a3e'; btn.style.fontWeight='800'; btn.classList.add('active'); }
+  else      { btn.style.background=''; btn.style.borderColor=''; btn.style.color='#9a9288'; btn.style.fontWeight='600'; btn.classList.remove('active'); }
   /* 모드 메뉴 체크 표시 */
   var mi = document.getElementById('je-comm-mm-inline');
   var mf = document.getElementById('je-comm-mm-float');
@@ -4813,8 +4813,8 @@ window.jeToggleCommPanel = function() {
   }
   var btn = document.getElementById('je-comm-toggle-btn');
   if (btn) {
-    if (_commPanelOpen) { btn.style.background='#d0e8d4'; btn.style.borderColor='#7aaa8a'; btn.classList.add('active'); }
-    else { btn.style.background=''; btn.style.borderColor=''; btn.classList.remove('active'); }
+    if (_commPanelOpen) { btn.style.background=''; btn.style.borderColor=''; btn.style.color='#2d4a3e'; btn.style.fontWeight='800'; btn.classList.add('active'); }
+    else { btn.style.background=''; btn.style.borderColor=''; btn.style.color='#9a9288'; btn.style.fontWeight='600'; btn.classList.remove('active'); }
   }
 };
 
