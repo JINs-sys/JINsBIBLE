@@ -2341,6 +2341,8 @@ function jeOpenEdit(idx, tab){
     } else { _jeVerseRows=[]; vt.innerHTML=''; vt.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#b0a89a;font-size:0.85rem">(역본 없음)</span><button onclick="jeSampleBible()" style="border:none;background:none;color:#2d4a3e;font-size:0.78rem;font-weight:700;cursor:pointer;padding:0;opacity:0.75;transition:opacity .15s;flex-shrink:0;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.75">▷ 샘플본문(개역한글)</button></div>'; vs.textContent=''; _jeShowLinkBtn(false); vp.classList.add('je-vp-show'); }
     /* 절 이동용 현재 절 저장 */
     _jeDisplayVerse={abbr:abbr,ch:ch,vs:vsStart,bookName:bookName};
+    /* 주석창 연동 — 헤더 구절 기준으로 즉시 갱신 */
+    if(typeof _commRenderFromDisplayVerse==='function') setTimeout(_commRenderFromDisplayVerse, 80);
   }
 
   /* 자동 포커스 제거 — 수정 버튼으로 진입 */
@@ -2878,6 +2880,8 @@ function jeMetaSave(){
   _toast('구절 정보 저장됨 ✓');
   /* 본문 패널 즉시 갱신 */
   _jeRefreshVersePanel();
+  /* 주석창 연동 — 구절 변경 후 즉시 갱신 */
+  if(typeof _commRenderFromDisplayVerse==='function') setTimeout(_commRenderFromDisplayVerse, 120);
   /* 편집 화면 유지 — 목록으로 이동하지 않음 */
   /* 목록 카운트·내보내기 버튼만 갱신 */
   var item2=(_data[_jeTab]||[])[_editIdx];
