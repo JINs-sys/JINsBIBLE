@@ -26,6 +26,19 @@
 #je-pin-ov.je-show{display:flex}
 #je-ed-ov{background:#f4f1eb;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;flex-direction:column;overflow:hidden}
 #je-ed-ov.je-show{display:flex}
+/* 모바일: 헤더 버튼 정리 — overflow 문제 해결 */
+@media(max-width:600px){
+  /* 헤더에서 숨기는 버튼: 삭제·새창 (절 패널 하단으로 이동) */
+  #je-popout-btn, button[onclick="jeDeleteCurrentItem()"]{ display:none!important; }
+  /* 성경·주석 버튼 패딩 축소 */
+  #je-multiver-btn, #je-refcomm-btn { padding:0 4px!important; font-size:0.7rem!important; }
+  /* 수정 버튼 패딩 축소 */
+  #je-edit-btn { padding:0 9px!important; font-size:0.7rem!important; }
+  /* 목록 버튼 폰트 축소 */
+  .je-btn-back { font-size:0.75rem!important; }
+  /* 절 패널 하단 모바일 전용 버튼 표시 */
+  .je-mob-only { display:inline-flex!important; align-items:center!important; }
+}
 @media (min-width:601px){
   #je-pin-ov,#je-ed-ov{inset:unset;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:calc(100vh - 48px);max-height:calc(100vh - 48px);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.18);border:1px solid #ddd8ce}
   #je-pin-ov{width:400px;height:auto;padding:48px 32px 40px}
@@ -729,6 +742,11 @@
     <button id="je-vp-prev" onclick="jeNavItem(-1)" title="이전" style="border:none;background:transparent;color:#5a5450;font-size:1.1rem;font-weight:900;width:32px;height:32px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:6px;transition:background .12s;" onmouseover="this.style.background='#ece8e0'" onmouseout="this.style.background='transparent'">◀</button>
     <span id="je-vp-nav-lbl" style="font-size:0.76rem;font-weight:700;color:#5a5450;padding:0 4px;min-width:32px;text-align:center;white-space:nowrap;"></span>
     <button id="je-vp-next" onclick="jeNavItem(1)" title="다음" style="border:none;background:transparent;color:#5a5450;font-size:1.1rem;font-weight:900;width:32px;height:32px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:6px;transition:background .12s;" onmouseover="this.style.background='#ece8e0'" onmouseout="this.style.background='transparent'">▶</button>
+    <!-- 모바일 전용: 성경/새창/삭제 버튼 -->
+    <span class="je-mob-only" style="width:1px;height:12px;background:#e0dbd0;flex-shrink:0;display:none;margin:0 2px;"></span>
+    <button id="je-vp-bible-btn" class="je-mob-only" onclick="jemvToggle()" title="다역본 성경" style="display:none;border:none;background:#e8f2ee;color:#2d4a3e;font-size:0.72rem;font-weight:700;padding:0 8px;height:24px;border-radius:6px;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;white-space:nowrap;flex-shrink:0;">📖 성경</button>
+    <button id="je-vp-popout-btn" class="je-mob-only" onclick="jePopoutCurrentItem()" title="새 창" style="display:none;border:none;background:#f0ece4;color:#5a5450;font-size:0.72rem;font-weight:700;padding:0 8px;height:24px;border-radius:6px;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;white-space:nowrap;flex-shrink:0;">새 창</button>
+    <button id="je-vp-del-btn" class="je-mob-only" onclick="jeDeleteCurrentItem()" title="삭제" style="display:none;border:none;background:transparent;color:#c0b8b0;font-size:0.72rem;font-weight:600;padding:0 6px;height:24px;border-radius:6px;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;white-space:nowrap;flex-shrink:0;">삭제</button>
   </div>
 </div></div>
 
