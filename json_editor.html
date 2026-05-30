@@ -26,19 +26,6 @@
 #je-pin-ov.je-show{display:flex}
 #je-ed-ov{background:#f4f1eb;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;flex-direction:column;overflow:hidden}
 #je-ed-ov.je-show{display:flex}
-/* 모바일: 헤더 버튼 정리 — overflow 문제 해결 */
-@media(max-width:600px){
-  /* 헤더에서 숨기는 버튼: 삭제·새창 (절 패널 하단으로 이동) */
-  #je-popout-btn, button[onclick="jeDeleteCurrentItem()"]{ display:none!important; }
-  /* 성경·주석 버튼 패딩 축소 */
-  #je-multiver-btn, #je-refcomm-btn { padding:0 4px!important; font-size:0.7rem!important; }
-  /* 수정 버튼 패딩 축소 */
-  #je-edit-btn { padding:0 9px!important; font-size:0.7rem!important; }
-  /* 목록 버튼 폰트 축소 */
-  .je-btn-back { font-size:0.75rem!important; }
-  /* 절 패널 하단 모바일 전용 버튼 표시 */
-  .je-mob-only { display:inline-flex!important; align-items:center!important; }
-}
 @media (min-width:601px){
   #je-pin-ov,#je-ed-ov{inset:unset;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:calc(100vh - 48px);max-height:calc(100vh - 48px);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.18);border:1px solid #ddd8ce}
   #je-pin-ov{width:400px;height:auto;padding:48px 32px 40px}
@@ -62,8 +49,7 @@
 @keyframes je-toast{0%{opacity:0;transform:translate(-50%,8px)}12%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
 .je-shake{animation:je-shake .5s ease}
 /* 에디터 헤더 */
-.je-hdr{display:flex;align-items:center;gap:6px;padding:0 14px;height:48px;background:#fff;flex-shrink:0;border-bottom:1px solid #ece8e0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
-.je-hdr::-webkit-scrollbar{display:none;}
+.je-hdr{display:flex;align-items:center;gap:6px;padding:0 14px;height:48px;background:#fff;flex-shrink:0;border-bottom:1px solid #ece8e0;}
 .je-hdr-mid{flex:1;text-align:center;min-width:0;overflow:hidden;}
 .je-hdr-ref{font-size:.84rem;font-weight:800;color:#1a1815;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
 .je-hdr-cnt{font-size:.62rem;color:#a8a29a;display:block;margin-top:1px;}
@@ -383,7 +369,7 @@
 #je-resize-bar::before,#je-resize-bar-list::before{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:32px;height:3px;border-radius:2px;background:#d8d2c8}
 #je-resize-bar:hover::before,#je-resize-bar.dragging::before,#je-resize-bar-list:hover::before,#je-resize-bar-list.dragging::before{background:#2d4a3e}
 @media(min-width:601px){#je-resize-bar,#je-resize-bar-list{display:block}}
-@media(max-width:600px){#je-mob-preview-btn,#je-preview-btn,#je-refcomm-btn{display:none!important;}}@media(max-width:600px){#je-popout-btn{display:inline-flex!important;height:28px!important;align-items:center!important;}}@media(min-width:601px){#je-preview-btn{display:inline-flex!important;height:28px!important;line-height:28px!important;align-items:center!important;font-size:0.76rem!important;width:auto!important;padding:0 6px!important;}}
+@media(max-width:600px){#je-mob-preview-btn,#je-preview-btn,#je-refcomm-btn{display:none!important;}}@media(min-width:601px){#je-preview-btn{display:inline-flex!important;height:28px!important;line-height:28px!important;align-items:center!important;font-size:0.76rem!important;width:auto!important;padding:0 6px!important;}}
 @media(max-width:600px){
   /* 출처 텍스트(출애굽기 23:...) 숨김 - 상단 헤더에 이미 표시됨 */
   #je-verse-src{display:none!important;}
@@ -527,11 +513,7 @@
 @media(max-width:600px){
   .je-del-btn{display:none!important;}
   .je-copy-btn{display:none!important;}
-  /* 모바일 팝아웃 버튼 표시 */
-  .je-popout-list-btn{display:inline-flex!important;}
-  /* 모바일 팝아웃 창은 하단 고정 시트로 */
-  ._je-mob-sheet{position:fixed!important;left:0!important;right:0!important;bottom:0!important;top:auto!important;width:100%!important;height:72vh!important;border-radius:18px 18px 0 0!important;min-width:unset!important;}
-  ._je-mob-sheet ._popout-rh{display:none!important;}
+  .je-popout-list-btn{display:none!important;}
   .je-card-del-reveal{display:flex;}
 }
 /* 카드 */
@@ -708,7 +690,7 @@
 
 </div>
 
-<div id="je-ed-ov"><div id="je-list-ov"><div class="je-list-hdr"><div class="je-list-hdr-top"><div style="display:flex;flex-direction:column;gap:2px;"><div class="je-list-ttl">JSON <span id="je-ttl-editor" onclick="_jeGgaTitleClick()" style="cursor:default;user-select:none;transition:color .15s;">편집기</span></div><div class="je-list-sub" id="je-list-sub"><span id="je-hdr-version" style="font-size:0.6rem;color:#b8b2aa;letter-spacing:0.06em;">v1.5.7</span></div></div><div class="je-list-btns"><button id="je-mob-preview-btn" class="je-lbtn" onclick="jeOpenDeviceSettings()" title="모바일 미리보기" style="background:transparent;color:#7a9a8a;border:1.5px solid #c0d8cc;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='transparent'">모바일</button><button class="je-lbtn je-lbtn-file" onclick="jePickFile()">파일 열기</button><button class="je-lbtn" id="je-backup-btn" style="display:none;background:#f5f2ec;color:#9a9288;border:1.5px solid #ddd8ce;" onclick="jeExportAll()" title="전체 백업">💾</button><button class="je-lbtn je-lbtn-exp" id="je-exp-btn" style="display:none" onclick="jeExport()">📌 메모 저장</button></div></div></div><div id="je-tab-bar"></div><div id="je-bible-drop"><div id="je-bible-drop-txt" class="je-row-left"><button id="je-new-item-btn" onclick="jeNewItem()" style="border:1.5px solid #a8d4bc;border-radius:8px;background:#f0f7f3;color:#2d4a3e;font-size:0.71rem;font-weight:700;padding:0 10px;height:28px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;" onmouseover="this.style.background='#e0f0e8'" onmouseout="this.style.background='#f0f7f3'">＋ 📌 새 메모</button></div><div class="je-fs-sep"></div><div id="je-bible-dd-wrap"><button id="je-bible-dd-btn" onclick="jeToggleBibleDD(event)" style="border:1.5px solid #c0d8cc;border-radius:8px;background:#fff;color:#2d4a3e;font-size:0.71rem;font-weight:700;padding:0 10px;height:28px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:5px;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='#fff'">📂 성경본문<svg id="je-bible-dd-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5a8a78" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></button><div id="je-bible-dd-menu"><div class="je-bdd-header" onclick="_jeGgaHeaderClick(event,false)" style="cursor:default;user-select:none;">역본 불러오기</div><div class="je-bdd-item" onclick="jeBiblePickFile();jeCloseBibleDD()">📂 파일에서 불러오기<span class="je-bdd-badge">직접</span></div><div class="je-bdd-sep"></div><div class="je-bdd-item je-bdd-sample" id="je-sample-btn" onclick="jeSampleBible();jeCloseBibleDD()">▷ 샘플본문(개역한글)</div><div class="je-bdd-sep"></div><div class="je-bdd-item" onclick="document.getElementById('je-jw-inp').click();jeCloseBibleDD()" title="예수님 말씀 별색 JSON 파일 로드">🔴 예수말씀 별색 파일 로드<span class="je-bdd-badge" style="background:#fdeaea;color:#b83232;">jred.json</span></div><div class="je-bdd-item" onclick="_jwFetchGithub(false);jeCloseBibleDD()" title="GitHub에서 jred.json 자동 다운로드">🌐 예수말씀 GitHub 자동 로드<span class="je-bdd-badge" style="background:#fdeaea;color:#b83232;">자동</span></div><div class="je-bdd-sep"></div><div class="je-bdd-header" style="cursor:default;user-select:none;">주석 불러오기</div><div class="je-bdd-item" id="je-comm-load-btn" onclick="jeCommPickFile();jeCloseBibleDD()">📖 주석 파일 열기 (.cdb / .aab)<span class="je-bdd-badge" style="background:#e8f2ee;color:#3a7a5a;">여러 개 가능</span></div><div id="je-comm-loaded-lbl" style="font-size:0.65rem;color:#7a8aab;padding:2px 13px 6px;display:none;line-height:1.7;"></div></div></div><div class="je-inline-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b0a89e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="je-search" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button onclick="jeClearSearch()">&times;</button></div></div><input type="file" id="je-bible-inp" accept=".txt,.bdb,.aab,.zip"><input type="file" id="je-jw-inp" accept=".json" style="display:none"><input type="file" id="je-comm-inp" accept=".cdb,.aab,.db,.sqlite" multiple style="display:none"><input type="file" id="je-sr-bible-inp" accept=".txt,.bdb,.aab,.zip" style="display:none"><div id="je-ctrl-bar"><div class="je-search-wrap" id="je-search-wrap" style="display:none"><input class="je-search" id="je-search-dup" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button class="je-search-clr" onclick="jeClearSearch()">&times;</button></div><div id="je-filter-sort-row"><div class="je-row-left"><div id="je-sort-wrap"><button id="je-sort-trigger" onclick="jeToggleSortMenu()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span id="je-sort-label-txt">성경순</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div id="je-sort-menu"><button class="je-sort-opt on" data-sort="bible" onclick="jeSetSort('bible')">성경순</button><button class="je-sort-opt" data-sort="recent" onclick="jeSetSort('recent')">최근작성</button><button class="je-sort-opt" data-sort="oldest" onclick="jeSetSort('oldest')">오래된순</button><button class="je-sort-opt" data-sort="modified" onclick="jeSetSort('modified')">최근수정</button><button class="je-sort-opt" data-sort="length" onclick="jeSetSort('length')">글자수↓</button></div></div></div><div class="je-fs-sep"></div><div id="je-filter-fixed" style="display:flex;align-items:center;gap:5px;flex-shrink:0;"></div><div class="je-bfbtn-sep" id="je-filter-book-sep" style="display:none;"></div><div id="je-book-filter-bar" class="je-book-filter-bar"></div></div><div id="je-sort-bar" class="je-sort-bar"></div><div id="je-sr-cat-filter-bar" style="display:none;align-items:center;gap:5px;padding:6px 14px;background:#f5f8f4;border-bottom:1px solid #e8ede6;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-shrink:0;"></div></div><div id="je-drop-ov"><div class="je-drop-box" id="je-drop-box" onclick="jePickFile()"><div style="font-size:2.6rem">&#128194;</div><div class="je-drop-ttl">파일 열기</div><div class="je-drop-sub">JSON · AAB(성경) · CDB(주석) · ZIP</div><div class="je-drop-sub" style="margin-top:4px;font-size:.7rem;color:#c0bab2;">ZIP 안에 여러 파일을 묶어 한번에 로드 가능</div></div></div><div class="je-list-body" id="je-list-body" style="display:none"></div><div id="je-resize-bar-list" title="드래그하여 창 높이 조절"></div><div id="je-list-footer" style="flex-shrink:0;border-top:1px solid #ece8e0;background:#faf9f6;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;"><span id="je-list-checksum-val" style="font-size:0.6rem;font-family:'Courier New',monospace;color:#b8b2aa;letter-spacing:0.06em;">—</span><span style="font-size:0.6rem;color:#c0bab2;letter-spacing:0.04em;">JINs Bible JSON Workshop | v1.5.7</span></div></div><div id="je-edit-ov" style="display:none;flex-direction:column;height:100%;overflow:hidden"><div class="je-hdr"><button class="je-btn-back" onclick="jeBackToList()">&#8592; 목록</button><button id="je-content-prev" onclick="jeNavListItem(-1)" title="이전 항목" style="display:none;border:none;background:transparent;color:#9a9288;font-size:1rem;font-weight:900;width:24px;height:24px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:4px;flex-shrink:0;transition:color .12s;" onmouseover="this.style.color='#3a3730'" onmouseout="this.style.color='#9a9288'">◀</button><div class="je-hdr-mid"><div class="je-hdr-ref" id="je-hdr-ref"></div><div class="je-hdr-cnt" id="je-hdr-cnt" onclick="jeSetCharGoal()" title="클릭하여 목표 글자수 설정" style="cursor:pointer;"></div></div><button id="je-content-next" onclick="jeNavListItem(1)" title="다음 항목" style="display:none;border:none;background:transparent;color:#9a9288;font-size:1rem;font-weight:900;width:24px;height:24px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:4px;flex-shrink:0;transition:color .12s;" onmouseover="this.style.color='#3a3730'" onmouseout="this.style.color='#9a9288'">▶</button><span style="width:1px;height:18px;background:#e4ddd0;flex-shrink:0;margin:0 2px;"></span><button id="je-popout-btn" onclick="jePopoutCurrentItem()" title="새 창" style="display:none;border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">새 창</button><button onclick="jeDeleteCurrentItem()" title="삭제" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#d04040';this.style.background='transparent';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">삭제</button><button id="je-preview-btn" onclick="jeOpenDeviceSettings()" title="모바일 미리보기" style="display:none;border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">모바일</button><button id="je-multiver-btn" onclick="jemvToggle()" title="다역본 성경" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="if(!this.classList.contains('active')){this.style.color='#c0b8b0';this.style.background='transparent';}">성경</button><button id="je-refcomm-btn" onclick="jeToggleRefComm()" title="참고주석" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="if(!this.classList.contains('active')){this.style.color='#c0b8b0';this.style.background='transparent';}">주석</button><button id="je-edit-btn" onclick="jeToggleEdit()" style="border:1.5px solid #2d4a3e;background:#2d4a3e;color:#fff;font-size:0.76rem;font-weight:700;padding:0 13px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;transition:opacity .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">수정</button><button class="je-btn-save idle" id="je-save-btn" onclick="jeSave()" style="display:none;border:1.5px solid #2d4a3e;background:#2d4a3e;color:#fff;font-size:0.76rem;font-weight:700;padding:0 13px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;-webkit-tap-highlight-color:transparent;">저장</button><button class="je-btn-tempsave" id="je-tempsave-btn" onclick="jeTempSave()" style="display:none;border:1.5px solid #d4cfc6;background:transparent;color:#7a7268;font-size:0.76rem;font-weight:600;padding:0 10px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;-webkit-tap-highlight-color:transparent;">임시저장</button></div><div id="je-hdr-progress"><div id="je-hdr-progress-fill"></div></div><div id="je-verse-panel"><div id="je-verse-text"></div><div style="display:flex;align-items:center;gap:4px;margin-bottom:5px;flex-wrap:nowrap;min-width:0;width:100%;">
+<div id="je-ed-ov"><div id="je-list-ov"><div class="je-list-hdr"><div class="je-list-hdr-top"><div style="display:flex;flex-direction:column;gap:2px;"><div class="je-list-ttl">JSON <span id="je-ttl-editor" onclick="_jeGgaTitleClick()" style="cursor:default;user-select:none;transition:color .15s;">편집기</span></div><div class="je-list-sub" id="je-list-sub"><span id="je-hdr-version" style="font-size:0.6rem;color:#b8b2aa;letter-spacing:0.06em;">v1.5.7</span></div></div><div class="je-list-btns"><button id="je-mob-preview-btn" class="je-lbtn" onclick="jeOpenDeviceSettings()" title="모바일 미리보기" style="background:transparent;color:#7a9a8a;border:1.5px solid #c0d8cc;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='transparent'">모바일</button><button class="je-lbtn je-lbtn-file" onclick="jePickFile()">파일 열기</button><button class="je-lbtn" id="je-backup-btn" style="display:none;background:#f5f2ec;color:#9a9288;border:1.5px solid #ddd8ce;" onclick="jeExportAll()" title="전체 백업">💾</button><button class="je-lbtn je-lbtn-exp" id="je-exp-btn" style="display:none" onclick="jeExport()">📌 메모 저장</button></div></div></div><div id="je-tab-bar"></div><div id="je-bible-drop"><div id="je-bible-drop-txt" class="je-row-left"><button id="je-new-item-btn" onclick="jeNewItem()" style="border:1.5px solid #a8d4bc;border-radius:8px;background:#f0f7f3;color:#2d4a3e;font-size:0.71rem;font-weight:700;padding:0 10px;height:28px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;" onmouseover="this.style.background='#e0f0e8'" onmouseout="this.style.background='#f0f7f3'">＋ 📌 새 메모</button></div><div class="je-fs-sep"></div><div id="je-bible-dd-wrap"><button id="je-bible-dd-btn" onclick="jeToggleBibleDD(event)" style="border:1.5px solid #c0d8cc;border-radius:8px;background:#fff;color:#2d4a3e;font-size:0.71rem;font-weight:700;padding:0 10px;height:28px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:5px;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='#fff'">📂 성경본문<svg id="je-bible-dd-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5a8a78" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></button><div id="je-bible-dd-menu"><div class="je-bdd-header" onclick="_jeGgaHeaderClick(event,false)" style="cursor:default;user-select:none;">역본 불러오기</div><div class="je-bdd-item" onclick="jeBiblePickFile();jeCloseBibleDD()">📂 파일에서 불러오기<span class="je-bdd-badge">직접</span></div><div class="je-bdd-sep"></div><div class="je-bdd-item je-bdd-sample" id="je-sample-btn" onclick="jeSampleBible();jeCloseBibleDD()">▷ 샘플본문(개역한글)</div><div class="je-bdd-sep"></div><div class="je-bdd-item" onclick="document.getElementById('je-jw-inp').click();jeCloseBibleDD()" title="예수님 말씀 별색 JSON 파일 로드">🔴 예수말씀 별색 파일 로드<span class="je-bdd-badge" style="background:#fdeaea;color:#b83232;">jred.json</span></div><div class="je-bdd-item" onclick="window._jwFetchGithub(false);jeCloseBibleDD()" title="GitHub에서 jred.json 자동 로드">🌐 예수말씀 GitHub 로드<span class="je-bdd-badge" style="background:#fdeaea;color:#b83232;">자동</span></div><div class="je-bdd-sep"></div><div class="je-bdd-header" style="cursor:default;user-select:none;">주석 불러오기</div><div class="je-bdd-item" id="je-comm-load-btn" onclick="jeCommPickFile();jeCloseBibleDD()">📖 주석 파일 열기 (.cdb / .aab)<span class="je-bdd-badge" style="background:#e8f2ee;color:#3a7a5a;">여러 개 가능</span></div><div id="je-comm-loaded-lbl" style="font-size:0.65rem;color:#7a8aab;padding:2px 13px 6px;display:none;line-height:1.7;"></div></div></div><div class="je-inline-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b0a89e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="je-search" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button onclick="jeClearSearch()">&times;</button></div></div><input type="file" id="je-bible-inp" accept=".txt,.bdb,.aab,.zip"><input type="file" id="je-jw-inp" accept=".json" style="display:none"><input type="file" id="je-comm-inp" accept=".cdb,.aab,.db,.sqlite" multiple style="display:none"><input type="file" id="je-sr-bible-inp" accept=".txt,.bdb,.aab,.zip" style="display:none"><div id="je-ctrl-bar"><div class="je-search-wrap" id="je-search-wrap" style="display:none"><input class="je-search" id="je-search-dup" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button class="je-search-clr" onclick="jeClearSearch()">&times;</button></div><div id="je-filter-sort-row"><div class="je-row-left"><div id="je-sort-wrap"><button id="je-sort-trigger" onclick="jeToggleSortMenu()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span id="je-sort-label-txt">성경순</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div id="je-sort-menu"><button class="je-sort-opt on" data-sort="bible" onclick="jeSetSort('bible')">성경순</button><button class="je-sort-opt" data-sort="recent" onclick="jeSetSort('recent')">최근작성</button><button class="je-sort-opt" data-sort="oldest" onclick="jeSetSort('oldest')">오래된순</button><button class="je-sort-opt" data-sort="modified" onclick="jeSetSort('modified')">최근수정</button><button class="je-sort-opt" data-sort="length" onclick="jeSetSort('length')">글자수↓</button></div></div></div><div class="je-fs-sep"></div><div id="je-filter-fixed" style="display:flex;align-items:center;gap:5px;flex-shrink:0;"></div><div class="je-bfbtn-sep" id="je-filter-book-sep" style="display:none;"></div><div id="je-book-filter-bar" class="je-book-filter-bar"></div></div><div id="je-sort-bar" class="je-sort-bar"></div><div id="je-sr-cat-filter-bar" style="display:none;align-items:center;gap:5px;padding:6px 14px;background:#f5f8f4;border-bottom:1px solid #e8ede6;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-shrink:0;"></div></div><div id="je-drop-ov"><div class="je-drop-box" id="je-drop-box" onclick="jePickFile()"><div style="font-size:2.6rem">&#128194;</div><div class="je-drop-ttl">파일 열기</div><div class="je-drop-sub">JSON · AAB(성경) · CDB(주석) · ZIP</div><div class="je-drop-sub" style="margin-top:4px;font-size:.7rem;color:#c0bab2;">ZIP 안에 여러 파일을 묶어 한번에 로드 가능</div></div></div><div class="je-list-body" id="je-list-body" style="display:none"></div><div id="je-resize-bar-list" title="드래그하여 창 높이 조절"></div><div id="je-list-footer" style="flex-shrink:0;border-top:1px solid #ece8e0;background:#faf9f6;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;"><span id="je-list-checksum-val" style="font-size:0.6rem;font-family:'Courier New',monospace;color:#b8b2aa;letter-spacing:0.06em;">—</span><span style="font-size:0.6rem;color:#c0bab2;letter-spacing:0.04em;">JINs Bible JSON Workshop | v1.5.7</span></div></div><div id="je-edit-ov" style="display:none;flex-direction:column;height:100%;overflow:hidden"><div class="je-hdr"><button class="je-btn-back" onclick="jeBackToList()">&#8592; 목록</button><button id="je-content-prev" onclick="jeNavListItem(-1)" title="이전 항목" style="display:none;border:none;background:transparent;color:#9a9288;font-size:1rem;font-weight:900;width:24px;height:24px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:4px;flex-shrink:0;transition:color .12s;" onmouseover="this.style.color='#3a3730'" onmouseout="this.style.color='#9a9288'">◀</button><div class="je-hdr-mid"><div class="je-hdr-ref" id="je-hdr-ref"></div><div class="je-hdr-cnt" id="je-hdr-cnt" onclick="jeSetCharGoal()" title="클릭하여 목표 글자수 설정" style="cursor:pointer;"></div></div><button id="je-content-next" onclick="jeNavListItem(1)" title="다음 항목" style="display:none;border:none;background:transparent;color:#9a9288;font-size:1rem;font-weight:900;width:24px;height:24px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:4px;flex-shrink:0;transition:color .12s;" onmouseover="this.style.color='#3a3730'" onmouseout="this.style.color='#9a9288'">▶</button><span style="width:1px;height:18px;background:#e4ddd0;flex-shrink:0;margin:0 2px;"></span><button id="je-popout-btn" onclick="jePopoutCurrentItem()" title="새 창" style="display:none;border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">새 창</button><button onclick="jeDeleteCurrentItem()" title="삭제" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#d04040';this.style.background='transparent';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">삭제</button><button id="je-preview-btn" onclick="jeOpenDeviceSettings()" title="모바일 미리보기" style="display:none;border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">모바일</button><button id="je-multiver-btn" onclick="jemvToggle()" title="다역본 성경" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="if(!this.classList.contains('active')){this.style.color='#c0b8b0';this.style.background='transparent';}">성경</button><button id="je-refcomm-btn" onclick="jeToggleRefComm()" title="참고주석" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="if(!this.classList.contains('active')){this.style.color='#c0b8b0';this.style.background='transparent';}">주석</button><button id="je-edit-btn" onclick="jeToggleEdit()" style="border:1.5px solid #2d4a3e;background:#2d4a3e;color:#fff;font-size:0.76rem;font-weight:700;padding:0 13px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;transition:opacity .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">수정</button><button class="je-btn-save idle" id="je-save-btn" onclick="jeSave()" style="display:none;border:1.5px solid #2d4a3e;background:#2d4a3e;color:#fff;font-size:0.76rem;font-weight:700;padding:0 13px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;-webkit-tap-highlight-color:transparent;">저장</button><button class="je-btn-tempsave" id="je-tempsave-btn" onclick="jeTempSave()" style="display:none;border:1.5px solid #d4cfc6;background:transparent;color:#7a7268;font-size:0.76rem;font-weight:600;padding:0 10px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;-webkit-tap-highlight-color:transparent;">임시저장</button></div><div id="je-hdr-progress"><div id="je-hdr-progress-fill"></div></div><div id="je-verse-panel"><div id="je-verse-text"></div><div style="display:flex;align-items:center;gap:4px;margin-bottom:5px;flex-wrap:nowrap;min-width:0;width:100%;">
   <div id="je-verse-src" style="display:none;"></div>
   <div id="je-vp-btn-row" style="display:flex;align-items:center;gap:3px;flex-shrink:0;width:100%;">
     <div id="je-comm-btn-wrap" style="display:none;flex-shrink:0;align-items:center;">
@@ -742,11 +724,6 @@
     <button id="je-vp-prev" onclick="jeNavItem(-1)" title="이전" style="border:none;background:transparent;color:#5a5450;font-size:1.1rem;font-weight:900;width:32px;height:32px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:6px;transition:background .12s;" onmouseover="this.style.background='#ece8e0'" onmouseout="this.style.background='transparent'">◀</button>
     <span id="je-vp-nav-lbl" style="font-size:0.76rem;font-weight:700;color:#5a5450;padding:0 4px;min-width:32px;text-align:center;white-space:nowrap;"></span>
     <button id="je-vp-next" onclick="jeNavItem(1)" title="다음" style="border:none;background:transparent;color:#5a5450;font-size:1.1rem;font-weight:900;width:32px;height:32px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:6px;transition:background .12s;" onmouseover="this.style.background='#ece8e0'" onmouseout="this.style.background='transparent'">▶</button>
-    <!-- 모바일 전용: 성경/새창/삭제 버튼 -->
-    <span class="je-mob-only" style="width:1px;height:12px;background:#e0dbd0;flex-shrink:0;display:none;margin:0 2px;"></span>
-    <button id="je-vp-bible-btn" class="je-mob-only" onclick="jemvToggle()" title="다역본 성경" style="display:none;border:none;background:#e8f2ee;color:#2d4a3e;font-size:0.72rem;font-weight:700;padding:0 8px;height:24px;border-radius:6px;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;white-space:nowrap;flex-shrink:0;">📖 성경</button>
-    <button id="je-vp-popout-btn" class="je-mob-only" onclick="jePopoutCurrentItem()" title="새 창" style="display:none;border:none;background:#f0ece4;color:#5a5450;font-size:0.72rem;font-weight:700;padding:0 8px;height:24px;border-radius:6px;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;white-space:nowrap;flex-shrink:0;">새 창</button>
-    <button id="je-vp-del-btn" class="je-mob-only" onclick="jeDeleteCurrentItem()" title="삭제" style="display:none;border:none;background:transparent;color:#c0b8b0;font-size:0.72rem;font-weight:600;padding:0 6px;height:24px;border-radius:6px;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;white-space:nowrap;flex-shrink:0;">삭제</button>
   </div>
 </div></div>
 
@@ -1076,9 +1053,7 @@ var _JW_LS_KEY = 'jw_d_v2';  /* localStorage 캐시 키 */
 /* 개역개정 여부 판별 — 파일명 또는 shortName 기준 */
 function _jwIsGAE(){
   try{
-    /* _jwData가 로드되어 있으면 무조건 적용 (역본 종류 무관) */
     if(_jwData && Object.keys(_jwData).length > 0) return true;
-    /* 1. 편집기 메인 역본 파일명 */
     var bn = (typeof _jeBibleName === 'string') ? _jeBibleName.toUpperCase().replace(/[_\-\s]/g,'') : '';
     if(bn.indexOf('GAE')>=0 || bn.indexOf('GGA')>=0 || bn.indexOf('NKRV')>=0) return true;
     /* 2. shortName 직접 확인 (가장 신뢰도 높음) */
@@ -1192,26 +1167,18 @@ function _jwLoadFile(file){
 
 /* 초기화: 캐시 먼저 */
 try{ _jwLoadCache(); }catch(e){}
-
-/* ── GitHub에서 jred.json 자동 로드 (캐시 없을 때) ── */
-var _JW_GITHUB_URL = 'https://raw.githubusercontent.com/JINs-sys/JINsBIBLE/main/data/jred.json';
-function _jwFetchGithub(silent){
-  fetch(_JW_GITHUB_URL)
-    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
-    .then(function(raw){
-      _jwData = _jwNormalize(raw); window._jwData = _jwData;
-      try{ localStorage.setItem(_JW_LS_KEY, JSON.stringify(_jwData)); }catch(ex){}
-      try{ if(typeof _jeRenderVt==='function') _jeRenderVt(); }catch(ex){}
-      try{ if(typeof window._jemvRender==='function') window._jemvRender(); }catch(ex){}
-      if(!silent) _toast('✅ 예수말씀 GitHub 로드 완료');
-    })
-    .catch(function(err){
-      if(!silent) _toast('❌ GitHub jred.json 로드 실패: '+err.message);
-    });
-}
-/* 캐시가 없으면 자동 로드 시도 */
-if(!_jwData){ try{ _jwFetchGithub(true); }catch(e){} }
-window._jwFetchGithub = _jwFetchGithub;
+/* GitHub 자동 로드 (캐시 없을 때) */
+var _JW_GITHUB_URL='https://raw.githubusercontent.com/JINs-sys/JINsBIBLE/main/data/jred.json';
+window._jwFetchGithub=function(silent){
+  fetch(_JW_GITHUB_URL).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();}).then(function(raw){
+    _jwData=_jwNormalize(raw);window._jwData=_jwData;
+    try{localStorage.setItem(_JW_LS_KEY,JSON.stringify(_jwData));}catch(ex){}
+    try{if(typeof _jeRenderVt==='function')_jeRenderVt();}catch(ex){}
+    try{if(typeof window._jemvRender==='function')window._jemvRender();}catch(ex){}
+    if(!silent)_toast('✅ 예수말씀 GitHub 로드 완료');
+  }).catch(function(err){if(!silent)_toast('❌ GitHub jred.json 실패: '+err.message);});
+};
+if(!_jwData){try{window._jwFetchGithub(true);}catch(e){}}
 /* ── 대한성서공회 링크 ── */
 var _JE_BSKOREA_CODE=['','gen','exo','lev','num','deu','jos','jdg','rut','1sa','2sa','1ki','2ki','1ch','2ch','ezr','neh','est','job','psa','pro','ecc','sng','isa','jer','lam','ezk','dan','hos','jol','amo','oba','jon','mic','nam','hab','zep','hag','zec','mal','mat','mrk','luk','jhn','act','rom','1co','2co','gal','eph','php','col','1th','2th','1ti','2ti','tit','phm','heb','jas','1pe','2pe','1jn','2jn','3jn','jud','rev'];
 function _jeBskoreaUrl(abbrOrIdx, ch, vs){
@@ -5956,9 +5923,6 @@ window._jeCreatePopoutWin = function _jeCreatePopoutWin(tab, idx, item) {
 
   document.body.appendChild(el);
 
-  /* 모바일에서는 하단 시트 스타일 적용 */
-  if (window.innerWidth <= 600) el.classList.add('_je-mob-sheet');
-
   var rec = { id: id, el: el, tab: tab, idx: idx };
   _popoutWindows.push(rec);
   _jeBindPopoutDrag(el, rec);
@@ -5969,64 +5933,34 @@ function _jeBindPopoutDrag(el, rec) {
   var rh = el.querySelector('._popout-rh');
   var _dr=false, _rs=false, _dOX, _dOY, _dWX, _dWY, _rOX, _rOY, _rOW, _rOH;
 
-  function _startDrag(cx, cy) {
+  /* 창 클릭 시 앞으로 */
+  el.addEventListener('mousedown', function(){
+    el.style.zIndex = ++_popoutIdSeq + 9800;
+  });
+  if (tb) tb.addEventListener('mousedown', function(e) {
+    if (e.target.closest('button')) return;
     var r = el.getBoundingClientRect();
     el.style.left=r.left+'px'; el.style.top=r.top+'px';
-    _dWX=r.left; _dWY=r.top; _dOX=cx; _dOY=cy;
-    _dr=true; document.body.style.userSelect='none';
-  }
-  function _startResize(cx, cy) {
+    _dWX=r.left; _dWY=r.top; _dOX=e.clientX; _dOY=e.clientY;
+    _dr=true; document.body.style.userSelect='none'; e.preventDefault();
+  });
+  if (rh) rh.addEventListener('mousedown', function(e) {
     var r = el.getBoundingClientRect();
-    _rOX=cx; _rOY=cy; _rOW=r.width; _rOH=r.height;
-    _rs=true; document.body.style.userSelect='none';
-  }
-  function _move(cx, cy) {
+    _rOX=e.clientX; _rOY=e.clientY; _rOW=r.width; _rOH=r.height;
+    _rs=true; document.body.style.userSelect='none'; e.preventDefault(); e.stopPropagation();
+  });
+  document.addEventListener('mousemove', function(e) {
     if (_dr) {
-      var nx = Math.max(0, Math.min(_dWX+cx-_dOX, window.innerWidth-80));
-      var ny = Math.max(0, Math.min(_dWY+cy-_dOY, window.innerHeight-40));
+      var nx = Math.max(0, Math.min(_dWX+e.clientX-_dOX, window.innerWidth-80));
+      var ny = Math.max(0, Math.min(_dWY+e.clientY-_dOY, window.innerHeight-40));
       el.style.left=nx+'px'; el.style.top=ny+'px';
     }
     if (_rs) {
-      el.style.width  = Math.max(280, _rOW+cx-_rOX)+'px';
-      el.style.height = Math.max(160, _rOH+cy-_rOY)+'px';
+      el.style.width  = Math.max(280, _rOW+e.clientX-_rOX)+'px';
+      el.style.height = Math.max(160, _rOH+e.clientY-_rOY)+'px';
     }
-  }
-  function _end() { _dr=false; _rs=false; document.body.style.userSelect=''; }
-
-  /* 창 클릭/터치 시 앞으로 */
-  el.addEventListener('mousedown', function(){ el.style.zIndex = ++_popoutIdSeq + 9800; });
-  el.addEventListener('touchstart', function(){ el.style.zIndex = ++_popoutIdSeq + 9800; }, {passive:true});
-
-  /* 타이틀바 드래그 — 마우스 */
-  if (tb) tb.addEventListener('mousedown', function(e) {
-    if (e.target.closest('button')) return;
-    _startDrag(e.clientX, e.clientY); e.preventDefault();
   });
-  /* 타이틀바 드래그 — 터치 */
-  if (tb) tb.addEventListener('touchstart', function(e) {
-    if (e.target.closest('button')) return;
-    _startDrag(e.touches[0].clientX, e.touches[0].clientY);
-  }, {passive:true});
-
-  /* 리사이즈 핸들 — 마우스 */
-  if (rh) rh.addEventListener('mousedown', function(e) {
-    _startResize(e.clientX, e.clientY); e.preventDefault(); e.stopPropagation();
-  });
-  /* 리사이즈 핸들 — 터치 */
-  if (rh) rh.addEventListener('touchstart', function(e) {
-    _startResize(e.touches[0].clientX, e.touches[0].clientY); e.stopPropagation();
-  }, {passive:true});
-
-  /* 이동/종료 — 마우스 */
-  document.addEventListener('mousemove', function(e) { _move(e.clientX, e.clientY); });
-  document.addEventListener('mouseup', _end);
-  /* 이동/종료 — 터치 */
-  document.addEventListener('touchmove', function(e) {
-    if (!_dr && !_rs) return;
-    _move(e.touches[0].clientX, e.touches[0].clientY);
-    e.preventDefault();
-  }, {passive:false});
-  document.addEventListener('touchend', _end);
+  document.addEventListener('mouseup', function() { _dr=false; _rs=false; document.body.style.userSelect=''; });
 }
 
 /* 리스트 카드에서 직접 팝아웃 열기 (data-* 속성 방식) */
@@ -9330,8 +9264,9 @@ window.addEventListener('load', function(){
     transform:translateY(100%);
     transition:transform .28s cubic-bezier(.4,0,.2,1);
     display:flex;
+    pointer-events:none;
   }
-  #jemv-win.jemv-show { transform:translateY(0); }
+  #jemv-win.jemv-show { transform:translateY(0); pointer-events:auto; }
   #jemv-titlebar { border-radius:16px 16px 0 0; }
   #jemv-body-wrap { border-radius:0; }
 }
@@ -10396,11 +10331,8 @@ window.jemvToggle = function(){
     return null;
   }
   if(w.classList.contains('jemv-show')){
-    /* 모바일: 이미 열려있으면 닫기, 데스크탑: 구절 이동 */
-    if(_mob()){ jemvClose(); } else {
-      var dv=_getDV();
-      if(dv&&_versions.length) _jemvJumpTo(dv.abbr,dv.ch,dv.vs);
-    }
+    var dv=_getDV();
+    if(dv&&_versions.length) _jemvJumpTo(dv.abbr,dv.ch,dv.vs);
   } else {
     jemvOpen();
   }
