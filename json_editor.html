@@ -11,6 +11,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { outline: none !important; }
+        button:focus, button:focus-visible { outline: none !important; }
+        select:focus, select:focus-visible { outline: none !important; }
         html, body { height: 100%; overflow: hidden; background: #f7f4ee; font-family: 'Pretendard Variable', 'Apple SD Gothic Neo', sans-serif; }
     </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -18,7 +21,7 @@
 <body>
 <style id="je-style">
 #je-trig{display:none}
-#je-pin-ov,#je-ed-ov{display:none;position:fixed;inset:0;z-index:9500}
+#je-pin-ov,#je-ed-ov{display:none;position:fixed;inset:0;z-index:10100}
 #je-pin-ov{background:#f7f4ee;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;flex-direction:column;align-items:center;justify-content:center;overflow-y:auto;}
 #je-pin-ov.je-show{display:flex}
 #je-ed-ov{background:#f4f1eb;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;flex-direction:column;overflow:hidden}
@@ -91,10 +94,10 @@
 /* 각주 하단 라인 */
 .je-fn-line{display:block;margin-top:8px;padding:5px 14px 7px;font-family:'Georgia','Nanum Myeongjo',serif;font-size:0.72rem;color:#8a8076;font-style:italic;line-height:1.7;border-top:1px dashed #e4dfd4;background:#fff;word-break:break-word;}
 .je-fn-line .je-fn-sup{font-size:0.72em;vertical-align:super;line-height:0;font-style:normal;color:#8a8076;}
-#je-verse-panel{background:#f3efe6;border-bottom:1px solid #e8e3d8;flex-shrink:0;padding:9px 16px;display:none;}
+#je-verse-panel{background:#f3efe6;border-bottom:1px solid #e8e3d8;flex-shrink:0;padding:9px 16px;display:none;flex-direction:column-reverse;}
 /* ── 주석 플로팅 창 ── */
 #je-comm-win{
-  display:none;position:fixed;z-index:10200;
+  display:none;position:fixed;z-index:10100;
   background:#fff;border-radius:14px;
   box-shadow:0 8px 40px rgba(0,0,0,.18),0 1px 4px rgba(0,0,0,.08);
   border:1px solid #c8d8c4;
@@ -176,9 +179,9 @@
 .je-cn-btn:hover{background:#eef3ee;}
 .je-cn-div{width:1px;height:16px;background:#d8e4d0;flex-shrink:0;margin:0 2px;}
 #je-comm-resize{
-  position:absolute;right:0;bottom:0;width:18px;height:18px;
+  position:absolute;right:0;bottom:0;width:28px;height:28px;
   cursor:nwse-resize;
-  background:linear-gradient(135deg,transparent 50%,#c4c9d8 50%,#c4c9d8 60%,transparent 60%,transparent 70%,#c4c9d8 70%,#c4c9d8 80%,transparent 80%);
+  background:radial-gradient(ellipse at bottom right, rgba(0,0,0,0.13) 0%, transparent 70%);
   border-radius:0 0 14px 0;
 }
 @media(max-width:600px){
@@ -198,7 +201,7 @@
   }
   #je-comm-resize{display:none;}
 }
-#je-verse-panel.je-vp-show{display:block;}
+#je-verse-panel.je-vp-show{display:flex;}
 #je-verse-text{font-size:0.85rem;line-height:1.4;color:#3a3730;word-break:keep-all;}
 #je-verse-src{font-size:0.68rem;color:#9a9288;margin-top:3px;}
 /* 메타 필드 */
@@ -250,14 +253,12 @@
   font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;
 }
 #je-map-resize{
-  position:absolute;right:0;bottom:0;width:18px;height:18px;
+  position:absolute;right:0;bottom:0;width:28px;height:28px;
   cursor:nwse-resize;z-index:20;pointer-events:all;
   border-radius:0 0 12px 0;
-  background:linear-gradient(135deg,transparent 40%,#c0bab2 40%,#c0bab2 50%,
-    transparent 50%,transparent 63%,#c0bab2 63%,#c0bab2 73%,transparent 73%);
+  background:radial-gradient(ellipse at bottom right, rgba(0,0,0,0.13) 0%, transparent 70%);
 }
-#je-map-resize:hover{background:linear-gradient(135deg,transparent 40%,#8a8278 40%,#8a8278 50%,
-    transparent 50%,transparent 63%,#8a8278 63%,#8a8278 73%,transparent 73%);}
+#je-map-resize:hover{background:radial-gradient(ellipse at bottom right, rgba(0,0,0,0.22) 0%, transparent 70%);}
 #je-map-hdr{display:flex;align-items:center;justify-content:space-between;
   padding:8px 12px 7px;border-bottom:1px solid #ece8e0;flex-shrink:0;
   background:#faf9f6;border-radius:12px 12px 0 0;
@@ -689,14 +690,9 @@
 
 </div>
 
-<div id="je-ed-ov"><div id="je-list-ov"><div class="je-list-hdr"><div class="je-list-hdr-top"><div style="display:flex;flex-direction:column;gap:2px;"><div class="je-list-ttl">JSON <span id="je-ttl-editor" onclick="_jeGgaTitleClick()" style="cursor:default;user-select:none;transition:color .15s;">편집기</span></div><div class="je-list-sub" id="je-list-sub"><span id="je-hdr-version" style="font-size:0.6rem;color:#b8b2aa;letter-spacing:0.06em;">v1.5.7</span></div></div><div class="je-list-btns"><button id="je-mob-preview-btn" class="je-lbtn" onclick="jeOpenDeviceSettings()" title="모바일 미리보기" style="background:transparent;color:#7a9a8a;border:1.5px solid #c0d8cc;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='transparent'">모바일</button><button class="je-lbtn je-lbtn-file" onclick="jePickFile()">파일 열기</button><button class="je-lbtn" id="je-backup-btn" style="display:none;background:#f5f2ec;color:#9a9288;border:1.5px solid #ddd8ce;" onclick="jeExportAll()" title="전체 백업">💾</button><button class="je-lbtn je-lbtn-exp" id="je-exp-btn" style="display:none" onclick="jeExport()">📌 메모 저장</button></div></div></div><div id="je-tab-bar"></div><div id="je-bible-drop"><div id="je-bible-drop-txt" class="je-row-left"><button id="je-new-item-btn" onclick="jeNewItem()" style="border:1.5px solid #a8d4bc;border-radius:8px;background:#f0f7f3;color:#2d4a3e;font-size:0.71rem;font-weight:700;padding:0 10px;height:28px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;" onmouseover="this.style.background='#e0f0e8'" onmouseout="this.style.background='#f0f7f3'">＋ 📌 새 메모</button></div><div class="je-fs-sep"></div><div id="je-bible-dd-wrap"><button id="je-bible-dd-btn" onclick="jeToggleBibleDD(event)" style="border:1.5px solid #c0d8cc;border-radius:8px;background:#fff;color:#2d4a3e;font-size:0.71rem;font-weight:700;padding:0 10px;height:28px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:5px;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='#fff'">📂 성경본문<svg id="je-bible-dd-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5a8a78" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></button><div id="je-bible-dd-menu"><div class="je-bdd-header" onclick="_jeGgaHeaderClick(event,false)" style="cursor:default;user-select:none;">역본 불러오기</div><div class="je-bdd-item" onclick="jeBiblePickFile();jeCloseBibleDD()">📂 파일에서 불러오기<span class="je-bdd-badge">직접</span></div><div class="je-bdd-sep"></div><div class="je-bdd-item je-bdd-sample" id="je-sample-btn" onclick="jeSampleBible();jeCloseBibleDD()">▷ 샘플본문(개역한글)</div><div class="je-bdd-sep"></div><div class="je-bdd-header" style="cursor:default;user-select:none;">주석 불러오기</div><div class="je-bdd-item" id="je-comm-load-btn" onclick="jeCommPickFile();jeCloseBibleDD()">📖 주석 파일 열기 (.cdb / .aab)<span class="je-bdd-badge" style="background:#e8f2ee;color:#3a7a5a;">여러 개 가능</span></div><div id="je-comm-loaded-lbl" style="font-size:0.65rem;color:#7a8aab;padding:2px 13px 6px;display:none;line-height:1.7;"></div></div></div><div class="je-inline-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b0a89e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="je-search" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button onclick="jeClearSearch()">&times;</button></div></div><input type="file" id="je-bible-inp" accept=".txt,.bdb,.aab,.zip"><input type="file" id="je-comm-inp" accept=".cdb,.aab,.db,.sqlite" multiple style="display:none"><input type="file" id="je-sr-bible-inp" accept=".txt,.bdb,.aab,.zip" style="display:none"><div id="je-ctrl-bar"><div class="je-search-wrap" id="je-search-wrap" style="display:none"><input class="je-search" id="je-search-dup" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button class="je-search-clr" onclick="jeClearSearch()">&times;</button></div><div id="je-filter-sort-row"><div class="je-row-left"><div id="je-sort-wrap"><button id="je-sort-trigger" onclick="jeToggleSortMenu()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span id="je-sort-label-txt">성경순</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div id="je-sort-menu"><button class="je-sort-opt on" data-sort="bible" onclick="jeSetSort('bible')">성경순</button><button class="je-sort-opt" data-sort="recent" onclick="jeSetSort('recent')">최근작성</button><button class="je-sort-opt" data-sort="oldest" onclick="jeSetSort('oldest')">오래된순</button><button class="je-sort-opt" data-sort="modified" onclick="jeSetSort('modified')">최근수정</button><button class="je-sort-opt" data-sort="length" onclick="jeSetSort('length')">글자수↓</button></div></div></div><div class="je-fs-sep"></div><div id="je-filter-fixed" style="display:flex;align-items:center;gap:5px;flex-shrink:0;"></div><div class="je-bfbtn-sep" id="je-filter-book-sep" style="display:none;"></div><div id="je-book-filter-bar" class="je-book-filter-bar"></div></div><div id="je-sort-bar" class="je-sort-bar"></div><div id="je-sr-cat-filter-bar" style="display:none;align-items:center;gap:5px;padding:6px 14px;background:#f5f8f4;border-bottom:1px solid #e8ede6;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-shrink:0;"></div></div><div id="je-drop-ov"><div class="je-drop-box" id="je-drop-box" onclick="jePickFile()"><div style="font-size:2.6rem">&#128194;</div><div class="je-drop-ttl">파일 열기</div><div class="je-drop-sub">JSON · AAB(성경) · CDB(주석) · ZIP</div><div class="je-drop-sub" style="margin-top:4px;font-size:.7rem;color:#c0bab2;">ZIP 안에 여러 파일을 묶어 한번에 로드 가능</div></div></div><div class="je-list-body" id="je-list-body" style="display:none"></div><div id="je-resize-bar-list" title="드래그하여 창 높이 조절"></div><div id="je-list-footer" style="flex-shrink:0;border-top:1px solid #ece8e0;background:#faf9f6;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;"><span id="je-list-checksum-val" style="font-size:0.6rem;font-family:'Courier New',monospace;color:#b8b2aa;letter-spacing:0.06em;">—</span><span style="font-size:0.6rem;color:#c0bab2;letter-spacing:0.04em;">JINs Bible JSON Workshop | v1.5.7</span></div></div><div id="je-edit-ov" style="display:none;flex-direction:column;height:100%;overflow:hidden"><div class="je-hdr"><button class="je-btn-back" onclick="jeBackToList()">&#8592; 목록</button><button id="je-content-prev" onclick="jeNavListItem(-1)" title="이전 항목" style="display:none;border:none;background:transparent;color:#9a9288;font-size:1rem;font-weight:900;width:24px;height:24px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:4px;flex-shrink:0;transition:color .12s;" onmouseover="this.style.color='#3a3730'" onmouseout="this.style.color='#9a9288'">◀</button><div class="je-hdr-mid"><div class="je-hdr-ref" id="je-hdr-ref"></div><div class="je-hdr-cnt" id="je-hdr-cnt" onclick="jeSetCharGoal()" title="클릭하여 목표 글자수 설정" style="cursor:pointer;"></div></div><button id="je-content-next" onclick="jeNavListItem(1)" title="다음 항목" style="display:none;border:none;background:transparent;color:#9a9288;font-size:1rem;font-weight:900;width:24px;height:24px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:4px;flex-shrink:0;transition:color .12s;" onmouseover="this.style.color='#3a3730'" onmouseout="this.style.color='#9a9288'">▶</button><span style="width:1px;height:18px;background:#e4ddd0;flex-shrink:0;margin:0 2px;"></span><button id="je-popout-btn" onclick="jePopoutCurrentItem()" title="새 창" style="display:none;border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">새 창</button><button onclick="jeDeleteCurrentItem()" title="삭제" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#d04040';this.style.background='transparent';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">삭제</button><button id="je-preview-btn" onclick="jeOpenDeviceSettings()" title="모바일 미리보기" style="display:none;border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">모바일</button><button id="je-multiver-btn" onclick="jemvToggle()" title="다역본 성경" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="if(!this.classList.contains('active')){this.style.color='#c0b8b0';this.style.background='transparent';}">성경</button><button id="je-refcomm-btn" onclick="jeToggleRefComm()" title="참고주석" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="if(!this.classList.contains('active')){this.style.color='#c0b8b0';this.style.background='transparent';}">주석</button><button id="je-edit-btn" onclick="jeToggleEdit()" style="border:1.5px solid #2d4a3e;background:#2d4a3e;color:#fff;font-size:0.76rem;font-weight:700;padding:0 13px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;transition:opacity .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">수정</button><button class="je-btn-save idle" id="je-save-btn" onclick="jeSave()" style="display:none;border:1.5px solid #2d4a3e;background:#2d4a3e;color:#fff;font-size:0.76rem;font-weight:700;padding:0 13px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;-webkit-tap-highlight-color:transparent;">저장</button><button class="je-btn-tempsave" id="je-tempsave-btn" onclick="jeTempSave()" style="display:none;border:1.5px solid #d4cfc6;background:transparent;color:#7a7268;font-size:0.76rem;font-weight:600;padding:0 10px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;-webkit-tap-highlight-color:transparent;">임시저장</button></div><div id="je-hdr-progress"><div id="je-hdr-progress-fill"></div></div><div id="je-verse-panel"><div id="je-verse-text"></div><div style="display:flex;align-items:center;gap:4px;margin-top:5px;flex-wrap:nowrap;min-width:0;">
-  <div style="display:flex;align-items:center;flex-shrink:0;">
-    <button id="je-vp-prev" onclick="jeNavItem(-1)" title="이전" style="border:none;background:transparent;color:#5a5450;font-size:1.1rem;font-weight:900;width:32px;height:32px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:6px;transition:background .12s;" onmouseover="this.style.background='#ece8e0'" onmouseout="this.style.background='transparent'">◀</button>
-    <span id="je-vp-nav-lbl" style="font-size:0.76rem;font-weight:700;color:#5a5450;padding:0 4px;min-width:32px;text-align:center;white-space:nowrap;"></span>
-    <button id="je-vp-next" onclick="jeNavItem(1)" title="다음" style="border:none;background:transparent;color:#5a5450;font-size:1.1rem;font-weight:900;width:32px;height:32px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:6px;transition:background .12s;" onmouseover="this.style.background='#ece8e0'" onmouseout="this.style.background='transparent'">▶</button>
-  </div>
-  <div id="je-verse-src" style="flex:1;font-size:0.76rem;color:#9a9288;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;"></div>
-  <div id="je-vp-btn-row" style="display:flex;align-items:center;gap:3px;flex-shrink:0;">
+<div id="je-ed-ov"><div id="je-list-ov"><div class="je-list-hdr"><div class="je-list-hdr-top"><div style="display:flex;flex-direction:column;gap:2px;"><div class="je-list-ttl">JSON <span id="je-ttl-editor" onclick="_jeGgaTitleClick()" style="cursor:default;user-select:none;transition:color .15s;">편집기</span></div><div class="je-list-sub" id="je-list-sub"><span id="je-hdr-version" style="font-size:0.6rem;color:#b8b2aa;letter-spacing:0.06em;">v1.5.7</span></div></div><div class="je-list-btns"><button id="je-mob-preview-btn" class="je-lbtn" onclick="jeOpenDeviceSettings()" title="모바일 미리보기" style="background:transparent;color:#7a9a8a;border:1.5px solid #c0d8cc;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='transparent'">모바일</button><button class="je-lbtn je-lbtn-file" onclick="jePickFile()">파일 열기</button><button class="je-lbtn" id="je-backup-btn" style="display:none;background:#f5f2ec;color:#9a9288;border:1.5px solid #ddd8ce;" onclick="jeExportAll()" title="전체 백업">💾</button><button class="je-lbtn je-lbtn-exp" id="je-exp-btn" style="display:none" onclick="jeExport()">📌 메모 저장</button></div></div></div><div id="je-tab-bar"></div><div id="je-bible-drop"><div id="je-bible-drop-txt" class="je-row-left"><button id="je-new-item-btn" onclick="jeNewItem()" style="border:1.5px solid #a8d4bc;border-radius:8px;background:#f0f7f3;color:#2d4a3e;font-size:0.71rem;font-weight:700;padding:0 10px;height:28px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;" onmouseover="this.style.background='#e0f0e8'" onmouseout="this.style.background='#f0f7f3'">＋ 📌 새 메모</button></div><div class="je-fs-sep"></div><div id="je-bible-dd-wrap"><button id="je-bible-dd-btn" onclick="jeToggleBibleDD(event)" style="border:1.5px solid #c0d8cc;border-radius:8px;background:#fff;color:#2d4a3e;font-size:0.71rem;font-weight:700;padding:0 10px;height:28px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:5px;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='#fff'">📂 성경본문<svg id="je-bible-dd-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5a8a78" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></button><div id="je-bible-dd-menu"><div class="je-bdd-header" onclick="_jeGgaHeaderClick(event,false)" style="cursor:default;user-select:none;">역본 불러오기</div><div class="je-bdd-item" onclick="jeBiblePickFile();jeCloseBibleDD()">📂 파일에서 불러오기<span class="je-bdd-badge">직접</span></div><div class="je-bdd-sep"></div><div class="je-bdd-item je-bdd-sample" id="je-sample-btn" onclick="jeSampleBible();jeCloseBibleDD()">▷ 샘플본문(개역한글)</div><div class="je-bdd-sep"></div><div class="je-bdd-item" onclick="document.getElementById('je-jw-inp').click();jeCloseBibleDD()" title="예수님 말씀 별색 JSON 파일 로드">🔴 예수말씀 별색 파일 로드<span class="je-bdd-badge" style="background:#fdeaea;color:#b83232;">jred.json</span></div><div class="je-bdd-sep"></div><div class="je-bdd-header" style="cursor:default;user-select:none;">주석 불러오기</div><div class="je-bdd-item" id="je-comm-load-btn" onclick="jeCommPickFile();jeCloseBibleDD()">📖 주석 파일 열기 (.cdb / .aab)<span class="je-bdd-badge" style="background:#e8f2ee;color:#3a7a5a;">여러 개 가능</span></div><div id="je-comm-loaded-lbl" style="font-size:0.65rem;color:#7a8aab;padding:2px 13px 6px;display:none;line-height:1.7;"></div></div></div><div class="je-inline-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b0a89e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="je-search" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button onclick="jeClearSearch()">&times;</button></div></div><input type="file" id="je-bible-inp" accept=".txt,.bdb,.aab,.zip"><input type="file" id="je-jw-inp" accept=".json" style="display:none"><input type="file" id="je-comm-inp" accept=".cdb,.aab,.db,.sqlite" multiple style="display:none"><input type="file" id="je-sr-bible-inp" accept=".txt,.bdb,.aab,.zip" style="display:none"><div id="je-ctrl-bar"><div class="je-search-wrap" id="je-search-wrap" style="display:none"><input class="je-search" id="je-search-dup" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button class="je-search-clr" onclick="jeClearSearch()">&times;</button></div><div id="je-filter-sort-row"><div class="je-row-left"><div id="je-sort-wrap"><button id="je-sort-trigger" onclick="jeToggleSortMenu()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span id="je-sort-label-txt">성경순</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div id="je-sort-menu"><button class="je-sort-opt on" data-sort="bible" onclick="jeSetSort('bible')">성경순</button><button class="je-sort-opt" data-sort="recent" onclick="jeSetSort('recent')">최근작성</button><button class="je-sort-opt" data-sort="oldest" onclick="jeSetSort('oldest')">오래된순</button><button class="je-sort-opt" data-sort="modified" onclick="jeSetSort('modified')">최근수정</button><button class="je-sort-opt" data-sort="length" onclick="jeSetSort('length')">글자수↓</button></div></div></div><div class="je-fs-sep"></div><div id="je-filter-fixed" style="display:flex;align-items:center;gap:5px;flex-shrink:0;"></div><div class="je-bfbtn-sep" id="je-filter-book-sep" style="display:none;"></div><div id="je-book-filter-bar" class="je-book-filter-bar"></div></div><div id="je-sort-bar" class="je-sort-bar"></div><div id="je-sr-cat-filter-bar" style="display:none;align-items:center;gap:5px;padding:6px 14px;background:#f5f8f4;border-bottom:1px solid #e8ede6;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-shrink:0;"></div></div><div id="je-drop-ov"><div class="je-drop-box" id="je-drop-box" onclick="jePickFile()"><div style="font-size:2.6rem">&#128194;</div><div class="je-drop-ttl">파일 열기</div><div class="je-drop-sub">JSON · AAB(성경) · CDB(주석) · ZIP</div><div class="je-drop-sub" style="margin-top:4px;font-size:.7rem;color:#c0bab2;">ZIP 안에 여러 파일을 묶어 한번에 로드 가능</div></div></div><div class="je-list-body" id="je-list-body" style="display:none"></div><div id="je-resize-bar-list" title="드래그하여 창 높이 조절"></div><div id="je-list-footer" style="flex-shrink:0;border-top:1px solid #ece8e0;background:#faf9f6;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;"><span id="je-list-checksum-val" style="font-size:0.6rem;font-family:'Courier New',monospace;color:#b8b2aa;letter-spacing:0.06em;">—</span><span style="font-size:0.6rem;color:#c0bab2;letter-spacing:0.04em;">JINs Bible JSON Workshop | v1.5.7</span></div></div><div id="je-edit-ov" style="display:none;flex-direction:column;height:100%;overflow:hidden"><div class="je-hdr"><button class="je-btn-back" onclick="jeBackToList()">&#8592; 목록</button><button id="je-content-prev" onclick="jeNavListItem(-1)" title="이전 항목" style="display:none;border:none;background:transparent;color:#9a9288;font-size:1rem;font-weight:900;width:24px;height:24px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:4px;flex-shrink:0;transition:color .12s;" onmouseover="this.style.color='#3a3730'" onmouseout="this.style.color='#9a9288'">◀</button><div class="je-hdr-mid"><div class="je-hdr-ref" id="je-hdr-ref"></div><div class="je-hdr-cnt" id="je-hdr-cnt" onclick="jeSetCharGoal()" title="클릭하여 목표 글자수 설정" style="cursor:pointer;"></div></div><button id="je-content-next" onclick="jeNavListItem(1)" title="다음 항목" style="display:none;border:none;background:transparent;color:#9a9288;font-size:1rem;font-weight:900;width:24px;height:24px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:4px;flex-shrink:0;transition:color .12s;" onmouseover="this.style.color='#3a3730'" onmouseout="this.style.color='#9a9288'">▶</button><span style="width:1px;height:18px;background:#e4ddd0;flex-shrink:0;margin:0 2px;"></span><button id="je-popout-btn" onclick="jePopoutCurrentItem()" title="새 창" style="display:none;border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">새 창</button><button onclick="jeDeleteCurrentItem()" title="삭제" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#d04040';this.style.background='transparent';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">삭제</button><button id="je-preview-btn" onclick="jeOpenDeviceSettings()" title="모바일 미리보기" style="display:none;border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">모바일</button><button id="je-multiver-btn" onclick="jemvToggle()" title="다역본 성경" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="if(!this.classList.contains('active')){this.style.color='#c0b8b0';this.style.background='transparent';}">성경</button><button id="je-refcomm-btn" onclick="jeToggleRefComm()" title="참고주석" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="if(!this.classList.contains('active')){this.style.color='#c0b8b0';this.style.background='transparent';}">주석</button><button id="je-edit-btn" onclick="jeToggleEdit()" style="border:1.5px solid #2d4a3e;background:#2d4a3e;color:#fff;font-size:0.76rem;font-weight:700;padding:0 13px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;transition:opacity .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">수정</button><button class="je-btn-save idle" id="je-save-btn" onclick="jeSave()" style="display:none;border:1.5px solid #2d4a3e;background:#2d4a3e;color:#fff;font-size:0.76rem;font-weight:700;padding:0 13px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;-webkit-tap-highlight-color:transparent;">저장</button><button class="je-btn-tempsave" id="je-tempsave-btn" onclick="jeTempSave()" style="display:none;border:1.5px solid #d4cfc6;background:transparent;color:#7a7268;font-size:0.76rem;font-weight:600;padding:0 10px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;-webkit-tap-highlight-color:transparent;">임시저장</button></div><div id="je-hdr-progress"><div id="je-hdr-progress-fill"></div></div><div id="je-verse-panel"><div id="je-verse-text"></div><div style="display:flex;align-items:center;gap:4px;margin-bottom:5px;flex-wrap:nowrap;min-width:0;width:100%;">
+  <div id="je-verse-src" style="display:none;"></div>
+  <div id="je-vp-btn-row" style="display:flex;align-items:center;gap:3px;flex-shrink:0;width:100%;">
     <div id="je-comm-btn-wrap" style="display:none;flex-shrink:0;align-items:center;">
       <button id="je-comm-toggle-btn" onclick="jeToggleCommPanel()" title="인라인 주석 열기/닫기" style="border:none;border-radius:4px;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:600;padding:0 5px;height:20px;display:inline-flex;align-items:center;cursor:pointer;white-space:nowrap;transition:color .12s;-webkit-tap-highlight-color:transparent;gap:3px;" onmouseover="this.style.color='#5a5450'" onmouseout="if(!this.classList.contains('active'))this.style.color='#9a9288'"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>주석</button>
     </div>
@@ -704,23 +700,51 @@
     <button id="je-vp-map-btn" onclick="jeOpenMapModal()" title="관련 지도 보기"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>지도</button>
     <button id="je-vp-wrap-btn" onclick="jeToggleVerseWrap()" style="border:none;border-radius:4px;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:600;padding:0 5px;height:20px;display:inline-flex;align-items:center;cursor:pointer;white-space:nowrap;transition:color .12s;-webkit-tap-highlight-color:transparent;">절별</button>
     <span style="color:#ddd;font-size:0.7rem">|</span>
-    <button onclick="jeVerseFontDown()" style="border:none;border-radius:4px;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:600;padding:0 5px;height:20px;display:inline-flex;align-items:center;cursor:pointer;white-space:nowrap;transition:color .12s;-webkit-tap-highlight-color:transparent;">A-</button>
-    <span id="je-vp-fs" style="font-size:0.68rem;color:#b0b0b0;min-width:16px;text-align:center;display:inline-flex;align-items:center;justify-content:center;height:20px;">14</span>
-    <button onclick="jeVerseFontUp()" style="border:none;border-radius:4px;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:600;padding:0 5px;height:20px;display:inline-flex;align-items:center;cursor:pointer;white-space:nowrap;transition:color .12s;-webkit-tap-highlight-color:transparent;">A+</button>
+    <span style="flex:1;"></span>
+    <div style="display:inline-flex;align-items:center;gap:1px;background:transparent;border:none;padding:0 2px;height:20px;">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#a8a29a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:1px;"><text x="3" y="16" font-size="11" font-weight="700" fill="#a8a29a" stroke="none" font-family="serif">A</text><text x="13" y="13" font-size="8" font-weight="700" fill="#a8a29a" stroke="none" font-family="serif">A</text></svg>
+      <button onclick="jeVerseFontDown()" title="글자 작게" style="border:none;background:transparent;border-radius:3px;padding:0 3px;font-size:0.7rem;color:#9a9288;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;height:18px;">−</button>
+      <span id="je-vp-fs" style="font-size:0.66rem;color:#b0aaa2;min-width:16px;text-align:center;font-variant-numeric:tabular-nums;">14</span>
+      <button onclick="jeVerseFontUp()" title="글자 크게" style="border:none;background:transparent;border-radius:3px;padding:0 3px;font-size:0.7rem;color:#9a9288;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;height:18px;">+</button>
+    </div>
+    <span style="width:1px;height:12px;background:#e0dbd0;flex-shrink:0;display:inline-block;"></span>
+    <div style="display:inline-flex;align-items:center;gap:1px;background:transparent;border:none;padding:0 2px;height:20px;">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#a8a29a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:1px;"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="8 2 12 5 16 2" stroke-width="1.5"/><polyline points="8 22 12 19 16 22" stroke-width="1.5"/></svg>
+      <button onclick="jeVerseLhDown()" title="행간 줄이기" style="border:none;background:transparent;border-radius:3px;padding:0 3px;font-size:0.7rem;color:#9a9288;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;height:18px;">−</button>
+      <span id="je-vp-lh" style="font-size:0.66rem;color:#b0aaa2;min-width:18px;text-align:center;font-variant-numeric:tabular-nums;">1.4</span>
+      <button onclick="jeVerseLhUp()" title="행간 늘리기" style="border:none;background:transparent;border-radius:3px;padding:0 3px;font-size:0.7rem;color:#9a9288;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;height:18px;">+</button>
+    </div>
+    <span style="width:1px;height:12px;background:#e0dbd0;flex-shrink:0;display:inline-block;"></span>
+    <div style="display:inline-flex;align-items:center;gap:1px;background:transparent;border:none;padding:0 2px;height:20px;">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#a8a29a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-right:1px;"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><line x1="2" y1="4" x2="2" y2="8"/><line x1="22" y1="4" x2="22" y2="8"/><line x1="2" y1="16" x2="2" y2="20"/><line x1="22" y1="16" x2="22" y2="20"/></svg>
+      <button onclick="jeVerseLsDown()" title="자간 줄이기" style="border:none;background:transparent;border-radius:3px;padding:0 3px;font-size:0.7rem;color:#9a9288;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;height:18px;">−</button>
+      <span id="je-vp-ls" style="font-size:0.66rem;color:#b0aaa2;min-width:14px;text-align:center;font-variant-numeric:tabular-nums;">0</span>
+      <button onclick="jeVerseLsUp()" title="자간 늘리기" style="border:none;background:transparent;border-radius:3px;padding:0 3px;font-size:0.7rem;color:#9a9288;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;height:18px;">+</button>
+    </div>
+    <button id="je-vp-prev" onclick="jeNavItem(-1)" title="이전" style="border:none;background:transparent;color:#5a5450;font-size:1.1rem;font-weight:900;width:32px;height:32px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:6px;transition:background .12s;" onmouseover="this.style.background='#ece8e0'" onmouseout="this.style.background='transparent'">◀</button>
+    <span id="je-vp-nav-lbl" style="font-size:0.76rem;font-weight:700;color:#5a5450;padding:0 4px;min-width:32px;text-align:center;white-space:nowrap;"></span>
+    <button id="je-vp-next" onclick="jeNavItem(1)" title="다음" style="border:none;background:transparent;color:#5a5450;font-size:1.1rem;font-weight:900;width:32px;height:32px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:6px;transition:background .12s;" onmouseover="this.style.background='#ece8e0'" onmouseout="this.style.background='transparent'">▶</button>
   </div>
 </div></div>
 
-<div id="je-comm-panel"><div id="je-comm-hdr" onclick="jeToggleCommInline()" style="display:flex;align-items:center;justify-content:space-between;padding:5px 14px 5px;background:#eef3ee;border-bottom:1px solid #c8d8c4;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;"><div style="display:flex;align-items:center;gap:5px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7aaa8a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg><span id="je-comm-inline-name-lbl" style="font-size:0.68rem;font-weight:700;color:#3a5448;letter-spacing:0.03em;">주석</span><span id="je-comm-inline-ref-lbl" style="font-size:0.66rem;color:#7a9a88;"></span></div><div style="display:flex;align-items:center;gap:2px;"><button onclick="event.stopPropagation();jeCommFontDown()" style="border:none;background:transparent;color:#7a9a88;font-size:0.67rem;font-weight:700;padding:1px 4px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;">A-</button><span id="je-comm-inline-fs-val" style="font-size:0.66rem;color:#9abba8;min-width:16px;text-align:center;">14</span><button onclick="event.stopPropagation();jeCommFontUp()" style="border:none;background:transparent;color:#7a9a88;font-size:0.67rem;font-weight:700;padding:1px 4px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;">A+</button><span id="je-comm-inline-arrow" style="font-size:0.64rem;color:#9abba8;transition:transform .2s;display:inline-block;margin-left:3px;">▾</span></div></div><div id="je-comm-inline-nodata" style="font-size:0.79rem;color:#9abba8;padding:7px 16px 9px;background:#f5f8f4;display:none;">(이 절의 주석 없음)</div><div id="je-comm-inline-body" style="overflow-y:auto;max-height:260px;padding:10px 18px 14px;background:#f5f8f4;font-family:'Georgia','Nanum Myeongjo',serif;font-size:14px;line-height:1.4;color:#1e3540;word-break:keep-all;display:none;"></div><div id="je-comm-resize-bar" title="드래그하여 높이 조절" style="height:16px;background:transparent;border-top:1px solid #dde8dd;cursor:row-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:none;user-select:none;position:relative;"><div style="width:40px;height:4px;border-radius:3px;background:#a8c8b4;"></div></div></div>
+<div id="je-comm-panel"><div id="je-comm-hdr" onclick="jeToggleCommInline()" style="display:flex;align-items:center;justify-content:space-between;padding:5px 14px 5px;background:#eef3ee;border-bottom:1px solid #c8d8c4;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;"><div style="display:flex;align-items:center;gap:5px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7aaa8a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg><span id="je-comm-inline-name-lbl" style="font-size:0.68rem;font-weight:700;color:#3a5448;letter-spacing:0.03em;">주석</span><span id="je-comm-inline-ref-lbl" style="font-size:0.66rem;color:#7a9a88;"></span></div><div style="display:flex;align-items:center;gap:2px;"><div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><text x="3" y="16" font-size="11" font-weight="700" fill="#6a9a88" stroke="none" font-family="serif">A</text><text x="13" y="13" font-size="8" font-weight="700" fill="#6a9a88" stroke="none" font-family="serif">A</text></svg><button onclick="jeCommFontDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="je-comm-inline-fs-val" style="font-size:0.64rem;color:#7a9a88;min-width:16px;text-align:center;font-variant-numeric:tabular-nums;">14</span><button onclick="jeCommFontUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;">+</button></div><div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="8 2 12 5 16 2" stroke-width="1.5"/><polyline points="8 22 12 19 16 22" stroke-width="1.5"/></svg><button onclick="jeCommLhDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="행간 줄이기">−</button><span id="je-comm-lh-val" style="font-size:0.64rem;color:#7a9a88;min-width:14px;text-align:center;font-variant-numeric:tabular-nums;">1.4</span><button onclick="jeCommLhUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="행간 늘리기">+</button></div><div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><line x1="2" y1="4" x2="2" y2="8"/><line x1="22" y1="4" x2="22" y2="8"/><line x1="2" y1="16" x2="2" y2="20"/><line x1="22" y1="16" x2="22" y2="20"/></svg><button onclick="jeCommLsDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="자간 줄이기">−</button><span id="je-comm-ls-val" style="font-size:0.64rem;color:#7a9a88;min-width:14px;text-align:center;font-variant-numeric:tabular-nums;">0</span><button onclick="jeCommLsUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="자간 늘리기">+</button></div><span id="je-comm-inline-arrow" style="font-size:0.64rem;color:#9abba8;transition:transform .2s;display:inline-block;margin-left:3px;">▾</span></div></div><div id="je-comm-inline-nodata" style="font-size:0.79rem;color:#9abba8;padding:7px 16px 9px;background:#f5f8f4;display:none;">(이 절의 주석 없음)</div><div id="je-comm-inline-body" style="overflow-y:auto;max-height:260px;padding:10px 18px 14px;background:#f5f8f4;font-family:'Georgia','Nanum Myeongjo',serif;font-size:14px;line-height:var(--je-comm-lh,1.4);color:#1e3540;word-break:keep-all;letter-spacing:var(--je-comm-ls,0em);display:none;"></div><div id="je-comm-resize-bar" title="드래그하여 높이 조절" style="height:16px;background:transparent;border-top:1px solid #dde8dd;cursor:row-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:none;user-select:none;position:relative;"><div style="width:40px;height:4px;border-radius:3px;background:#a8c8b4;"></div></div></div>
 <div id="je-meta-panel">
   <div id="je-meta-toggle" onclick="jeToggleMeta()">
     <span id="je-meta-toggle-label">📋 구절 정보 수정</span>
     <div style="display:flex;align-items:center;gap:6px;margin-left:auto;margin-right:8px;" onclick="event.stopPropagation()">
-      <div style="display:flex;align-items:center;gap:1px;">
-        <button onclick="jeCeFontDown()" title="글자 작게" style="border:none;background:transparent;border-radius:5px;padding:2px 5px;font-size:0.72rem;color:#a09890;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">A-</button><span id="je-ce-fs" style="font-size:0.66rem;color:#b8b2aa;min-width:20px;text-align:center;font-variant-numeric:tabular-nums;">18</span><button onclick="jeCeFontUp()" title="글자 크게" style="border:none;background:transparent;border-radius:5px;padding:2px 5px;font-size:0.72rem;color:#a09890;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">A+</button>
-      </div>
-      <div style="width:1px;height:12px;background:#ddd8ce;flex-shrink:0;"></div>
-      <div style="display:flex;align-items:center;gap:1px;">
-        <button onclick="jeCeLineDown()" title="행간 줄이기" style="border:none;background:transparent;border-radius:5px;padding:2px 5px;font-size:0.72rem;color:#a09890;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">줄↑</button><span id="je-ce-lh" style="font-size:0.66rem;color:#b8b2aa;min-width:22px;text-align:center;font-variant-numeric:tabular-nums;">1.4</span><button onclick="jeCeLineUp()" title="행간 늘리기" style="border:none;background:transparent;border-radius:5px;padding:2px 5px;font-size:0.72rem;color:#a09890;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;">줄↓</button>
+      <div style="display:flex;align-items:center;gap:4px;">
+        <div style="display:inline-flex;align-items:center;gap:2px;background:#f5f3ef;border:1px solid #e8e3da;border-radius:7px;padding:2px 5px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7a7268" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;" title="글자 크기"><text x="3" y="16" font-size="11" font-weight="700" fill="#7a7268" stroke="none" font-family="serif">A</text><text x="13" y="13" font-size="8" font-weight="700" fill="#7a7268" stroke="none" font-family="serif">A</text></svg>
+          <button onclick="jeCeFontDown()" title="글자 작게" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#5a5450;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="je-ce-fs" style="font-size:0.66rem;color:#6a6460;min-width:20px;text-align:center;font-variant-numeric:tabular-nums;">18</span><button onclick="jeCeFontUp()" title="글자 크게" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#5a5450;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">+</button>
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:2px;background:#f5f3ef;border:1px solid #e8e3da;border-radius:7px;padding:2px 5px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7a7268" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;" title="행간"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="8 2 12 5 16 2" stroke-width="1.5"/><polyline points="8 22 12 19 16 22" stroke-width="1.5"/></svg>
+          <button onclick="jeCeLineDown()" title="행간 줄이기" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#5a5450;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="je-ce-lh" style="font-size:0.66rem;color:#6a6460;min-width:22px;text-align:center;font-variant-numeric:tabular-nums;">1.4</span><button onclick="jeCeLineUp()" title="행간 늘리기" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#5a5450;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">+</button>
+        </div>
+        <div style="display:inline-flex;align-items:center;gap:2px;background:#f5f3ef;border:1px solid #e8e3da;border-radius:7px;padding:2px 5px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7a7268" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;" title="자간"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><line x1="2" y1="4" x2="2" y2="8"/><line x1="22" y1="4" x2="22" y2="8"/><line x1="2" y1="16" x2="2" y2="20"/><line x1="22" y1="16" x2="22" y2="20"/></svg>
+          <button onclick="jeCeLsDown()" title="자간 줄이기" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#5a5450;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="je-ce-ls" style="font-size:0.66rem;color:#6a6460;min-width:18px;text-align:center;font-variant-numeric:tabular-nums;">0</span><button onclick="jeCeLsUp()" title="자간 늘리기" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#5a5450;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">+</button>
+        </div>
       </div>
     </div>
     <span id="je-meta-toggle-arrow">▼</span>
@@ -1017,6 +1041,132 @@ var _srBibleName=''; /* 가상창 역본 파일명 */
 /* ── JSON 편집기 전용 역본 BOOK_NUM (bookAbbr 배열) ── */
 var _JE_BOOK_NUM=['','창','출','레','민','신','수','삿','룻','삼상','삼하','왕상','왕하','대상','대하','스','느','에','욥','시','잠','전','아','사','렘','애','겔','단','호','욜','암','옵','욘','미','나','합','습','학','슥','말','마','막','눅','요','행','롬','고전','고후','갈','엡','빌','골','살전','살후','딤전','딤후','딛','몬','히','약','벧전','벧후','요1','요2','요3','유','계'];
 var _JE_ABBR_ALIAS={'요일':'요1','요이':'요2','요삼':'요3'};
+
+/* ── 예수말씀 별색 데이터 ─────────────────────────────────────────
+   구조: { "마": { "3": { "15": "full" | ["부분텍스트"] } } }
+   GAE / GGA(개역개정) 역본에만 적용
+   ─────────────────────────────────────────────────────────────── */
+var _jwData = null; /* 로드 완료 시 위 구조 객체 */
+window._jwData = null; /* 역본창 등 외부 접근용 */
+var _JW_LS_KEY = 'jw_d_v2';  /* localStorage 캐시 키 */
+
+/* 개역개정 여부 판별 — 파일명 또는 shortName 기준 */
+function _jwIsGAE(){
+  try{
+    /* 1. 편집기 메인 역본 파일명 */
+    var bn = (typeof _jeBibleName === 'string') ? _jeBibleName.toUpperCase().replace(/[_\-\s]/g,'') : '';
+    if(bn.indexOf('GAE')>=0 || bn.indexOf('GGA')>=0 || bn.indexOf('NKRV')>=0) return true;
+    /* 2. shortName 직접 확인 (가장 신뢰도 높음) */
+    if(_jeBibleData && _jeBibleData.length){
+      var sn0 = (_jeBibleData[0] && (_jeBibleData[0].shortName||'')) || '';
+      if(sn0.replace(/\s/g,'') === '개역개정') return true;
+    }
+    /* 3. 다역본 패널 — 메인 역본 기준 */
+    var vv = window._jemvVersionsRef;
+    if(vv && vv.length){
+      var mi = (typeof window._jemvGetMainVerIdx==='function') ? window._jemvGetMainVerIdx() : 0;
+      var mv = vv[mi] || vv[0];
+      if(mv){
+        var msn=(mv.shortName||'').replace(/\s/g,'');
+        var mfk=(mv.fileKey||'').toUpperCase().replace(/[_\-\s]/g,'');
+        if(msn==='개역개정'||mfk.indexOf('GAE')>=0||mfk.indexOf('GGA')>=0||mfk.indexOf('NKRV')>=0) return true;
+      }
+    }
+  }catch(e){}
+  return false;
+}
+
+/* JSON 구조 자동 감지 후 정규화
+   - 신구조: { "마": { "3": { "15": val } } }  → 그대로 사용
+   - 구구조: { "40": { "3:15": val } }          → 변환 */
+function _jwNormalize(raw){
+  try{
+    var firstKey = Object.keys(raw)[0];
+    if(!firstKey) return {};
+    /* 신구조 판별: 첫 키가 숫자가 아니면 이미 한글 약어 */
+    if(isNaN(parseInt(firstKey,10))){
+      /* 혹시 { "마": { "3:15": val } } 형태(장절 미분리)인지 확인 */
+      var firstBook = raw[firstKey];
+      var firstChKey = Object.keys(firstBook||{})[0];
+      if(firstChKey && firstChKey.indexOf(':')>=0){
+        /* 장절 미분리 → 분리 */
+        var out2={};
+        for(var abbr2 in raw){
+          var bd2={};
+          for(var ref2 in raw[abbr2]){
+            var p2=ref2.split(':'); var ch2=p2[0]; var vs2=p2[1];
+            if(!bd2[ch2]) bd2[ch2]={};
+            bd2[ch2][vs2]=raw[abbr2][ref2];
+          }
+          out2[abbr2]=bd2;
+        }
+        return out2;
+      }
+      /* 완전한 신구조 — 그대로 */
+      return raw;
+    }
+    /* 구구조: 숫자 책번호 + "장:절" 키 */
+    var ABBR={'40':'마','41':'막','42':'눅','43':'요','44':'행','45':'롬',
+      '46':'고전','47':'고후','48':'갈','49':'엡','50':'빌','51':'골',
+      '52':'살전','53':'살후','54':'딤전','55':'딤후','56':'딛','57':'몬',
+      '58':'히','59':'약','60':'벧전','61':'벧후','62':'요1','63':'요2',
+      '64':'요3','65':'유','66':'계'};
+    var out={};
+    for(var bnum in raw){
+      var abbr=ABBR[bnum]||bnum;
+      var bd={};
+      for(var ref in raw[bnum]){
+        var p=ref.split(':'); var ch=p[0]; var vs=p[1];
+        if(!bd[ch]) bd[ch]={};
+        bd[ch][vs]=raw[bnum][ref];
+      }
+      out[abbr]=bd;
+    }
+    return out;
+  }catch(e){ return {}; }
+}
+
+/* 예수말씀 조회: abbr(마), ch(숫자), vs(숫자) → null | "full" | ["부분"] */
+function _jwGet(abbr, ch, vs){
+  try{
+    if(!_jwData) return null;
+    var bd=_jwData[abbr]; if(!bd) return null;
+    var cd=bd[String(ch)]; if(!cd) return null;
+    var v=cd[String(vs)]; return v||null;
+  }catch(e){ return null; }
+}
+window._jwGet=_jwGet;
+window._jwGetData=function(){ return _jwData; };
+
+/* localStorage 캐시에서 로드 */
+function _jwLoadCache(){
+  try{
+    var c=localStorage.getItem(_JW_LS_KEY);
+    if(c){ _jwData=JSON.parse(c); window._jwData=_jwData; return true; }
+  }catch(e){}
+  return false;
+}
+
+/* JSON 파일을 직접 읽어 로드 (드래그드롭 / 파일선택) */
+function _jwLoadFile(file){
+  try{
+    var reader=new FileReader();
+    reader.onload=function(e){
+      try{
+        var raw=JSON.parse(e.target.result);
+        _jwData=_jwNormalize(raw); window._jwData=_jwData;
+        try{ localStorage.setItem(_JW_LS_KEY, JSON.stringify(_jwData)); }catch(ex){}
+        try{ if(typeof _jeRenderVt==='function') _jeRenderVt(); }catch(ex){}
+        try{ if(typeof window._jemvRender==="function") window._jemvRender(); }catch(ex){}
+        _toast('✅ 예수말씀 데이터 로드 완료');
+      }catch(ex){ _toast('❌ 예수말씀 파일 오류: '+ex.message); }
+    };
+    reader.readAsText(file,'utf-8');
+  }catch(e){}
+}
+
+/* 초기화: 캐시 먼저 */
+try{ _jwLoadCache(); }catch(e){}
 /* ── 대한성서공회 링크 ── */
 var _JE_BSKOREA_CODE=['','gen','exo','lev','num','deu','jos','jdg','rut','1sa','2sa','1ki','2ki','1ch','2ch','ezr','neh','est','job','psa','pro','ecc','sng','isa','jer','lam','ezk','dan','hos','jol','amo','oba','jon','mic','nam','hab','zep','hag','zec','mal','mat','mrk','luk','jhn','act','rom','1co','2co','gal','eph','php','col','1th','2th','1ti','2ti','tit','phm','heb','jas','1pe','2pe','1jn','2jn','3jn','jud','rev'];
 function _jeBskoreaUrl(abbrOrIdx, ch, vs){
@@ -1090,10 +1240,11 @@ function _jeRefreshVersePanel(){
   var rows=bd.filter(function(d){return d.book===abbr&&d.ch===ch&&d.vs>=vsStart&&d.vs<=vsEnd;});
   rows.sort(function(a,b){return a.vs-b.vs;});
   if(rows.length){
-    _jeVerseRows=rows; _jeRenderVt();
+    _jeVerseRows=rows;
+    _jeDisplayVerse={abbr:abbr,ch:ch,vs:vsStart,bookName:bookName};
+    _jeRenderVt();
     vs.textContent=bookName+' '+ch+':'+vsStart+(vsEnd>vsStart?'-'+vsEnd:'')+(srcName?' · '+srcName:''); if(typeof _jeShowLinkBtn==='function') _jeShowLinkBtn(true);
     vp.classList.add('je-vp-show');
-    _jeDisplayVerse={abbr:abbr,ch:ch,vs:vsStart,bookName:bookName};
     _jeUpdateNavBtns();
     /* 다역본·지도 싱크 */
     if(typeof _jemvSyncFromMain==='function') _jemvSyncFromMain(abbr,ch,vsStart);
@@ -1120,6 +1271,20 @@ function _jeLoadTxt(buffer, fileName){
   _jeBibleDropUpdate();
   if(window._srRefreshVerse) window._srRefreshVerse();
   _toast('역본 로드 완료: '+fileName);
+  /* 다역본 창에 이미 로드된 역본 중 같은 파일키 역본을 메인으로 자동 설정 */
+  (function(){
+    var vv = window._jemvVersionsRef;
+    if(!vv || !vv.length) return;
+    var edKey = fileName.replace(/\.[^.]+$/,'').replace(/^.*(\/|\\)/,'').toUpperCase().replace(/[_\-\s]/g,'');
+    for(var i=0;i<vv.length;i++){
+      var vk = (vv[i].fileKey||'').toUpperCase().replace(/[_\-\s]/g,'');
+      if(edKey && vk && (edKey===vk || edKey.indexOf(vk)===0 || vk.indexOf(edKey)===0)){
+        if(window._jemvSetMainVerIdx) window._jemvSetMainVerIdx(i);
+        if(window._jemvRebuildTabs) window._jemvRebuildTabs();
+        break;
+      }
+    }
+  })();
 }
 
 /* BDB/AAB(SQLite) 파싱 */
@@ -1141,6 +1306,20 @@ function _jeLoadSqlite(buffer, sliceOffset, fileName){
       _jeBibleDropUpdate();
       if(window._srRefreshVerse) window._srRefreshVerse();
       _toast('역본 로드 완료: '+fileName);
+      /* 다역본 창에 이미 로드된 역본 중 같은 파일키 역본을 메인으로 자동 설정 */
+      (function(){
+        var vv = window._jemvVersionsRef;
+        if(!vv || !vv.length) return;
+        var edKey = fileName.replace(/\.[^.]+$/,'').replace(/^.*(\/|\\)/,'').toUpperCase().replace(/[_\-\s]/g,'');
+        for(var i=0;i<vv.length;i++){
+          var vk = (vv[i].fileKey||'').toUpperCase().replace(/[_\-\s]/g,'');
+          if(edKey && vk && (edKey===vk || edKey.indexOf(vk)===0 || vk.indexOf(edKey)===0)){
+            if(window._jemvSetMainVerIdx) window._jemvSetMainVerIdx(i);
+            if(window._jemvRebuildTabs) window._jemvRebuildTabs();
+            break;
+          }
+        }
+      })();
     }catch(err){_toast('파일 오류: '+err.message);}
   });
 }
@@ -1282,11 +1461,39 @@ function _jeInitBibleDrop(){
   dz.addEventListener('dragleave',function(){dz.classList.remove('drag');});
   dz.addEventListener('drop',function(e){
     e.preventDefault(); dz.classList.remove('drag');
-    var f=e.dataTransfer.files[0]; if(f) _jeHandleBibleFile(f);
+    var f=e.dataTransfer.files[0]; if(!f) return;
+    if(f.name.toLowerCase().endsWith('.json')){
+      /* JSON 파일: 예수말씀 파일 여부 자동 판별 후 처리 */
+      var _r=new FileReader();
+      _r.onload=function(ev){
+        try{
+          var _p=JSON.parse(ev.target.result);
+          var _k0=Object.keys(_p)[0]||'';
+          var _JWB=['마','막','눅','요','행','계','롬','고전','고후','갈','엡','빌','골'];
+          var _n=parseInt(_k0,10);
+          var _isJW=_JWB.indexOf(_k0)>=0||(_n>=40&&_n<=66);
+          if(_isJW){
+            _jwData=_jwNormalize(_p); window._jwData=_jwData;
+            try{localStorage.setItem(_JW_LS_KEY,JSON.stringify(_jwData));}catch(ex){}
+            try{if(typeof _jeRenderVt==='function')_jeRenderVt();}catch(ex){}
+            try{if(typeof window._jemvRender==="function")window._jemvRender();}catch(ex){}
+            _toast('✅ 예수말씀 데이터 로드 완료');
+          } else {
+            _data=_p;_anyDirty=false;_search='';_renderList();
+          }
+        }catch(ex){alert('JSON 파싱 오류');}
+      };
+      _r.readAsText(f,'utf-8');
+    } else {
+      _jeHandleBibleFile(f);
+    }
   });
   var inp=_$('je-bible-inp'); if(!inp) return;
   inp.onchange=function(){if(this.files[0]){_jeHandleBibleFile(this.files[0]);this.value='';}};
-  /* 가상창 전용 파일 인풋 */
+  /* 예수말씀 JSON 파일 인풋 */
+  var jwInp=document.getElementById('je-jw-inp'); if(jwInp){
+    jwInp.onchange=function(){if(this.files[0]){_jwLoadFile(this.files[0]);this.value='';}};
+  }  /* 가상창 전용 파일 인풋 */
   var srInp=document.getElementById('je-sr-bible-inp'); if(!srInp) return;
   srInp.onchange=function(){if(this.files[0]){_jeSrHandleBibleFile(this.files[0]);this.value='';}};
 }
@@ -1339,6 +1546,51 @@ function _jeRenderVt(){
     });
     vt.appendChild(hd);
   }
+  /* 위첨자 문자를 sup 태그로 변환 (공통 헬퍼) */
+  function _renderWithSup(container, text, color){
+    var parts=text.split(/([¹²³⁴⁵⁶⁷⁸⁹⁰]+⁾)/g);
+    parts.forEach(function(part){
+      if(/^[¹²³⁴⁵⁶⁷⁸⁹⁰]+⁾$/.test(part)){
+        var s=document.createElement('sup');
+        s.textContent=part;
+        s.style.cssText='font-size:0.65em;vertical-align:super;line-height:0;color:#7a8aab;';
+        container.appendChild(s);
+      } else if(part){
+        if(color){
+          var cs=document.createElement('span');
+          cs.style.color=color;
+          cs.appendChild(document.createTextNode(part));
+          container.appendChild(cs);
+        } else {
+          container.appendChild(document.createTextNode(part));
+        }
+      }
+    });
+  }
+  /* 예수말씀 부분 하이라이트: 일치 텍스트를 색상 span으로 래핑 */
+  function _renderWithJW(container, txt, jwVal){
+    try{
+      var JW_COLOR='#b83232';
+      if(!jwVal || !_jwIsGAE()){ _renderWithSup(container,txt,null); return; }
+      if(jwVal==='full'){ _renderWithSup(container,txt,JW_COLOR); return; }
+      /* partial: jwVal은 문자열 배열 */
+      var parts=Array.isArray(jwVal)?jwVal:[];
+      if(!parts.length){ _renderWithSup(container,txt,null); return; }
+      var remaining=txt;
+      var sortedParts=parts.slice().sort(function(a,b){
+        return txt.indexOf(a)-txt.indexOf(b);
+      });
+      sortedParts.forEach(function(seg){
+        var idx=remaining.indexOf(seg);
+        if(idx<0){ return; }
+        if(idx>0) _renderWithSup(container,remaining.slice(0,idx),null);
+        _renderWithSup(container,seg,JW_COLOR);
+        remaining=remaining.slice(idx+seg.length);
+      });
+      if(remaining) _renderWithSup(container,remaining,null);
+    }catch(e){ try{ _renderWithSup(container,txt,null); }catch(e2){} }
+  }
+
   _jeVerseRows.forEach(function(d){
     var raw=(d.text||d.btext||'').replace(/<[^>]+>\s*/g,'').trim();
     /* 각주 수집 */
@@ -1352,30 +1604,19 @@ function _jeRenderVt(){
     }
     /* 각주 블록 제거 후 본문 */
     var txt=raw.replace(/【\d+\)[\s\S]*?】/g,'').trim();
-    /* 위첨자 문자를 sup 태그로 변환 */
-    function _renderWithSup(container, text){
-      var parts=text.split(/([¹²³⁴⁵⁶⁷⁸⁹⁰]+⁾)/g);
-      parts.forEach(function(part){
-        if(/^[¹²³⁴⁵⁶⁷⁸⁹⁰]+⁾$/.test(part)){
-          var s=document.createElement('sup');
-          s.textContent=part;
-          s.style.cssText='font-size:0.65em;vertical-align:super;line-height:0;color:#7a8aab;';
-          container.appendChild(s);
-        } else if(part){
-          container.appendChild(document.createTextNode(part));
-        }
-      });
-    }
     if(!txt) return;
+    /* 예수말씀 데이터 조회 — _jeDisplayVerse의 abbr 사용 */
+    var _jwAbbr=(_jeDisplayVerse&&_jeDisplayVerse.abbr)||'';
+    var _jwV=_jwAbbr?_jwGet(_jwAbbr,d.ch||(_jeDisplayVerse&&_jeDisplayVerse.ch)||1,d.vs):null;
     if(_jeVerseWrap){
       var div=document.createElement('div');
       div.style.cssText='display:flex;gap:0.3em;align-items:baseline;margin-bottom:0.25em';
       if(multi){var sup=document.createElement('sup');sup.textContent=d.vs;sup.style.cssText='font-size:0.65em;color:#9a9288;vertical-align:super;flex-shrink:0;margin-right:2px';div.appendChild(sup);}
-      var sp=document.createElement('span');_renderWithSup(sp,txt);div.appendChild(sp);
+      var sp=document.createElement('span');_renderWithJW(sp,txt,_jwV);div.appendChild(sp);
       vt.appendChild(div);
     } else {
       if(multi){var sup2=document.createElement('sup');sup2.textContent=d.vs;sup2.style.cssText='font-size:0.65em;color:#9a9288;margin-right:2px;vertical-align:super';vt.appendChild(sup2);}
-      var sp2=document.createElement('span');_renderWithSup(sp2,txt);sp2.style.marginRight='0.25em';vt.appendChild(sp2);
+      var sp2=document.createElement('span');_renderWithJW(sp2,txt,_jwV);sp2.style.marginRight='0.25em';vt.appendChild(sp2);
     }
   });
   /* 각주 라인 렌더 */
@@ -1401,6 +1642,21 @@ function jeToggleVerseWrap(){
   var btn=_$('je-vp-wrap-btn');
   if(btn){btn.style.background=_jeVerseWrap?'#2d4a3e':'transparent';btn.style.color=_jeVerseWrap?'#fff':'#9a9288';btn.style.borderRadius='4px';}
 }
+/* ── 구절창 행간 / 자간 ── */
+var _jeVerseLh=1.4, _jeVerseLs=0;
+function jeVerseLhUp(){_jeVerseLh=Math.min(3.0,Math.round((_jeVerseLh+0.1)*10)/10);_jeApplyVLh();}
+function jeVerseLhDown(){_jeVerseLh=Math.max(1.0,Math.round((_jeVerseLh-0.1)*10)/10);_jeApplyVLh();}
+function _jeApplyVLh(){
+  var vt=_$('je-verse-text'); if(vt) vt.style.lineHeight=_jeVerseLh+'';
+  var lbl=_$('je-vp-lh'); if(lbl) lbl.textContent=_jeVerseLh.toFixed(1);
+}
+function jeVerseLsUp(){_jeVerseLs=Math.min(20,_jeVerseLs+1);_jeApplyVLs();}
+function jeVerseLsDown(){_jeVerseLs=Math.max(-5,_jeVerseLs-1);_jeApplyVLs();}
+function _jeApplyVLs(){
+  var vt=_$('je-verse-text'); if(vt) vt.style.letterSpacing=(_jeVerseLs/100)+'em';
+  var lbl=_$('je-vp-ls'); if(lbl) lbl.textContent=_jeVerseLs;
+}
+
 function jeVerseFontUp(){if(_jeVerseFontSize>=24)return;_jeVerseFontSize+=2;_jeApplyVfs();}
 function jeVerseFontDown(){if(_jeVerseFontSize<=10)return;_jeVerseFontSize-=2;_jeApplyVfs();}
 function _jeApplyVfs(){
@@ -1651,8 +1907,11 @@ function _renderBookFilter(){
   var bookHtml='';
   for(var b=0;b<bookNames.length;b++){
     var bn=bookNames[b], isOn=(_jeBookFilter===bn);
-    var n2=bookOrder[bn], isOt=(n2<=39);
-    bookHtml+='<button class="je-bfbtn book'+(isOt?' ot':' nt')+(isOn?' on':'')+'" data-bf="'+_e(bn)+'" onclick="_jeBF(this)">'+_e(bn)+' <span class="je-bfbtn-cnt">'+bookCount[bn]+'</span></button>';
+    var n2=bookOrder[bn], isOt=(n2>=1&&n2<=39);
+    if(_jeBookFilter==='ot'&&!isOt) continue;
+    if(_jeBookFilter==='nt'&&isOt) continue;
+    bookHtml+='<button class="je-bfbtn book'+(isOt?' ot':' nt')+(isOn?' on':'')+
+'" data-bf="'+_e(bn)+'" onclick="_jeBF(this)">'+_e(bn)+' <span class="je-bfbtn-cnt">'+bookCount[bn]+'</span></button>';
   }
 
   var isMob=window.innerWidth<=600;
@@ -1890,6 +2149,16 @@ function jeSampleBible(){
   }).then(function(buf){
     _jeBibleLoadingBadge(null);
     _jeLoadSqlite(buf,8,'GAE.aab');
+    /* 다역본 창에도 같은 역본 자동 추가 (중복 없으면) */
+    (function(){
+      if(typeof window._jemvLoadBuf !== 'function') return;
+      var vv = window._jemvVersionsRef;
+      var alreadyHas = vv && vv.some(function(v){
+        var vk=(v.fileKey||'').toUpperCase().replace(/[_\-\s]/g,'');
+        return vk==='GAE';
+      });
+      if(!alreadyHas) window._jemvLoadBuf(buf, 8, 'GAE.aab');
+    })();
   }).catch(function(err){
     _jeBibleLoadingBadge(null);
     _toast('샘플 불러오기 실패: '+(err&&err.message?err.message:''));
@@ -2375,13 +2644,17 @@ function jeOpenEdit(idx, tab){
       var rows=bd.filter(function(d){return d.book===abbr&&d.ch===ch&&d.vs>=vsStart&&d.vs<=vsEnd;});
       rows.sort(function(a,b){return a.vs-b.vs;});
       if(rows.length){
-        _jeVerseRows=rows; _jeRenderVt();
+        _jeVerseRows=rows;
+        _jeDisplayVerse={abbr:abbr,ch:ch,vs:vsStart,bookName:bookName};
+        _jeRenderVt();
         vs.textContent=bookName+' '+ch+':'+vsStart+(vsEnd>vsStart?'-'+vsEnd:'')+(srcName?' · '+srcName:''); if(typeof _jeShowLinkBtn==='function') _jeShowLinkBtn(true);
         vp.classList.add('je-vp-show');
       } else { _jeVerseRows=[]; vt.innerHTML=''; vt.textContent='(해당 절을 찾을 수 없습니다)'; vs.textContent=''; _jeShowLinkBtn(false); vp.classList.add('je-vp-show'); }
     } else { _jeVerseRows=[]; vt.innerHTML=''; vt.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;"><span style="color:#b0a89a;font-size:0.85rem">(역본 없음)</span><button onclick="jeSampleBible()" style="border:none;background:none;color:#2d4a3e;font-size:0.78rem;font-weight:700;cursor:pointer;padding:0;opacity:0.75;transition:opacity .15s;flex-shrink:0;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.75">▷ 샘플본문(개역한글)</button></div>'; vs.textContent=''; _jeShowLinkBtn(false); vp.classList.add('je-vp-show'); }
     /* 절 이동용 현재 절 저장 */
     _jeDisplayVerse={abbr:abbr,ch:ch,vs:vsStart,bookName:bookName};
+    /* 역본창 이동용 별도 저장 — _jeDisplayVerse보다 먼저, 조건 없이 항상 */
+    window._jemvPendingVerse={abbr:abbr,ch:ch,vs:vsStart};
     /* 주석창 연동 — 헤더 구절 기준으로 즉시 갱신 */
     if(typeof _commRenderFromDisplayVerse==='function') setTimeout(_commRenderFromDisplayVerse, 80);
     /* 다역본·지도 싱크 */
@@ -3015,7 +3288,9 @@ function _jeNewItemVersePreview(){
   var rows=bd.filter(function(d){return d.book===abbr&&d.ch===ch&&d.vs>=vsStart&&d.vs<=vsEnd;});
   rows.sort(function(a,b){return a.vs-b.vs;});
   if(rows.length){
-    _jeVerseRows=rows; _jeRenderVt();
+    _jeVerseRows=rows;
+    _jeDisplayVerse={abbr:abbr,ch:ch,vs:vsStart,bookName:bookName};
+    _jeRenderVt();
     vs.textContent=bookName+' '+ch+':'+vsStart+(vsEnd>vsStart?'-'+vsEnd:'')+(srcName?' · '+srcName:''); if(typeof _jeShowLinkBtn==='function') _jeShowLinkBtn(true);
     vp.classList.add('je-vp-show');
     /* 헤더도 실시간 갱신 */
@@ -3313,6 +3588,15 @@ function _moveCursorToEnd(el){
   try{var r=document.createRange(),s=window.getSelection();r.selectNodeContents(el);r.collapse(false);s.removeAllRanges();s.addRange(r);}catch(e){}
 }
 var _jeCeLineHeight=1.4;
+/* ── 편집창 자간 ── */
+var _jeCeLs=0;
+function jeCeLsUp(){_jeCeLs=Math.min(20,_jeCeLs+1);_jeApplyCeLs();}
+function jeCeLsDown(){_jeCeLs=Math.max(-5,_jeCeLs-1);_jeApplyCeLs();}
+function _jeApplyCeLs(){
+  var ce=_$('je-ce'); if(ce) ce.style.letterSpacing=(_jeCeLs/100)+'em';
+  var lbl=_$('je-ce-ls'); if(lbl) lbl.textContent=_jeCeLs;
+}
+
 function jeCeLineUp(){
   if(_jeCeLineHeight>=3.0) return;
   _jeCeLineHeight=Math.round((_jeCeLineHeight+0.1)*10)/10;
@@ -3554,7 +3838,29 @@ if(dbox){
       var f=files[fi]; if(!f) continue;
       var lower=f.name.toLowerCase();
       if(lower.endsWith('.json')){
-        (function(ff){var r=new FileReader();r.onload=function(ev){try{_data=JSON.parse(ev.target.result);_anyDirty=false;_search='';_renderList();}catch(err){alert('JSON 파싱 오류');}};r.readAsText(ff,'utf-8');})(f);
+        (function(ff){var r=new FileReader();r.onload=function(ev){
+          try{
+            var parsed=JSON.parse(ev.target.result);
+            /* 예수말씀 파일 자동 판별: 최상위 키가 한글 책 약어(마·막·눅·요·행·계 등) */
+            var firstK=Object.keys(parsed)[0]||'';
+            var JW_BOOKS=['마','막','눅','요','행','계','롬','고전','고후','갈','엡','빌','골'];
+            var isJW=JW_BOOKS.indexOf(firstK)>=0;
+            if(!isJW){
+              /* 숫자 키면 구버전 jred.json */
+              var n=parseInt(firstK,10);
+              if(n>=40&&n<=66) isJW=true;
+            }
+            if(isJW){
+              _jwData=_jwNormalize(parsed); window._jwData=_jwData;
+              try{ localStorage.setItem(_JW_LS_KEY, JSON.stringify(_jwData)); }catch(ex){}
+              try{ if(typeof _jeRenderVt==='function') _jeRenderVt(); }catch(ex){}
+              try{ if(typeof window._jemvRender==="function") window._jemvRender(); }catch(ex){}
+              _toast('✅ 예수말씀 데이터 로드 완료 ('+ff.name+')');
+            } else {
+              _data=parsed;_anyDirty=false;_search='';_renderList();
+            }
+          }catch(err){alert('JSON 파싱 오류');}
+        };r.readAsText(ff,'utf-8');})(f);
       } else if(lower.endsWith('.aab')||lower.endsWith('.bdb')||lower.endsWith('.txt')){
         (function(ff){
           var r=new FileReader();
@@ -3613,6 +3919,18 @@ if(dbox){
                     zip.files[n].async('string').then(function(txt){
                       try{
                         var parsed=JSON.parse(txt);
+                        /* 예수말씀 파일 자동 판별 */
+                        var _fk0=Object.keys(parsed)[0]||'';
+                        var _JW_BK=['마','막','눅','요','행','계','롬','고전','고후','갈','엡','빌','골'];
+                        var _isJW=_JW_BK.indexOf(_fk0)>=0||(parseInt(_fk0,10)>=40&&parseInt(_fk0,10)<=66);
+                        if(_isJW){
+                          _jwData=_jwNormalize(parsed); window._jwData=_jwData;
+                          try{ localStorage.setItem(_JW_LS_KEY, JSON.stringify(_jwData)); }catch(ex){}
+                          try{ if(typeof _jeRenderVt==='function') _jeRenderVt(); }catch(ex){}
+                          try{ if(typeof window._jemvRender==="function") window._jemvRender(); }catch(ex){}
+                          results.push('예수말씀 로드됨');
+                          _done(); return;
+                        }
                         var catKeys=['bookmarks','sermons','highlights'];
                         var pk=Object.keys(parsed);
                         var isSingle=pk.length===1&&catKeys.indexOf(pk[0])>=0;
@@ -3680,7 +3998,15 @@ if(dbox){
     }
   };
 }
-document.addEventListener('keydown',function(e){if(e.key==='Escape')jeHideAll();});
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape') return;
+  var jemvWin=document.getElementById('jemv-win');
+  if(jemvWin && jemvWin.classList.contains('jemv-show')){
+    if(window.jemvClose) jemvClose();
+    return;
+  }
+  jeHideAll();
+});
 /* Alt+← / Alt+→ : 이전/다음 항목 이동 (편집 중에는 비활성) */
 /* Ctrl+← / Ctrl+→ : 성경 이전절/다음절 이동 */
 document.addEventListener('keydown',function(e){
@@ -3742,7 +4068,7 @@ document.addEventListener('keydown',function(e){
   attachBar(document.getElementById('je-resize-bar'));
   attachBar(document.getElementById('je-resize-bar-list'));
 })();
-window.jeToggleVerseWrap=jeToggleVerseWrap;window.jeVerseFontUp=jeVerseFontUp;window.jeVerseFontDown=jeVerseFontDown;
+window.jeToggleVerseWrap=jeToggleVerseWrap;window.jeVerseFontUp=jeVerseFontUp;window.jeVerseFontDown=jeVerseFontDown;window.jeVerseLhUp=jeVerseLhUp;window.jeVerseLhDown=jeVerseLhDown;window.jeVerseLsUp=jeVerseLsUp;window.jeVerseLsDown=jeVerseLsDown;
 window.jeNavItem=jeNavItem;
 window.jeSetSort=jeSetSort;
 window.jeSetBookFilter=jeSetBookFilter;
@@ -5437,6 +5763,29 @@ window.jeSetCommMode = function(mode) {
   jeToggleCommPanel();
 };
 
+/* ── 주석창 행간 / 자간 ── */
+var _jeCommLh=1.4, _jeCommLs=0;
+window.jeCommLhUp = function(){
+  _jeCommLh=Math.min(3.0,Math.round((_jeCommLh+0.1)*10)/10);
+  _jeApplyCommStyle();
+};
+window.jeCommLhDown = function(){
+  _jeCommLh=Math.max(1.0,Math.round((_jeCommLh-0.1)*10)/10);
+  _jeApplyCommStyle();
+};
+window.jeCommLsUp = function(){_jeCommLs=Math.min(20,_jeCommLs+1);_jeApplyCommStyle();};
+window.jeCommLsDown = function(){_jeCommLs=Math.max(-5,_jeCommLs-1);_jeApplyCommStyle();};
+function _jeApplyCommStyle(){
+  var b1=document.getElementById('je-comm-body');
+  var b2=document.getElementById('je-comm-inline-body');
+  [b1,b2].forEach(function(b){ if(!b) return;
+    b.style.setProperty('--je-comm-lh',_jeCommLh+'');
+    b.style.setProperty('--je-comm-ls',(_jeCommLs/100)+'em');
+  });
+  var lh=document.getElementById('je-comm-lh-val'); if(lh) lh.textContent=_jeCommLh.toFixed(1);
+  var ls=document.getElementById('je-comm-ls-val'); if(ls) ls.textContent=_jeCommLs;
+}
+
 window.jeCommFontDown = function() {
   _commFs = Math.max(10, _commFs - 1);
   /* float body */
@@ -5558,7 +5907,7 @@ window._jeCreatePopoutWin = function _jeCreatePopoutWin(tab, idx, item) {
     + (bodyHtml || '<span style="color:#b0a89a;font-size:0.85rem;">(내용 없음)</span>')
     + '</div>'
     /* 리사이즈 핸들 */
-    + '<div class="_popout-rh" style="position:absolute;right:0;bottom:0;width:18px;height:18px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,#c4b8a8 50%,#c4b8a8 60%,transparent 60%,transparent 70%,#c4b8a8 70%,#c4b8a8 80%,transparent 80%);border-radius:0 0 14px 0;"></div>';
+    + '<div class="_popout-rh" style="position:absolute;right:0;bottom:0;width:28px;height:28px;cursor:nwse-resize;background:radial-gradient(ellipse at bottom right, rgba(0,0,0,0.13) 0%, transparent 70%);border-radius:0 0 14px 0;"></div>';
 
   document.body.appendChild(el);
 
@@ -5572,13 +5921,16 @@ function _jeBindPopoutDrag(el, rec) {
   var rh = el.querySelector('._popout-rh');
   var _dr=false, _rs=false, _dOX, _dOY, _dWX, _dWY, _rOX, _rOY, _rOW, _rOH;
 
+  /* 창 클릭 시 앞으로 */
+  el.addEventListener('mousedown', function(){
+    el.style.zIndex = ++_popoutIdSeq + 9800;
+  });
   if (tb) tb.addEventListener('mousedown', function(e) {
     if (e.target.closest('button')) return;
     var r = el.getBoundingClientRect();
     el.style.left=r.left+'px'; el.style.top=r.top+'px';
     _dWX=r.left; _dWY=r.top; _dOX=e.clientX; _dOY=e.clientY;
     _dr=true; document.body.style.userSelect='none'; e.preventDefault();
-    el.style.zIndex = ++_popoutIdSeq + 9800;
   });
   if (rh) rh.addEventListener('mousedown', function(e) {
     var r = el.getBoundingClientRect();
@@ -5710,7 +6062,7 @@ function jeSrEditToggleBibleDD(e){e.stopPropagation();var m=document.getElementB
 function jeSrEditCloseBibleDD(){var m=document.getElementById('je-sr-edit-bible-dd-menu');var c=document.getElementById('je-sr-edit-bible-dd-chev');if(m)m.style.display='none';if(c)c.style.transform='';}
 document.addEventListener('click',function(e){var wrap=document.getElementById('je-sr-edit-bible-dd-wrap');if(wrap&&!wrap.contains(e.target))jeSrEditCloseBibleDD();});
 window.jeSrEditToggleBibleDD=jeSrEditToggleBibleDD; window.jeSrEditCloseBibleDD=jeSrEditCloseBibleDD;
-window.jePickBgColor=jePickBgColor; window.jeClearFmt=jeClearFmt; window.jeCeUndo=jeCeUndo; window.jeCeRedo=jeCeRedo; window.jeCeFontUp=jeCeFontUp; window.jeCeFontDown=jeCeFontDown; window.jeCeLineUp=jeCeLineUp; window.jeCeLineDown=jeCeLineDown; window.jeToggleMeta=jeToggleMeta; window.jeMetaDirty=jeMetaDirty; window.jeMetaSave=jeMetaSave;
+window.jePickBgColor=jePickBgColor; window.jeClearFmt=jeClearFmt; window.jeCeUndo=jeCeUndo; window.jeCeRedo=jeCeRedo; window.jeCeFontUp=jeCeFontUp; window.jeCeFontDown=jeCeFontDown; window.jeCeLineUp=jeCeLineUp; window.jeCeLineDown=jeCeLineDown; window.jeCeLsUp=jeCeLsUp; window.jeCeLsDown=jeCeLsDown; window.jeToggleMeta=jeToggleMeta; window.jeMetaDirty=jeMetaDirty; window.jeMetaSave=jeMetaSave;
 window.jeNewItem=jeNewItem; window.jeBookSelectChange=jeBookSelectChange; window.jeBookSelectChangeSr=jeBookSelectChangeSr; window.jeBookSelectChangeHl=jeBookSelectChangeHl;
 window._htmlToTags=_htmlToTags; window._tagsToHtml=_tagsToHtml; window._renderList=_renderList; window._toast=_toast;
 Object.defineProperty(window,'_jeTab',{get:function(){return _jeTab;},configurable:true});
@@ -7303,10 +7655,11 @@ document.addEventListener("DOMContentLoaded", function(){
               <span class="je-sr-div"></span>
               <button onclick="jeSrClearFmt()" style="font-size:0.72rem;font-weight:700;color:#888;">T✕</button>
             </div>
-            <div class="je-tb-view-ctrl" title="보기 전용 — 글자 크기 조절">
-              <button onclick="jeSrFontDown()" style="font-size:0.72rem;">A-</button>
-              <span id="je-sr-fs" style="font-size:0.68rem;min-width:18px;text-align:center;padding:0 1px;">20</span>
-              <button onclick="jeSrFontUp()" style="font-size:0.72rem;">A+</button>
+            <div style="display:inline-flex;align-items:center;gap:2px;background:#ede9e1;border:1px solid #ddd8ce;border-radius:7px;padding:2px 5px;" title="보기 전용 — 글자 크기 조절">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9a9288" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><text x="3" y="16" font-size="11" font-weight="700" fill="#9a9288" stroke="none" font-family="serif">A</text><text x="13" y="13" font-size="8" font-weight="700" fill="#9a9288" stroke="none" font-family="serif">A</text></svg>
+              <button onclick="jeSrFontDown()" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">−</button>
+              <span id="je-sr-fs" style="font-size:0.68rem;color:#9a9288;min-width:18px;text-align:center;font-variant-numeric:tabular-nums;padding:0 1px;">20</span>
+              <button onclick="jeSrFontUp()" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">+</button>
             </div>
           </div>
           <!-- 2행: 크기 + 두줄/빈줄 + 행간 -->
@@ -7319,10 +7672,11 @@ document.addEventListener("DOMContentLoaded", function(){
               <button onclick="jeSrTrimDupLines()" title="연속 빈줄 압축" style="font-size:0.72rem;">두줄</button>
               <button onclick="jeSrTrimAllBlankLines()" title="모든 빈줄 삭제" style="font-size:0.72rem;">빈줄</button>
             </div>
-            <div class="je-tb-view-ctrl" title="보기 전용 — 행간 조절">
-              <button onclick="jeSrLineDown()" style="font-size:0.72rem;">줄↑</button>
-              <span id="je-sr-lh" style="font-size:0.68rem;min-width:22px;text-align:center;padding:0 1px;">1.55</span>
-              <button onclick="jeSrLineUp()" style="font-size:0.72rem;">줄↓</button>
+            <div style="display:inline-flex;align-items:center;gap:2px;background:#ede9e1;border:1px solid #ddd8ce;border-radius:7px;padding:2px 5px;" title="보기 전용 — 행간 조절">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9a9288" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="8 2 12 5 16 2" stroke-width="1.5"/><polyline points="8 22 12 19 16 22" stroke-width="1.5"/></svg>
+              <button onclick="jeSrLineDown()" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">−</button>
+              <span id="je-sr-lh" style="font-size:0.68rem;color:#9a9288;min-width:22px;text-align:center;font-variant-numeric:tabular-nums;padding:0 1px;">1.55</span>
+              <button onclick="jeSrLineUp()" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">+</button>
             </div>
           </div>
         </div>
@@ -8622,10 +8976,11 @@ window.addEventListener('load', function(){
       <span id="je-comm-ref-lbl" style="font-size:0.68rem;color:#7a9a88;flex-shrink:0;"></span>
     </div>
     <div id="je-comm-titlebar-right">
-      <div id="je-comm-fs-ctrl">
-        <button onclick="jeCommFontDown()" style="border:none;background:transparent;color:#7a8aab;font-size:0.7rem;font-weight:700;padding:1px 5px;cursor:pointer;-webkit-tap-highlight-color:transparent;">A-</button>
-        <span id="je-comm-fs-val" style="font-size:0.68rem;color:#9a9fa8;min-width:16px;text-align:center;">14</span>
-        <button onclick="jeCommFontUp()" style="border:none;background:transparent;color:#7a8aab;font-size:0.7rem;font-weight:700;padding:1px 5px;cursor:pointer;-webkit-tap-highlight-color:transparent;">A+</button>
+      <div id="je-comm-fs-ctrl" style="display:inline-flex;align-items:center;gap:2px;background:#e8edf5;border:1px solid #c8d0e0;border-radius:6px;padding:2px 4px;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#7a8aab" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><text x="3" y="16" font-size="11" font-weight="700" fill="#7a8aab" stroke="none" font-family="serif">A</text><text x="13" y="13" font-size="8" font-weight="700" fill="#7a8aab" stroke="none" font-family="serif">A</text></svg>
+        <button onclick="jeCommFontDown()" style="border:none;background:transparent;color:#6a7a9b;font-size:0.7rem;font-weight:700;padding:0 3px;cursor:pointer;-webkit-tap-highlight-color:transparent;line-height:1;">−</button>
+        <span id="je-comm-fs-val" style="font-size:0.66rem;color:#8a8fac;min-width:16px;text-align:center;font-variant-numeric:tabular-nums;">14</span>
+        <button onclick="jeCommFontUp()" style="border:none;background:transparent;color:#6a7a9b;font-size:0.7rem;font-weight:700;padding:0 3px;cursor:pointer;-webkit-tap-highlight-color:transparent;line-height:1;">+</button>
       </div>
       <button id="je-comm-sync-btn" onclick="_commNavSyncToggle()" title="싱크 고정: 본창 구절에 자동 연동" style="border:1px solid #c8d8c4;border-radius:4px;background:#eef3ee;color:#3a5448;font-size:0.68rem;font-weight:700;padding:1px 6px;height:20px;cursor:pointer;margin-left:2px;white-space:nowrap;transition:background .12s,border-color .12s,color .12s;-webkit-tap-highlight-color:transparent;">🔗 싱크</button>
       <button id="je-comm-close-btn" onclick="jeToggleRefComm()" title="닫기">✕</button>
@@ -8882,9 +9237,9 @@ window.addEventListener('load', function(){
   background:#ffffff; border-radius:14px;
   box-shadow:0 8px 40px rgba(0,0,0,.18),0 1px 4px rgba(0,0,0,.08);
   border:1px solid #ddd8ce;
-  flex-direction:column; overflow:hidden;
+  flex-direction:column; overflow:visible;
   min-width:300px; min-height:200px;
-  width:600px; height:calc(100vh - 48px);
+  width:760px; height:calc(100vh - 48px);
   top:50%; left:50%; transform:translate(-50%,-50%);
 }
 #jemv-win.jemv-show { display:flex; }
@@ -8899,32 +9254,57 @@ window.addEventListener('load', function(){
     display:flex;
   }
   #jemv-win.jemv-show { transform:translateY(0); }
+  #jemv-titlebar { border-radius:16px 16px 0 0; }
+  #jemv-body-wrap { border-radius:0; }
 }
 
 /* 타이틀바 */
 #jemv-titlebar {
   display:flex; align-items:center; justify-content:space-between;
-  padding:8px 12px 7px; background:#f0ece9;
+  padding:8px 12px 7px; background:#ffffff;
   border-bottom:1px solid #e0dbd0;
   cursor:grab; user-select:none; flex-shrink:0;
   -webkit-tap-highlight-color:transparent;
+  overflow:visible; position:relative; z-index:10200;
+  border-radius:14px 14px 0 0;
 }
 #jemv-titlebar:active { cursor:grabbing; }
-#jemv-title-left { display:flex; align-items:center; gap:6px; font-size:0.72rem; font-weight:800; color:#3a3730; }
+#jemv-title-left { display:flex; align-items:center; gap:6px; font-size:1.05rem; font-weight:800; color:#3a3730; }
 #jemv-title-right { display:flex; align-items:center; gap:4px; }
 
 /* 내비게이션 바 */
 #jemv-nav {
   display:flex; align-items:center; gap:4px;
-  padding:5px 8px; background:#f8f7f5;
+  padding:5px 8px; background:#ffffff;
   border-bottom:1px solid #e8e3d8; flex-shrink:0;
+}
+/* ══ nav 전체 높이 통일: 28px ══ */
+#jemv-nav button,
+#jemv-nav select {
+  box-sizing:border-box !important;
+  height:28px !important;
+  min-height:28px !important;
+  max-height:28px !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  line-height:1 !important;
+  align-items:center !important;
+  justify-content:center !important;
+  vertical-align:middle !important;
+}
+#jemv-nav button:not([style*="display:none"]):not([style*="display: none"]) {
+  display:inline-flex !important;
+}
+#jemv-nav select {
+  display:inline-flex !important;
 }
 #jemv-nav select {
   border:1px solid #d8d2c8; border-radius:5px;
   background:#fff; color:#2d2a24;
   font-size:0.72rem; font-weight:600;
-  padding:0 5px; height:26px; outline:none; cursor:pointer;
+  padding:0 5px; height:28px; outline:none; cursor:pointer;
   font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;
+  box-sizing:border-box;
 }
 #jemv-sel-book { flex:2; min-width:0; }
 #jemv-sel-ch   { flex:1; min-width:0; }
@@ -8933,19 +9313,25 @@ window.addEventListener('load', function(){
   border:1px solid #c8c0b4; border-radius:5px;
   background:#e8e3d8; color:#3a3730;
   font-size:0.72rem; font-weight:700;
-  padding:0 10px; height:26px; cursor:pointer;
+  padding:0 10px; height:28px; cursor:pointer;
   white-space:nowrap; flex-shrink:0;
   font-family:inherit; transition:background .12s;
   -webkit-tap-highlight-color:transparent;
+  box-sizing:border-box;
+  display:inline-flex; align-items:center; justify-content:center;
+  line-height:1; padding-block:0;
 }
 #jemv-go-btn:hover { background:#ddd8ce; }
 #jemv-nav-r2 { display:contents; }
 .jemv-nav-btn {
   border:1px solid #d0cbc0; border-radius:5px;
-  background:#fff; color:#3a3730;
-  font-size:0.72rem; padding:0 8px; height:26px;
+  background:#fff; color:#8a8278;
+  font-size:0.72rem; padding:0 8px; height:28px;
   cursor:pointer; transition:background .12s;
   -webkit-tap-highlight-color:transparent; flex-shrink:0;
+  box-sizing:border-box;
+  display:inline-flex; align-items:center; justify-content:center;
+  line-height:1; padding-block:0;
 }
 .jemv-nav-btn:hover { background:#f0ece4; }
 #jemv-ch-lbl, #jemv-vs-lbl {
@@ -8954,25 +9340,112 @@ window.addEventListener('load', function(){
 }
 .jemv-nav-div { width:1px; height:16px; background:#d8d2c8; flex-shrink:0; margin:0 2px; }
 #jemv-add-btn {
-  margin-left:auto; border:1px solid #c0d8cc; border-radius:5px;
+  margin-left:auto; margin-right:33px; flex-shrink:0; border:1px solid #c0d8cc; border-radius:4px;
   background:#f0f7f3; color:#3a7a5a;
-  font-size:0.7rem; font-weight:700;
-  padding:0 8px; height:26px; cursor:pointer;
-  white-space:nowrap; flex-shrink:0;
+  font-size:0.67rem; font-weight:700;
+  padding:1px 6px; height:20px; cursor:pointer;
+  white-space:nowrap;
   font-family:inherit; transition:background .12s;
   -webkit-tap-highlight-color:transparent;
+  display:inline-flex; align-items:center; justify-content:center;
 }
-#jemv-add-btn:hover { background:#e0f0e8; }
+/* ── 가로 모드: 컬럼 너비 슬라이더 바 ── */
+#jemv-hz-colbar {
+  display:none;
+  align-items:center; gap:8px;
+  padding:4px 12px;
+  background:#f8f7f5; border-bottom:1px solid #e8e3d8;
+  flex-shrink:0; font-size:0.67rem; color:#7a7268; font-weight:600;
+}
+#jemv-win.jemv-horiz #jemv-hz-colbar { display:none; }
+#jemv-hz-colbar label { white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:5px; }
+#jemv-hz-colbar span { font-size:0.67rem; cursor:pointer; }
+#jemv-hz-col-slider {
+  flex:1; min-width:80px; max-width:300px;
+  accent-color:#8a7050;
+  cursor:pointer;
+  height:4px;
+}
+#jemv-hz-col-val {
+  font-size:0.67rem; color:#9a9288; min-width:36px; text-align:right; flex-shrink:0;
+}
 
-/* 역본 탭바 */
+/* ── 가로 모드: 타이틀바 + 네비를 한 줄 컴팩트 바로 통합 ── */
+#jemv-win.jemv-horiz #jemv-titlebar {
+  display:none;
+}
+#jemv-win.jemv-horiz #jemv-nav {
+  flex-wrap:nowrap;
+  align-items:center;
+  gap:5px;
+  padding:5px 10px;
+  background:#f0ece9;
+  border-bottom:2px solid #d8d2c8;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  cursor:grab;
+}
+#jemv-win.jemv-horiz #jemv-nav::-webkit-scrollbar { display:none; }
+#jemv-win.jemv-horiz #jemv-nav.dragging { cursor:grabbing; }
+/* 가로 모드에서 책/장/절 select 더 좁게 */
+#jemv-win.jemv-horiz #jemv-sel-book { flex:0 0 auto; min-width:80px; max-width:130px; }
+#jemv-win.jemv-horiz #jemv-sel-ch   { flex:0 0 auto; min-width:44px; max-width:60px; }
+#jemv-win.jemv-horiz #jemv-sel-vs   { flex:0 0 auto; min-width:44px; max-width:60px; }
+/* 가로모드 nav 전체 높이·색상 통일 */
+#jemv-win.jemv-horiz #jemv-nav select,
+#jemv-win.jemv-horiz #jemv-go-btn,
+#jemv-win.jemv-horiz .jemv-nav-btn,
+#jemv-win.jemv-horiz #jemv-add-btn,
+#jemv-win.jemv-horiz #jemv-horiz-actions button {
+  height:28px !important;
+  font-size:0.72rem !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  line-height:1 !important;
+  box-sizing:border-box;
+}
+#jemv-win.jemv-horiz #jemv-go-btn {
+  background:#e8e3d8;
+  font-weight:700;
+  padding-left:10px !important;
+  padding-right:10px !important;
+}
+/* 가로 모드 전용: 타이틀 인라인 뱃지 */
+#jemv-horiz-title-badge {
+  display:none;
+  font-size:0.95rem; font-weight:800; color:#3a3730;
+  white-space:nowrap; flex-shrink:0;
+  padding-right:6px;
+}
+#jemv-win.jemv-horiz #jemv-horiz-title-badge { display:flex; align-items:center; gap:4px; }
+/* 가로모드에서 ◀ 1장 ▶ 레이블 원래 크기로 */
+#jemv-win.jemv-horiz #jemv-ch-lbl,
+#jemv-win.jemv-horiz #jemv-vs-lbl {
+  font-size:0.75rem; font-weight:700;
+}
+/* 가로 모드: 우측 액션 버튼 그룹을 nav 안으로 */
+#jemv-horiz-actions {
+  display:none;
+  align-items:center; gap:3px;
+  margin-left:auto; flex-shrink:0;
+}
+#jemv-win.jemv-horiz #jemv-horiz-actions { display:flex; }
+/* 구분선 */
+#jemv-win.jemv-horiz .jemv-nav-div { height:14px; }
+
+
 #jemv-tabbar {
   display:flex; align-items:center; gap:0;
   padding:0 10px; background:#f8f7f5;
   border-bottom:1px solid #e0dbd0;
   overflow-x:auto; flex-shrink:0;
   scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+  cursor:grab; user-select:none;
 }
 #jemv-tabbar::-webkit-scrollbar { display:none; }
+#jemv-tabbar.dragging { cursor:grabbing; }
 .jemv-tab {
   display:flex; align-items:center; gap:4px;
   padding:5px 10px; font-size:0.68rem; font-weight:700;
@@ -8999,10 +9472,19 @@ window.addEventListener('load', function(){
 #jemv-tab-all.active { color:#2d4a3e; font-weight:800; }
 
 /* 본문 영역 */
+#jemv-body-wrap { flex:1; min-height:0; position:relative; border-radius:0 0 14px 14px; overflow:hidden; }
 #jemv-body {
   flex:1; overflow-y:auto; padding:10px 4px 16px;
-  background:#ffffff;
+  background:#ffffff; height:100%;
+  position:relative; z-index:1;
 }
+/* 좌우 호버 감지 영역 */
+#jemv-body-wrap .jemv-hover-zone {
+  position:absolute; top:0; bottom:0; width:200px; z-index:32; cursor:default;
+  pointer-events:auto;
+}
+#jemv-body-wrap .jemv-hover-zone.left { left:0; }
+#jemv-body-wrap .jemv-hover-zone.right { right:0; }
 #jemv-body::-webkit-scrollbar { width:4px; }
 #jemv-body::-webkit-scrollbar-track { background:transparent; }
 #jemv-body::-webkit-scrollbar-thumb { background:#d4cec6; border-radius:2px; }
@@ -9022,11 +9504,12 @@ window.addEventListener('load', function(){
 }
 .jemv-ver-dot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
 .jemv-ver-text {
-  font-size:var(--jemv-fs,14px); line-height:1.65;
-  color:#000000; word-break:keep-all;
+  font-size:var(--jemv-fs,14px); line-height:var(--jemv-lh,1.65);
+  color:#000000; word-break:keep-all; letter-spacing:var(--jemv-ls,0em);
+  font-family:var(--jemv-font,'Pretendard Variable','Apple SD Gothic Neo',sans-serif);
 }
 .jemv-ver-text.jemv-eng {
-  font-family:'Georgia',serif; color:#000000;
+  font-family:var(--jemv-font,'Georgia',serif); color:#000000;
 }
 
 /* ── 전역(all) 보기: 이미지 스타일 리스트 ── */
@@ -9058,11 +9541,12 @@ window.addEventListener('load', function(){
 }
 .jemv-main-text {
   font-size:calc(var(--jemv-fs,14px) + 3px);
-  font-weight:700; line-height:1.65;
-  color:#1a1815; word-break:keep-all;
+  font-weight:700; line-height:var(--jemv-lh,1.65);
+  color:#1a1815; word-break:keep-all; letter-spacing:var(--jemv-ls,0em);
+  font-family:var(--jemv-font,'Pretendard Variable','Apple SD Gothic Neo',sans-serif);
 }
 .jemv-main-text.jemv-eng {
-  font-family:'Georgia',serif;
+  font-family:var(--jemv-font,'Georgia',serif);
 }
 .jemv-main-ver-name {
   font-size:0.6rem; font-weight:800;
@@ -9098,6 +9582,9 @@ window.addEventListener('load', function(){
 }
 .jemv-all-row:last-child { border-bottom:none; }
 .jemv-all-row:hover { background:#faf8f4; }
+/* 역본명 롱탭 드래그 피드백 */
+.jemv-all-row.jemv-row-dragging { opacity:0.28; background:#f0f7f3 !important; }
+.jemv-drag-ghost { user-select:none; -webkit-user-select:none; }
 .jemv-all-label {
   flex-shrink:0; width:52px; min-width:52px;
   display:flex; align-items:flex-start; justify-content:flex-end;
@@ -9123,11 +9610,12 @@ window.addEventListener('load', function(){
 }
 .jemv-all-text {
   flex:1; font-size:var(--jemv-fs,14px);
-  line-height:1.6; color:#000000;
-  word-break:keep-all; padding-top:0;
+  line-height:var(--jemv-lh,1.6); color:#000000;
+  word-break:keep-all; padding-top:0; letter-spacing:var(--jemv-ls,0em);
+  font-family:var(--jemv-font,'Pretendard Variable','Apple SD Gothic Neo',sans-serif);
 }
 .jemv-all-text.jemv-eng {
-  font-family:'Georgia',serif; color:#000000;
+  font-family:var(--jemv-font,'Georgia',serif); color:#000000;
 }
 .jemv-all-text .jemv-all-hdg {
   display:block; font-weight:700; color:#a84040;
@@ -9160,9 +9648,9 @@ window.addEventListener('load', function(){
 
 /* 리사이즈 핸들 */
 #jemv-resize {
-  position:absolute; right:0; bottom:0; width:18px; height:18px;
+  position:absolute; right:0; bottom:0; width:28px; height:28px;
   cursor:nwse-resize;
-  background:linear-gradient(135deg,transparent 50%,#c4bdb4 50%,#c4bdb4 60%,transparent 60%,transparent 70%,#c4bdb4 70%,#c4bdb4 80%,transparent 80%);
+  background:radial-gradient(ellipse at bottom right, rgba(0,0,0,0.13) 0%, transparent 70%);
   border-radius:0 0 14px 0;
 }
 @media(max-width:600px){ #jemv-resize{display:none;} }
@@ -9233,23 +9721,273 @@ window.addEventListener('load', function(){
 .jemv-st-swatch.selected { border-color:#3a3730; }
 
 /* 싱크 버튼 */
+/* ══ 타이틀바 전체 높이 통일: 24px ══ */
+#jemv-titlebar button,
+#jemv-titlebar select,
+#jemv-title-right > div {
+  box-sizing:border-box !important;
+  height:24px !important;
+  min-height:24px !important;
+  max-height:24px !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  line-height:1 !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  vertical-align:middle !important;
+}
+/* AA/행간/자간 그룹 래퍼 배경만 제거, 테두리 유지 */
+#jemv-title-right > div {
+  background:transparent !important;
+  padding-left:2px !important;
+  padding-right:2px !important;
+}
+/* ✕ 닫기버튼은 원형이므로 width도 고정 */
+#jemv-titlebar button[title="닫기"] {
+  width:24px !important;
+  border-radius:50% !important;
+  padding:0 !important;
+}
+
 #jemv-sync-btn {
   border:1px solid #d0cbc0; border-radius:4px;
   background:#f0ece4; color:#3a3730;
   font-size:0.67rem; font-weight:700;
-  padding:1px 6px; height:20px; cursor:pointer;
+  padding:0 6px; cursor:pointer;
   white-space:nowrap; transition:background .12s,color .12s,border-color .12s;
   -webkit-tap-highlight-color:transparent;
+}
+
+/* ── 폰트 선택 드롭다운 ── */
+#jemv-font-wrap { position:relative; flex-shrink:0; }
+#jemv-font-btn {
+  border:1px solid #d0cbc0; border-radius:4px;
+  background:#f0ece4; color:#3a3730;
+  font-size:0.67rem; font-weight:700;
+  padding:1px 7px; height:20px; cursor:pointer;
+  white-space:nowrap; display:inline-flex; align-items:center; gap:3px;
+  -webkit-tap-highlight-color:transparent;
+}
+#jemv-font-btn:hover { background:#e8e3d8; }
+#jemv-font-menu {
+  display:none; position:absolute; top:calc(100% + 4px); right:0;
+  background:#fff; border:1px solid #ddd8ce; border-radius:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.12); z-index:10500;
+  min-width:160px; overflow:hidden;
+}
+#jemv-font-menu.open { display:block; }
+.jemv-font-opt {
+  display:block; width:100%; text-align:left;
+  padding:8px 14px; font-size:0.8rem; color:#3a3730;
+  background:none; border:none; cursor:pointer;
+  transition:background .1s; white-space:nowrap;
+}
+.jemv-font-opt:hover { background:#f5f2ec; }
+.jemv-font-opt.active { color:#2d4a3e; font-weight:700; background:#eef5f1; }
+
+/* ── 가로 보기 모드 ── */
+#jemv-horiz-btn {
+  border:1px solid #d0cbc0; border-radius:4px;
+  background:#f0ece4; color:#3a3730;
+  font-size:0.67rem; font-weight:700;
+  padding:0 6px; cursor:pointer;
+  white-space:nowrap; transition:background .12s,color .12s,border-color .12s;
+  -webkit-tap-highlight-color:transparent;
+}
+#jemv-horiz-btn.active {
+  background:#1a3a6e; color:#fff; border-color:#1a3a6e;
+}
+
+/* 가로 보기: 창 최대화 (리사이즈 가능) */
+#jemv-win.jemv-horiz {
+  transform: none !important;
+  border-radius: 10px !important;
+  border: 1px solid #ddd8ce !important;
+  box-shadow: 0 8px 40px rgba(0,0,0,.18) !important;
+  resize: both;
+  overflow: auto;
+  min-width: 320px;
+  min-height: 200px;
+  /* position/top/left/width/height는 JS inline style로 제어 */
+}
+@media(max-width:600px){
+  #jemv-win.jemv-horiz {
+    width:calc(100% - 8px)!important; height:calc(100vh - 8px)!important;
+    top:4px!important; left:4px!important;
+    border-radius:8px!important;
+    resize:none;
+  }
+}
+
+/* 가로 보기: 탭바 숨김, 독립 add-btn 숨김 (horiz-actions 안 버튼이 대신) */
+#jemv-win.jemv-horiz #jemv-tabbar { display:none !important; }
+#jemv-win.jemv-horiz #jemv-add-btn { display:none !important; }
+
+/*
+  가로 보기 핵심 레이아웃:
+  - #jemv-body 는 단순 overflow-y:auto 스크롤 컨테이너
+  - 내부에 .jemv-hz-wrap 이 실제 그리드 (컬럼 헤더 고정 + 절 행 동기화)
+  - 절 행 높이는 JS로 equalizeRows() 호출해 가장 높은 셀에 맞춤
+*/
+#jemv-body.jemv-horiz-body {
+  display:flex; flex-direction:column;
+  overflow-y:auto; overflow-x:auto;
+  padding:0;
+}
+#jemv-body.jemv-horiz-body::-webkit-scrollbar { height:4px; width:4px; }
+#jemv-body.jemv-horiz-body::-webkit-scrollbar-track { background:transparent; }
+#jemv-body.jemv-horiz-body::-webkit-scrollbar-thumb { background:#d4cec6; border-radius:2px; }
+
+/* 컬럼 헤더 행 (sticky) */
+.jemv-hz-hdr-row {
+  display:flex;
+  /* sticky 제거 - overflow 양방향일 때 작동 안 함. jemv-hz-hdr-fixed로 분리 */
+  background:#f0ece4;
+  border-bottom:2px solid #d8d2c8;
+  flex-shrink:0;
+}
+/* 고정 헤더 컨테이너 */
+#jemv-hz-hdr-fixed {
+  overflow-x:hidden; /* JS로 scrollLeft 동기화, 직접 스크롤 안 함 */
+  overflow-y:visible;
+  flex-shrink:0;
+  background:#f0ece4;
+  border-bottom:2px solid #d8d2c8;
+  padding-left:38px; /* 번호바 공간 */
+  display:none; /* 가로모드 진입 시 JS에서 show */
+}
+#jemv-hz-hdr-fixed .jemv-hz-hdr-row {
+  border-bottom:none;
+  min-width:max-content; /* 셀 너비에 맞게 늘어나도록 */
+}
+.jemv-hz-hdr-cell {
+  flex:1; min-width:0;
+  display:flex; align-items:center; gap:5px;
+  padding:6px 8px 5px;
+  border-right:1px solid #e0dbd0;
+}
+.jemv-hz-hdr-cell:last-child { border-right:none; }
+.jemv-hz-hdr-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.jemv-hz-hdr-name {
+  font-size:0.7rem; font-weight:800;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  flex:1; min-width:0;
+}
+
+/* 절 행 */
+.jemv-hz-row {
+  display:flex;
+  border-bottom:1px solid #ece8e0;
+  transition:background .08s;
+}
+.jemv-hz-row:hover { background:#faf8f4; }
+.jemv-hz-row.hz-active { background:#f5f7fd; }
+.jemv-hz-row.hz-active .jemv-hz-cell {
+  border-right:1px solid #c8d4ec;
+}
+
+/* 각 셀 */
+.jemv-hz-cell {
+  flex:1; min-width:0;
+  padding:7px 9px;
+  border-right:1px solid #ece8e0;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  /* 행 높이 동기화를 위해 height는 JS가 설정 */
+}
+.jemv-hz-cell:last-child { border-right:none; }
+.jemv-hz-row.hz-active .jemv-hz-cell:first-of-type {
+  border-left:2px solid var(--hz-accent,#7090c8);
+  padding-left:7px;
+}
+.jemv-hz-row.hz-active .jemv-hz-cell:not(:first-of-type) { border-left:none; }
+
+/* 절 번호 오버레이 — body-wrap 위에 absolute, 가로스크롤과 완전 독립 */
+#jemv-hz-numbar {
+  display:none;
+  position:absolute; left:0; top:0; bottom:0;
+  width:38px; z-index:22;
+  pointer-events:none;
+  overflow:hidden;
+  border-right:1px solid #e0dbd0;
+}
+#jemv-hz-numbar.nb-show { display:block; }
+#jemv-hz-numbar-hdr {
+  position:absolute; left:0; top:0;
+  width:38px;
+  background:#f0ece4;
+  border-right:1px solid #e0dbd0;
+  border-bottom:2px solid #d8d2c8;
+  pointer-events:none;
+}
+#jemv-hz-numbar-inner {
+  position:absolute; left:0; top:0; width:38px;
+  will-change:transform;
+}
+.jemv-hz-num-item {
+  display:flex; align-items:flex-start; justify-content:center;
+  width:38px; box-sizing:border-box;
+  padding-top:10px;
+  background:#f5f2ec;
+  border-bottom:1px solid #e8e3db;
+}
+.jemv-hz-num-item.nb-active { background:#edf2fb; }
+.jemv-hz-num-item.nb-active .jemv-hz-num { color:#1c3a5e; }
+.jemv-hz-num-item.nb-hover { background:#e8e4dc; }
+.jemv-hz-num-item.nb-hover .jemv-hz-num { color:#c03030; }
+.jemv-hz-num {
+  font-size:1.1rem; font-weight:800;
+  color:#8aab96;
+  line-height:1;
+  user-select:none;
+  transition:color .12s, background .12s;
+}
+/* 번호 열 공간 확보 */
+.jemv-hz-row { padding-left:38px; }
+/* .jemv-hz-hdr-row padding-left는 #jemv-hz-hdr-fixed 컨테이너에서 처리 */
+/* 텍스트 컨테이너 */
+.jemv-hz-txt {
+  display:block;
+  font-size:var(--jemv-fs,14px);
+  line-height:var(--jemv-lh,1.72); color:#000;
+  word-break:keep-all; letter-spacing:var(--jemv-ls,0em);
+  font-family:var(--jemv-font,'Pretendard Variable','Apple SD Gothic Neo',sans-serif);
+}
+.jemv-hz-txt.jemv-eng { font-family:var(--jemv-font,'Georgia',serif); }
+.jemv-hz-hdg {
+  display:inline; font-weight:700; color:#a84040;
+  font-size:0.8em; line-height:1.4; margin-right:0.3em;
+}
+.jemv-hz-fn {
+  display:block; margin-top:3px; padding-top:3px;
+  border-top:1px dashed #e4dfd4;
+  font-size:0.67em; color:#8a8076; font-style:italic; line-height:1.5;
 }
 </style>
 
 <div id="jemv-win">
   <div id="jemv-titlebar">
     <div id="jemv-title-left">
-      📖 <span id="jemv-title-ref">다역본 성경</span>
+      <span id="jemv-title-ref">다역본 성경</span>
     </div>
     <div id="jemv-title-right">
+      <div style="display:inline-flex;align-items:center;gap:2px;background:#ede9e1;border:1px solid #ddd8ce;border-radius:6px;padding:2px 5px;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9a9288" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><text x="3" y="16" font-size="11" font-weight="700" fill="#9a9288" stroke="none" font-family="serif">A</text><text x="13" y="13" font-size="8" font-weight="700" fill="#9a9288" stroke="none" font-family="serif">A</text></svg><button onclick="jemvFontDown()" title="폰트 작게" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="jemv-fs-val" style="font-size:0.66rem;color:#9a9288;min-width:22px;text-align:center;font-variant-numeric:tabular-nums;">16</span><button onclick="jemvFontUp()" title="폰트 크게" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">+</button></div><div style="display:inline-flex;align-items:center;gap:2px;background:#ede9e1;border:1px solid #ddd8ce;border-radius:6px;padding:2px 5px;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9a9288" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="8 2 12 5 16 2" stroke-width="1.5"/><polyline points="8 22 12 19 16 22" stroke-width="1.5"/></svg><button onclick="jemvLhDown()" title="행간 줄이기" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="jemv-lh-val" style="font-size:0.66rem;color:#9a9288;min-width:22px;text-align:center;font-variant-numeric:tabular-nums;">1.4</span><button onclick="jemvLhUp()" title="행간 늘리기" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">+</button></div><div style="display:inline-flex;align-items:center;gap:2px;background:#ede9e1;border:1px solid #ddd8ce;border-radius:6px;padding:2px 5px;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9a9288" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><line x1="2" y1="4" x2="2" y2="8"/><line x1="22" y1="4" x2="22" y2="8"/><line x1="2" y1="16" x2="2" y2="20"/><line x1="22" y1="16" x2="22" y2="20"/></svg><button onclick="jemvLsDown()" title="자간 줄이기" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="jemv-ls-val" style="font-size:0.66rem;color:#9a9288;min-width:22px;text-align:center;font-variant-numeric:tabular-nums;">-2</span><button onclick="jemvLsUp()" title="자간 늘리기" style="border:none;background:transparent;border-radius:4px;padding:1px 4px;font-size:0.72rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">+</button></div><div style="width:1px;height:12px;background:#ddd8ce;flex-shrink:0;"></div>
       <button id="jemv-sync-btn" onclick="jemvSyncToggle()" title="본창 구절 연동">🔗 싱크</button>
+      <button id="jemv-horiz-btn" onclick="jemvHorizToggle()" title="가로 보기 (역본별 컬럼)">⇔ 가로</button>
+      <div id="jemv-font-wrap">
+        <button id="jemv-font-btn" onclick="jemvFontMenuToggle()" title="폰트 변경">폰트 ▾</button>
+        <div id="jemv-font-menu">
+          <button class="jemv-font-opt active" onclick="jemvSetFont('default')" style="font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;">Pretendard (기본)</button>
+          <button class="jemv-font-opt" onclick="jemvSetFont('nanum-myeongjo')" style="font-family:'Nanum Myeongjo',serif;">나눔명조</button>
+          <button class="jemv-font-opt" onclick="jemvSetFont('nanum-gothic')" style="font-family:'Nanum Gothic',sans-serif;">나눔고딕</button>
+          <button class="jemv-font-opt" onclick="jemvSetFont('georgia')" style="font-family:'Georgia',serif;">Georgia</button>
+          <button class="jemv-font-opt" onclick="jemvSetFont('malgun')" style="font-family:'Malgun Gothic','맑은 고딕',sans-serif;">맑은 고딕</button>
+          <button class="jemv-font-opt" onclick="jemvSetFont('batang')" style="font-family:'Batang','바탕',serif;">바탕</button>
+          <button class="jemv-font-opt" onclick="jemvSetFont('gulim')" style="font-family:'Gulim','굴림',sans-serif;">굴림</button>
+        </div>
+      </div>
       <button onclick="jemvSettingOpen()" title="대역 설정" style="border:1px solid #d0cbc0;border-radius:4px;background:#f0ece4;color:#3a3730;font-size:0.67rem;font-weight:700;padding:1px 6px;height:20px;cursor:pointer;white-space:nowrap;transition:background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#e8e3d8'" onmouseout="this.style.background='#f0ece4'">⚙ 설정</button>
       <button onclick="jemvClose()" title="닫기" style="border:none;background:transparent;color:#9a9fa8;font-size:1rem;line-height:1;width:22px;height:22px;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#f0e8e8';this.style.color='#c04040'" onmouseout="this.style.background='transparent';this.style.color='#9a9fa8'">✕</button>
     </div>
@@ -9257,6 +9995,9 @@ window.addEventListener('load', function(){
 
   <!-- 내비게이션 -->
   <div id="jemv-nav">
+    <!-- 가로 모드 전용: 인라인 타이틀 -->
+    <div id="jemv-horiz-title-badge"><span id="jemv-horiz-ref">다역본</span></div>
+    <div class="jemv-nav-div" id="jemv-horiz-sep1"></div>
     <select id="jemv-sel-book" onchange="jemvOnBook()"><option value="">책 선택</option></select>
     <select id="jemv-sel-ch"   onchange="jemvOnCh()"><option value="">장</option></select>
     <select id="jemv-sel-vs"><option value="">절</option></select>
@@ -9269,8 +10010,50 @@ window.addEventListener('load', function(){
       <button class="jemv-nav-btn" onclick="jemvPrevVs()">◀</button>
       <span id="jemv-vs-lbl"></span>
       <button class="jemv-nav-btn" onclick="jemvNextVs()">▶</button>
-      <button id="jemv-add-btn" onclick="jemvPickFile()" title="역본 추가">＋ 역본</button>
     </div>
+    <!-- ＋역본: 세로 모드에서 nav 우측, 가로 모드에서는 horiz-actions가 대신 표시 -->
+    <button id="jemv-add-btn" onclick="jemvPickFile()" title="역본 추가">＋ 역본</button>
+    <!-- 가로 모드 전용: 우측 액션 버튼 -->
+    <div id="jemv-horiz-actions">
+      <div style="display:inline-flex;align-items:center;gap:2px;background:#ede9e1;border:1px solid #ddd8ce;border-radius:6px;padding:2px 4px;flex-shrink:0;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#9a9288" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><text x="3" y="16" font-size="11" font-weight="700" fill="#9a9288" stroke="none" font-family="serif">A</text><text x="13" y="13" font-size="8" font-weight="700" fill="#9a9288" stroke="none" font-family="serif">A</text></svg><button onclick="jemvFontDown()" title="폰트 작게" style="border:none;background:transparent;border-radius:3px;padding:1px 3px;font-size:0.68rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="jemv-fs-val2" style="font-size:0.64rem;color:#9a9288;min-width:20px;text-align:center;font-variant-numeric:tabular-nums;">16</span><button onclick="jemvFontUp()" title="폰트 크게" style="border:none;background:transparent;border-radius:3px;padding:1px 3px;font-size:0.68rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">+</button></div><div style="display:inline-flex;align-items:center;gap:2px;background:#ede9e1;border:1px solid #ddd8ce;border-radius:6px;padding:2px 4px;flex-shrink:0;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#9a9288" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="8 2 12 5 16 2" stroke-width="1.5"/><polyline points="8 22 12 19 16 22" stroke-width="1.5"/></svg><button onclick="jemvLhDown()" title="행간 줄이기" style="border:none;background:transparent;border-radius:3px;padding:1px 3px;font-size:0.68rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="jemv-lh-val2" style="font-size:0.64rem;color:#9a9288;min-width:20px;text-align:center;font-variant-numeric:tabular-nums;">1.4</span><button onclick="jemvLhUp()" title="행간 늘리기" style="border:none;background:transparent;border-radius:3px;padding:1px 3px;font-size:0.68rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">+</button></div><div style="display:inline-flex;align-items:center;gap:2px;background:#ede9e1;border:1px solid #ddd8ce;border-radius:6px;padding:2px 4px;flex-shrink:0;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#9a9288" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><line x1="2" y1="4" x2="2" y2="8"/><line x1="22" y1="4" x2="22" y2="8"/><line x1="2" y1="16" x2="2" y2="20"/><line x1="22" y1="16" x2="22" y2="20"/></svg><button onclick="jemvLsDown()" title="자간 줄이기" style="border:none;background:transparent;border-radius:3px;padding:1px 3px;font-size:0.68rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="jemv-ls-val2" style="font-size:0.64rem;color:#9a9288;min-width:20px;text-align:center;font-variant-numeric:tabular-nums;">-2</span><button onclick="jemvLsUp()" title="자간 늘리기" style="border:none;background:transparent;border-radius:3px;padding:1px 3px;font-size:0.68rem;color:#8a8278;font-weight:700;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;line-height:1;">+</button></div><div style="width:1px;height:14px;background:#d8d2c8;flex-shrink:0;"></div>
+      <label style="display:flex;align-items:center;gap:4px;flex-shrink:0;font-size:0.64rem;color:#7a7268;font-weight:600;white-space:nowrap;">
+        <span>⇔</span>
+        <input id="jemv-hz-col-slider" type="range" min="80" max="600" value="200" step="10"
+          style="width:90px;accent-color:#8a7050;cursor:pointer;height:4px;"
+          oninput="jemvHzColSlide(this.value)">
+        <span id="jemv-hz-col-val" style="min-width:34px;text-align:right;">200px</span>
+      </label>
+      <div style="width:1px;height:14px;background:#d8d2c8;flex-shrink:0;"></div>
+      <button onclick="jemvPickFile()" title="역본 추가" style="border:1px solid #c8c0b4;border-radius:4px;background:#e8e3d8;color:#4a4238;font-size:0.67rem;font-weight:700;padding:1px 7px;height:22px;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;">＋ 역본</button>
+      <div style="width:1px;height:14px;background:#d8d2c8;flex-shrink:0;"></div>
+      <button id="jemv-sync-btn2" onclick="jemvSyncToggle()" title="본창 구절 연동" style="border:1px solid #c8c0b4;border-radius:4px;background:#e8e3d8;color:#4a4238;font-size:0.67rem;font-weight:700;padding:1px 7px;height:22px;cursor:pointer;white-space:nowrap;transition:background .12s,color .12s,border-color .12s;-webkit-tap-highlight-color:transparent;">🔗 싱크</button>
+      <div id="jemv-font-wrap2" style="position:relative;flex-shrink:0;">
+        <button onclick="jemvFontMenuToggle2()" style="border:1px solid #c8c0b4;border-radius:4px;background:#e8e3d8;color:#4a4238;font-size:0.67rem;font-weight:700;padding:1px 7px;height:22px;cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;">폰트 ▾</button>
+        <div id="jemv-font-menu2" style="display:none;position:absolute;top:calc(100% + 4px);right:0;background:#fff;border:1px solid #ddd8ce;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);z-index:10500;min-width:160px;overflow:hidden;">
+          <button class="jemv-font-opt2 active" onclick="jemvSetFont('default')" style="display:block;width:100%;text-align:left;padding:8px 14px;font-size:0.8rem;color:#3a3730;background:none;border:none;cursor:pointer;white-space:nowrap;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;">Pretendard (기본)</button>
+          <button class="jemv-font-opt2" onclick="jemvSetFont('nanum-myeongjo')" style="display:block;width:100%;text-align:left;padding:8px 14px;font-size:0.8rem;color:#3a3730;background:none;border:none;cursor:pointer;white-space:nowrap;font-family:'Nanum Myeongjo',serif;">나눔명조</button>
+          <button class="jemv-font-opt2" onclick="jemvSetFont('nanum-gothic')" style="display:block;width:100%;text-align:left;padding:8px 14px;font-size:0.8rem;color:#3a3730;background:none;border:none;cursor:pointer;white-space:nowrap;font-family:'Nanum Gothic',sans-serif;">나눔고딕</button>
+          <button class="jemv-font-opt2" onclick="jemvSetFont('georgia')" style="display:block;width:100%;text-align:left;padding:8px 14px;font-size:0.8rem;color:#3a3730;background:none;border:none;cursor:pointer;white-space:nowrap;font-family:'Georgia',serif;">Georgia</button>
+          <button class="jemv-font-opt2" onclick="jemvSetFont('malgun')" style="display:block;width:100%;text-align:left;padding:8px 14px;font-size:0.8rem;color:#3a3730;background:none;border:none;cursor:pointer;white-space:nowrap;font-family:'Malgun Gothic','맑은 고딕',sans-serif;">맑은 고딕</button>
+          <button class="jemv-font-opt2" onclick="jemvSetFont('batang')" style="display:block;width:100%;text-align:left;padding:8px 14px;font-size:0.8rem;color:#3a3730;background:none;border:none;cursor:pointer;white-space:nowrap;font-family:'Batang','바탕',serif;">바탕</button>
+          <button class="jemv-font-opt2" onclick="jemvSetFont('gulim')" style="display:block;width:100%;text-align:left;padding:8px 14px;font-size:0.8rem;color:#3a3730;background:none;border:none;cursor:pointer;white-space:nowrap;font-family:'Gulim','굴림',sans-serif;">굴림</button>
+        </div>
+      </div>
+      <button id="jemv-horiz-maximize-btn" onclick="jemvMaximizeToggle()" title="최대화" style="border:1px solid #c8c0b4;border-radius:4px;background:#e8e3d8;color:#4a4238;font-size:0.78rem;font-weight:700;padding:1px 7px;height:22px;cursor:pointer;white-space:nowrap;transition:background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#ddd8ce'" onmouseout="this.style.background='#e8e3d8'">⛶</button>
+      <button onclick="jemvSettingOpen()" title="대역 설정" style="border:1px solid #c8c0b4;border-radius:4px;background:#e8e3d8;color:#4a4238;font-size:0.67rem;font-weight:700;padding:1px 7px;height:22px;cursor:pointer;white-space:nowrap;transition:background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#ddd8ce'" onmouseout="this.style.background='#e8e3d8'">⚙ 설정</button>
+      <button id="jemv-horiz-close-btn" onclick="jemvHorizToggle()" style="border:1px solid #b8b0a8;border-radius:4px;background:#d8d2ca;color:#5a5248;font-size:0.67rem;font-weight:700;padding:1px 7px;height:22px;cursor:pointer;white-space:nowrap;transition:background .12s,color .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#c8c2ba';this.style.color='#3a3228'" onmouseout="this.style.background='#d8d2ca';this.style.color='#5a5248'">✕ 가로닫기</button>
+      <button onclick="jemvClose()" title="닫기" style="border:none;background:transparent;color:#9a9fa8;font-size:1rem;line-height:1;width:22px;height:22px;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#f0e8e8';this.style.color='#c04040'" onmouseout="this.style.background='transparent';this.style.color='#9a9fa8'">✕</button>
+    </div>
+  </div>
+
+  <!-- 가로 모드: 컬럼 너비 슬라이더 -->
+  <div id="jemv-hz-colbar">
+    <label>
+      <span title="컬럼 너비 조절">⇔ 컬럼 너비</span>
+      <input id="jemv-hz-col-slider" type="range" min="80" max="600" value="200" step="10"
+        oninput="jemvHzColSlide(this.value)">
+    </label>
+    <span id="jemv-hz-col-val">200px</span>
   </div>
 
   <!-- 역본 탭바 -->
@@ -9279,8 +10062,27 @@ window.addEventListener('load', function(){
   </div>
 
   <!-- 본문 -->
-  <div id="jemv-body">
-    <div id="jemv-empty">＋ 역본 버튼으로 성경 파일(.aab/.bdb)을 불러오세요</div>
+  <div id="jemv-body-wrap" style="position:relative;flex:1;min-height:0;display:flex;flex-direction:column;">
+    <div id="jemv-hz-numbar">
+      <div id="jemv-hz-numbar-hdr"></div>
+      <div id="jemv-hz-numbar-inner"></div>
+    </div>
+    <div id="jemv-hz-hdr-fixed" style="overflow:hidden;flex-shrink:0;background:#f0ece4;"></div>
+    <div id="jemv-body">
+      <div id="jemv-empty">＋ 역본 버튼으로 성경 파일(.aab/.bdb)을 불러오세요</div>
+    </div>
+    <div class="jemv-hover-zone left" id="jemv-hz-left"></div>
+    <div class="jemv-hover-zone right" id="jemv-hz-right"></div>
+    <div id="jemv-scroll-arr-left" onclick="jemvScrollBody(-1)" style="display:none;position:absolute;left:6px;top:50%;transform:translateY(-50%);z-index:33;pointer-events:none;opacity:0;transition:opacity .18s;">
+      <div style="width:44px;height:44px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.22),0 1.5px 4px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M12.5 4L7 10l5.5 6" stroke="#3a3730" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+    <div id="jemv-scroll-arr-right" onclick="jemvScrollBody(1)" style="display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);z-index:33;pointer-events:none;opacity:0;transition:opacity .18s;">
+      <div style="width:44px;height:44px;border-radius:50%;background:#fff;box-shadow:0 4px 14px rgba(0,0,0,.22),0 1.5px 4px rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;pointer-events:auto;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7.5 4L13 10l-5.5 6" stroke="#3a3730" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
   </div>
 
   <div id="jemv-resize"></div>
@@ -9339,27 +10141,188 @@ window._jemvGetMainVerIdx = function(){ return _mainVerIdx; };
 window._jemvSetMainVerIdx = function(v){ _mainVerIdx=v; };
 window._jemvGetTab = function(){ return _tab; };
 window._jemvSetTab2 = function(v){ _tab=v; };
+window._jemvRebuildTabs = function(){ _jemvRebuildTabs(); };
+/* 외부(편집기)에서 ArrayBuffer를 직접 넘겨 역본 추가할 수 있는 진입점 */
+window._jemvLoadBuf = function(buf, offset, name){ _loadSqlite(buf, offset, name); };
+
+/* ── 좌우 스크롤 화살표 호버 로직 ── */
+window.jemvScrollBody = function(dir){
+  var body = document.getElementById('jemv-body');
+  if(!body) return;
+  var amount = Math.round(body.clientWidth * 0.72);
+  body.scrollBy({left: dir * amount, behavior:'smooth'});
+};
+document.addEventListener('DOMContentLoaded', function(){
+  function _setupScrollArrows(){
+    var wrap = document.getElementById('jemv-body-wrap');
+    var body = document.getElementById('jemv-body');
+    var arrL = document.getElementById('jemv-scroll-arr-left');
+    var arrR = document.getElementById('jemv-scroll-arr-right');
+    var hzL  = document.getElementById('jemv-hz-left');
+    var hzR  = document.getElementById('jemv-hz-right');
+    if(!wrap||!body||!arrL||!arrR||!hzL||!hzR) return;
+    function _updateVis(){
+      var horiz = body.classList.contains('jemv-horiz-body');
+      var canScroll = horiz && body.scrollWidth > body.clientWidth + 4;
+      arrL.style.display = canScroll ? '' : 'none';
+      arrR.style.display = canScroll ? '' : 'none';
+      hzL.style.display = canScroll ? '' : 'none';
+      hzR.style.display = canScroll ? '' : 'none';
+      /* 좌측 화살표: 번호바(38px) + 메인 역본 컬럼 우측 끝에 걸치도록 */
+      if(canScroll){
+        var colW = (typeof _jemvHzColW !== 'undefined' ? _jemvHzColW : 200);
+        var nbW = 38; /* 번호바 너비 */
+        /* 화살표 중심이 컬럼 경계에 위치 (nbW + colW - 22), 단 body 너비 28% 이내로 클램프 */
+        arrL.style.left = '45px';
+        hzL.style.width = '200px';
+      }
+    }
+    function _showArr(side, show){
+      var el = side==='left' ? arrL : arrR;
+      el.style.opacity = show ? '1' : '0';
+      el.style.pointerEvents = show ? 'auto' : 'none';
+    }
+    hzL.addEventListener('mouseenter', function(){ _updateVis(); _showArr('left', true); });
+    hzL.addEventListener('mouseleave', function(){ _showArr('left', false); });
+    hzR.addEventListener('mouseenter', function(){ _updateVis(); _showArr('right', true); });
+    hzR.addEventListener('mouseleave', function(){ _showArr('right', false); });
+    arrL.addEventListener('mouseenter', function(){ _showArr('left', true); });
+    arrL.addEventListener('mouseleave', function(){ _showArr('left', false); });
+    arrR.addEventListener('mouseenter', function(){ _showArr('right', true); });
+    arrR.addEventListener('mouseleave', function(){ _showArr('right', false); });
+    /* 가로 모드 전환 시 상태 갱신 */
+    var obs = new MutationObserver(_updateVis);
+    obs.observe(body, {attributes:true, attributeFilter:['class']});
+    body.addEventListener('scroll', _updateVis);
+    /* 창 크기 조절 시에도 갱신 */
+    new ResizeObserver(_updateVis).observe(body);
+  }
+  _setupScrollArrows();
+
+  /* ── Bring to front: 창 클릭 시 앞으로 ── */
+  var _zTop = 10100;
+  var _bringWins = [
+    document.getElementById('je-ed-ov'),
+    document.getElementById('jemv-win'),
+    document.getElementById('je-comm-win')
+  ];
+  _bringWins.forEach(function(w){
+    if(!w) return;
+    w.addEventListener('mousedown', function(){
+      _zTop++;
+      w.style.zIndex = _zTop;
+    });
+  });
+});
 
 var COLORS = ['c0','c1','c2','c3','c4','c5','c6','c7'];
 
 function _w(){ return _win || (_win=document.getElementById('jemv-win')); }
 function _mob(){ return window.innerWidth<=600; }
 
+/* ── tabbar 드래그 스크롤 ── */
+(function(){
+  var el, isDown=false, startX, scrollLeft;
+  document.addEventListener('DOMContentLoaded', function(){
+    el = document.getElementById('jemv-tabbar');
+    if(!el) return;
+    var moved=false;
+    el.addEventListener('mousedown', function(e){
+      isDown=true; moved=false; el.classList.add('dragging');
+      startX=e.pageX-el.offsetLeft; scrollLeft=el.scrollLeft;
+    });
+    document.addEventListener('mouseup', function(){ isDown=false; el&&el.classList.remove('dragging'); });
+    document.addEventListener('mousemove', function(e){
+      if(!isDown) return;
+      var x=e.pageX-el.offsetLeft, dx=x-startX;
+      if(Math.abs(dx)>3){ moved=true; el.scrollLeft=scrollLeft-dx; }
+    });
+    el.addEventListener('click', function(e){
+      if(moved){ e.stopPropagation(); moved=false; }
+    }, true);
+  });
+})();
+/* ── 최대화 토글 ── */
+var _jemvMaximized = false;
+var _jemvPrevSize = null;
+window.jemvMaximizeToggle = function(){
+  var w = document.getElementById('jemv-win');
+  var btn = document.getElementById('jemv-horiz-maximize-btn');
+  if(!w) return;
+  if(!_jemvMaximized){
+    _jemvPrevSize = { width:w.style.width, height:w.style.height, top:w.style.top, left:w.style.left, transform:w.style.transform };
+    /* 가로모드 진입 시와 동일한 크기 (innerWidth-16, innerHeight-16) */
+    w.style.width  = (window.innerWidth  - 16) + 'px';
+    w.style.height = (window.innerHeight - 16) + 'px';
+    w.style.top    = '8px';
+    w.style.left   = '8px';
+    w.style.transform = 'none';
+    _jemvMaximized = true;
+    if(btn) btn.textContent = '❐';
+    if(btn) btn.title = '원래 크기';
+  } else {
+    if(_jemvPrevSize){
+      w.style.width     = _jemvPrevSize.width;
+      w.style.height    = _jemvPrevSize.height;
+      w.style.top       = _jemvPrevSize.top;
+      w.style.left      = _jemvPrevSize.left;
+      w.style.transform = _jemvPrevSize.transform;
+    }
+    _jemvMaximized = false;
+    if(btn) btn.textContent = '⛶';
+    if(btn) btn.title = '최대화';
+  }
+};
+
 /* ── 열기/닫기 ── */
 window.jemvOpen = function(){
   var w=_w(); if(!w) return;
   w.classList.add('jemv-show');
-  if(!_mob()) { var ed=document.getElementById('je-ed-ov'); var edRect=ed?ed.getBoundingClientRect():null; var wW=600; var wH=window.innerHeight-48; w.style.width=wW+'px'; w.style.height=wH+'px'; w.style.top='50%'; w.style.transform='translateY(-50%)'; if(edRect){ w.style.left=(edRect.left-wW-12)+'px'; } else { w.style.left='10px'; } }
-  /* 싱크 ON이면 바로 현재 절로 */
-  if(_synced){ var dv=window._jeDisplayVerse; if(dv&&dv.abbr) _jemvJumpTo(dv.abbr,dv.ch,dv.vs); }
+  if(!_mob()) { var ed=document.getElementById('je-ed-ov'); var edRect=ed?ed.getBoundingClientRect():null; var wW=760; var wH=window.innerHeight-48; w.style.width=wW+'px'; w.style.height=wH+'px'; w.style.top='50%'; w.style.transform='translateY(-50%)'; if(edRect){ w.style.left=(edRect.left-wW-12)+'px'; } else { w.style.left='10px'; } }
+  var dv=window._jemvPendingVerse||window._jeDisplayVerse;
+  if(dv&&dv.abbr&&_versions.length) _jemvJumpTo(dv.abbr,dv.ch,dv.vs);
   else if(_abbr) _jemvRender();
 };
 window.jemvClose = function(){
-  var w=_w(); if(w) w.classList.remove('jemv-show');
+  var w=_w(); if(!w) return;
+  /* 가로모드 상태가 남아있으면 먼저 정리 */
+  if(_jemvHoriz){
+    _jemvHoriz = false;
+    w.classList.remove('jemv-horiz');
+    var btn=document.getElementById('jemv-horiz-btn');
+    if(btn){ btn.classList.remove('active'); btn.textContent='⇔ 가로'; }
+    var body=document.getElementById('jemv-body');
+    if(body && body._hzResizeOb){ body._hzResizeOb.disconnect(); body._hzResizeOb=null; }
+    var cs=document.getElementById('jemv-hz-col-style'); if(cs) cs.textContent='';
+    w.style.overflow='hidden';
+    if(!_mob()){
+      var ed=document.getElementById('je-ed-ov');
+      var edRect=ed?ed.getBoundingClientRect():null;
+      w.style.width='760px'; w.style.height=(window.innerHeight-48)+'px';
+      w.style.top='50%'; w.style.left=''; w.style.transform='translateY(-50%)';
+      w.style.borderRadius='14px';
+      w.style.border='1px solid #ddd8ce';
+      w.style.boxShadow='0 8px 40px rgba(0,0,0,.18),0 1px 4px rgba(0,0,0,.08)';
+      if(edRect){ w.style.left=(edRect.left-772)+'px'; } else { w.style.left='10px'; }
+    }
+  }
+  w.classList.remove('jemv-show');
 };
 window.jemvToggle = function(){
   var w=_w(); if(!w) return;
-  if(w.classList.contains('jemv-show')) jemvClose(); else jemvOpen();
+  /* 현재 구절: _jemvPendingVerse (jeOpenEdit에서 항상 저장) 우선 */
+  function _getDV(){
+    if(window._jemvPendingVerse&&window._jemvPendingVerse.abbr) return window._jemvPendingVerse;
+    var dv=window._jeDisplayVerse;
+    if(dv&&dv.abbr) return dv;
+    return null;
+  }
+  if(w.classList.contains('jemv-show')){
+    var dv=_getDV();
+    if(dv&&_versions.length) _jemvJumpTo(dv.abbr,dv.ch,dv.vs);
+  } else {
+    jemvOpen();
+  }
 };
 
 /* ── 역본 로드 ── */
@@ -9438,6 +10401,16 @@ function _loadSqlite(buf, offset, name){
       _versions.push({name:name, shortName:fullName, label:_makeLabel(fullName), fileKey:short, data:data, color:COLORS[ci]});
       /* 첫 역본 추가 시 자동으로 메인 역본으로 설정 */
       if(_versions.length===1) _mainVerIdx=0;
+      /* 편집기에 로드된 역본과 파일키가 일치하면 해당 역본을 메인으로 자동 설정 */
+      (function(){
+        var edName = (window._jeGetBibleName ? window._jeGetBibleName() : '');
+        if(!edName) return;
+        var edKey = edName.replace(/\.[^.]+$/,'').replace(/^.*(\/|\\)/,'').toUpperCase().replace(/[_\-\s]/g,'');
+        var newKey = short.toUpperCase().replace(/[_\-\s]/g,'');
+        if(edKey && newKey && (edKey===newKey || edKey.indexOf(newKey)===0 || newKey.indexOf(edKey)===0)){
+          _mainVerIdx = _versions.length - 1;
+        }
+      })();
       _jemvRebuildNav();
       _jemvRebuildTabs();
       /* 첫 역본이면 창세기 1:1로 */
@@ -9518,12 +10491,17 @@ function _jemvRebuildNav(){
   if(_abbr) bs.value=_abbr;
   var chs=_getChs(_abbr||books[0]);
   var cs=document.getElementById('jemv-sel-ch');
-  cs.innerHTML='<option value="">장</option>'+chs.map(function(c){return '<option value="'+c+'">'+c+'장</option>';}).join('');
+  var _chUnit=(_abbr==='시')?'편':'장';
+  cs.innerHTML='<option value="">'+_chUnit+'</option>'+chs.map(function(c){return '<option value="'+c+'">'+c+_chUnit+'</option>';}).join('');
   if(_ch) cs.value=String(_ch);
   var vss=_getVss(_abbr||books[0],_ch||1);
   var vs=document.getElementById('jemv-sel-vs');
   vs.innerHTML='<option value="">절</option>'+vss.map(function(v){return '<option value="'+v+'">'+v+'절</option>';}).join('');
   if(_vs) vs.value=String(_vs);
+  /* 가로 타이틀 배지 갱신 */
+  var _chUL=(_abbr==='시')?'편':'장';
+  var _clbl2=document.getElementById('jemv-ch-lbl'); if(_clbl2&&_ch) _clbl2.textContent=_ch+_chUL;
+  var _vlbl=document.getElementById('jemv-vs-lbl'); if(_vlbl&&_vs) _vlbl.textContent=_vs+'절';
 }
 
 function _jemvFillNav(abbr,ch,vs){
@@ -9541,31 +10519,42 @@ function _jemvFillNav(abbr,ch,vs){
     bs.value=abbr;
   }
   var chs=_getChs(abbr);
-  cs.innerHTML='<option value="">장</option>'+chs.map(function(c){return '<option value="'+c+'">'+c+'장</option>';}).join('');
+  var _chUnitF=(abbr==='시')?'편':'장';
+  cs.innerHTML='<option value="">'+_chUnitF+'</option>'+chs.map(function(c){return '<option value="'+c+'">'+c+_chUnitF+'</option>';}).join('');
   cs.value=String(ch);
   var vss=_getVss(abbr,ch);
   vsel.innerHTML='<option value="">절</option>'+vss.map(function(v){return '<option value="'+v+'">'+v+'절</option>';}).join('');
   vsel.value=String(vs);
-  document.getElementById('jemv-ch-lbl').textContent=ch+'장';
+  document.getElementById('jemv-ch-lbl').textContent=ch+((abbr==='시')?'편':'장');
   document.getElementById('jemv-vs-lbl').textContent=vs+'절';
-  document.getElementById('jemv-title-ref').textContent=
-    ((window._JE_BOOK_NAMES||[])[((window._JE_BOOK_NUM||[]).indexOf(abbr))]||abbr)+' '+ch+':'+vs;
+  var _titleTxt=((window._JE_BOOK_NAMES||[])[((window._JE_BOOK_NUM||[]).indexOf(abbr))]||abbr)+' '+ch+':'+vs;
+  document.getElementById('jemv-title-ref').textContent=_titleTxt;
+  var _hr=document.getElementById('jemv-horiz-ref'); if(_hr) _hr.textContent=_titleTxt;
 }
 
 window.jemvOnBook = function(){
   var bs=document.getElementById('jemv-sel-book'); if(!bs.value) return;
-  var chs=_getChs(bs.value);
+  _abbr=bs.value; _ch=0; _vs=0;
+  var chs=_getChs(_abbr);
+  if(!chs.length) return;
+  _ch=chs[0];
+  var vss=_getVss(_abbr,_ch);
+  _vs=vss.length?vss[0]:1;
+  /* placeholder 즉시 갱신 */
+  var _chUnit=(_abbr==='시')?'편':'장';
   var cs=document.getElementById('jemv-sel-ch');
-  cs.innerHTML='<option value="">장</option>'+chs.map(function(c){return '<option value="'+c+'">'+c+'장</option>';}).join('');
-  if(chs.length){ cs.value=chs[0]; jemvOnCh(); }
+  if(cs){ cs.options[0].text=_chUnit; }
+  _jemvFillNav(_abbr,_ch,_vs);
+  _jemvRender();
 };
 window.jemvOnCh = function(){
   var bs=document.getElementById('jemv-sel-book'), cs=document.getElementById('jemv-sel-ch');
   if(!bs.value||!cs.value) return;
-  var vss=_getVss(bs.value,parseInt(cs.value));
-  var vsel=document.getElementById('jemv-sel-vs');
-  vsel.innerHTML='<option value="">절</option>'+vss.map(function(v){return '<option value="'+v+'">'+v+'절</option>';}).join('');
-  if(vss.length) vsel.value=vss[0];
+  _abbr=bs.value; _ch=parseInt(cs.value);
+  var vss=_getVss(_abbr,_ch);
+  _vs=vss.length?vss[0]:1;
+  _jemvFillNav(_abbr,_ch,_vs);
+  _jemvRender();
 };
 window.jemvGo = function(){
   var bs=document.getElementById('jemv-sel-book'),
@@ -9630,8 +10619,15 @@ window.jemvRemoveVersion=function(idx){
 /* ── 렌더링 ── */
 function _e(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+/* 외부(JW 로드 후 재렌더)에서 호출 가능하도록 노출 */
+window._jemvRender = function(){ try{ _jemvRender(); }catch(e){} };
+
 function _jemvRender(){
+  if(_jemvHoriz){ _jemvRenderHoriz(); return; }
   var body=document.getElementById('jemv-body'); if(!body) return;
+  body.classList.remove('jemv-horiz-body');
+  var _nbEl=document.getElementById('jemv-hz-numbar'); if(_nbEl) _nbEl.classList.remove('nb-show');
+  body.style.gridTemplateColumns='';
   var empty=document.getElementById('jemv-empty');
   if(!_versions.length){
     body.innerHTML=''; if(empty){ empty.style.display=''; body.appendChild(empty); } return;
@@ -9646,6 +10642,40 @@ function _jemvRender(){
   }
   function _mvSup(txt){
     return _e(txt).replace(/([¹²³⁴⁵⁶⁷⁸⁹⁰]+⁾)/g,'<sup style="font-size:0.65em;vertical-align:super;line-height:0;color:#7a8aab;">$1</sup>');
+  }
+  /* 예수말씀 색상 포함 HTML 생성 */
+  var JW_CLR='#b83232';
+  function _mvIsGAE(v){ /* v: _versions 항목 — 본창 _jwIsGAE와 동일 로직 */
+    if(!v) return false;
+    var nm=(v.name||'').toUpperCase().replace(/[_\-\s]/g,'');
+    if(nm.indexOf('GAE')>=0||nm.indexOf('GGA')>=0||nm.indexOf('NKRV')>=0) return true;
+    var fk=(v.fileKey||'').toUpperCase().replace(/[_\-\s]/g,'');
+    if(fk.indexOf('GAE')>=0||fk.indexOf('GGA')>=0||fk.indexOf('NKRV')>=0) return true;
+    var sn=(v.shortName||'').replace(/\s/g,'');
+    return sn==='개역개정'||sn.indexOf('개역개정')>=0;
+  }
+  function _mvJwSup(txt, abbr, ch, vs, v){
+    try{
+      var _jwd=window._jwData;
+      if(!_jwd) return _mvSup(txt);
+      var jw=(window._jwGet||_jwGet)(abbr, ch, vs);
+      if(!jw) return _mvSup(txt);
+      if(jw==='full'){
+        return '<span style="color:'+JW_CLR+'">'+_mvSup(txt)+'</span>';
+      }
+      var parts=Array.isArray(jw)?jw:[];
+      if(!parts.length) return _mvSup(txt);
+      var sorted=parts.slice().sort(function(a,b){return txt.indexOf(a)-txt.indexOf(b);});
+      var remaining=txt; var result='';
+      sorted.forEach(function(seg){
+        var idx=remaining.indexOf(seg); if(idx<0) return;
+        if(idx>0) result+=_mvSup(remaining.slice(0,idx));
+        result+='<span style="color:'+JW_CLR+'">'+_mvSup(seg)+'</span>';
+        remaining=remaining.slice(idx+seg.length);
+      });
+      if(remaining) result+=_mvSup(remaining);
+      return result;
+    }catch(e){ return _mvSup(txt); }
   }
   /* 표제어 추출 */
   function _mvHeading(raw){
@@ -9691,7 +10721,7 @@ function _jemvRender(){
       html+='<div class="jemv-main-vs-num">'+_vs+'</div>';
       html+='<div class="jemv-main-body">';
       if(mhdg) html+='<div class="jemv-main-hdg">'+_mvSup(_e(mhdg).replace(/&lt;[^&]*&gt;/g,''))+'</div>';
-      html+='<div class="jemv-main-text'+(isEng(mtext)?' jemv-eng':'')+'" style="color:'+mFontCol+'">'+_mvSup(mtext)+'</div>';
+      html+='<div class="jemv-main-text'+(isEng(mtext)?' jemv-eng':'')+'" style="color:'+mFontCol+'">'+_mvJwSup(mtext,_abbr,_ch,_vs,mv)+'</div>';
       if(mfns.length){
         html+='<div class="jemv-main-fn">† ';
         html+=mfns.map(function(f){ return '<sup style="font-size:0.72em;vertical-align:super;line-height:0;font-style:normal;">'+_e(f.n)+'⁾</sup>'+_e(f.txt); }).join(' · ');
@@ -9724,7 +10754,7 @@ function _jemvRender(){
       html+='<div class="jemv-all-bar" style="background:'+col+';opacity:0.5;"></div>';
       html+='<div class="jemv-all-text'+(isEng(text)?' jemv-eng':'')+'" style="color:'+textCol+';">';
       if(hdg) html+='<span class="jemv-all-hdg">'+_mvSup(_e(hdg).replace(/&lt;[^&]*&gt;/g,''))+'</span>';
-      html+=_mvSup(text);
+      html+=_mvJwSup(text,_abbr,_ch,_vs,v);
       if(fns.length){
         html+='<span class="jemv-all-fn">† ';
         html+=fns.map(function(f){ return '<sup style="font-size:0.72em;vertical-align:super;line-height:0;font-style:normal;">'+_e(f.n)+'⁾</sup>'+_e(f.txt); }).join(' · ');
@@ -9759,7 +10789,7 @@ function _jemvRender(){
         html+='<div class="jemv-verse-block" id="jemv-vs-'+d.vs+'" style="'+(active?'border-color:#a8d4bc;background:#f0f8f3;':'')+'" onclick="jemvClickVs('+d.vs+')" style="cursor:pointer;">';
         html+='<div class="jemv-ver-name"><span class="jemv-ver-dot jemv-'+v.color+'" style="background:'+vAccent+';opacity:0.5;"></span><span style="color:#4d4d4d;">'+_e(v.label||v.shortName)+'</span> <span style="color:#b8b2aa;font-weight:600;">'+d.vs+'절</span></div>';
         if(hdg) html+='<div style="font-weight:700;color:#a84040;font-size:0.85em;line-height:1.4;margin-bottom:3px;word-break:keep-all;">'+_mvSup(_e(hdg).replace(/&lt;[^&]*&gt;/g,''))+'</div>';
-        html+='<div class="jemv-ver-text'+(isEng(txt)?' jemv-eng':'')+'" style="color:'+vFontColor+';">'+_mvSup(txt)+'</div>';
+        html+='<div class="jemv-ver-text'+(isEng(txt)?' jemv-eng':'')+'" style="color:'+vFontColor+';">'+_mvJwSup(txt,_abbr,_ch,d.vs,v)+'</div>';
         if(fns.length){
           html+='<div style="margin-top:4px;padding-top:3px;border-top:1px dashed #e4dfd4;font-size:0.68em;color:#8a8076;font-style:italic;line-height:1.6;">† ';
           html+=fns.map(function(f){ return '<sup style="font-size:0.72em;vertical-align:super;line-height:0;font-style:normal;">'+_e(f.n)+'⁾</sup>'+_e(f.txt); }).join(' · ');
@@ -9770,13 +10800,185 @@ function _jemvRender(){
     }
   }
   body.innerHTML=html;
-  /* 단일 역본 모드: 현재 절로 스크롤 */
+
+  /* ── 세로 전체(all) 모드: 역본명 롱탭 드래그 순서 변경 ── */
+  if(_tab==='all'){
+    var allList = body.querySelector('.jemv-all-list');
+    if(allList){
+      var _rowVerIdxs = [];
+      _versions.forEach(function(_,ii){ if(ii!==mainIdx) _rowVerIdxs.push(ii); });
+      var rows = allList.querySelectorAll('.jemv-all-row');
+
+      var _lpTimer = null;
+      var _lpSrc = null;
+      var _lpSrcIdx = -1;
+      var _lpDragging = false;
+      var _lpGhost = null;
+      var _lpGhostOffY = 0;
+      var _lpInsertLine = null;
+      var _lpTargetIdx = -1;
+
+      function _lpCreateGhost(row, cy){
+        document.body.style.userSelect = 'none';
+        document.body.style.webkitUserSelect = 'none';
+        var rect = row.getBoundingClientRect();
+        _lpGhostOffY = cy - rect.top;
+        /* 실제 row 크기 그대로 복제해서 띄우기 */
+        var g = row.cloneNode(true);
+        g.className = 'jemv-drag-ghost';
+        g.style.cssText = [
+          'position:fixed',
+          'left:'+rect.left+'px',
+          'top:'+(cy-_lpGhostOffY)+'px',
+          'width:'+rect.width+'px',
+          'height:'+rect.height+'px',
+          'z-index:99999',
+          'pointer-events:none',
+          'border-radius:6px',
+          'background:#fff',
+          'box-shadow:0 10px 32px rgba(0,0,0,.18),0 2px 8px rgba(0,0,0,.10)',
+          'border:1.5px solid #2d4a3e',
+          'overflow:hidden',
+          'opacity:0.97',
+          'transform:scale(1.02)',
+          'transition:transform .1s ease',
+          'display:flex',
+          'align-items:flex-start',
+          'padding:5px 8px 5px 6px',
+          'box-sizing:border-box',
+        ].join(';');
+        document.body.appendChild(g);
+        _lpGhost = g;
+        /* 삽입 위치 표시선 */
+        var line = document.createElement('div');
+        line.style.cssText = 'position:absolute;left:6px;right:6px;height:2.5px;background:#2d4a3e;border-radius:2px;display:none;z-index:9998;pointer-events:none;box-shadow:0 0 4px rgba(45,74,62,.4);';
+        allList.style.position = 'relative';
+        allList.appendChild(line);
+        _lpInsertLine = line;
+      }
+
+      function _lpMoveGhost(cy){
+        if(!_lpGhost) return;
+        _lpGhost.style.top = (cy-_lpGhostOffY)+'px';
+        var bestIdx=0, bestDist=Infinity;
+        rows.forEach(function(r,ri){
+          if(r===_lpSrc) return;
+          var rect=r.getBoundingClientRect();
+          var mid=rect.top+rect.height/2;
+          var dist=Math.abs(cy-mid);
+          if(dist<bestDist){ bestDist=dist; bestIdx=ri; }
+        });
+        var targetRow=rows[bestIdx];
+        if(targetRow){
+          var rect=targetRow.getBoundingClientRect();
+          var listRect=allList.getBoundingClientRect();
+          var insertAfter = cy > rect.top+rect.height/2;
+          var lineY = insertAfter ? (rect.bottom-listRect.top) : (rect.top-listRect.top);
+          _lpInsertLine.style.display='block';
+          _lpInsertLine.style.top=(lineY-1)+'px';
+          _lpTargetIdx = insertAfter ? bestIdx+1 : bestIdx;
+        }
+      }
+
+      function _lpRemoveGhost(){
+        if(_lpGhost){ _lpGhost.remove(); _lpGhost=null; }
+        if(_lpInsertLine){ _lpInsertLine.remove(); _lpInsertLine=null; }
+        document.body.style.userSelect='';
+        document.body.style.webkitUserSelect='';
+        _lpTargetIdx=-1;
+      }
+
+      function _lpCancel(){
+        if(_lpTimer){ clearTimeout(_lpTimer); _lpTimer=null; }
+      }
+      function _lpCleanup(){
+        rows.forEach(function(r){ r.classList.remove('jemv-row-dragging'); });
+        _lpRemoveGhost();
+        _lpSrc=null; _lpSrcIdx=-1; _lpDragging=false;
+      }
+
+      function _lpDrop(){
+        _lpCancel();
+        if(!_lpSrc){ _lpCleanup(); return; }
+        _lpSrc.classList.remove('jemv-row-dragging');
+        var targetIdx=_lpTargetIdx;
+        _lpRemoveGhost();
+        if(_lpDragging && targetIdx!==-1 && targetIdx!==_lpSrcIdx && targetIdx!==_lpSrcIdx+1){
+          var srcPos=_lpSrcIdx;
+          var dstPos=targetIdx>_lpSrcIdx ? targetIdx-1 : targetIdx;
+          if(dstPos!==srcPos){
+            var realSrc=_rowVerIdxs[srcPos];
+            var realDst=_rowVerIdxs[Math.min(dstPos,_rowVerIdxs.length-1)];
+            var moved=_versions.splice(realSrc,1)[0];
+            _versions.splice(realDst,0,moved);
+            if(_mainVerIdx===realSrc) _mainVerIdx=realDst;
+            else if(realSrc<_mainVerIdx && realDst>=_mainVerIdx) _mainVerIdx--;
+            else if(realSrc>_mainVerIdx && realDst<=_mainVerIdx) _mainVerIdx++;
+            if(typeof _tab==='number'){
+              if(_tab===realSrc) _tab=realDst;
+              else if(realSrc<_tab && realDst>=_tab) _tab--;
+              else if(realSrc>_tab && realDst<=_tab) _tab++;
+            }
+            _lpSrc=null; _lpSrcIdx=-1; _lpDragging=false;
+            _jemvRebuildTabs();
+            _jemvRender();
+            return;
+          }
+        }
+        _lpCleanup();
+      }
+
+      rows.forEach(function(row,ri){
+        var label=row.querySelector('.jemv-all-label');
+        if(label) label.style.cursor='grab';
+        row.style.cursor='grab';
+
+        row.addEventListener('touchstart',function(e){
+          var cy=e.touches[0].clientY;
+          _lpTimer=setTimeout(function(){
+            _lpSrc=row; _lpSrcIdx=ri; _lpDragging=false;
+            row.classList.add('jemv-row-dragging');
+            _lpCreateGhost(row,cy);
+            if(navigator.vibrate) navigator.vibrate(35);
+          },420);
+        },{passive:true});
+        row.addEventListener('touchmove',function(e){
+          if(_lpSrc===row){
+            _lpDragging=true;
+            e.preventDefault();
+            _lpMoveGhost(e.touches[0].clientY);
+          } else if(_lpTimer){
+            _lpCancel();
+          }
+        },{passive:false});
+        row.addEventListener('touchend',function(){ if(_lpSrc===row) _lpDrop(); else _lpCancel(); });
+        row.addEventListener('touchcancel',function(){ _lpCancel(); if(_lpSrc===row) _lpCleanup(); });
+
+        row.addEventListener('mousedown',function(e){
+          if(e.button!==0) return;
+          e.preventDefault();
+          var cy=e.clientY;
+          _lpTimer=setTimeout(function(){
+            _lpSrc=row; _lpSrcIdx=ri; _lpDragging=false;
+            row.classList.add('jemv-row-dragging');
+            _lpCreateGhost(row,cy);
+          },420);
+          function mmv(ev){ cy=ev.clientY; if(_lpSrc===row){ _lpDragging=true; _lpMoveGhost(ev.clientY); } }
+          function mup(){ if(_lpSrc===row) _lpDrop(); else _lpCancel(); document.removeEventListener('mousemove',mmv); document.removeEventListener('mouseup',mup); }
+          document.addEventListener('mousemove',mmv);
+          document.addEventListener('mouseup',mup);
+        });
+      });
+    }
+  }
   if(_tab!=='all'){
     var el=document.getElementById('jemv-vs-'+_vs);
     if(el) setTimeout(function(){ el.scrollIntoView({block:'center',behavior:'smooth'}); },60);
   }
   /* 폰트 크기 적용 */
-  body.style.setProperty('--jemv-fs', _jemvFs+'px');
+  body.style.setProperty('--jemv-fs',_jemvFs+'px');
+  body.style.setProperty('--jemv-lh',_jemvLh+'');
+  body.style.setProperty('--jemv-ls',(_jemvLs/100)+'em');
 }
 
 window.jemvClickVs=function(vs){
@@ -9797,7 +10999,62 @@ function _jemvSyncUpdateBtn(){
   } else {
     btn.textContent='🔗 싱크'; btn.style.background='#f0ece4'; btn.style.color='#3a3730'; btn.style.borderColor='#d0cbc0';
   }
+  var sb2=document.getElementById('jemv-sync-btn2');
+  if(sb2){ sb2.style.background=_jemvSynced?'#2d4a3e':'#e8e3d8'; sb2.style.color=_jemvSynced?'#fff':'#4a4238'; sb2.style.borderColor=_jemvSynced?'#2d4a3e':'#c8c0b4'; sb2.textContent=_jemvSynced?'🔗 싱크 ON':'🔗 싱크'; }
 }
+/* ── 폰트 선택 ── */
+var _jemvFontMap = {
+  'default':        "'Pretendard Variable','Apple SD Gothic Neo',sans-serif",
+  'nanum-myeongjo': "'Nanum Myeongjo',serif",
+  'nanum-gothic':   "'Nanum Gothic',sans-serif",
+  'georgia':        "'Georgia',serif",
+  'malgun':         "'Malgun Gothic','맑은 고딕',sans-serif",
+  'batang':         "'Batang','바탕',serif",
+  'gulim':          "'Gulim','굴림',sans-serif"
+};
+var _jemvCurrentFont = 'default';
+function _jemvApplyFont(key){
+  _jemvCurrentFont = key;
+  var ff = _jemvFontMap[key] || _jemvFontMap['default'];
+  /* #jemv-win에 CSS 변수로 직접 세팅 */
+  var win = document.getElementById('jemv-win');
+  if(win) win.style.setProperty('--jemv-font', ff);
+  /* 활성 표시 업데이트 */
+  document.querySelectorAll('.jemv-font-opt,.jemv-font-opt2').forEach(function(o){
+    var isActive = o.getAttribute('onclick') && o.getAttribute('onclick').indexOf("'"+key+"'") !== -1;
+    o.style.fontWeight = isActive ? '700' : '';
+    o.style.color = isActive ? '#2d4a3e' : '';
+    o.style.background = isActive ? '#eef5f1' : '';
+  });
+  /* 드롭다운 닫기 */
+  var m1 = document.getElementById('jemv-font-menu');
+  var m2 = document.getElementById('jemv-font-menu2');
+  if(m1) m1.classList.remove('open');
+  if(m2) m2.style.display = 'none';
+}
+window.jemvFontMenuToggle = function(){
+  var m = document.getElementById('jemv-font-menu');
+  if(m) m.classList.toggle('open');
+};
+window.jemvFontMenuToggle2 = function(){
+  var m = document.getElementById('jemv-font-menu2');
+  if(m) m.style.display = (m.style.display === 'none' || !m.style.display) ? 'block' : 'none';
+};
+window.jemvSetFont = function(key){ _jemvApplyFont(key); };
+/* 외부 클릭 시 닫기 */
+document.addEventListener('click', function(e){
+  var w1 = document.getElementById('jemv-font-wrap');
+  var w2 = document.getElementById('jemv-font-wrap2');
+  if(w1 && !w1.contains(e.target)){
+    var m = document.getElementById('jemv-font-menu');
+    if(m) m.classList.remove('open');
+  }
+  if(w2 && !w2.contains(e.target)){
+    var m2 = document.getElementById('jemv-font-menu2');
+    if(m2) m2.style.display = 'none';
+  }
+});
+
 window.jemvSyncToggle=function(){
   _jemvSynced=!_jemvSynced;
   _jemvSyncUpdateBtn();
@@ -9811,10 +11068,484 @@ window._jemvSyncFromMain=function(abbr,ch,vs){
   if(w&&w.classList.contains('jemv-show')) _jemvJumpTo(abbr,ch,vs);
 };
 
-/* ── 폰트 크기 ── */
-var _jemvFs=14;
-window.jemvFontUp=function(){ _jemvFs=Math.min(22,_jemvFs+1); _jemvRender(); };
-window.jemvFontDown=function(){ _jemvFs=Math.max(10,_jemvFs-1); _jemvRender(); };
+/* ── 폰트 크기 / 행간 / 자간 ── */
+var _jemvFs=16, _jemvLh=1.4, _jemvLs=-2;
+function _jemvApplyVars(){
+  var b=document.getElementById('jemv-body'); if(!b) return;
+  b.style.setProperty('--jemv-fs',_jemvFs+'px');
+  b.style.setProperty('--jemv-lh',_jemvLh+'');
+  b.style.setProperty('--jemv-ls',(_jemvLs/100)+'em');
+  var e;
+  e=document.getElementById('jemv-fs-val');  if(e) e.textContent=_jemvFs;
+  e=document.getElementById('jemv-fs-val2'); if(e) e.textContent=_jemvFs;
+  e=document.getElementById('jemv-lh-val');  if(e) e.textContent=_jemvLh.toFixed(1);
+  e=document.getElementById('jemv-lh-val2'); if(e) e.textContent=_jemvLh.toFixed(1);
+  e=document.getElementById('jemv-ls-val');  if(e) e.textContent=_jemvLs;
+  e=document.getElementById('jemv-ls-val2'); if(e) e.textContent=_jemvLs;
+}
+window.jemvFontUp  =function(){_jemvFs=Math.min(22,_jemvFs+1); _jemvApplyVars(); _jemvRender();};
+window.jemvFontDown=function(){_jemvFs=Math.max(10,_jemvFs-1); _jemvApplyVars(); _jemvRender();};
+window.jemvLhUp    =function(){_jemvLh=Math.min(3.0,Math.round((_jemvLh+0.1)*10)/10); _jemvApplyVars(); _jemvRender();};
+window.jemvLhDown  =function(){_jemvLh=Math.max(1.0,Math.round((_jemvLh-0.1)*10)/10); _jemvApplyVars(); _jemvRender();};
+window.jemvLsUp    =function(){_jemvLs=Math.min(20,_jemvLs+1); _jemvApplyVars();};
+window.jemvLsDown  =function(){_jemvLs=Math.max(-5,_jemvLs-1); _jemvApplyVars();};
+
+/* ── 가로 보기 모드 ── */
+var _jemvHoriz = false;
+var _jemvHzColW = 200; /* 컬럼 너비 px */
+
+window.jemvHzColSlide = function(val){
+  _jemvHzColW = parseInt(val);
+  var valEl = document.getElementById('jemv-hz-col-val');
+  if(valEl) valEl.textContent = _jemvHzColW + 'px';
+  /* 셀·헤더 셀에 너비 적용 */
+  var style = document.getElementById('jemv-hz-col-style');
+  if(!style){ style=document.createElement('style'); style.id='jemv-hz-col-style'; document.head.appendChild(style); }
+  style.textContent = '.jemv-hz-hdr-cell,.jemv-hz-cell{ flex:0 0 '+_jemvHzColW+'px !important; width:'+_jemvHzColW+'px !important; min-width:'+_jemvHzColW+'px !important; }';
+  /* 좌측 화살표 위치 갱신 */
+  var _arrL2 = document.getElementById('jemv-scroll-arr-left');
+  var _hzL2  = document.getElementById('jemv-hz-left');
+  var _body2 = document.getElementById('jemv-body');
+  if(_arrL2 && _body2){
+    _arrL2.style.left = '45px';
+    if(_hzL2) _hzL2.style.width = '75px';
+  }
+  /* debounce 행 높이 재동기화 */
+  clearTimeout(window._jemvColDebounce);
+  window._jemvColDebounce = setTimeout(function(){ if(_jemvHoriz && typeof _jemvRender==='function') _jemvRender(); }, 280);
+};
+
+window.jemvHorizToggle = function(){
+  _jemvHoriz = !_jemvHoriz;
+  var w = _w();
+  var btn = document.getElementById('jemv-horiz-btn');
+  var body = document.getElementById('jemv-body');
+  if(_jemvHoriz){
+    w.classList.add('jemv-horiz');
+    /* inline style로 초기 위치·크기 설정 (resize 후에도 position:fixed 유지됨) */
+    w.style.position = 'fixed';
+    w.style.top    = '8px';
+    w.style.left   = '8px';
+    w.style.width  = (window.innerWidth  - 16) + 'px';
+    w.style.height = (window.innerHeight - 16) + 'px';
+    w.style.transform    = 'none';
+    w.style.borderRadius = '10px';
+    w.style.border       = '1px solid #ddd8ce';
+    w.style.boxShadow    = '0 8px 40px rgba(0,0,0,.18)';
+    w.style.overflow     = 'auto';  /* resize:both 작동 위해 hidden 해제 */
+    if(btn){ btn.classList.add('active'); btn.textContent='✕ 가로닫기'; }
+    var refEl=document.getElementById('jemv-horiz-ref');
+    var titleRef=document.getElementById('jemv-title-ref');
+    if(refEl&&titleRef) refEl.textContent=titleRef.textContent;
+    var sb2=document.getElementById('jemv-sync-btn2');
+    if(sb2){ sb2.style.background=_synced?'#2d4a3e':'#e8e3d8'; sb2.style.color=_synced?'#fff':'#4a4238'; sb2.style.borderColor=_synced?'#2d4a3e':'#c8c0b4'; }
+    /* 슬라이더 초기값 세팅 */
+    var sl=document.getElementById('jemv-hz-col-slider');
+    var vl=document.getElementById('jemv-hz-col-val');
+    if(sl){ sl.value=_jemvHzColW; } if(vl){ vl.textContent=_jemvHzColW+'px'; }
+  } else {
+    w.classList.remove('jemv-horiz');
+    if(btn){ btn.classList.remove('active'); btn.textContent='⇔ 가로'; }
+    if(body && body._hzResizeOb){ body._hzResizeOb.disconnect(); body._hzResizeOb=null; }
+    /* 컬럼 너비 스타일 초기화 */
+    var cs=document.getElementById('jemv-hz-col-style'); if(cs) cs.textContent='';
+    if(!_mob()){
+      var ed=document.getElementById('je-ed-ov');
+      var edRect=ed?ed.getBoundingClientRect():null;
+      w.style.width='760px'; w.style.height=(window.innerHeight-48)+'px';
+      w.style.top='50%'; w.style.left=''; w.style.transform='translateY(-50%)';
+      w.style.borderRadius='14px';
+      w.style.border='1px solid #ddd8ce';
+      w.style.boxShadow='0 8px 40px rgba(0,0,0,.18),0 1px 4px rgba(0,0,0,.08)';
+      if(edRect){ w.style.left=(edRect.left-772)+'px'; } else { w.style.left='10px'; }
+    }
+    w.style.overflow='hidden';
+  }
+  _jemvRender();
+};
+
+/* 가로 보기 전용 렌더 */
+/* ── 헤더 롱탭 → 드래그 정렬 ── */
+function _jemvHdrLongPress(cell, origIdx, hdrRow){
+  var LONG_MS = 420;
+  var _timer = null, _dragging = false, _ghost = null, _startX = 0, _startScrollLeft = 0;
+
+  function _getBody(){ return document.getElementById('jemv-body'); }
+
+  function _hint(show){
+    var h = cell.querySelector('.jemv-hz-drag-hint');
+    if(h) h.style.opacity = show ? '1' : '0';
+  }
+
+  function _cancelTimer(){
+    if(_timer){ clearTimeout(_timer); _timer=null; }
+  }
+
+  function _startDrag(clientX){
+    _dragging = true;
+    document.body.style.userSelect = 'none';
+    document.body.style.webkitUserSelect = 'none';
+    var body = _getBody();
+    if(body) _startScrollLeft = body.scrollLeft;
+    _startX = clientX;
+
+    /* 셀 강조 */
+    cell.style.background = '#e8f2ee';
+    cell.style.cursor = 'grabbing';
+    cell.style.opacity = '0.7';
+
+    /* 고스트 레이블 */
+    _ghost = document.createElement('div');
+    _ghost.textContent = cell.querySelector('.jemv-hz-hdr-name').textContent;
+    _ghost.style.cssText = 'position:fixed;padding:5px 12px;background:#2d4a3e;color:#fff;border-radius:8px;font-size:0.72rem;font-weight:700;pointer-events:none;z-index:10500;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.25);transform:translateY(-50%);';
+    document.body.appendChild(_ghost);
+
+    document.addEventListener('mousemove', _onMove);
+    document.addEventListener('mouseup',   _onUp);
+    document.addEventListener('touchmove', _onTMove, {passive:false});
+    document.addEventListener('touchend',  _onTUp);
+  }
+
+  function _moveGhost(clientX, clientY){
+    if(!_ghost) return;
+    _ghost.style.left = (clientX - _ghost.offsetWidth/2) + 'px';
+    _ghost.style.top  = clientY + 'px';
+  }
+
+  function _getTargetIdx(clientX){
+    var cells = hdrRow.querySelectorAll('.jemv-hz-hdr-cell');
+    var best = parseInt(cell.dataset.idx), bestDist = Infinity;
+    cells.forEach(function(c){
+      var r = c.getBoundingClientRect();
+      var cx = r.left + r.width/2;
+      var dist = Math.abs(clientX - cx);
+      if(dist < bestDist){ bestDist=dist; best=parseInt(c.dataset.idx); }
+    });
+    return best;
+  }
+
+  function _highlightTarget(targetIdx){
+    hdrRow.querySelectorAll('.jemv-hz-hdr-cell').forEach(function(c){
+      var idx = parseInt(c.dataset.idx);
+      c.style.borderLeft = (idx===targetIdx && idx!==parseInt(cell.dataset.idx)) ? '2px solid #2d4a3e' : '';
+    });
+  }
+
+  function _onMove(e){ if(!_dragging) return; _moveGhost(e.clientX, e.clientY); _highlightTarget(_getTargetIdx(e.clientX)); }
+  function _onTMove(e){ if(!_dragging) return; e.preventDefault(); var t=e.touches[0]; _moveGhost(t.clientX, t.clientY); _highlightTarget(_getTargetIdx(t.clientX)); }
+
+  function _endDrag(clientX){
+    if(!_dragging) return;
+    _dragging = false;
+    document.body.style.userSelect = '';
+    document.body.style.webkitUserSelect = '';
+    var newIdx = _getTargetIdx(clientX);
+    var curIdx = parseInt(cell.dataset.idx);
+
+    /* 정리 */
+    if(_ghost){ _ghost.remove(); _ghost=null; }
+    cell.style.background=''; cell.style.cursor=''; cell.style.opacity='';
+    hdrRow.querySelectorAll('.jemv-hz-hdr-cell').forEach(function(c){ c.style.borderLeft=''; });
+
+    document.removeEventListener('mousemove', _onMove);
+    document.removeEventListener('mouseup',   _onUp);
+    document.removeEventListener('touchmove', _onTMove);
+    document.removeEventListener('touchend',  _onTUp);
+
+    if(newIdx !== curIdx){
+      /* _versions 순서 변경 */
+      var moved = _versions.splice(curIdx, 1)[0];
+      _versions.splice(newIdx, 0, moved);
+      /* 메인 인덱스 보정 */
+      var mi = _mainVerIdx;
+      if(mi === curIdx) mi = newIdx;
+      else if(curIdx < mi && newIdx >= mi) mi--;
+      else if(curIdx > mi && newIdx <= mi) mi++;
+      _mainVerIdx = mi;
+      /* 탭 보정 */
+      if(typeof _tab === 'number'){
+        if(_tab === curIdx) _tab = newIdx;
+        else if(curIdx < _tab && newIdx >= _tab) _tab--;
+        else if(curIdx > _tab && newIdx <= _tab) _tab++;
+      }
+      _jemvRebuildTabs();
+      _jemvRender();
+    }
+  }
+
+  function _onUp(e){ _endDrag(e.clientX); }
+  function _onTUp(e){ _endDrag(e.changedTouches[0].clientX); }
+
+  /* 롱탭 감지 */
+  cell.addEventListener('mousedown', function(e){
+    if(e.button !== 0) return;
+    _cancelTimer();
+    _hint(true);
+    _timer = setTimeout(function(){ _startDrag(e.clientX); }, LONG_MS);
+    document.addEventListener('mouseup', function _cancel(){ _cancelTimer(); _hint(false); document.removeEventListener('mouseup', _cancel); }, {once:true});
+  });
+  cell.addEventListener('touchstart', function(e){
+    var t = e.touches[0];
+    _cancelTimer();
+    _hint(true);
+    _timer = setTimeout(function(){ _startDrag(t.clientX); }, LONG_MS);
+  }, {passive:true});
+  cell.addEventListener('touchend', function(){ _cancelTimer(); _hint(false); });
+  cell.addEventListener('touchcancel', function(){ _cancelTimer(); _hint(false); });
+}
+
+/* 예수말씀 별색 — 가로모드용 독립 함수 (window._jwData 직접 접근) */
+function _jemvHzJwSup(txt, abbr, ch, vs){
+  try{
+    var jwd=window._jwData;
+    if(!jwd) return String(txt).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    var bd=jwd[abbr]; if(!bd) return String(txt).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    var cd=bd[String(ch)]; if(!cd) return String(txt).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    var jw=cd[String(vs)]; if(!jw) return String(txt).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    var JWC='#b83232';
+    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    if(jw==='full') return '<span style="color:'+JWC+'">'+esc(txt)+'</span>';
+    var parts=Array.isArray(jw)?jw:[]; if(!parts.length) return esc(txt);
+    var sorted=parts.slice().sort(function(a,b){return txt.indexOf(a)-txt.indexOf(b);});
+    var rem=txt, res='';
+    sorted.forEach(function(seg){
+      var i=rem.indexOf(seg); if(i<0) return;
+      if(i>0) res+=esc(rem.slice(0,i));
+      res+='<span style="color:'+JWC+'">'+esc(seg)+'</span>';
+      rem=rem.slice(i+seg.length);
+    });
+    if(rem) res+=esc(rem);
+    return res;
+  }catch(e){ return String(txt).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+}
+
+function _jemvRenderHoriz(){
+  var body = document.getElementById('jemv-body');
+  if(!body) return;
+  var empty = document.getElementById('jemv-empty');
+  if(!_versions.length){
+    body.classList.remove('jemv-horiz-body');
+    var _hf0=document.getElementById('jemv-hz-hdr-fixed'); if(_hf0){_hf0.style.display='none';_hf0.innerHTML='';}
+    body.innerHTML=''; if(empty){ empty.style.display=''; body.appendChild(empty); } return;
+  }
+  if(empty) empty.style.display='none';
+  body.classList.add('jemv-horiz-body');
+  var _hfShow=document.getElementById('jemv-hz-hdr-fixed'); if(_hfShow) _hfShow.style.display='block';
+
+  /* helpers */
+  var _cMap={c0:'#2d4a3e',c1:'#5a7ab8',c2:'#b05a30',c3:'#7a5ab0',c4:'#3a7a5a',c5:'#b08030',c6:'#5a8ab0',c7:'#b05080',
+    green:'#2d7a4a',blue:'#2a5db0',red:'#c0392b',purple:'#7b3fa0',orange:'#c4620a',teal:'#1a8a80',gray:'#6b6560',
+    navy:'#1a3a6e',brown:'#7a4a1a',pink:'#b03070',indigo:'#3a4ab0',lime:'#4a8a1a',amber:'#b07a10',rose:'#b03050',
+    cyan:'#1a7a9a',violet:'#6a2ab0',emerald:'#1a7a50',sky:'#1a6aaa',fuchsia:'#9a1a9a',yellow:'#8a7a00'};
+  function _getCol(cls){ if(!cls) return '#6b6560'; if(cls&&cls.charAt&&cls.charAt(0)==='#') return cls; return _cMap[cls]||'#6b6560'; }
+  function _clean(r){ return r.replace(/<[^>]+>/g,'').replace(/【\d+\)[\s\S]*?】/g,'').trim(); }
+  function _hdg(r){ var m=r.match(/<([^>]+)>/g); if(!m) return ''; return m.map(function(h){ return h.slice(1,-1).replace(/【\d+\)[\s\S]*?】/g,'').trim(); }).filter(Boolean).join(' '); }
+  function _fns(r){ var a=[],re=/【(\d+)\)([\s\S]*?)】/g,m; while((m=re.exec(r))!==null) a.push({n:m[1],t:m[2].trim()}); return a; }
+  function _esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function _sup(t){ return _esc(t).replace(/([¹²³⁴⁵⁶⁷⁸⁹⁰]+⁾)/g,'<sup style="font-size:0.65em;vertical-align:super;line-height:0;color:#7a8aab;">$1</sup>'); }
+  function _isEng(s){ return s && /^[A-Za-z]/.test(s.trim()); }
+
+  /* 현재 장 절 목록 */
+  var vsSet={};
+  _versions.forEach(function(v){
+    v.data.filter(function(d){return d.book===_abbr&&d.ch===_ch;}).forEach(function(d){vsSet[d.vs]=true;});
+  });
+  var vsNums=Object.keys(vsSet).map(Number).sort(function(a,b){return a-b;});
+
+  var nc=_versions.length;
+
+  /* ── 헤더 행 ── */
+  var hdrRow = document.createElement('div');
+  hdrRow.className='jemv-hz-hdr-row';
+  _versions.forEach(function(v, vi){
+    var accent=_getCol(v.color);
+    var cell=document.createElement('div');
+    cell.className='jemv-hz-hdr-cell';
+    cell.dataset.idx=vi;
+    cell.title='길게 누르면 순서 변경';
+    cell.innerHTML='<div class="jemv-hz-hdr-dot" style="background:'+accent+'"></div>'
+      +'<div class="jemv-hz-hdr-name" style="color:'+accent+'">'+_esc(v.label||v.shortName)+'</div>'
+      +'<div class="jemv-hz-drag-hint" style="margin-left:auto;font-size:0.6rem;color:#c0b8b0;opacity:0;transition:opacity .2s;user-select:none;flex-shrink:0;padding-left:4px;">⠿</div>';
+    _jemvHdrLongPress(cell, vi, hdrRow);
+    hdrRow.appendChild(cell);
+  });
+
+  /* ── 절 행들 ── */
+  /* 헤더 행 → body 밖 고정 컨테이너에 배치 (overflow 양방향 sticky 버그 방지) */
+  var hdrFixed = document.getElementById('jemv-hz-hdr-fixed');
+  if(hdrFixed){ hdrFixed.innerHTML=''; hdrFixed.appendChild(hdrRow); }
+
+  var frag=document.createDocumentFragment();
+
+  vsNums.forEach(function(vsn){
+    var isActive=(vsn===_vs);
+    var row=document.createElement('div');
+    row.className='jemv-hz-row'+(isActive?' hz-active':'');
+    row.dataset.vs=vsn;
+
+
+
+    _versions.forEach(function(v,vi){
+      var accent=_getCol(v.color);
+      var fontCol=v.fontColor||'#000000';
+      var d=v.data.find(function(x){return x.book===_abbr&&x.ch===_ch&&x.vs===vsn;});
+      var raw=d?d.text:'';
+      var txt=d?_clean(raw):'';
+      var hdgTxt=d?_hdg(raw):'';
+      var fnArr=d?_fns(raw):[];
+
+      var cell=document.createElement('div');
+      cell.className='jemv-hz-cell';
+      cell.style.setProperty('--hz-accent',accent);
+      cell.dataset.col=vi;
+      cell.dataset.vs=vsn;
+      cell.onclick=function(){ jemvHorizClickVs(vsn); };
+
+      /* 절번호 뱃지 제거 — 번호는 왼쪽 고정 열에만 */
+      var inner='<span class="jemv-hz-txt'+(d&&_isEng(txt)?' jemv-eng':'')+'" style="color:'+fontCol+';">';
+      if(hdgTxt) inner+='<span class="jemv-hz-hdg">'+_sup(hdgTxt)+'</span>';
+      if(d) inner+=_jemvHzJwSup(txt,_abbr,_ch,vsn);
+      else inner+='<span style="color:#c0b8b0;">—</span>';
+      if(fnArr.length){
+        inner+='<span class="jemv-hz-fn">† ';
+        inner+=fnArr.map(function(f){return '<sup style="font-size:0.72em;vertical-align:super;line-height:0;font-style:normal;">'+_esc(f.n)+'⁾</sup>'+_esc(f.t);}).join(' · ');
+        inner+='</span>';
+      }
+      inner+='</span>';
+      cell.innerHTML=inner;
+      row.appendChild(cell);
+    });
+
+    frag.appendChild(row);
+  });
+
+  body.innerHTML='';
+  body.appendChild(frag);
+  body.style.setProperty('--jemv-fs',_jemvFs+'px');
+  body.style.setProperty('--jemv-lh',_jemvLh+'');
+  body.style.setProperty('--jemv-ls',(_jemvLs/100)+'em');
+
+  /* ── 행 높이 동기화 + 오버레이 번호바 갱신 ── */
+  var _nbTimer=null;
+  function _equalizeRows(){
+    /* 고정 높이 해제 후 재측정 */
+    var rows=body.querySelectorAll('.jemv-hz-row');
+    rows.forEach(function(row){
+      row.querySelectorAll('.jemv-hz-cell').forEach(function(c){ c.style.height=''; });
+    });
+    /* 레이아웃 강제 flush */
+    void body.offsetHeight;
+    rows.forEach(function(row){
+      var cells=row.querySelectorAll('.jemv-hz-cell');
+      var maxH=0;
+      cells.forEach(function(c){ maxH=Math.max(maxH,c.offsetHeight); });
+      if(maxH>0) cells.forEach(function(c){ c.style.height=maxH+'px'; });
+    });
+    _buildNumbar();
+  }
+
+  /* ── 오버레이 번호바 빌드 ── */
+  function _buildNumbar(){
+    var wrap=document.getElementById('jemv-body-wrap');
+    var nb=document.getElementById('jemv-hz-numbar');
+    var nbHdr=document.getElementById('jemv-hz-numbar-hdr');
+    var nbInner=document.getElementById('jemv-hz-numbar-inner');
+    if(!nb||!nbInner||!wrap) return;
+
+    /* 헤더 높이 맞추기 - 헤더가 jemv-hz-hdr-fixed 안에 있으므로 거기서 찾음 */
+    var _hdrFixed=document.getElementById('jemv-hz-hdr-fixed');
+    var hdrRow=(_hdrFixed&&_hdrFixed.querySelector('.jemv-hz-hdr-row'))||body.querySelector('.jemv-hz-hdr-row');
+    var hdrH=_hdrFixed?_hdrFixed.offsetHeight:0;
+    if(nbHdr){ nbHdr.style.height=hdrH+'px'; }
+
+    /* 번호 아이템 생성 */
+    nbInner.innerHTML='';
+    var rows=body.querySelectorAll('.jemv-hz-row');
+    rows.forEach(function(row){
+      var vsn=row.dataset.vs;
+      var h=row.offsetHeight||0;
+      var item=document.createElement('div');
+      item.className='jemv-hz-num-item'+(row.classList.contains('hz-active')?' nb-active':'');
+      item.style.height=h+'px';
+      item.dataset.vs=vsn;
+      item.innerHTML='<span class="jemv-hz-num">'+vsn+'</span>';
+      nbInner.appendChild(item);
+    });
+
+    /* body 스크롤에 번호바 Y 동기화 + 헤더 X 동기화 */
+    var _hdrFixed2 = document.getElementById('jemv-hz-hdr-fixed');
+    function _syncNbY(){
+      nbInner.style.transform='translateY('+(-body.scrollTop+hdrH)+'px)';
+      if(_hdrFixed2) _hdrFixed2.scrollLeft = body.scrollLeft;
+    }
+    _syncNbY();
+    if(body._nbScrollHandler) body.removeEventListener('scroll',body._nbScrollHandler);
+    body._nbScrollHandler=_syncNbY;
+    body.addEventListener('scroll',_syncNbY,{passive:true});
+
+    /* hover 동기화: hz-row ↔ nb-hover */
+    rows.forEach(function(row){
+      var vsn=parseInt(row.dataset.vs);
+      row.addEventListener('mouseenter',function(){
+        nbInner.querySelectorAll('.jemv-hz-num-item').forEach(function(it){
+          it.classList.toggle('nb-hover', parseInt(it.dataset.vs)===vsn);
+        });
+      });
+      row.addEventListener('mouseleave',function(){
+        nbInner.querySelectorAll('.jemv-hz-num-item').forEach(function(it){
+          it.classList.remove('nb-hover');
+        });
+      });
+    });
+
+    nb.classList.add('nb-show');
+    nb.style.width='38px';
+  }
+
+  /* hz-active 변경 시 번호바도 갱신 */
+  window._jemvNbSyncActive=function(vsn){
+    var items=document.querySelectorAll('.jemv-hz-num-item');
+    items.forEach(function(it){ it.classList.toggle('nb-active',parseInt(it.dataset.vs)===vsn); });
+  };
+
+  /* 폰트 로딩 후 측정 */
+  setTimeout(_equalizeRows, 80);
+
+  /* 창/창틀 리사이즈 시 재계산 — debounce */
+  var _win=document.getElementById('jemv-win');
+  if(body._hzResizeOb) body._hzResizeOb.disconnect();
+  if(window.ResizeObserver){
+    var ro=new ResizeObserver(function(){
+      clearTimeout(_nbTimer);
+      _nbTimer=setTimeout(_equalizeRows,60);
+    });
+    ro.observe(_win||body);
+    body._hzResizeOb=ro;
+  }
+
+  /* ── 현재 절로 스크롤 ── */
+  setTimeout(function(){
+    var activeRow=body.querySelector('.jemv-hz-row.hz-active');
+    if(activeRow) activeRow.scrollIntoView({block:'center',behavior:'smooth'});
+  }, 100);
+}
+
+window.jemvHorizClickVs = function(vsn){
+  _vs=vsn;
+  var body=document.getElementById('jemv-body');
+  if(!body) return;
+  body.querySelectorAll('.jemv-hz-row').forEach(function(row){
+    var isA=(parseInt(row.dataset.vs)===vsn);
+    row.classList.toggle('hz-active',isA);
+  });
+  if(window._jemvNbSyncActive) window._jemvNbSyncActive(vsn);
+  var selVs=document.getElementById('jemv-sel-vs');
+  if(selVs) selVs.value=String(vsn);
+  var lbl=document.getElementById('jemv-vs-lbl');
+  if(lbl) lbl.textContent=vsn+'절';
+  var tr=document.getElementById('jemv-title-ref');
+  if(tr) tr.textContent=((window._JE_BOOK_NAMES||[])[((window._JE_BOOK_NUM||[]).indexOf(_abbr))]||_abbr)+' '+_ch+':'+vsn;
+};
 
 /* ── 드래그/리사이즈 ── */
 document.addEventListener('DOMContentLoaded',function(){
@@ -9837,15 +11568,34 @@ document.addEventListener('DOMContentLoaded',function(){
   function moveDrag(cx,cy){
     if(!_dragging) return;
     var nx=_dWX+(cx-_dOX), ny=_dWY+(cy-_dOY);
-    nx=Math.max(0,Math.min(window.innerWidth-80,nx));
-    ny=Math.max(0,Math.min(window.innerHeight-40,ny));
+    if(!isHoriz()){
+      nx=Math.max(0,Math.min(window.innerWidth-80,nx));
+      ny=Math.max(0,Math.min(window.innerHeight-40,ny));
+    }
     w.style.left=nx+'px'; w.style.top=ny+'px';
   }
   function endDrag(){ _dragging=false; }
 
+  function isHoriz(){ return w && w.classList.contains('jemv-horiz'); }
+
   if(tb){
-    tb.addEventListener('mousedown',function(e){ if(e.target.tagName==='BUTTON') return; startDrag(e.clientX,e.clientY); e.preventDefault(); });
-    tb.addEventListener('touchstart',function(e){ startDrag(e.touches[0].clientX,e.touches[0].clientY); },{passive:true});
+    tb.addEventListener('mousedown',function(e){ if(isHoriz()) return; if(e.target.tagName==='BUTTON') return; startDrag(e.clientX,e.clientY); e.preventDefault(); });
+    tb.addEventListener('touchstart',function(e){ if(isHoriz()) return; startDrag(e.touches[0].clientX,e.touches[0].clientY); },{passive:true});
+  }
+
+  /* 가로모드: nav를 드래그 핸들로 사용 */
+  var nav=document.getElementById('jemv-nav');
+  if(nav){
+    nav.addEventListener('mousedown',function(e){
+      if(!isHoriz()) return;
+      if(e.target.closest('button,select,input')) return;
+      startDrag(e.clientX,e.clientY); e.preventDefault();
+    });
+    nav.addEventListener('touchstart',function(e){
+      if(!isHoriz()) return;
+      if(e.target.closest('button,select,input')) return;
+      startDrag(e.touches[0].clientX,e.touches[0].clientY);
+    },{passive:true});
   }
   document.addEventListener('mousemove',function(e){ moveDrag(e.clientX,e.clientY); });
   document.addEventListener('touchmove',function(e){ if(_dragging){ moveDrag(e.touches[0].clientX,e.touches[0].clientY); e.preventDefault(); } },{passive:false});
