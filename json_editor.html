@@ -24,7 +24,7 @@
 #je-pin-ov,#je-ed-ov{display:none;position:fixed;inset:0;z-index:10100}
 #je-pin-ov{background:#f7f4ee;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;flex-direction:column;align-items:center;justify-content:center;overflow-y:auto;}
 #je-pin-ov.je-show{display:flex}
-#je-ed-ov{background:#f4f1eb;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;flex-direction:column;overflow:visible}
+#je-ed-ov{background:#f4f1eb;font-family:'Pretendard Variable','Apple SD Gothic Neo',sans-serif;flex-direction:column;overflow:hidden}
 #je-ed-ov.je-show{display:flex}
 @media (min-width:601px){
   #je-pin-ov,#je-ed-ov{inset:unset;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:calc(100vh - 48px);max-height:calc(100vh - 48px);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.18);border:1px solid #ddd8ce}
@@ -49,7 +49,7 @@
 @keyframes je-toast{0%{opacity:0;transform:translate(-50%,8px)}12%{opacity:1;transform:translate(-50%,0)}80%{opacity:1}100%{opacity:0}}
 .je-shake{animation:je-shake .5s ease}
 /* 에디터 헤더 */
-.je-hdr{display:flex;align-items:center;gap:6px;padding:0 14px;height:48px;background:#fff;flex-shrink:0;border-bottom:1px solid #ece8e0;overflow:visible;}
+.je-hdr{display:flex;align-items:center;gap:6px;padding:0 14px;height:48px;background:#fff;flex-shrink:0;border-bottom:1px solid #ece8e0;}
 .je-hdr-mid{flex:1;text-align:center;min-width:0;overflow:hidden;}
 .je-hdr-ref{font-size:.84rem;font-weight:800;color:#1a1815;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
 .je-hdr-cnt{font-size:.62rem;color:#a8a29a;display:block;margin-top:1px;}
@@ -1176,10 +1176,7 @@ window._jwFetchGithub=function(silent){
     try{if(typeof _jeRenderVt==='function')_jeRenderVt();}catch(ex){}
     try{if(typeof window._jemvRender==='function')window._jemvRender();}catch(ex){}
     if(!silent)_toast('✅ 예수말씀 GitHub 로드 완료');
-  }).catch(function(err){
-    /* CORS 차단 등 네트워크 실패 — 항상 사용자에게 알림 */
-    _toast('⚠️ GitHub 자동 로드 실패. 파일 직접 로드를 이용해 주세요.');
-  });
+  }).catch(function(err){if(!silent)_toast('❌ GitHub jred.json 실패: '+err.message);});
 };
 if(!_jwData){try{window._jwFetchGithub(true);}catch(e){}}
 /* ── 대한성서공회 링크 ── */
@@ -5893,19 +5890,32 @@ window._jeCreatePopoutWin = function _jeCreatePopoutWin(tab, idx, item) {
   } catch(e) { bodyHtml = ''; }
 
   /* 창 DOM */
+  var isMob = window.innerWidth <= 600;
   var el = document.createElement('div');
   el.setAttribute('data-popout-id', id);
-  el.style.cssText = [
-    'position:fixed;z-index:' + (9800 + id),
-    'display:flex;flex-direction:column;overflow:hidden',
-    'background:#f9f6ef;border-radius:14px',
-    'box-shadow:0 8px 40px rgba(0,0,0,.18),0 1px 4px rgba(0,0,0,.08)',
-    'border:1px solid #ddd8ce',
-    'min-width:280px;min-height:160px',
-    'width:' + ww + 'px;height:' + wh + 'px',
-    'left:' + base_left + 'px;top:' + base_top + 'px',
-    'font-family:"Pretendard Variable","Apple SD Gothic Neo",sans-serif'
-  ].join(';');
+  if (isMob) {
+    /* 모바일: 풀스크린 바텀시트 */
+    el.style.cssText = [
+      'position:fixed;z-index:' + (9800 + id),
+      'left:0;right:0;bottom:0;top:0',
+      'display:flex;flex-direction:column;overflow:hidden',
+      'background:#f9f6ef',
+      'font-family:"Pretendard Variable","Apple SD Gothic Neo",sans-serif'
+    ].join(';');
+  } else {
+    /* 데스크탑: 기존 플로팅 창 */
+    el.style.cssText = [
+      'position:fixed;z-index:' + (9800 + id),
+      'display:flex;flex-direction:column;overflow:hidden',
+      'background:#f9f6ef;border-radius:14px',
+      'box-shadow:0 8px 40px rgba(0,0,0,.18),0 1px 4px rgba(0,0,0,.08)',
+      'border:1px solid #ddd8ce',
+      'min-width:280px;min-height:160px',
+      'width:' + ww + 'px;height:' + wh + 'px',
+      'left:' + base_left + 'px;top:' + base_top + 'px',
+      'font-family:"Pretendard Variable","Apple SD Gothic Neo",sans-serif'
+    ].join(';');
+  }
 
   el.innerHTML =
     /* 타이틀바 */
@@ -5932,6 +5942,9 @@ window._jeCreatePopoutWin = function _jeCreatePopoutWin(tab, idx, item) {
 }
 
 function _jeBindPopoutDrag(el, rec) {
+  /* 모바일: 전체화면 모달이므로 드래그 불필요 */
+  if (window.innerWidth <= 600) return;
+
   var tb = el.querySelector('._popout-tb');
   var rh = el.querySelector('._popout-rh');
   var _dr=false, _rs=false, _dOX, _dOY, _dWX, _dWY, _rOX, _rOY, _rOW, _rOH;
@@ -10294,16 +10307,7 @@ window.jemvMaximizeToggle = function(){
 window.jemvOpen = function(){
   var w=_w(); if(!w) return;
   w.classList.add('jemv-show');
-  if(!_mob()) {
-    var ed=document.getElementById('je-ed-ov'); var edRect=ed?ed.getBoundingClientRect():null;
-    var wW=760; var wH=window.innerHeight-48;
-    w.style.width=wW+'px'; w.style.height=wH+'px';
-    w.style.top='50%'; w.style.transform='translateY(-50%)';
-    if(edRect){ w.style.left=(edRect.left-wW-12)+'px'; } else { w.style.left='10px'; }
-  } else {
-    /* 모바일: CSS @media가 bottom sheet 처리 — JS 인라인 스타일 초기화 */
-    w.style.cssText = '';
-  }
+  if(!_mob()) { var ed=document.getElementById('je-ed-ov'); var edRect=ed?ed.getBoundingClientRect():null; var wW=760; var wH=window.innerHeight-48; w.style.width=wW+'px'; w.style.height=wH+'px'; w.style.top='50%'; w.style.transform='translateY(-50%)'; if(edRect){ w.style.left=(edRect.left-wW-12)+'px'; } else { w.style.left='10px'; } }
   var dv=window._jemvPendingVerse||window._jeDisplayVerse;
   if(dv&&dv.abbr&&_versions.length) _jemvJumpTo(dv.abbr,dv.ch,dv.vs);
   else if(_abbr) _jemvRender();
@@ -10332,25 +10336,11 @@ window.jemvClose = function(){
     }
   }
   w.classList.remove('jemv-show');
-  if(_mob()){ w.style.cssText=''; }
 };
 window.jemvToggle = function(){
   var w=_w(); if(!w) return;
-  /* 현재 구절: _jemvPendingVerse (jeOpenEdit에서 항상 저장) 우선 */
-  function _getDV(){
-    if(window._jemvPendingVerse&&window._jemvPendingVerse.abbr) return window._jemvPendingVerse;
-    var dv=window._jeDisplayVerse;
-    if(dv&&dv.abbr) return dv;
-    return null;
-  }
   if(w.classList.contains('jemv-show')){
-    /* 이미 열려있으면: 모바일은 닫기, 데스크탑은 구절 싱크 */
-    if(_mob()){
-      jemvClose();
-    } else {
-      var dv=_getDV();
-      if(dv&&_versions.length) _jemvJumpTo(dv.abbr,dv.ch,dv.vs);
-    }
+    jemvClose();
   } else {
     jemvOpen();
   }
