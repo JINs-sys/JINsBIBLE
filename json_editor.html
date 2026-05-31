@@ -11016,11 +11016,11 @@ window.jemvGo = function(){
 
 function _jemvJumpTo(abbr,ch,vs){
   _abbr=abbr; _ch=ch; _vs=vs;
+  window._jemvCurrentRef={abbr:abbr,ch:ch,vs:vs};
+  window._jemvCurrentAbbr=abbr; window._jemvCurrentCh=ch; window._jemvCurrentVs=vs;
   _jemvFillNav(abbr,ch,vs);
   _jemvRender();
-  /* [Fix] 절 이동 시 현재 ref 저장 + 주석 패널 갱신 */
-  window._jemvCurrentRef={abbr:abbr,ch:ch,vs:vs};
-  if(typeof window._jemvCommDraw==='function') setTimeout(function(){ window._jemvCommDraw(abbr,ch,vs); },0);
+  if(typeof window._jemvCommDraw==="function") setTimeout(function(){ window._jemvCommDraw(abbr,ch,vs); },16);
 }
 
 /* 장/절 이동 */
@@ -11241,32 +11241,77 @@ function _jemvRender(){
       html+='</div>'; /* jemv-main-ver-row */
       html+='</div>'; /* jemv-main-body */
       html+='</div>'; /* jemv-main-block */
-      /* [Fix] 다역본창 인라인 주석 패널 — 대표역본 박스 바로 아래 */
+      html+='<div class="jemv-main-divider"></div>';
+    }
+
+    /* ── 인라인 주석 패널 (독립 슬롯/탭/파일로드/싱크) ── */
+    (function(){
       var _cpd=(window._jemvCommOpen?'flex':'none');
+      var _fs=window._jemvCommFs||14;
+      /* 슬롯 탭 HTML 생성 */
+      var slots=window._jemvCommSlots||[];
+      var activeIdx=window._jemvCommActiveIdx||0;
+      var synced=window._jemvCommSynced||false;
       html+='<div id="jemv-comm-panel" style="display:'+_cpd+';flex-direction:column;border-top:2px solid #c8d8c4;border-bottom:1px solid #dde8dd;background:#f5f8f4;max-height:260px;overflow:hidden;">';
-      html+='<div onclick="jemvCommToggleBody()" style="display:flex;align-items:center;justify-content:space-between;padding:5px 12px;background:#eef3ee;border-bottom:1px solid #c8d8c4;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;flex-shrink:0;">';
-      html+='<div style="display:flex;align-items:center;gap:5px;">';
-      html+='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7aaa8a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>';
-      html+='<span style="font-size:0.68rem;font-weight:700;color:#3a5448;letter-spacing:0.03em;">주석</span>';
+      /* ── 헤더 행1: 탭 영역 ── */
+      html+='<div id="jemv-comm-tab-row" style="display:flex;align-items:center;gap:3px;padding:4px 10px 3px;background:#eef3ee;border-bottom:1px solid #dde8d8;flex-shrink:0;overflow-x:auto;scrollbar-width:none;min-height:26px;" onclick="event.stopPropagation()">';
+      html+='<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#7aaa8a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>';
+      if(slots.length===0){
+        html+='<span id="jemv-comm-tab-wrap" style="font-size:0.63rem;color:#9abba8;margin-left:2px;">주석 없음</span>';
+      } else {
+        html+='<div id="jemv-comm-tab-wrap" style="display:flex;align-items:center;gap:2px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;">';
+        slots.forEach(function(s,i){
+          var isA=(i===activeIdx);
+          html+='<button onclick="event.stopPropagation();_jemvCommSetSlot('+i+')" style="border:1px solid '+(isA?'#5a9a78':'#c8d8c4')+';background:'+(isA?'#2d4a3e':'transparent')+';color:'+(isA?'#fff':'#5a8068')+';font-size:0.6rem;font-weight:'+(isA?'700':'500')+';padding:1px 7px;border-radius:10px;cursor:pointer;white-space:nowrap;font-family:inherit;flex-shrink:0;transition:all .12s;-webkit-tap-highlight-color:transparent;" title="길게 누르면 삭제" onpointerdown="window._jemvCommTabTimer=setTimeout(function(){_jemvCommRemoveSlot('+i+');},600)" onpointerup="clearTimeout(window._jemvCommTabTimer)" onpointerleave="clearTimeout(window._jemvCommTabTimer)">'+s.name+'</button>';
+        });
+        html+='</div>';
+      }
+      /* + 추가 버튼 */
+      html+='<button onclick="event.stopPropagation();_jemvCommPickFile()" title="주석 파일 추가 (.cdb/.aab)" style="border:1px dashed #a8c8b4;background:transparent;color:#7aaa8a;font-size:0.72rem;font-weight:700;width:16px;height:16px;border-radius:50%;cursor:pointer;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;padding:0;-webkit-tap-highlight-color:transparent;margin-left:2px;">+</button>';
+      html+='<span style="flex:1;"></span>';
+      /* 싱크 버튼 */
+      var syncStyle=synced?'background:#2d4a3e;color:#fff;border-color:#2d4a3e;':'background:transparent;color:#6a9a88;border-color:#c0d8c8;';
+      html+='<button id="jemv-comm-sync-btn" onclick="event.stopPropagation();_jemvCommSyncToggle()" title="싱크: 다역본창 현재 절에 자동 연동" style="border:1px solid #c0d8c8;border-radius:4px;'+syncStyle+'font-size:0.6rem;font-weight:700;padding:1px 5px;height:16px;cursor:pointer;white-space:nowrap;transition:all .12s;-webkit-tap-highlight-color:transparent;">'+(synced?'🔗ON':'🔗')+'</button>';
+      html+='</div>';
+      /* ── 헤더 행2: 구절 표시 + 폰트 컨트롤 ── */
+      html+='<div onclick="jemvCommToggleBody()" style="display:flex;align-items:center;justify-content:space-between;padding:3px 10px;background:#eef3ee;border-bottom:1px solid #c8d8c4;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;flex-shrink:0;">';
+      html+='<div style="display:flex;align-items:center;gap:4px;">';
       html+='<span id="jemv-comm-ref-lbl" style="font-size:0.66rem;color:#7a9a88;"></span>';
-      html+='<span id="jemv-comm-name-lbl" style="font-size:0.62rem;color:#9abba8;margin-left:2px;"></span>';
       html+='</div>';
       html+='<div style="display:flex;align-items:center;gap:4px;" onclick="event.stopPropagation()">';
       html+='<div style="display:inline-flex;align-items:center;gap:1px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:5px;padding:1px 3px;">';
       html+='<button onclick="jemvCommFsDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;-webkit-tap-highlight-color:transparent;line-height:1;">&#8722;</button>';
-      html+='<span id="jemv-comm-fs-val" style="font-size:0.62rem;color:#7a9a88;min-width:14px;text-align:center;">'+(_jemvCommFs||14)+'</span>';
+      html+='<span id="jemv-comm-fs-val" style="font-size:0.62rem;color:#7a9a88;min-width:14px;text-align:center;">'+_fs+'</span>';
       html+='<button onclick="jemvCommFsUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;-webkit-tap-highlight-color:transparent;line-height:1;">+</button>';
       html+='</div>';
       html+='<span id="jemv-comm-arrow" style="font-size:0.64rem;color:#9abba8;transition:transform .2s;transform:rotate(180deg);">&#9660;</span>';
       html+='<button onclick="jemvCommClose()" style="border:none;background:transparent;color:#b0bab5;font-size:0.82rem;line-height:1;padding:0 2px;cursor:pointer;-webkit-tap-highlight-color:transparent;" title="주석 닫기">&#10005;</button>';
       html+='</div></div>';
-      html+='<div id="jemv-comm-body-inner" style="flex:1;overflow-y:auto;padding:10px 16px 12px;font-family:\'Georgia\',\'Nanum Myeongjo\',serif;font-size:'+(window._jemvCommFs||14)+'px;line-height:1.6;color:#1e3540;word-break:keep-all;-webkit-overflow-scrolling:touch;"></div>';
+      /* ── 본문 영역 ── */
+      html+='<div id="jemv-comm-body-inner" style="flex:1;overflow-y:auto;padding:10px 16px 12px;font-family:\'Georgia\',\'Nanum Myeongjo\',serif;font-size:'+_fs+'px;line-height:1.6;color:#1e3540;word-break:keep-all;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#a8c8b4 transparent;"></div>';
       html+='<div id="jemv-comm-nodata" style="display:none;font-size:0.78rem;color:#9abba8;padding:7px 16px 9px;">(이 절의 주석 없음)</div>';
+      /* ── 리사이즈 바 ── */
       html+='<div id="jemv-comm-resize-bar" style="height:14px;border-top:1px solid #d8e4d8;cursor:row-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:none;user-select:none;">';
       html+='<div style="width:36px;height:3px;border-radius:2px;background:#a8c8b4;"></div>';
       html+='</div></div>';
-      html+='<div class="jemv-main-divider"></div>';
-    }
+      /* 독립 file input (없으면 생성) */
+      if(!document.getElementById('jemv-comm-inp')){
+        var inp=document.createElement('input');
+        inp.type='file'; inp.id='jemv-comm-inp';
+        inp.accept='.cdb,.aab,.db,.sqlite'; inp.multiple=true;
+        inp.style.display='none';
+        inp.addEventListener('change',function(){
+          var files=Array.prototype.slice.call(inp.files);
+          files.forEach(function(f){
+            var r=new FileReader();
+            r.onload=function(ev){ window._jemvCommLoadBuffer(ev.target.result,f.name); };
+            r.readAsArrayBuffer(f);
+          });
+          inp.value='';
+        });
+        document.body.appendChild(inp);
+      }
+    })();
 
     /* ── 나머지 역본 리스트 ── */
     html+='<div class="jemv-all-list">';
@@ -11345,11 +11390,15 @@ function _jemvRender(){
     /* 주석 버튼 활성 상태 동기화 */
     var cb=document.getElementById('jemv-tb-comm-btn');
     if(cb){
-      var cp=document.getElementById('je-comm-panel');
-      var isOpen=cp&&cp.style.display!=='none'&&cp.offsetHeight>0;
-      if(isOpen) cb.classList.add('active'); else cb.classList.remove('active');
+      if(window._jemvCommOpen) cb.classList.add('active'); else cb.classList.remove('active');
     }
   })();
+
+  /* ── 렌더 직후: 슬롯 탭 재빌드 + 주석 본문 즉시 갱신 ── */
+  if(typeof window._jemvCommRebuildTabs==='function') window._jemvCommRebuildTabs();
+  if(typeof window._jemvCommDraw==='function' && _abbr){
+    window._jemvCommDraw(_abbr, _ch, _vs);
+  }
 
   /* ── 세로 전체(all) 모드: 역본명 롱탭 드래그 순서 변경 ── */
   if(_tab==='all'){
@@ -11540,7 +11589,8 @@ window.jemvClickVs=function(vs){
   _jemvRender();
   /* [Fix] 절 클릭 시 ref 저장 + 주석 갱신 */
   window._jemvCurrentRef={abbr:_abbr,ch:_ch,vs:vs};
-  if(typeof window._jemvCommDraw==='function') setTimeout(function(){ window._jemvCommDraw(_abbr,_ch,vs); },0);
+  window._jemvCurrentAbbr=_abbr; window._jemvCurrentCh=_ch; window._jemvCurrentVs=vs;
+  if(typeof window._jemvCommDraw==='function') setTimeout(function(){ window._jemvCommDraw(_abbr,_ch,vs); },16);
 };
 
 /* ── 싱크 ── */
@@ -12578,71 +12628,203 @@ function _stStartDrag(card, startY){
 </script>
 
 <script>
-/* ══════════════════════════════════════════
-   ★ 다역본창(jemv) 인라인 주석 패널
-   ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   ★ 다역본창(jemv) 인라인 주석 패널 — 독립 슬롯/탭/파일로드/싱크
+   ══════════════════════════════════════════════════════════════ */
 (function(){
 
-var _open     = false;  /* 패널 열림 여부 */
-var _bodyOpen = true;   /* 본문 펼침/접힘 */
-var _fs       = 14;     /* 폰트 크기 */
+/* ── 독립 상태 변수 (본창 _commSlots 와 완전 분리) ── */
+var _slots      = [];     /* [{name, map}, ...]  */
+var _activeIdx  = 0;
+var _open       = false;
+var _bodyOpen   = true;
+var _fs         = 14;
+var _synced     = false;
+var _currentRef = null;   /* {abbr,ch,vs} — 마지막 Draw 대상 */
 
-/* _jemvRender에서 읽기 위해 전역 노출 */
-window._jemvCommOpen = false;
-window._jemvCommFs   = _fs;
+/* 전역 노출 (jemvRender HTML 생성 시 참조) */
+window._jemvCommOpen      = false;
+window._jemvCommFs        = _fs;
+window._jemvCommSlots     = _slots;
+window._jemvCommActiveIdx = _activeIdx;
+window._jemvCommSynced    = _synced;
 
-/* ── 본창 주석 데이터 공유 ── */
-function _map(){  return window._commMap  || null; }
-function _name(){ return window._commName || '';   }
+/* ── 책 번호→약어 매핑 (본창 _COMM_BOOK_ABBR 공유) ── */
+function _bookAbbr(num){ return (window._COMM_BOOK_ABBR||{})[num]||null; }
 
-/* ── 패널 요소 접근 (매번 DOM에서 새로 찾음 — _jemvRender가 재생성하므로) ── */
-function _panel(){  return document.getElementById('jemv-comm-panel');      }
-function _body(){   return document.getElementById('jemv-comm-body-inner'); }
-function _nodata(){ return document.getElementById('jemv-comm-nodata');     }
-function _arrow(){  return document.getElementById('jemv-comm-arrow');      }
-function _refLbl(){ return document.getElementById('jemv-comm-ref-lbl');    }
-function _namLbl(){ return document.getElementById('jemv-comm-name-lbl');   }
-function _fsVal(){  return document.getElementById('jemv-comm-fs-val');     }
+/* ── 현재 활성 map ── */
+function _map(){ return _slots[_activeIdx]?_slots[_activeIdx].map:null; }
 
-/* ── 주석 본문 그리기 ── */
-window._jemvCommDraw = function(abbr, ch, vs){
-  var rl=_refLbl(); if(rl) rl.textContent = abbr ? (abbr+' '+ch+':'+vs) : '';
-  var nl=_namLbl(); if(nl) nl.textContent = _name() ? '['+_name()+']' : '';
+/* ── DOM 접근 (렌더 재생성마다 새로 찾음) ── */
+function _panel(){ return document.getElementById('jemv-comm-panel'); }
+function _body(){  return document.getElementById('jemv-comm-body-inner'); }
+function _nodata(){return document.getElementById('jemv-comm-nodata'); }
+function _arrow(){ return document.getElementById('jemv-comm-arrow'); }
+function _refLbl(){return document.getElementById('jemv-comm-ref-lbl'); }
+function _fsVal(){ return document.getElementById('jemv-comm-fs-val'); }
+function _syncBtn(){return document.getElementById('jemv-comm-sync-btn'); }
+
+/* ── 탭 행 다시 그리기 (DOM 교체 없이 innerHTML 갱신) — 전역 노출 ── */
+window._jemvCommRebuildTabs = function(){ _rebuildTabs(); };
+function _rebuildTabs(){
+  var wrap = document.getElementById('jemv-comm-tab-wrap');
+  if(!wrap) return;
+  wrap.style.display='flex';
+  wrap.innerHTML='';
+  _slots.forEach(function(s,i){
+    var isA=(i===_activeIdx);
+    var btn=document.createElement('button');
+    btn.textContent=s.name;
+    btn.style.cssText='border:1px solid '+(isA?'#5a9a78':'#c8d8c4')+';'
+      +'background:'+(isA?'#2d4a3e':'transparent')+';'
+      +'color:'+(isA?'#fff':'#5a8068')+';'
+      +'font-size:0.6rem;font-weight:'+(isA?'700':'500')+';'
+      +'padding:1px 7px;border-radius:10px;cursor:pointer;white-space:nowrap;'
+      +'font-family:inherit;flex-shrink:0;transition:all .12s;-webkit-tap-highlight-color:transparent;';
+    btn.title='길게 누르면 삭제';
+    btn.onclick=function(e){ e.stopPropagation(); _setSlot(i); };
+    var t; btn.addEventListener('pointerdown',function(){ t=setTimeout(function(){ _removeSlot(i); },600); });
+    btn.addEventListener('pointerup',function(){ clearTimeout(t); });
+    btn.addEventListener('pointerleave',function(){ clearTimeout(t); });
+    wrap.appendChild(btn);
+  });
+  if(_slots.length===0){
+    wrap.style.display='inline';
+    wrap.style.cssText='font-size:0.63rem;color:#9abba8;margin-left:2px;';
+    wrap.textContent='주석 없음';
+  }
+}
+
+/* ── 슬롯 전환 ── */
+function _setSlot(idx){
+  _activeIdx=idx; window._jemvCommActiveIdx=idx;
+  _rebuildTabs();
+  if(_currentRef) _drawContent(_currentRef.abbr,_currentRef.ch,_currentRef.vs);
+}
+window._jemvCommSetSlot = function(idx){ _setSlot(idx); };
+
+/* ── 슬롯 삭제 ── */
+function _removeSlot(idx){
+  if(_slots.length<=1){
+    _slots=[]; _activeIdx=0;
+    window._jemvCommSlots=_slots; window._jemvCommActiveIdx=0;
+    _rebuildTabs();
+    var bd=_body(); if(bd){bd.innerHTML='';bd.style.display='none';}
+    var nd=_nodata(); if(nd) nd.style.display='none';
+    return;
+  }
+  _slots.splice(idx,1);
+  if(_activeIdx>=_slots.length) _activeIdx=_slots.length-1;
+  window._jemvCommActiveIdx=_activeIdx;
+  _rebuildTabs();
+  if(_currentRef) _drawContent(_currentRef.abbr,_currentRef.ch,_currentRef.vs);
+}
+window._jemvCommRemoveSlot = function(idx){ _removeSlot(idx); };
+
+/* ── 파일 불러오기 트리거 ── */
+window._jemvCommPickFile = function(){
+  var inp=document.getElementById('jemv-comm-inp');
+  if(inp){ inp.value=''; inp.click(); }
+};
+
+/* ── ArrayBuffer 로드 (본창 jeCommLoadBuffer 와 독립) ── */
+window._jemvCommLoadBuffer = function(buf, name){
+  var cleanName=(name||'주석').replace(/\.(cdb|aab)$/i,'');
+  var bytes=new Uint8Array(buf);
+  var sqliteBuf=buf;
+  if(bytes[0]===0x41&&bytes[1]===0x41&&bytes[2]===0x42&&bytes[3]===0x42) sqliteBuf=buf.slice(8);
+  initSqlJs({locateFile:function(f){
+    return 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/'+f;
+  }}).then(function(SQL){
+    try{
+      var db=new SQL.Database(new Uint8Array(sqliteBuf));
+      /* 성경 본문/주석 자동 판별 */
+      var avgRes=db.exec('SELECT AVG(LENGTH(btext)) FROM Bible WHERE btext IS NOT NULL');
+      var avgLen=(avgRes&&avgRes.length&&avgRes[0].values.length)?(avgRes[0].values[0][0]||0):0;
+      if(avgLen>0&&avgLen<200){
+        db.close();
+        if(typeof _jeHandleBibleFile==='function'){
+          _jeHandleBibleFile(new File([new Blob([buf])],(name||cleanName+'.aab')));
+        } else { alert('성경 본문 파일입니다. 성경본문 파일 열기를 이용하세요.'); }
+        return;
+      }
+      var result=db.exec('SELECT book,chapter,verse,btext FROM Bible ORDER BY book,chapter,verse');
+      db.close();
+      if(!result||!result.length){ alert('주석 파일에서 데이터를 찾을 수 없습니다.'); return; }
+      var map={};
+      result[0].values.forEach(function(r){
+        var abbr=_bookAbbr(r[0]); if(!abbr) return;
+        var content=(r[3]||'').trim(); if(!content) return;
+        map[abbr+'|'+r[1]+'|'+r[2]]=content;
+      });
+      /* 같은 이름이면 교체, 없으면 추가 */
+      var ei=-1;
+      for(var i=0;i<_slots.length;i++){ if(_slots[i].name===cleanName){ei=i;break;} }
+      if(ei>=0){ _slots[ei].map=map; _activeIdx=ei; }
+      else { _slots.push({name:cleanName,map:map}); _activeIdx=_slots.length-1; }
+      window._jemvCommActiveIdx=_activeIdx;
+      _rebuildTabs();
+      console.log('[jemv주석] 로드:',cleanName,Object.keys(map).length+'절');
+      if(_currentRef) _drawContent(_currentRef.abbr,_currentRef.ch,_currentRef.vs);
+      else _draw_fromJemvCurrent();
+    }catch(e){ alert('주석 파일 열기 실패: '+e.message); }
+  }).catch(function(e){ alert('sql.js 초기화 실패: '+e); });
+};
+
+/* ── 내용 렌더 ── */
+function _drawContent(abbr,ch,vs){
+  var rl=_refLbl(); if(rl) rl.textContent=abbr?(abbr+' '+ch+':'+vs):'';
   if(!_open) return;
   var map=_map(), bd=_body(), nd=_nodata();
   if(!bd) return;
+  if(!abbr){
+    bd.innerHTML=''; bd.style.display='none';
+    if(nd){nd.style.display=_bodyOpen?'':'none'; nd.textContent='(역본을 먼저 불러오세요)';}
+    return;
+  }
   if(!map){
-    bd.innerHTML='';
-    if(nd){ nd.style.display=_bodyOpen?'':'none'; nd.textContent='(주석 파일을 먼저 불러오세요)'; }
+    bd.innerHTML=''; bd.style.display='none';
+    if(nd){nd.style.display=_bodyOpen?'':'none'; nd.textContent='(주석 파일을 먼저 불러오세요 — + 버튼)';}
     return;
   }
   var key=abbr+'|'+ch+'|'+vs, text=map[key];
   if(text){
-    bd.innerHTML=text; bd.style.fontSize=_fs+'px';
-    bd.style.display=_bodyOpen?'':'none';
+    bd.innerHTML=text; bd.style.fontSize=_fs+'px'; bd.style.display=_bodyOpen?'':'none';
     if(nd) nd.style.display='none';
   } else {
     bd.innerHTML=''; bd.style.display='none';
-    if(nd){ nd.style.display=_bodyOpen?'':'none'; nd.textContent='(이 절의 주석 없음)'; }
+    if(nd){nd.style.display=_bodyOpen?'':'none'; nd.textContent='(이 절의 주석 없음)';}
   }
   var arr=_arrow(); if(arr) arr.style.transform=_bodyOpen?'rotate(180deg)':'';
+}
+
+/* ── 다역본창 현재 절 기준으로 Draw ── */
+function _draw_fromJemvCurrent(){
+  var ref=window._jemvCurrentRef||window._jeDisplayVerse;
+  if(!ref||!ref.abbr) return;
+  _currentRef={abbr:ref.abbr,ch:ref.ch,vs:ref.vs};
+  _drawContent(ref.abbr,ref.ch,ref.vs);
+}
+
+/* ── 외부 호출: abbr/ch/vs 지정 Draw ── */
+window._jemvCommDraw = function(abbr,ch,vs){
+  _currentRef={abbr:abbr,ch:ch,vs:vs};
+  _drawContent(abbr,ch,vs);
+  /* 싱크 ON이면 참고주석 창 연동 없음 (다역본창 독립) */
 };
 
 /* ── 토글 ── */
 window.jemvCommToggle = function(){
-  _open = !_open;
-  window._jemvCommOpen = _open;
-  /* _jemvRender가 패널을 display:flex/_open 상태로 재생성 */
+  _open=!_open; window._jemvCommOpen=_open;
   if(typeof window._jemvRender==='function') window._jemvRender();
   if(_open){
-    var ref=window._jemvCurrentRef||window._jeDisplayVerse;
-    if(ref&&ref.abbr) window._jemvCommDraw(ref.abbr, ref.ch, ref.vs);
+    _draw_fromJemvCurrent();
     _initResize();
   }
   var btn=document.getElementById('jemv-tb-comm-btn');
   if(btn){
-    if(_open){ btn.style.color='#2d4a3e'; btn.style.fontWeight='800'; btn.classList.add('active'); }
-    else { btn.style.color='#9a9288'; btn.style.fontWeight='600'; btn.classList.remove('active'); }
+    if(_open){btn.style.color='#2d4a3e';btn.style.fontWeight='800';btn.classList.add('active');}
+    else{btn.style.color='#9a9288';btn.style.fontWeight='600';btn.classList.remove('active');}
   }
 };
 
@@ -12653,12 +12835,12 @@ window.jemvCommClose = function(){
   if(typeof window._jemvRender==='function') window._jemvRender();
 };
 
-/* ── 헤더 접힘/펼침 ── */
+/* ── 본문 펼침/접힘 ── */
 window.jemvCommToggleBody = function(){
   _bodyOpen=!_bodyOpen;
-  var bd=_body(), nd=_nodata(), arr=_arrow();
+  var bd=_body(),nd=_nodata(),arr=_arrow();
   if(bd) bd.style.display=(_bodyOpen&&bd.innerHTML)?'':'none';
-  if(nd&&!_body().innerHTML) nd.style.display=_bodyOpen?'':'none';
+  if(nd&&!(_body()&&_body().innerHTML)) nd.style.display=_bodyOpen?'':'none';
   if(arr) arr.style.transform=_bodyOpen?'rotate(180deg)':'';
 };
 
@@ -12670,28 +12852,59 @@ function _applyFs(){
   var v=_fsVal(); if(v) v.textContent=_fs;
 }
 
-/* ── 높이 드래그 (이벤트 위임 — DOM 재생성 대응) ── */
+/* ── 싱크 토글 ── */
+window._jemvCommSyncToggle = function(){
+  _synced=!_synced; window._jemvCommSynced=_synced;
+  var btn=_syncBtn();
+  if(btn){
+    if(_synced){
+      btn.textContent='🔗ON';
+      btn.style.background='#2d4a3e';btn.style.color='#fff';btn.style.borderColor='#2d4a3e';
+      btn.title='싱크 해제';
+    } else {
+      btn.textContent='🔗';
+      btn.style.background='transparent';btn.style.color='#6a9a88';btn.style.borderColor='#c0d8c8';
+      btn.title='싱크: 다역본창 현재 절에 자동 연동';
+    }
+  }
+  if(_synced) _draw_fromJemvCurrent();
+};
+
+/* ── 높이 드래그 ── */
 var _resizeInited=false;
 function _initResize(){
   if(_resizeInited) return; _resizeInited=true;
   var jbody=document.getElementById('jemv-body'); if(!jbody) return;
   var startY,startH,panel;
-  function onMove(e){ var cy=e.touches?e.touches[0].clientY:e.clientY; panel=_panel(); if(!panel) return; panel.style.maxHeight=Math.max(80,Math.min(520,startH-(cy-startY)))+'px'; }
+  function onMove(e){
+    var cy=e.touches?e.touches[0].clientY:e.clientY;
+    panel=_panel(); if(!panel) return;
+    panel.style.maxHeight=Math.max(80,Math.min(520,startH+(cy-startY)))+'px';
+  }
   function onUp(){ document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); }
   function onDown(e,cy){
     panel=_panel(); if(!panel) return;
     startY=cy; startH=panel.offsetHeight; e.preventDefault();
     document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp);
   }
-  jbody.addEventListener('mousedown',function(e){ if(e.target&&(e.target.id==='jemv-comm-resize-bar'||e.target.closest('#jemv-comm-resize-bar'))) onDown(e,e.clientY); });
-  jbody.addEventListener('touchstart',function(e){ if(e.target&&(e.target.id==='jemv-comm-resize-bar'||e.target.closest('#jemv-comm-resize-bar'))){ onDown(e,e.touches[0].clientY); document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp); } },{passive:true});
+  jbody.addEventListener('mousedown',function(e){
+    if(e.target&&(e.target.id==='jemv-comm-resize-bar'||e.target.closest&&e.target.closest('#jemv-comm-resize-bar'))) onDown(e,e.clientY);
+  });
+  jbody.addEventListener('touchstart',function(e){
+    if(e.target&&(e.target.id==='jemv-comm-resize-bar'||e.target.closest&&e.target.closest('#jemv-comm-resize-bar'))){
+      onDown(e,e.touches[0].clientY);
+      document.addEventListener('touchmove',onMove,{passive:false});
+      document.addEventListener('touchend',onUp);
+    }
+  },{passive:true});
 }
 
-/* ── 주석 파일 로드 후 열린 패널 갱신 ── */
+/* ── 본창 주석 로드 후 열려있으면 갱신 (공유 슬롯 아님 — jemv 독립) ── */
 window._jemvCommRefreshIfOpen = function(){
+  /* 다역본창 주석은 독립 슬롯 사용. 본창 로드 이벤트와 연동 불필요.
+     단, 슬롯이 비어있으면 아무것도 하지 않음. */
   if(!_open) return;
-  var ref=window._jemvCurrentRef||window._jeDisplayVerse;
-  if(ref&&ref.abbr) window._jemvCommDraw(ref.abbr,ref.ch,ref.vs);
+  _draw_fromJemvCurrent();
 };
 
 })();
@@ -12813,6 +13026,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var dv = window._jemvPendingVerse || window._jeDisplayVerse;
         if (dv && dv.abbr && typeof _jemvJumpTo === 'function') {
           _jemvJumpTo(dv.abbr, dv.ch, dv.vs);
+          /* _jemvJumpTo 내 16ms setTimeout Draw가 패널 갱신 담당 */
         } else if (typeof _jemvRender === 'function') {
           _jemvRender();
         }
