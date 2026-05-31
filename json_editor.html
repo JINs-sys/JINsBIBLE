@@ -5012,6 +5012,8 @@ function jeCommLoadBuffer(buf, name) {
         var parts = _commCurrentKey.split('|');
         _commRender(parts[0], parseInt(parts[1]), parseInt(parts[2]));
       }
+      /* [Fix] 다역본창 주석 패널 열려있으면 갱신 */
+      if(typeof window._jemvCommRefreshIfOpen==='function') window._jemvCommRefreshIfOpen();
     } catch(e) {
       console.error('[주석] DB 오류:', e);
       alert('주석 파일 열기 실패: ' + e.message);
@@ -11016,6 +11018,9 @@ function _jemvJumpTo(abbr,ch,vs){
   _abbr=abbr; _ch=ch; _vs=vs;
   _jemvFillNav(abbr,ch,vs);
   _jemvRender();
+  /* [Fix] 절 이동 시 현재 ref 저장 + 주석 패널 갱신 */
+  window._jemvCurrentRef={abbr:abbr,ch:ch,vs:vs};
+  if(typeof window._jemvCommDraw==='function') setTimeout(function(){ window._jemvCommDraw(abbr,ch,vs); },0);
 }
 
 /* 장/절 이동 */
@@ -11223,7 +11228,7 @@ function _jemvRender(){
       html+='<div class="jemv-main-ver-row">';
       html+='<span class="jemv-main-ver-name" style="color:#4d4d4d" title="'+_e(mv.shortName)+'">'+_e(mv.label||mv.shortName)+'</span>';
       html+='<div class="jemv-main-toolbar">'
-        +'<button class="jemv-tb-btn" onclick="jeToggleCommPanel()" title="인라인 주석 열기/닫기" id="jemv-tb-comm-btn"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>주석</button>'
+        +'<button class="jemv-tb-btn" onclick="jemvCommToggle()" title="인라인 주석 열기/닫기" id="jemv-tb-comm-btn"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>주석</button>'
         +'<button class="jemv-tb-btn" onclick="jeOpenMapModal()" title="관련 지도 보기"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>지도</button>'
         /* ★ 역본창 대표역본창 툴바 - 절별 버튼 삭제 */
         +'<div class="jemv-tb-ctrl">'
@@ -11236,6 +11241,30 @@ function _jemvRender(){
       html+='</div>'; /* jemv-main-ver-row */
       html+='</div>'; /* jemv-main-body */
       html+='</div>'; /* jemv-main-block */
+      /* [Fix] 다역본창 인라인 주석 패널 — 대표역본 박스 바로 아래 */
+      var _cpd=(window._jemvCommOpen?'flex':'none');
+      html+='<div id="jemv-comm-panel" style="display:'+_cpd+';flex-direction:column;border-top:2px solid #c8d8c4;border-bottom:1px solid #dde8dd;background:#f5f8f4;max-height:260px;overflow:hidden;">';
+      html+='<div onclick="jemvCommToggleBody()" style="display:flex;align-items:center;justify-content:space-between;padding:5px 12px;background:#eef3ee;border-bottom:1px solid #c8d8c4;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;flex-shrink:0;">';
+      html+='<div style="display:flex;align-items:center;gap:5px;">';
+      html+='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7aaa8a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>';
+      html+='<span style="font-size:0.68rem;font-weight:700;color:#3a5448;letter-spacing:0.03em;">주석</span>';
+      html+='<span id="jemv-comm-ref-lbl" style="font-size:0.66rem;color:#7a9a88;"></span>';
+      html+='<span id="jemv-comm-name-lbl" style="font-size:0.62rem;color:#9abba8;margin-left:2px;"></span>';
+      html+='</div>';
+      html+='<div style="display:flex;align-items:center;gap:4px;" onclick="event.stopPropagation()">';
+      html+='<div style="display:inline-flex;align-items:center;gap:1px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:5px;padding:1px 3px;">';
+      html+='<button onclick="jemvCommFsDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;-webkit-tap-highlight-color:transparent;line-height:1;">&#8722;</button>';
+      html+='<span id="jemv-comm-fs-val" style="font-size:0.62rem;color:#7a9a88;min-width:14px;text-align:center;">'+(_jemvCommFs||14)+'</span>';
+      html+='<button onclick="jemvCommFsUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;-webkit-tap-highlight-color:transparent;line-height:1;">+</button>';
+      html+='</div>';
+      html+='<span id="jemv-comm-arrow" style="font-size:0.64rem;color:#9abba8;transition:transform .2s;transform:rotate(180deg);">&#9660;</span>';
+      html+='<button onclick="jemvCommClose()" style="border:none;background:transparent;color:#b0bab5;font-size:0.82rem;line-height:1;padding:0 2px;cursor:pointer;-webkit-tap-highlight-color:transparent;" title="주석 닫기">&#10005;</button>';
+      html+='</div></div>';
+      html+='<div id="jemv-comm-body-inner" style="flex:1;overflow-y:auto;padding:10px 16px 12px;font-family:\'Georgia\',\'Nanum Myeongjo\',serif;font-size:'+(window._jemvCommFs||14)+'px;line-height:1.6;color:#1e3540;word-break:keep-all;-webkit-overflow-scrolling:touch;"></div>';
+      html+='<div id="jemv-comm-nodata" style="display:none;font-size:0.78rem;color:#9abba8;padding:7px 16px 9px;">(이 절의 주석 없음)</div>';
+      html+='<div id="jemv-comm-resize-bar" style="height:14px;border-top:1px solid #d8e4d8;cursor:row-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:none;user-select:none;">';
+      html+='<div style="width:36px;height:3px;border-radius:2px;background:#a8c8b4;"></div>';
+      html+='</div></div>';
       html+='<div class="jemv-main-divider"></div>';
     }
 
@@ -11509,6 +11538,9 @@ window.jemvClickVs=function(vs){
   document.getElementById('jemv-title-ref').textContent=
     ((window._JE_BOOK_NAMES||[])[((window._JE_BOOK_NUM||[]).indexOf(_abbr))]||_abbr)+' '+_ch+':'+vs;
   _jemvRender();
+  /* [Fix] 절 클릭 시 ref 저장 + 주석 갱신 */
+  window._jemvCurrentRef={abbr:_abbr,ch:_ch,vs:vs};
+  if(typeof window._jemvCommDraw==='function') setTimeout(function(){ window._jemvCommDraw(_abbr,_ch,vs); },0);
 };
 
 /* ── 싱크 ── */
@@ -11603,7 +11635,7 @@ function _jemvApplyVars(){
   e=document.getElementById('jemv-lh-val2'); if(e) e.textContent=_jemvLh.toFixed(1);
   e=document.getElementById('jemv-ls-val');  if(e) e.textContent=_jemvLs;
   e=document.getElementById('jemv-ls-val2'); if(e) e.textContent=_jemvLs;
-  /* 다역본창 대표역본 툴바 값도 동기화 */
+  /* [Fix] 툴바 표시값도 동기화 */
   e=document.getElementById('jemv-mb-fs'); if(e) e.textContent=_jemvFs;
   e=document.getElementById('jemv-mb-lh'); if(e) e.textContent=_jemvLh.toFixed(1);
   e=document.getElementById('jemv-mb-ls'); if(e) e.textContent=_jemvLs;
@@ -12202,41 +12234,22 @@ function _refreshUI(){
 function _applyToBody(){
   var body=document.getElementById('jemv-body'); if(!body) return;
   var win=document.getElementById('jemv-win');
-
-  /* ── 대표본문: inline style 완전 제거 후 CSS 변수로만 제어 ──
-     inline style(fontSize 등)이 var(--jemv-fs)보다 우선순위가 높아
-     설정창 조절이 본문에 반영되지 않던 버그 수정.
-     _jemvFs/_jemvLh/_jemvLs도 동기화하여 +/- 버튼과 충돌 방지. */
+  /* [Fix] inline style 제거 후 CSS 변수로만 제어 — inline이 var()보다 우선순위 높아 설정이 무시됐음 */
   body.style.removeProperty('font-size');
   body.style.removeProperty('line-height');
   body.style.removeProperty('letter-spacing');
   _jemvFs = _cfg['main-fs'];
   _jemvLh = _cfg['main-lh'];
-  _jemvLs = _cfg['main-ls']; /* _jemvLs 단위: em*100 정수 (-2 = -0.02em) */
-  body.style.setProperty('--jemv-fs', _jemvFs+'px');
-  body.style.setProperty('--jemv-lh', _jemvLh+'');
-  body.style.setProperty('--jemv-ls', (_jemvLs/100)+'em');
-
-  /* ── 서브 역본: em 단위로 통일 (기존 'px' 오류 수정) ── */
+  _jemvLs = _cfg['main-ls']; /* em*100 정수: -2 = -0.02em */
+  body.style.setProperty('--jemv-fs',  _jemvFs+'px');
+  body.style.setProperty('--jemv-lh',  _jemvLh+'');
+  body.style.setProperty('--jemv-ls',  (_jemvLs/100)+'em');
   body.style.setProperty('--jemv-sub-fs',  _cfg['sub-fs']+'px');
   body.style.setProperty('--jemv-sub-lh',  _cfg['sub-lh']+'');
   body.style.setProperty('--jemv-sub-ls',  (_cfg['sub-ls']/100)+'em');
-
-  /* ── 주석: em 단위로 통일 (기존 'px' 오류 수정) ── */
   body.style.setProperty('--jemv-comm-fs', _cfg['comm-fs']+'px');
   body.style.setProperty('--jemv-comm-lh', _cfg['comm-lh']+'');
   body.style.setProperty('--jemv-comm-ls', (_cfg['comm-ls']/100)+'em');
-
-  /* ── 서브/주석 폰트 패밀리 ── */
-  if(win){
-    var fm = window._jemvFontMap || _jemvFontMap;
-    var subFf = fm[_cfg['sub-font']]  || fm['default'];
-    var comFf = fm[_cfg['comm-font']] || fm['default'];
-    win.style.setProperty('--jemv-sub-font',  subFf);
-    win.style.setProperty('--jemv-comm-font', comFf);
-  }
-
-  /* ── jemv-fs-val / jemv-ls-val 표시값도 동기화 ── */
   var e;
   e=document.getElementById('jemv-fs-val');  if(e) e.textContent=_jemvFs;
   e=document.getElementById('jemv-fs-val2'); if(e) e.textContent=_jemvFs;
@@ -12244,6 +12257,11 @@ function _applyToBody(){
   e=document.getElementById('jemv-lh-val2'); if(e) e.textContent=_jemvLh.toFixed(1);
   e=document.getElementById('jemv-ls-val');  if(e) e.textContent=_jemvLs;
   e=document.getElementById('jemv-ls-val2'); if(e) e.textContent=_jemvLs;
+  if(win){
+    var fm=window._jemvFontMap||_jemvFontMap;
+    win.style.setProperty('--jemv-sub-font',  fm[_cfg['sub-font']] ||fm['default']);
+    win.style.setProperty('--jemv-comm-font', fm[_cfg['comm-font']]||fm['default']);
+  }
 }
 
 /* 역본 리스트 — 기존 _stMakeCard 재활용 */
@@ -12557,6 +12575,126 @@ function _stStartDrag(card, startY){
 })(); /* end 대역 세팅 IIFE */
 
 })(); /* end IIFE */
+</script>
+
+<script>
+/* ══════════════════════════════════════════
+   ★ 다역본창(jemv) 인라인 주석 패널
+   ══════════════════════════════════════════ */
+(function(){
+
+var _open     = false;  /* 패널 열림 여부 */
+var _bodyOpen = true;   /* 본문 펼침/접힘 */
+var _fs       = 14;     /* 폰트 크기 */
+
+/* _jemvRender에서 읽기 위해 전역 노출 */
+window._jemvCommOpen = false;
+window._jemvCommFs   = _fs;
+
+/* ── 본창 주석 데이터 공유 ── */
+function _map(){  return window._commMap  || null; }
+function _name(){ return window._commName || '';   }
+
+/* ── 패널 요소 접근 (매번 DOM에서 새로 찾음 — _jemvRender가 재생성하므로) ── */
+function _panel(){  return document.getElementById('jemv-comm-panel');      }
+function _body(){   return document.getElementById('jemv-comm-body-inner'); }
+function _nodata(){ return document.getElementById('jemv-comm-nodata');     }
+function _arrow(){  return document.getElementById('jemv-comm-arrow');      }
+function _refLbl(){ return document.getElementById('jemv-comm-ref-lbl');    }
+function _namLbl(){ return document.getElementById('jemv-comm-name-lbl');   }
+function _fsVal(){  return document.getElementById('jemv-comm-fs-val');     }
+
+/* ── 주석 본문 그리기 ── */
+window._jemvCommDraw = function(abbr, ch, vs){
+  var rl=_refLbl(); if(rl) rl.textContent = abbr ? (abbr+' '+ch+':'+vs) : '';
+  var nl=_namLbl(); if(nl) nl.textContent = _name() ? '['+_name()+']' : '';
+  if(!_open) return;
+  var map=_map(), bd=_body(), nd=_nodata();
+  if(!bd) return;
+  if(!map){
+    bd.innerHTML='';
+    if(nd){ nd.style.display=_bodyOpen?'':'none'; nd.textContent='(주석 파일을 먼저 불러오세요)'; }
+    return;
+  }
+  var key=abbr+'|'+ch+'|'+vs, text=map[key];
+  if(text){
+    bd.innerHTML=text; bd.style.fontSize=_fs+'px';
+    bd.style.display=_bodyOpen?'':'none';
+    if(nd) nd.style.display='none';
+  } else {
+    bd.innerHTML=''; bd.style.display='none';
+    if(nd){ nd.style.display=_bodyOpen?'':'none'; nd.textContent='(이 절의 주석 없음)'; }
+  }
+  var arr=_arrow(); if(arr) arr.style.transform=_bodyOpen?'rotate(180deg)':'';
+};
+
+/* ── 토글 ── */
+window.jemvCommToggle = function(){
+  _open = !_open;
+  window._jemvCommOpen = _open;
+  /* _jemvRender가 패널을 display:flex/_open 상태로 재생성 */
+  if(typeof window._jemvRender==='function') window._jemvRender();
+  if(_open){
+    var ref=window._jemvCurrentRef||window._jeDisplayVerse;
+    if(ref&&ref.abbr) window._jemvCommDraw(ref.abbr, ref.ch, ref.vs);
+    _initResize();
+  }
+  var btn=document.getElementById('jemv-tb-comm-btn');
+  if(btn){
+    if(_open){ btn.style.color='#2d4a3e'; btn.style.fontWeight='800'; btn.classList.add('active'); }
+    else { btn.style.color='#9a9288'; btn.style.fontWeight='600'; btn.classList.remove('active'); }
+  }
+};
+
+/* ── 닫기 ── */
+window.jemvCommClose = function(){
+  if(!_open) return;
+  _open=false; window._jemvCommOpen=false;
+  if(typeof window._jemvRender==='function') window._jemvRender();
+};
+
+/* ── 헤더 접힘/펼침 ── */
+window.jemvCommToggleBody = function(){
+  _bodyOpen=!_bodyOpen;
+  var bd=_body(), nd=_nodata(), arr=_arrow();
+  if(bd) bd.style.display=(_bodyOpen&&bd.innerHTML)?'':'none';
+  if(nd&&!_body().innerHTML) nd.style.display=_bodyOpen?'':'none';
+  if(arr) arr.style.transform=_bodyOpen?'rotate(180deg)':'';
+};
+
+/* ── 폰트 크기 ── */
+window.jemvCommFsUp   = function(){ _fs=Math.min(24,_fs+1); window._jemvCommFs=_fs; _applyFs(); };
+window.jemvCommFsDown = function(){ _fs=Math.max(10,_fs-1); window._jemvCommFs=_fs; _applyFs(); };
+function _applyFs(){
+  var bd=_body(); if(bd) bd.style.fontSize=_fs+'px';
+  var v=_fsVal(); if(v) v.textContent=_fs;
+}
+
+/* ── 높이 드래그 (이벤트 위임 — DOM 재생성 대응) ── */
+var _resizeInited=false;
+function _initResize(){
+  if(_resizeInited) return; _resizeInited=true;
+  var jbody=document.getElementById('jemv-body'); if(!jbody) return;
+  var startY,startH,panel;
+  function onMove(e){ var cy=e.touches?e.touches[0].clientY:e.clientY; panel=_panel(); if(!panel) return; panel.style.maxHeight=Math.max(80,Math.min(520,startH-(cy-startY)))+'px'; }
+  function onUp(){ document.removeEventListener('mousemove',onMove); document.removeEventListener('mouseup',onUp); document.removeEventListener('touchmove',onMove); document.removeEventListener('touchend',onUp); }
+  function onDown(e,cy){
+    panel=_panel(); if(!panel) return;
+    startY=cy; startH=panel.offsetHeight; e.preventDefault();
+    document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onUp);
+  }
+  jbody.addEventListener('mousedown',function(e){ if(e.target&&(e.target.id==='jemv-comm-resize-bar'||e.target.closest('#jemv-comm-resize-bar'))) onDown(e,e.clientY); });
+  jbody.addEventListener('touchstart',function(e){ if(e.target&&(e.target.id==='jemv-comm-resize-bar'||e.target.closest('#jemv-comm-resize-bar'))){ onDown(e,e.touches[0].clientY); document.addEventListener('touchmove',onMove,{passive:false}); document.addEventListener('touchend',onUp); } },{passive:true});
+}
+
+/* ── 주석 파일 로드 후 열린 패널 갱신 ── */
+window._jemvCommRefreshIfOpen = function(){
+  if(!_open) return;
+  var ref=window._jemvCurrentRef||window._jeDisplayVerse;
+  if(ref&&ref.abbr) window._jemvCommDraw(ref.abbr,ref.ch,ref.vs);
+};
+
+})();
 </script>
 
 <script>
