@@ -51,7 +51,7 @@
 /* 에디터 헤더 */
 .je-hdr{display:flex;align-items:center;gap:6px;padding:0 14px;height:48px;background:#fff;flex-shrink:0;border-bottom:1px solid #ece8e0;}
 .je-hdr-mid{flex:1;text-align:center;min-width:0;overflow:hidden;}
-.je-hdr-ref{font-size:.84rem;font-weight:800;color:#1a1815;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
+.je-hdr-ref{font-size:2rem;font-weight:800;color:#1a1815;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;}
 .je-hdr-cnt{font-size:.62rem;color:#a8a29a;display:block;margin-top:1px;}
 #je-hdr-progress{height:3px;background:#ece8e0;flex-shrink:0;position:relative;overflow:hidden;}
 #je-hdr-progress-fill{position:absolute;left:0;top:0;height:100%;width:0%;transition:width .4s ease,background .4s;background:#b0c8be;}
@@ -1310,7 +1310,7 @@ function _jeLoadTxt(buffer, fileName){
     var edKey = fileName.replace(/\.[^.]+$/,'').replace(/^.*(\/|\\)/,'').toUpperCase().replace(/[_\-\s]/g,'');
     for(var i=0;i<vv.length;i++){
       var vk = (vv[i].fileKey||'').toUpperCase().replace(/[_\-\s]/g,'');
-      if(edKey && vk && (edKey===vk || edKey.indexOf(vk)===0 || vk.indexOf(edKey)===0)){
+      if(edKey && vk && (edKey===vk)){
         if(window._jemvSetMainVerIdx) window._jemvSetMainVerIdx(i);
         if(window._jemvRebuildTabs) window._jemvRebuildTabs();
         break;
@@ -1346,7 +1346,7 @@ function _jeLoadSqlite(buffer, sliceOffset, fileName){
           /* 이미 있으면 메인 역본으로만 설정 */
           for(var i=0;i<vv.length;i++){
             var vk=(vv[i].fileKey||'').toUpperCase().replace(/[_\-\s]/g,'');
-            if(edKey && vk && (edKey===vk || edKey.indexOf(vk)===0 || vk.indexOf(edKey)===0)){
+            if(edKey && vk && (edKey===vk)){
               if(window._jemvSetMainVerIdx) window._jemvSetMainVerIdx(i);
               if(window._jemvRebuildTabs) window._jemvRebuildTabs();
               if(window._jemvRender) window._jemvRender();
@@ -9397,9 +9397,6 @@ window.addEventListener('load', function(){
   }
   #jemv-win.jemv-show { transform:translateY(0); pointer-events:auto; }
   #jemv-body-wrap { border-radius:0!important; }
-  /* 모바일: nav의 +역본 표시 */
-  #jemv-add-btn-nav { display:inline-flex!important; }
-
   /* 가로모드 전용 요소 숨김 */
   #jemv-horiz-title-badge, #jemv-horiz-actions { display:none!important; }
 
@@ -9479,35 +9476,86 @@ window.addEventListener('load', function(){
     top:auto!important; right:auto!important;
   }
 
-  /* ── nav (책/장/절 + 이동 + ＋역본) ── */
-  #jemv-nav {
+  /* ── nav 모바일에서 완전 숨김 (좌우 스와이프로 절 이동) ── */
+  #jemv-nav { display:none!important; }
+  /* 탭바 모바일 기본 숨김 */
+  #jemv-tabbar { display:none!important; }
+  #jemv-tabbar.mob-open {
     display:flex!important;
-    flex-wrap:nowrap!important;
-    overflow-x:hidden!important;
-    overflow-y:hidden!important;
-    gap:5px!important;
-    padding:4px 37px 4px 8px!important;
-    align-items:center!important;
-    height:40px!important;
-    box-sizing:border-box!important;
+    flex-wrap:wrap!important;
+    overflow-x:visible!important;
+    height:auto!important;
+    padding:4px 0 0 0!important;
   }
-  #jemv-sel-book {
-    flex:2 1 0!important; min-width:0!important;
-    height:28px!important; min-height:28px!important; max-height:28px!important;
-    font-size:0.8rem!important; box-sizing:border-box!important;
+  /* 모바일 탭바 헤더 행 */
+  #jemv-tabbar-mob-hdr {
+    display:none;
+    width:100%; flex-shrink:0;
+    border-bottom:1px solid #e0dbd0;
+    margin-bottom:4px;
   }
-  #jemv-sel-ch, #jemv-sel-vs {
-    flex:1 1 0!important; min-width:0!important;
-    height:28px!important; min-height:28px!important; max-height:28px!important;
-    font-size:0.8rem!important; box-sizing:border-box!important;
+  #jemv-tabbar.mob-open #jemv-tabbar-mob-hdr { display:block; }
+  #jemv-tabbar-mob-hdr-row {
+    display:flex; align-items:center;
+    padding:6px 10px 7px;
+    font-size:0.72rem;
   }
-  /* ＋역본 버튼 */
+  #jemv-tabbar-mob-hdr-all {
+    font-weight:800; color:#c03030; font-size:0.95rem;
+  }
+  #jemv-tabbar-mob-hdr-main { color:#7a7268; }
+  #jemv-tabbar-mob-hdr-main strong { color:#2d4a3e; font-weight:700; }
+  /* 모바일 탭바에서 전체·대표역본 탭 중복 숨김 */
+  #jemv-tabbar.mob-open #jemv-tab-all { display:none!important; }
+  /* 역본 탭 3열 세로 정렬 */
+  #jemv-tabbar.mob-open .jemv-tab {
+    width:33.333% !important;
+    box-sizing:border-box !important;
+    padding:5px 6px 5px 8px !important;
+    font-size:0.72rem !important;
+    white-space:nowrap;
+    overflow:hidden;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    border-right:1px solid #e8e3d8 !important;
+    border-bottom:1px solid #e8e3d8 !important;
+    min-height:28px !important;
+  }
+  /* 3열 오른쪽 끝 선 제거 — JS에서 .jemv-tab-col3 클래스로 직접 지정 */
+  #jemv-tabbar.mob-open .jemv-tab-col3 {
+    border-right:none !important;
+  }
+  /* 역본명(dot+label) 왼쪽, ☆X 오른쪽 */
+  #jemv-tabbar.mob-open .jemv-tab .jemv-tab-lbl {
+    flex:1 1 0; min-width:0;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+    display:flex; align-items:center; gap:3px;
+  }
+  #jemv-tabbar.mob-open .jemv-tab .jemv-tab-actions {
+    flex-shrink:0; display:flex; align-items:center; gap:1px; margin-left:2px;
+  }
+  #jemv-tabbar.mob-open .jemv-tab .jemv-tab-main,
+  #jemv-tabbar.mob-open .jemv-tab .jemv-tab-close {
+    flex-shrink:0 !important;
+    margin-left:0 !important;
+  }
+  /* ＋역본 버튼은 타이틀바로 이동 후 표시 — nav 숨김에 묻히지 않도록 타이틀바 안에서 override */
+  #jemv-title-right #jemv-add-btn-nav { display:inline-flex!important; }
+
+  /* ＋역본 버튼 — 타이틀바로 이동, 싱크/가로/설정과 동일 ghost 스타일 */
   #jemv-add-btn-nav {
     display:inline-flex!important;
-    flex-shrink:0!important;
-    margin-left:0!important; margin-right:0!important;
+    align-items:center!important; justify-content:center!important;
+    border:none!important; background:transparent!important;
+    color:#8a8480!important;
+    font-size:0.76rem!important; font-weight:600!important;
     height:28px!important; min-height:28px!important; max-height:28px!important;
-    font-size:0.75rem!important; padding:0 8px!important;
+    padding:0 6px!important;
+    line-height:1!important; box-sizing:border-box!important;
+    white-space:nowrap!important; cursor:pointer!important;
+    flex-shrink:0!important; -webkit-tap-highlight-color:transparent!important;
+    margin-left:0!important; margin-right:0!important;
   }
   /* ⚙ 아이콘 버튼 — 사용 안 함 */
   #jemv-mob-cfg-icon-btn { display:none!important; }
@@ -10048,7 +10096,13 @@ window.addEventListener('load', function(){
   border-radius:9px; padding:8px 10px;
   margin-bottom:5px; cursor:default;
   transition:box-shadow .12s, border-color .12s;
-  user-select:none;
+  user-select:none; -webkit-user-select:none;
+  -webkit-touch-callout:none;
+}
+.jemv-st-handle {
+  touch-action:none;
+  -webkit-touch-callout:none;
+  user-select:none; -webkit-user-select:none;
 }
 .jemv-st-card.jemv-st-dragging {
   box-shadow:0 6px 20px rgba(0,0,0,.14);
@@ -10057,10 +10111,8 @@ window.addEventListener('load', function(){
 .jemv-st-card.jemv-st-drag-over {
   border-color:#a8d4bc; background:#f0f8f3;
 }
-.jemv-st-handle {
-  color:#c4bdb4; font-size:0.9rem; cursor:grab; flex-shrink:0;
-  -webkit-tap-highlight-color:transparent; line-height:1; padding:2px 1px;
-}
+.jemv-st-handle { color:#c4bdb4; font-size:0.9rem; cursor:grab; flex-shrink:0;
+  -webkit-tap-highlight-color:transparent; line-height:1; padding:2px 1px; }
 .jemv-st-handle:active { cursor:grabbing; }
 .jemv-st-num {
   flex-shrink:0; width:16px; font-size:0.65rem; font-weight:800;
@@ -10105,6 +10157,9 @@ window.addEventListener('load', function(){
 }
 .jemv-st-swatch:hover { transform:scale(1.2); }
 .jemv-st-swatch.selected { border-color:#3a3730; }
+
+/* ★ 【삼각형 설정】 flex-direction:column 고정 — 절대 row로 바뀌면 안 됨 */
+#jemv-setting-ov { flex-direction:column !important; }
 
 /* 싱크 버튼 */
 /* ══ 타이틀바 전체 높이 통일: 24px ══ */
@@ -10589,6 +10644,20 @@ window.addEventListener('load', function(){
 
   <!-- 역본 탭바 -->
   <div id="jemv-tabbar">
+    <div id="jemv-tabbar-mob-hdr">
+      <div id="jemv-tabbar-mob-hdr-row">
+        <span id="jemv-tabbar-mob-hdr-all" onclick="jemvSetTab('all')" style="cursor:pointer;">전체</span>
+        <span style="color:#c0bab0;margin:0 6px;">|</span>
+        <span id="jemv-tabbar-mob-hdr-main">대표역본 : <strong id="jemv-tabbar-mob-main-name">—</strong> <span style="color:#e6a800;font-size:0.9em;">★</span></span>
+        <!-- 색상 버튼 3개: 우측 끝 -->
+        <span style="flex:1;"></span>
+        <span id="jemv-color-btns" style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;flex-shrink:0;">
+          <button onclick="jemvStColorReset()" title="색상 초기화" style="border:1px solid #ddd8ce;border-radius:4px;background:#f5f2ec;color:#8a7a6a;font-size:0.62rem;font-weight:700;padding:0 6px;height:20px;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent;line-height:1;">↺</button>
+          <button onclick="jemvStColorAuto()"  title="자동 색상 배정" style="border:1px solid #c8d8e8;border-radius:4px;background:#f0f4f8;color:#3a6080;font-size:0.62rem;font-weight:700;padding:0 6px;height:20px;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent;line-height:1;">자동</button>
+          <button id="jemv-color-save-btn-hdr" onclick="jemvStColorSave()" title="색상 저장" style="border:1px solid #c0d8cc;border-radius:4px;background:#f0f7f3;color:#2d6a4a;font-size:0.62rem;font-weight:700;padding:0 6px;height:20px;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent;line-height:1;">저장</button>
+        </span>
+      </div>
+    </div>
     <span id="jemv-tab-all" class="active" onclick="jemvSetTab('all')" title="전체 역본 비교">전체</span>
   </div>
 
@@ -10619,11 +10688,17 @@ window.addEventListener('load', function(){
   <div id="jemv-resize"></div>
 
   <!-- ══ 대역 세팅 오버레이 ══ -->
+  <!-- ★★★ 【삼각형 설정】= 다역본창 우측 상단 ⚙ 설정 버튼으로 여는 역본 관리 오버레이. id: jemv-setting-ov ★★★ -->
   <div id="jemv-setting-ov" style="display:none;position:absolute;inset:0;z-index:10300;background:#faf9f6;flex-direction:column;border-radius:inherit;overflow:hidden;">
     <!-- 헤더 -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px 9px;background:#f0ece4;border-bottom:1px solid #e0dbd0;flex-shrink:0;">
       <span style="font-size:0.8rem;font-weight:800;color:#3a3730;">⚙ 대역 설정</span>
-      <div style="display:flex;align-items:center;gap:6px;">
+      <div style="display:flex;align-items:center;gap:5px;">
+        <!-- 【삼각형 설정】 색상 버튼 3개: 색상 초기화 / 자동 / 저장 -->
+        <button id="jemv-st-color-reset-btn" onclick="jemvStColorReset()" title="모든 역본 색상 초기화" style="border:1px solid #ddd8ce;border-radius:5px;background:#f5f2ec;color:#8a7a6a;font-size:0.68rem;font-weight:700;padding:0 8px;height:24px;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .12s;" onmouseover="this.style.background='#ece8e0'" onmouseout="this.style.background='#f5f2ec'">↺ 초기화</button>
+        <button id="jemv-st-color-auto-btn"  onclick="jemvStColorAuto()"  title="역본 순서대로 색상 자동 배정" style="border:1px solid #c8d8e8;border-radius:5px;background:#f0f4f8;color:#3a6080;font-size:0.68rem;font-weight:700;padding:0 8px;height:24px;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .12s;" onmouseover="this.style.background='#e0ecf4'" onmouseout="this.style.background='#f0f4f8'">자동</button>
+        <button id="jemv-st-color-save-btn"  onclick="jemvStColorSave()"  title="현재 색상 설정을 저장 (재로드 후 복원)" style="border:1px solid #c0d8cc;border-radius:5px;background:#f0f7f3;color:#2d6a4a;font-size:0.68rem;font-weight:700;padding:0 8px;height:24px;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent;transition:background .12s;" onmouseover="this.style.background='#e0f0e8'" onmouseout="this.style.background='#f0f7f3'">저장</button>
+        <div style="width:1px;height:16px;background:#e0dbd0;flex-shrink:0;margin:0 2px;"></div>
         <button id="jemv-st-addfile-btn" onclick="jemvPickFile()" style="border:1px solid #c0d8cc;border-radius:5px;background:#f0f7f3;color:#2d6a4a;font-size:0.68rem;font-weight:700;padding:0 9px;height:24px;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#e0f0e8'" onmouseout="this.style.background='#f0f7f3'">＋ 역본 추가</button>
         <button onclick="jemvSettingClose()" style="border:none;background:transparent;color:#9a9fa8;font-size:1rem;line-height:1;width:24px;height:24px;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#f0e8e8';this.style.color='#c04040'" onmouseout="this.style.background='transparent';this.style.color='#9a9fa8'">✕</button>
       </div>
@@ -10670,6 +10745,17 @@ var _dOX,_dOY,_dWX,_dWY,_rOX,_rOY,_rOW,_rOH;
 window._jemvVersionsRef = _versions;
 window._jemvGetMainVerIdx = function(){ return _mainVerIdx; };
 window._jemvSetMainVerIdx = function(v){ _mainVerIdx=v; };
+/* 대표역본 해제 시 fallback — 개역개정 우선, 없으면 첫 번째 역본 */
+function _jemvFallbackMainIdx(){
+  if(!_versions.length) return 0;
+  for(var _fi=0;_fi<_versions.length;_fi++){
+    var _fv=_versions[_fi];
+    var _fsn=(_fv.shortName||'').replace(/\s/g,'');
+    var _ffk=(_fv.fileKey||'').replace(/\s/g,'').toUpperCase();
+    if(_fsn==='개역개정'||_ffk==='개역개정'||_ffk==='GAE'||_ffk==='GGA'||_ffk==='NKRV') return _fi;
+  }
+  return 0;
+}
 window._jemvGetTab = function(){ return _tab; };
 window._jemvSetTab2 = function(v){ _tab=v; };
 window._jemvRebuildTabs = function(){ _jemvRebuildTabs(); };
@@ -10916,7 +11002,7 @@ function _loadSqlite(buf, offset, name){
       var _newKey = short.toUpperCase().replace(/[_\-\s]/g,'');
       for(var _di=0;_di<_versions.length;_di++){
         var _dk=(_versions[_di].fileKey||'').toUpperCase().replace(/[_\-\s]/g,'');
-        if(_dk && _newKey && (_dk===_newKey || _dk.indexOf(_newKey)===0 || _newKey.indexOf(_dk)===0)){
+        if(_dk && _newKey && _dk===_newKey){
           /* 이미 있음 — 메인 역본으로 지정 후 맨 앞으로 이동 */
           if(_di!==0){
             var _dup=_versions.splice(_di,1)[0];
@@ -10961,21 +11047,48 @@ function _loadSqlite(buf, offset, name){
         if(!edName) return;
         var edKey = edName.replace(/\.[^.]+$/,'').replace(/^.*(\/|\\)/,'').toUpperCase().replace(/[_\-\s]/g,'');
         var newKey = short.toUpperCase().replace(/[_\-\s]/g,'');
-        if(edKey && newKey && (edKey===newKey || edKey.indexOf(newKey)===0 || newKey.indexOf(edKey)===0)){
+        if(edKey && newKey && edKey===newKey){
           /* 대표역본 자동 매칭 — 맨 앞으로 이동 */
           var _moved=_versions.splice(_versions.length-1,1)[0];
           _versions.unshift(_moved);
           _mainVerIdx=0;
         }
       })();
+      /* 역본 순서 정렬 — shortName 기준 고정 순서, in-place */
+      (function(){
+        var _FK_ORDER = [
+          '개역개정',
+          '새한글','새번역','바른성경(한문)','공동번역','가톨릭',
+          '200','쉬운말','쉬운성경','현대어','현대인','우리말',
+          '한글킹','킹흠정역','KJV표준역','NAS2','ESV','CEV','NKJV'
+        ];
+        function _rank(fk){
+          fk = (fk||'').trim();
+          for(var i=0;i<_FK_ORDER.length;i++){
+            if(fk===_FK_ORDER[i]) return i;
+          }
+          return 999;
+        }
+        if(_versions.length < 2) return;
+        var sorted = _versions.slice().sort(function(a,b){
+          var ra=_rank(a.fileKey), rb=_rank(b.fileKey);
+          return ra!==rb ? ra-rb : _versions.indexOf(a)-_versions.indexOf(b);
+        });
+        for(var i=0;i<sorted.length;i++) _versions[i]=sorted[i];
+        _mainVerIdx = 0;
+      })();
       _jemvRebuildNav();
       _jemvRebuildTabs();
+      /* 역본 추가/정렬 완료 후 스냅샷 저장 (초기화 기준) */
+      window._jemvOrderSnapshot = _versions.map(function(v){ return v.fileKey; });
       /* 첫 역본이면 창세기 1:1로 */
       if(_versions.length===1 && !_abbr){
         _abbr='창'; _ch=1; _vs=1;
         _jemvFillNav('창',1,1);
       }
       _jemvRender();
+      /* 저장된 색상 설정 복원 */
+      if(typeof window.jemvStColorLoad==='function') window.jemvStColorLoad();
       if(_toast) _toast('역본 추가: '+fullName+(fullName!==short?' ('+short+')':''));
     }catch(e){ if(_toast) _toast('파일 오류: '+e.message); }
   });
@@ -11213,27 +11326,128 @@ window.jemvNextVs=function(){ if(!_abbr) return; var vss=_getVss(_abbr,_ch); var
 /* ── 탭 ── */
 function _jemvRebuildTabs(){
   var bar=document.getElementById('jemv-tabbar'); if(!bar) return;
-  bar.innerHTML='<span id="jemv-tab-all" class="'+((_tab==='all')?'active':'')+'" onclick="jemvSetTab(\'all\')" title="전체 역본 비교">전체</span>';
-  _versions.forEach(function(v,i){
+  /* 대표역본 이름 */
+  var mn=(_mainVerIdx>=0&&_mainVerIdx<_versions.length)
+    ?_e(_versions[_mainVerIdx].label||_versions[_mainVerIdx].shortName):'—';
+  /* 탭바 전체 재빌드 */
+  var hdrHTML='<div id="jemv-tabbar-mob-hdr">'
+    +'<div id="jemv-tabbar-mob-hdr-row">'
+    +'<span id="jemv-tabbar-mob-hdr-all" onclick="jemvSetTab(\'all\')" style="cursor:pointer;">전체</span>'
+    +'<span style="color:#c0bab0;margin:0 6px;">|</span>'
+    +'<span id="jemv-tabbar-mob-hdr-main">대표역본 : <strong id="jemv-tabbar-mob-main-name">'+mn+'</strong> <span style="color:#e6a800;font-size:0.9em;">★</span></span>'
+    +'<span style="flex:1;"></span>'
+    +'<span id="jemv-color-btns" style="display:inline-flex;align-items:center;gap:4px;margin-left:6px;flex-shrink:0;">'
+    +'<button onclick="jemvStColorReset()" title="색상 초기화" style="border:1px solid #ddd8ce;border-radius:4px;background:#f5f2ec;color:#8a7a6a;font-size:0.62rem;font-weight:700;padding:0 6px;height:20px;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent;line-height:1;">↺</button>'
+    +'<button onclick="jemvStColorAuto()" title="자동 색상 배정" style="border:1px solid #c8d8e8;border-radius:4px;background:#f0f4f8;color:#3a6080;font-size:0.62rem;font-weight:700;padding:0 6px;height:20px;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent;line-height:1;">자동</button>'
+    +'<button id="jemv-color-save-btn-hdr" onclick="jemvStColorSave()" title="색상 저장" style="border:1px solid #c0d8cc;border-radius:4px;background:#f0f7f3;color:#2d6a4a;font-size:0.62rem;font-weight:700;padding:0 6px;height:20px;cursor:pointer;font-family:inherit;white-space:nowrap;-webkit-tap-highlight-color:transparent;line-height:1;">저장</button>'
+    +'</span>'
+    +'</div>'
+    +'</div>';
+  bar.innerHTML=hdrHTML;
+  /* 모바일에서는 헤더 행만 — 역본 탭 목록은 PC와 동일하게 추가 (flex-wrap으로 표시) */
+  bar.innerHTML+='<span id="jemv-tab-all" class="'+((_tab==='all')?'active':'')+'" onclick="jemvSetTab(\'all\')" title="전체 역본 비교">전체</span>';
+  /* 모바일 3열 세로 정렬: 열 우선(column-first) 순서로 재배열 */
+  var cols=3;
+  var total=_versions.length;
+  var rows=Math.ceil(total/cols);
+  var order=[];
+  for(var c=0;c<cols;c++){
+    for(var r=0;r<rows;r++){
+      var idx2=r*cols+c; /* 가로 우선 원래 인덱스로 역산 */
+      /* 세로 우선 → 가로 우선 변환: col c, row r → flat index = c*rows+r */
+      var flatIdx=c*rows+r;
+      if(flatIdx<total) order.push(flatIdx);
+    }
+  }
+  order.forEach(function(i, pos){
+    var v=_versions[i];
     var t=document.createElement('span');
-    t.className='jemv-tab'+((_tab===i)?' active':'');
-    t.onclick=function(){ jemvSetTab(i); };
+    t.className='jemv-tab'+((_tab===i)?' active':'')+(pos%3===2?' jemv-tab-col3':'');
+    t.onclick=(function(ii){ return function(){ jemvSetTab(ii); }; })(i);
     t.title=v.name;
+
+    /* dot — DOM으로 직접 생성해 addEventListener로 팔레트 연결 */
+    var dotEl=document.createElement('span');
     var dotBg = v.fontColor || null;
-    var dot = dotBg
-      ? '<span class="jemv-ver-dot" style="display:inline-block;background:'+dotBg+'"></span>'
-      : '<span class="jemv-ver-dot jemv-'+v.color+'" style="display:inline-block"></span>';
-    var mainStar=(_mainVerIdx===i)
-      ? '<button class="jemv-tab-main active" onclick="event.stopPropagation();" title="메인 역본 (클릭하여 해제)" style="color:#e6a800;background:#fffbe6;border-color:#e6c040;">★</button>'
+    dotEl.className='jemv-ver-dot';
+    if(dotBg){
+      /* 사용자가 직접 지정한 색상 */
+      dotEl.style.cssText='display:inline-block;cursor:pointer;flex-shrink:0;width:18px;height:18px;border-radius:3px;margin-right:4px;background:'+dotBg+';';
+    } else {
+      /* 미지정 — 빈 박스(테두리만) */
+      dotEl.style.cssText='display:inline-block;cursor:pointer;flex-shrink:0;width:18px;height:18px;border-radius:3px;margin-right:4px;background:transparent;border:1.5px dashed #c0bab0;box-sizing:border-box;';
+    }
+    if(dotBg) dotEl.style.background=dotBg;
+    dotEl.title='색상 변경';
+    dotEl.addEventListener('click', (function(ii){ return function(e){
+      e.stopPropagation();
+      e.preventDefault();
+      /* 팔레트 직접 열기 — fixed 좌표 직접 사용 */
+      var pal = document.getElementById('jemv-st-palette');
+      var sw  = document.getElementById('jemv-st-palette-swatches');
+      var ci  = document.getElementById('jemv-st-colorinp');
+      if(!pal||!sw||!ci) return;
+      window._stPalTarget = ii;
+      var vv = window._jemvVersionsRef||[];
+      var v  = vv[ii]||{};
+      var curColor = v.fontColor || (window._stCssColor ? _stCssColor(v.color||'c0') : '#888888');
+      ci.value = window._stToHex ? _stToHex(curColor) : curColor;
+      sw.innerHTML='';
+      var pal_colors = window.ST_PALETTE && window.ST_PALETTE.length ? window.ST_PALETTE : [
+        '#1a1815','#2d4a3e','#2a3040','#3a3020','#4a2030',
+        '#c03030','#c06000','#507820','#1a6a40','#1a5090',
+        '#6a3090','#a03060','#207878','#806020',
+        '#7a4030','#5a6a30','#2a6878','#5a3a88','#885a20',
+        '#8a9098','#9a9288','#a09080','#7a8870','#000000'
+      ];
+      pal_colors.forEach(function(col){
+        var s=document.createElement('span');
+        s.className='jemv-st-swatch'+(col===curColor?' selected':'');
+        s.style.cssText='width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;display:inline-block;background:'+col+';';
+        s.onclick=function(){ if(window.jemvStColorApply) jemvStColorApply(col); };
+        sw.appendChild(s);
+      });
+      var rect=e.target.getBoundingClientRect();
+      var palW=190;
+      var left=rect.left-10;
+      var top=rect.bottom+6;
+      if(left+palW>window.innerWidth) left=window.innerWidth-palW-8;
+      if(left<4) left=4;
+      if(top+240>window.innerHeight) top=rect.top-244;
+      pal.style.cssText='display:block;position:fixed;z-index:99999;background:#fff;border:1px solid #d8d2c8;border-radius:10px;padding:8px 10px 10px;box-shadow:0 6px 24px rgba(0,0,0,.16);min-width:'+palW+'px;left:'+left+'px;top:'+top+'px;';
+      window._palJustOpened=true;
+    }; })(i));
+
+    var mainStar=((_mainVerIdx)===i)
+      ? '' /* 대표역본은 헤더에 ★ 표시하므로 탭에서는 숨김 */
       : '<button class="jemv-tab-main" onclick="event.stopPropagation();jemvSetMain('+i+')" title="메인 역본으로 설정">☆</button>';
-    t.innerHTML=dot+_e(v.label||v.shortName)+mainStar+'<button class="jemv-tab-close" onclick="event.stopPropagation();jemvRemoveVersion('+i+')" title="제거">✕</button>';
+
+    /* lbl span */
+    var lbl=document.createElement('span');
+    lbl.className='jemv-tab-lbl';
+    lbl.appendChild(dotEl);
+    var numSpan=document.createElement('span');
+    numSpan.style.cssText='font-size:0.72rem;color:#b0a89e;font-weight:900;margin-right:3px;font-family:\'Pretendard Variable\',\'Apple SD Gothic Neo\',sans-serif;font-variant-numeric:tabular-nums;display:inline-block;min-width:1.6em;text-align:right;';
+    numSpan.textContent=(pos+1<10?'0'+(pos+1):String(pos+1));
+    lbl.appendChild(numSpan);
+    var nameSpan=document.createElement('span');
+    nameSpan.style.cssText='font-weight:800;color:#2a2724;';
+    nameSpan.textContent=v.label||v.shortName;
+    lbl.appendChild(nameSpan);
+
+    var actions=document.createElement('span');
+    actions.className='jemv-tab-actions';
+    actions.innerHTML=mainStar+'<button class="jemv-tab-close" onclick="event.stopPropagation();jemvRemoveVersion('+i+')" title="제거">✕</button>';
+
+    t.appendChild(lbl);
+    t.appendChild(actions);
     bar.appendChild(t);
   });
 }
 window.jemvSetMain=function(idx){
   if(idx===_mainVerIdx){
-    /* 다시 누르면 메인 해제만 (순서 변경 없음) */
-    _mainVerIdx=-1;
+    /* 다시 누르면 메인 해제 → 개역개정(없으면 첫 번째 역본)으로 자동 전환 */
+    _mainVerIdx=_jemvFallbackMainIdx();
   } else {
     /* 대표역본으로 설정 — 맨 앞으로 이동 (PC/모바일 공통) */
     var moved=_versions.splice(idx,1)[0];
@@ -11269,6 +11483,332 @@ function _e(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 
 /* 외부(JW 로드 후 재렌더)에서 호출 가능하도록 노출 */
 window._jemvRender = function(){ try{ _jemvRender(); }catch(e){} };
+
+/* ── 세로모드 서브역본 롱탭 이동 메뉴 ── */
+var _ROW_PALETTE=[
+  '#1a1815','#2d4a3e','#2a3040','#3a3020','#4a2030',
+  '#c03030','#c06000','#507820','#1a6a40','#1a5090',
+  '#6a3090','#a03060','#207878','#806020',
+  '#7a4030','#5a6a30','#2a6878','#5a3a88','#885a20',
+  '#8a9098','#9a9288','#000000'
+];
+
+function _jemvShowRowMoveMenu(row, vidx){
+  var old=document.getElementById('jemv-row-move-menu'); if(old) old.remove();
+  var vv=_versions;
+  if(!vv[vidx]) return;
+
+  var vname=(vv[vidx].label||vv[vidx].shortName||vv[vidx].name)||'';
+
+  var menu=document.createElement('div');
+  menu.id='jemv-row-move-menu';
+  menu.style.cssText='position:fixed;z-index:10600;background:#fff;border:1.5px solid #d0cac0;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.22);font-family:inherit;min-width:170px;overflow:hidden;';
+
+  /* ── 헤더: 역본명 + ★ 대표역본 토글 + X ── */
+  var hdr=document.createElement('div');
+  hdr.style.cssText='display:flex;align-items:center;gap:6px;padding:10px 10px 8px 14px;border-bottom:1px solid #ece8e0;';
+  var hdrName=document.createElement('span');
+  hdrName.style.cssText='font-size:1rem;font-weight:800;color:#1a1815;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;';
+  hdrName.textContent=vname;
+  var starBtn=document.createElement('button');
+  var isMain=(_mainVerIdx===vidx);
+  starBtn.style.cssText='border:none;background:transparent;font-size:1.2rem;line-height:1;padding:0 2px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;transition:transform .1s;';
+  starBtn.textContent=isMain?'★':'☆';
+  starBtn.style.color=isMain?'#c08820':'#c0b8b0';
+  starBtn.addEventListener('pointerdown',function(e){
+    e.stopPropagation();
+    var nowMain=(_mainVerIdx===vidx);
+    _mainVerIdx=nowMain?_jemvFallbackMainIdx():vidx;
+    if(window._jemvSetMainVerIdx) window._jemvSetMainVerIdx(_mainVerIdx);
+    starBtn.textContent=nowMain?'☆':'★';
+    starBtn.style.color=nowMain?'#c0b8b0':'#c08820';
+    _jemvRebuildTabs();
+    _jemvRender();
+    _jemvMoveToast(nowMain?'대표역본을 해제했습니다':'대표역본으로 지정했습니다');
+  });
+  var closeBtn=document.createElement('button');
+  closeBtn.style.cssText='border:none;background:transparent;color:#b0a89e;font-size:1.1rem;line-height:1;padding:0 4px;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;';
+  closeBtn.textContent='✕';
+  closeBtn.addEventListener('pointerdown',function(e){ e.stopPropagation(); menu.remove(); });
+  hdr.appendChild(hdrName); hdr.appendChild(starBtn); hdr.appendChild(closeBtn);
+  menu.appendChild(hdr);
+
+  /* ── 버튼 생성 헬퍼 ── */
+  function makeBtn(label, action){
+    var b=document.createElement('button');
+    b.style.cssText='display:block;width:100%;border:none;border-top:1px solid #f0ece4;background:#fff;color:#1a1815;font-size:0.82rem;font-weight:700;padding:10px 16px;text-align:left;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;transition:background .1s,opacity .15s;';
+    b.textContent=label;
+    b.addEventListener('pointerenter',function(){ if(!b.disabled) b.style.background='#f5f2ec'; });
+    b.addEventListener('pointerleave',function(){ b.style.background='#fff'; });
+    b.addEventListener('pointerdown',function(e){ e.stopPropagation(); if(!b.disabled) action(); });
+    return b;
+  }
+
+  /* ── 이동 로직 ── */
+  function updateMoveButtons(){
+    var cu=(vidx>0), cd=(vidx<_versions.length-1);
+    btnUp.disabled=!cu;   btnUp.style.opacity=cu?'1':'0.3';   btnUp.style.cursor=cu?'pointer':'default';
+    btnDown.disabled=!cd; btnDown.style.opacity=cd?'1':'0.3'; btnDown.style.cursor=cd?'pointer':'default';
+  }
+
+  function moveVer(from, to){
+    var item=_versions.splice(from,1)[0];
+    _versions.splice(to,0,item);
+    var mi=_mainVerIdx;
+    if(mi===from) mi=to;
+    else if(from<to&&mi>from&&mi<=to) mi--;
+    else if(from>to&&mi>=to&&mi<from) mi++;
+    _mainVerIdx=mi;
+    if(typeof _tab==='number'){
+      if(_tab===from) _tab=to;
+      else if(from<_tab&&to>=_tab) _tab--;
+      else if(from>_tab&&to<=_tab) _tab++;
+    }
+    _jemvRebuildTabs();
+    _jemvRender();
+    if(typeof window._stRebuild==='function') window._stRebuild();
+    if(typeof window._rebuildVerList==='function') window._rebuildVerList();
+    _jemvMoveToast(from<to?'아래로 이동했습니다':'위로 이동했습니다');
+    /* 이동된 row 하이라이트 */
+    var movedRow=document.querySelector('.jemv-all-row[data-vidx="'+to+'"]');
+    if(movedRow){
+      movedRow.style.transition='background .1s';
+      movedRow.style.background='#fde8e8';
+      setTimeout(function(){ movedRow.style.background=''; },600);
+    }
+    vidx=to;
+    updateMoveButtons();
+  }
+
+  var btnUp   = makeBtn('▲ 위로 이동',   function(){ moveVer(vidx, vidx-1); });
+  var btnDown = makeBtn('▼ 아래로 이동', function(){ moveVer(vidx, vidx+1); });
+  menu.appendChild(btnUp);
+  menu.appendChild(btnDown);
+  updateMoveButtons();
+
+  /* ── 초기화 버튼 2개 ── */
+  var btnResetColor = makeBtn('↺ 색상 초기화', function(){
+    _versions.forEach(function(v){ delete v.fontColor; });
+    menu.remove();
+    _jemvRebuildTabs();
+    _jemvRender();
+    if(typeof window._stRebuild==='function') window._stRebuild();
+    if(typeof window._rebuildVerList==='function') window._rebuildVerList();
+    _jemvMoveToast('색상을 초기화했습니다');
+  });
+  btnResetColor.style.borderTop='1px solid #e8e0d8';
+  btnResetColor.style.color='#8a7a6a';
+  menu.appendChild(btnResetColor);
+
+  var btnResetOrder = makeBtn('↺ 역본순 초기화', function(){
+    var snap=window._jemvOrderSnapshot;
+    if(snap && snap.length){
+      var sorted=[];
+      snap.forEach(function(fk){
+        _versions.filter(function(v){ return v.fileKey===fk; }).forEach(function(v){ sorted.push(v); });
+      });
+      _versions.forEach(function(v){ if(snap.indexOf(v.fileKey)===-1) sorted.push(v); });
+      for(var i=0;i<sorted.length;i++) _versions[i]=sorted[i];
+    }
+    _mainVerIdx=0;
+    if(window._jemvSetMainVerIdx) window._jemvSetMainVerIdx(0);
+    menu.remove();
+    _jemvRebuildTabs();
+    _jemvRender();
+    if(typeof window._stRebuild==='function') window._stRebuild();
+    if(typeof window._rebuildVerList==='function') window._rebuildVerList();
+    _jemvMoveToast('역본 순서를 초기화했습니다');
+  });
+  btnResetOrder.style.color='#8a7a6a';
+  menu.appendChild(btnResetOrder);
+
+  /* ── 색상 지정 섹션 ── */
+  var colorSec=document.createElement('div');
+  colorSec.style.cssText='border-top:1px solid #ece8e0;padding:8px 12px 10px;';
+
+  var colorLabel=document.createElement('div');
+  colorLabel.style.cssText='font-size:0.62rem;color:#a09890;font-weight:700;margin-bottom:6px;letter-spacing:0.04em;';
+  colorLabel.textContent='폰트 색상';
+  colorSec.appendChild(colorLabel);
+
+  /* 스와치 그리드 */
+  var swGrid=document.createElement('div');
+  swGrid.style.cssText='display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;';
+  var curColor=vv[vidx].fontColor||'';
+  _ROW_PALETTE.forEach(function(col){
+    var s=document.createElement('button');
+    s.style.cssText='width:20px;height:20px;border-radius:50%;border:2px solid '+(col===curColor?'#2d4a3e':'transparent')+';background:'+col+';cursor:pointer;-webkit-tap-highlight-color:transparent;flex-shrink:0;transition:border-color .1s;';
+    s.addEventListener('pointerdown',function(e){
+      e.stopPropagation();
+      vv[vidx].fontColor=col;
+      /* 선택 표시 갱신 */
+      swGrid.querySelectorAll('button').forEach(function(b){ b.style.borderColor='transparent'; });
+      s.style.borderColor='#2d4a3e';
+      _jemvRender();
+      if(typeof window._stRebuild==='function') window._stRebuild();
+      _jemvMoveToast('색상을 변경했습니다');
+    });
+    swGrid.appendChild(s);
+  });
+  colorSec.appendChild(swGrid);
+
+  /* 직접 입력 */
+  var inpRow=document.createElement('div');
+  inpRow.style.cssText='display:flex;align-items:center;gap:6px;';
+  var inpLabel=document.createElement('span');
+  inpLabel.style.cssText='font-size:0.62rem;color:#a09890;flex-shrink:0;';
+  inpLabel.textContent='직접:';
+  var colorInp=document.createElement('input');
+  colorInp.type='color';
+  colorInp.value=curColor||'#000000';
+  colorInp.style.cssText='width:32px;height:22px;border:1px solid #d8d2c8;border-radius:4px;cursor:pointer;padding:1px 2px;flex-shrink:0;';
+  colorInp.addEventListener('change',function(e){
+    e.stopPropagation();
+    vv[vidx].fontColor=colorInp.value;
+    swGrid.querySelectorAll('button').forEach(function(b){ b.style.borderColor='transparent'; });
+    _jemvRender();
+    if(typeof window._stRebuild==='function') window._stRebuild();
+    _jemvMoveToast('색상을 변경했습니다');
+  });
+  inpRow.appendChild(inpLabel); inpRow.appendChild(colorInp);
+  colorSec.appendChild(inpRow);
+  menu.appendChild(colorSec);
+
+  /* ── 위치: jemv-win 우측 상단 기준으로 고정 ── */
+  var win=document.getElementById('jemv-win');
+  var winRect=win?win.getBoundingClientRect():{right:window.innerWidth,top:0};
+  var rect=row.getBoundingClientRect();
+  var mw=180;
+  var left=winRect.right-mw-8;
+  if(left<4) left=4;
+  var top=rect.top;
+  if(top+320>window.innerHeight-8) top=window.innerHeight-320-8;
+  if(top<4) top=4;
+  menu.style.top=top+'px';
+  menu.style.left=left+'px';
+  menu.style.width=mw+'px';
+  document.body.appendChild(menu);
+}
+
+function _jemvMoveToast(msg){
+  var t=document.getElementById('jemv-move-toast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='jemv-move-toast';
+    t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(45,74,62,0.92);color:#fff;font-size:0.74rem;font-weight:700;padding:7px 18px;border-radius:20px;z-index:10700;pointer-events:none;white-space:nowrap;transition:opacity .25s;opacity:0;font-family:inherit;';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg;
+  t.style.opacity='1';
+  clearTimeout(t._tid);
+  t._tid=setTimeout(function(){ t.style.opacity='0'; },1000);
+}
+
+/* ── 우측 스와이프 → 색상 피커 ── */
+var _SWIPE_PALETTE=[
+  '#1a1815','#2d4a3e','#2a3040','#3a3020','#4a2030',
+  '#c03030','#c06000','#507820','#1a6a40','#1a5090',
+  '#6a3090','#a03060','#207878','#806020',
+  '#7a4030','#5a6a30','#2a6878','#5a3a88','#885a20',
+  '#8a9098','#9a9288','#000000'
+];
+function _jemvSwipeColorPick(row, vidx){
+  var old=document.getElementById('jemv-swipe-pal'); if(old) old.remove();
+  var vv=_versions;
+  if(!vv[vidx]) return;
+  var vname=vv[vidx].label||vv[vidx].shortName||vv[vidx].name||'';
+
+  var pal=document.createElement('div');
+  pal.id='jemv-swipe-pal';
+  pal.style.cssText='position:fixed;z-index:10650;background:#fff;border:1.5px solid #d0cac0;border-radius:14px;box-shadow:0 6px 28px rgba(0,0,0,.22);padding:10px 12px 12px;font-family:inherit;';
+
+  /* 헤더 */
+  var hdr=document.createElement('div');
+  hdr.style.cssText='display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;';
+  var title=document.createElement('span');
+  title.style.cssText='font-size:0.68rem;color:#9a9288;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;';
+  title.textContent='🎨 '+vname+' 색상';
+  var xBtn=document.createElement('button');
+  xBtn.style.cssText='border:none;background:transparent;color:#b0a89e;font-size:1rem;line-height:1;padding:0 2px;cursor:pointer;-webkit-tap-highlight-color:transparent;';
+  xBtn.textContent='✕';
+  xBtn.addEventListener('pointerdown',function(e){ e.stopPropagation(); pal.remove(); });
+  hdr.appendChild(title); hdr.appendChild(xBtn);
+  pal.appendChild(hdr);
+
+  /* 스와치 그리드 */
+  var grid=document.createElement('div');
+  grid.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;';
+  _SWIPE_PALETTE.forEach(function(col){
+    var s=document.createElement('button');
+    s.style.cssText='width:26px;height:26px;border-radius:50%;border:2px solid transparent;background:'+col+';cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .1s;';
+    var cur=vv[vidx].fontColor||'';
+    if(cur===col) s.style.borderColor='#2d4a3e';
+    s.addEventListener('pointerdown',function(e){
+      e.stopPropagation();
+      vv[vidx].fontColor=col;
+      pal.remove();
+      _jemvRender();
+      if(typeof window._stRebuild==='function') window._stRebuild();
+      _jemvMoveToast('색상을 변경했습니다');
+    });
+    grid.appendChild(s);
+  });
+  pal.appendChild(grid);
+
+  /* 직접 입력 */
+  var inp=document.createElement('input');
+  inp.type='color';
+  inp.value=vv[vidx].fontColor||'#000000';
+  inp.style.cssText='width:100%;height:28px;border:1px solid #d8d2c8;border-radius:6px;cursor:pointer;padding:1px 2px;';
+  inp.addEventListener('change',function(){
+    vv[vidx].fontColor=inp.value;
+    pal.remove();
+    _jemvRender();
+    if(typeof window._stRebuild==='function') window._stRebuild();
+    _jemvMoveToast('색상을 변경했습니다');
+  });
+  pal.appendChild(inp);
+
+  /* 위치: row 기준 */
+  var rect=row.getBoundingClientRect();
+  var pw=220;
+  var left=rect.left+8;
+  if(left+pw>window.innerWidth-4) left=window.innerWidth-pw-4;
+  var top=rect.bottom+4;
+  if(top+280>window.innerHeight) top=rect.top-280-4;
+  if(top<4) top=4;
+  pal.style.top=top+'px';
+  pal.style.left=left+'px';
+  pal.style.width=pw+'px';
+  document.body.appendChild(pal);
+}
+
+/* ── 좌측 스와이프 → 역본 제거 확인 ── */
+function _jemvSwipeRemove(vidx){
+  var vv=_versions;
+  if(!vv[vidx]) return;
+  var vname=vv[vidx].label||vv[vidx].shortName||vv[vidx].name||'';
+
+  var old=document.getElementById('jemv-swipe-confirm'); if(old) old.remove();
+  var pop=document.createElement('div');
+  pop.id='jemv-swipe-confirm';
+  pop.style.cssText='position:fixed;inset:0;z-index:10650;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);font-family:inherit;';
+  pop.innerHTML='<div style="background:#fff;border-radius:14px;padding:20px 22px 16px;max-width:280px;width:88%;box-shadow:0 8px 32px rgba(0,0,0,.22);text-align:center;">'
+    +'<div style="font-size:0.84rem;font-weight:700;color:#1a1815;margin-bottom:8px;">역본 제거</div>'
+    +'<div style="font-size:0.78rem;color:#5a5450;margin-bottom:18px;word-break:break-all;">"'+vname+'" 역본을 제거할까요?</div>'
+    +'<div style="display:flex;gap:8px;justify-content:center;">'
+    +'<button id="jemv-swipe-cancel" style="flex:1;height:36px;border:1.5px solid #d4cfc6;border-radius:8px;background:#f5f2ec;color:#7a7268;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">취소</button>'
+    +'<button id="jemv-swipe-ok" style="flex:1;height:36px;border:none;border-radius:8px;background:#c03030;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">제거</button>'
+    +'</div></div>';
+  document.body.appendChild(pop);
+  pop.querySelector('#jemv-swipe-cancel').addEventListener('pointerdown',function(e){ e.stopPropagation(); pop.remove(); });
+  pop.querySelector('#jemv-swipe-ok').addEventListener('pointerdown',function(e){
+    e.stopPropagation();
+    pop.remove();
+    if(typeof window.jemvRemoveVersion==='function') window.jemvRemoveVersion(vidx);
+    _jemvMoveToast('역본을 제거했습니다');
+  });
+}
 
 function _jemvRender(){
   if(_jemvHoriz){ _jemvRenderHoriz(); return; }
@@ -11505,7 +12045,7 @@ function _jemvRender(){
       var col = _getColor(v.color);
       var textCol = v.fontColor || '#000000';
       var isColored = !!(v.color && v.color!=='gray');
-      html+='<div class="jemv-all-row">';
+      html+='<div class="jemv-all-row" data-vidx="'+i+'">';
       html+='<div class="jemv-all-label">';
       html+='<span class="jemv-all-label-name" style="color:#4d4d4d;" title="'+_e(v.shortName)+'">';
       html+=_e(v.label||v.shortName);
@@ -11561,6 +12101,106 @@ function _jemvRender(){
   }
   body.innerHTML=html;
 
+  /* ── 세로모드 서브역본 터치 전용 인터랙션 (모바일만) ── */
+  if(_tab==='all'){
+    var LONG_MS=450;
+    var SWIPE_MIN=90;   /* 최소 스와이프 거리(px) — 짧으면 실수 방지 */
+    var SWIPE_MAX_Y=40; /* 세로 허용 오차 */
+
+    body.querySelectorAll('.jemv-all-row[data-vidx]').forEach(function(row){
+      var _lt=null, _sx=0, _sy=0, _swiping=false;
+
+      function cancelLt(){ clearTimeout(_lt); _lt=null; }
+      function fireLongTap(){
+        if(navigator.vibrate) navigator.vibrate(40);
+        var vidx=parseInt(row.dataset.vidx,10);
+        _jemvShowRowMoveMenu(row, vidx);
+      }
+
+      /* ── 터치 (모바일) ── */
+      row.addEventListener('touchstart', function(e){
+        if(e.touches.length!==1) return;
+        var t=e.touches[0];
+        _sx=t.clientX; _sy=t.clientY; _swiping=false;
+        cancelLt();
+        _lt=setTimeout(function(){ if(!_swiping) fireLongTap(); }, LONG_MS);
+      }, {passive:true});
+
+      row.addEventListener('touchmove', function(e){
+        if(e.touches.length!==1) return;
+        var t=e.touches[0];
+        var dx=t.clientX-_sx, dy=t.clientY-_sy;
+        if(Math.abs(dy)>10 && Math.abs(dy)>Math.abs(dx)) cancelLt();
+        if(Math.abs(dx)>20 && Math.abs(dx)>Math.abs(dy)*1.5){ cancelLt(); _swiping=true; }
+        if(_swiping && Math.abs(dy)<SWIPE_MAX_Y){
+          row.style.background='';
+        }
+      }, {passive:true});
+
+      row.addEventListener('touchend', function(e){
+        cancelLt();
+        row.style.background='';
+        if(!_swiping) return;
+        var t=e.changedTouches[0];
+        var dx=t.clientX-_sx, dy=t.clientY-_sy;
+        if(Math.abs(dy)>=SWIPE_MAX_Y) return;
+        if(dx>=SWIPE_MIN)       { if(typeof jemvPrevVs==='function') jemvPrevVs(); }
+        else if(dx<=-SWIPE_MIN) { if(typeof jemvNextVs==='function') jemvNextVs(); }
+        _swiping=false;
+      }, {passive:true});
+
+      row.addEventListener('touchcancel', function(){
+        cancelLt(); row.style.background=''; _swiping=false;
+      }, {passive:true});
+
+      /* ── 마우스 (PC) — 롱클릭만, 스와이프 없음 ── */
+      row.addEventListener('mousedown', function(e){
+        if(e.button!==0) return;
+        cancelLt();
+        _lt=setTimeout(fireLongTap, LONG_MS);
+      });
+      row.addEventListener('mouseup',    cancelLt);
+      row.addEventListener('mouseleave', cancelLt);
+
+      /* ── 역본명 더블클릭 → 대표역본 지정 (PC) ── */
+      var label=row.querySelector('.jemv-all-label');
+      if(label){
+        label.style.cursor='pointer';
+        label.addEventListener('dblclick', function(e){
+          e.stopPropagation();
+          var vidx=parseInt(row.dataset.vidx,10);
+          var isMain=(_mainVerIdx===vidx);
+          _mainVerIdx = isMain ? _jemvFallbackMainIdx() : vidx;
+          if(window._jemvSetMainVerIdx) window._jemvSetMainVerIdx(_mainVerIdx);
+          _jemvRebuildTabs();
+          _jemvRender();
+          _jemvMoveToast(isMain?'대표역본을 해제했습니다':'대표역본으로 지정했습니다');
+        });
+      }
+    });
+
+    /* ── 역본명 더블탭 → 대표역본 지정 (모바일) ── */
+    body.querySelectorAll('.jemv-all-row[data-vidx]').forEach(function(row){
+      var label=row.querySelector('.jemv-all-label');
+      if(!label) return;
+      var _lastTap=0;
+      label.addEventListener('touchend', function(e){
+        var now=Date.now();
+        if(now-_lastTap<350){
+          e.preventDefault();
+          var vidx=parseInt(row.dataset.vidx,10);
+          var isMain=(_mainVerIdx===vidx);
+          _mainVerIdx = isMain ? _jemvFallbackMainIdx() : vidx;
+          if(window._jemvSetMainVerIdx) window._jemvSetMainVerIdx(_mainVerIdx);
+          _jemvRebuildTabs();
+          _jemvRender();
+          _jemvMoveToast(isMain?'대표역본을 해제했습니다':'대표역본으로 지정했습니다');
+        }
+        _lastTap=now;
+      });
+    });
+  } /* end if(_tab==='all') */
+
   /* ── 대표역본 툴바 값 초기화 ── */
   (function(){
     var fs=document.getElementById('jemv-mb-fs'); if(fs) fs.textContent=_jemvFs||16;
@@ -11586,176 +12226,6 @@ function _jemvRender(){
   /* 렌더 후 리사이즈 바 직접 바인딩 */
   if(typeof window._jemvCommBindResize==='function') window._jemvCommBindResize();
 
-  /* ── 세로 전체(all) 모드: 역본명 롱탭 드래그 순서 변경 ── */
-  if(_tab==='all'){
-    var allList = body.querySelector('.jemv-all-list');
-    if(allList){
-      var _rowVerIdxs = [];
-      _versions.forEach(function(_,ii){ if(ii!==mainIdx) _rowVerIdxs.push(ii); });
-      var rows = allList.querySelectorAll('.jemv-all-row');
-
-      var _lpTimer = null;
-      var _lpSrc = null;
-      var _lpSrcIdx = -1;
-      var _lpDragging = false;
-      var _lpGhost = null;
-      var _lpGhostOffY = 0;
-      var _lpInsertLine = null;
-      var _lpTargetIdx = -1;
-
-      function _lpCreateGhost(row, cy){
-        document.body.style.userSelect = 'none';
-        document.body.style.webkitUserSelect = 'none';
-        var rect = row.getBoundingClientRect();
-        _lpGhostOffY = cy - rect.top;
-        /* 실제 row 크기 그대로 복제해서 띄우기 */
-        var g = row.cloneNode(true);
-        g.className = 'jemv-drag-ghost';
-        g.style.cssText = [
-          'position:fixed',
-          'left:'+rect.left+'px',
-          'top:'+(cy-_lpGhostOffY)+'px',
-          'width:'+rect.width+'px',
-          'height:'+rect.height+'px',
-          'z-index:99999',
-          'pointer-events:none',
-          'border-radius:6px',
-          'background:#fff',
-          'box-shadow:0 10px 32px rgba(0,0,0,.18),0 2px 8px rgba(0,0,0,.10)',
-          'border:1.5px solid #2d4a3e',
-          'overflow:hidden',
-          'opacity:0.97',
-          'transform:scale(1.02)',
-          'transition:transform .1s ease',
-          'display:flex',
-          'align-items:flex-start',
-          'padding:5px 8px 5px 6px',
-          'box-sizing:border-box',
-        ].join(';');
-        document.body.appendChild(g);
-        _lpGhost = g;
-        /* 삽입 위치 표시선 */
-        var line = document.createElement('div');
-        line.style.cssText = 'position:absolute;left:6px;right:6px;height:2.5px;background:#2d4a3e;border-radius:2px;display:none;z-index:9998;pointer-events:none;box-shadow:0 0 4px rgba(45,74,62,.4);';
-        allList.style.position = 'relative';
-        allList.appendChild(line);
-        _lpInsertLine = line;
-      }
-
-      function _lpMoveGhost(cy){
-        if(!_lpGhost) return;
-        _lpGhost.style.top = (cy-_lpGhostOffY)+'px';
-        var bestIdx=0, bestDist=Infinity;
-        rows.forEach(function(r,ri){
-          if(r===_lpSrc) return;
-          var rect=r.getBoundingClientRect();
-          var mid=rect.top+rect.height/2;
-          var dist=Math.abs(cy-mid);
-          if(dist<bestDist){ bestDist=dist; bestIdx=ri; }
-        });
-        var targetRow=rows[bestIdx];
-        if(targetRow){
-          var rect=targetRow.getBoundingClientRect();
-          var listRect=allList.getBoundingClientRect();
-          var insertAfter = cy > rect.top+rect.height/2;
-          var lineY = insertAfter ? (rect.bottom-listRect.top) : (rect.top-listRect.top);
-          _lpInsertLine.style.display='block';
-          _lpInsertLine.style.top=(lineY-1)+'px';
-          _lpTargetIdx = insertAfter ? bestIdx+1 : bestIdx;
-        }
-      }
-
-      function _lpRemoveGhost(){
-        if(_lpGhost){ _lpGhost.remove(); _lpGhost=null; }
-        if(_lpInsertLine){ _lpInsertLine.remove(); _lpInsertLine=null; }
-        document.body.style.userSelect='';
-        document.body.style.webkitUserSelect='';
-        _lpTargetIdx=-1;
-      }
-
-      function _lpCancel(){
-        if(_lpTimer){ clearTimeout(_lpTimer); _lpTimer=null; }
-      }
-      function _lpCleanup(){
-        rows.forEach(function(r){ r.classList.remove('jemv-row-dragging'); });
-        _lpRemoveGhost();
-        _lpSrc=null; _lpSrcIdx=-1; _lpDragging=false;
-      }
-
-      function _lpDrop(){
-        _lpCancel();
-        if(!_lpSrc){ _lpCleanup(); return; }
-        _lpSrc.classList.remove('jemv-row-dragging');
-        var targetIdx=_lpTargetIdx;
-        _lpRemoveGhost();
-        if(_lpDragging && targetIdx!==-1 && targetIdx!==_lpSrcIdx && targetIdx!==_lpSrcIdx+1){
-          var srcPos=_lpSrcIdx;
-          var dstPos=targetIdx>_lpSrcIdx ? targetIdx-1 : targetIdx;
-          if(dstPos!==srcPos){
-            var realSrc=_rowVerIdxs[srcPos];
-            var realDst=_rowVerIdxs[Math.min(dstPos,_rowVerIdxs.length-1)];
-            var moved=_versions.splice(realSrc,1)[0];
-            _versions.splice(realDst,0,moved);
-            if(_mainVerIdx===realSrc) _mainVerIdx=realDst;
-            else if(realSrc<_mainVerIdx && realDst>=_mainVerIdx) _mainVerIdx--;
-            else if(realSrc>_mainVerIdx && realDst<=_mainVerIdx) _mainVerIdx++;
-            if(typeof _tab==='number'){
-              if(_tab===realSrc) _tab=realDst;
-              else if(realSrc<_tab && realDst>=_tab) _tab--;
-              else if(realSrc>_tab && realDst<=_tab) _tab++;
-            }
-            _lpSrc=null; _lpSrcIdx=-1; _lpDragging=false;
-            _jemvRebuildTabs();
-            _jemvRender();
-            return;
-          }
-        }
-        _lpCleanup();
-      }
-
-      rows.forEach(function(row,ri){
-        var label=row.querySelector('.jemv-all-label');
-        if(label) label.style.cursor='grab';
-        row.style.cursor='grab';
-
-        row.addEventListener('touchstart',function(e){
-          var cy=e.touches[0].clientY;
-          _lpTimer=setTimeout(function(){
-            _lpSrc=row; _lpSrcIdx=ri; _lpDragging=false;
-            row.classList.add('jemv-row-dragging');
-            _lpCreateGhost(row,cy);
-            if(navigator.vibrate) navigator.vibrate(35);
-          },420);
-        },{passive:true});
-        row.addEventListener('touchmove',function(e){
-          if(_lpSrc===row){
-            _lpDragging=true;
-            e.preventDefault();
-            _lpMoveGhost(e.touches[0].clientY);
-          } else if(_lpTimer){
-            _lpCancel();
-          }
-        },{passive:false});
-        row.addEventListener('touchend',function(){ if(_lpSrc===row) _lpDrop(); else _lpCancel(); });
-        row.addEventListener('touchcancel',function(){ _lpCancel(); if(_lpSrc===row) _lpCleanup(); });
-
-        row.addEventListener('mousedown',function(e){
-          if(e.button!==0) return;
-          e.preventDefault();
-          var cy=e.clientY;
-          _lpTimer=setTimeout(function(){
-            _lpSrc=row; _lpSrcIdx=ri; _lpDragging=false;
-            row.classList.add('jemv-row-dragging');
-            _lpCreateGhost(row,cy);
-          },420);
-          function mmv(ev){ cy=ev.clientY; if(_lpSrc===row){ _lpDragging=true; _lpMoveGhost(ev.clientY); } }
-          function mup(){ if(_lpSrc===row) _lpDrop(); else _lpCancel(); document.removeEventListener('mousemove',mmv); document.removeEventListener('mouseup',mup); }
-          document.addEventListener('mousemove',mmv);
-          document.addEventListener('mouseup',mup);
-        });
-      });
-    }
-  }
   if(_tab!=='all'){
     var el=document.getElementById('jemv-vs-'+_vs);
     if(el) setTimeout(function(){ el.scrollIntoView({block:'center',behavior:'smooth'}); },60);
@@ -12462,6 +12932,8 @@ var ST_PALETTE = [
 ];
 
 var _stPalTarget = -1; /* 팔레트가 어떤 역본 인덱스를 대상으로 하는지 */
+window.ST_PALETTE = ST_PALETTE;
+window._stPalTarget = _stPalTarget;
 
 /* 메인 IIFE의 _versions를 참조하는 편의 접근자 */
 function _sv(){ return window._jemvVersionsRef || []; }
@@ -12530,6 +13002,8 @@ function _applyToBody(){
 
 /* 역본 리스트 — 기존 _stMakeCard 재활용 */
 function _rebuildVerList(){
+  /* 드래그 중에는 재빌드 건너뜀 */
+  if(window._stDragging) return;
   var list=document.getElementById('jemv-mob-ver-list');
   var empty=document.getElementById('jemv-mob-ver-empty');
   if(!list) return;
@@ -12538,6 +13012,7 @@ function _rebuildVerList(){
   Array.from(list.querySelectorAll('.jemv-st-card')).forEach(function(c){c.remove();});
   vv.forEach(function(v,i){ if(typeof _stMakeCard==='function') list.appendChild(_stMakeCard(v,i)); });
 }
+window._rebuildVerList = _rebuildVerList;
 
 /* 공개 API */
 window.jemvMobCfgToggle = function(){
@@ -12602,7 +13077,9 @@ window.jemvMobCfgApplyFont = function(type){
 window.jemvSettingOpen = function(){
   var ov = document.getElementById('jemv-setting-ov');
   if(!ov) return;
+  /* ★ 【삼각형 설정】 반드시 flex-direction:column 유지 — row로 바뀌면 카드가 가로 배치됨 */
   ov.style.display = 'flex';
+  ov.style.flexDirection = 'column';
   _stRebuild();
 };
 window.jemvSettingClose = function(){
@@ -12613,19 +13090,33 @@ window.jemvSettingClose = function(){
 
 /* ── 리스트 재구성 ── */
 function _stRebuild(){
+  if(_stDragging) return;
   var list = document.getElementById('jemv-st-list');
   var empty = document.getElementById('jemv-st-empty');
   if(!list) return;
   var vv = _sv();
-  /* 빈 상태 메시지 */
   if(empty) empty.style.display = vv.length ? 'none' : '';
-  /* 기존 카드 제거 */
-  Array.from(list.querySelectorAll('.jemv-st-card')).forEach(function(c){ c.remove(); });
-  /* 카드 생성 */
-  vv.forEach(function(v, i){
-    list.appendChild(_stMakeCard(v, i));
-  });
+  /* 기존 내용 전체 제거 */
+  while(list.firstChild && list.firstChild !== empty) list.removeChild(list.firstChild);
+  Array.from(list.children).forEach(function(c){ if(c !== empty) c.remove(); });
+  if(!vv.length) return;
+  /* 3열, 위→아래→오른쪽: col0=[0..rows-1], col1=[rows..2rows-1], col2=[2rows..] */
+  var n = vv.length;
+  var rows = Math.ceil(n / 3);
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;gap:4px;';
+  for(var c = 0; c < 3; c++){
+    var col = document.createElement('div');
+    col.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;';
+    for(var r = 0; r < rows; r++){
+      var idx = c * rows + r;
+      if(idx < n) col.appendChild(_stMakeCard(vv[idx], idx));
+    }
+    wrap.appendChild(col);
+  }
+  list.appendChild(wrap);
 }
+window._stRebuild = _stRebuild;
 
 /* ── 카드 생성 ── */
 function _stMakeCard(v, i){
@@ -12670,12 +13161,30 @@ window.jemvStToggleMain = function(idx){
   _stRebuild();
 };
 
-/* ── 역본 삭제 ── */
+/* ── 역본 삭제 (인라인 confirm UI — 모바일 focus-blur 방지) ── */
 window.jemvStDelete = function(idx){
   var vv=_sv();
-  if(!confirm('"'+((vv[idx])&&(vv[idx].shortName||vv[idx].name))+'" 역본을 제거할까요?')) return;
-  jemvRemoveVersion(idx);
-  _stRebuild();
+  var vname=((vv[idx])&&(vv[idx].shortName||vv[idx].name))||'';
+  /* 기존 confirm 팝업 제거 */
+  var old=document.getElementById('jemv-st-confirm-pop'); if(old) old.remove();
+  /* 인라인 팝업 생성 */
+  var pop=document.createElement('div');
+  pop.id='jemv-st-confirm-pop';
+  pop.style.cssText='position:fixed;inset:0;z-index:10500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.32);font-family:inherit;';
+  pop.innerHTML='<div style="background:#fff;border-radius:14px;padding:20px 22px 16px;max-width:280px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.22);text-align:center;">'
+    +'<div style="font-size:0.84rem;font-weight:700;color:#1a1815;margin-bottom:8px;">역본 제거</div>'
+    +'<div style="font-size:0.78rem;color:#5a5450;margin-bottom:18px;word-break:break-all;">"'+_stE(vname)+'" 역본을 제거할까요?</div>'
+    +'<div style="display:flex;gap:8px;justify-content:center;">'
+    +'<button id="jemv-st-confirm-cancel" style="flex:1;height:36px;border:1.5px solid #d4cfc6;border-radius:8px;background:#f5f2ec;color:#7a7268;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">취소</button>'
+    +'<button id="jemv-st-confirm-ok" style="flex:1;height:36px;border:none;border-radius:8px;background:#c03030;color:#fff;font-size:0.8rem;font-weight:700;cursor:pointer;font-family:inherit;">제거</button>'
+    +'</div></div>';
+  document.body.appendChild(pop);
+  pop.querySelector('#jemv-st-confirm-cancel').onclick=function(){ pop.remove(); };
+  pop.querySelector('#jemv-st-confirm-ok').onclick=function(){
+    pop.remove();
+    jemvRemoveVersion(idx);
+    _stRebuild();
+  };
 };
 
 /* ══ 팔레트 피커 ══ */
@@ -12713,12 +13222,17 @@ window.jemvStOpenPalette = function(e, idx){
   if(left < 4) left = 4;
   pal.style.top  = top + 'px';
   pal.style.left = left + 'px';
+
+  /* 모바일: 열자마자 외부클릭으로 닫히는 것 방지 */
+  _palJustOpened = true;
 };
 
 window.jemvStColorApply = function(hex){
   var vv=_sv();
-  if(_stPalTarget < 0 || !vv[_stPalTarget]) return;
-  vv[_stPalTarget].fontColor = hex;
+  var target = _stPalTarget >= 0 ? _stPalTarget : (window._stPalTarget||0);
+  if(target < 0 || !vv[target]) return;
+  vv[target].fontColor = hex;
+  _stPalTarget = -1; window._stPalTarget = -1;
   jemvStPaletteClose();
   _stRebuild();
   _jemvRebuildTabs();
@@ -12728,7 +13242,90 @@ window.jemvStColorApply = function(hex){
 window.jemvStPaletteClose = function(){
   var pal = document.getElementById('jemv-st-palette');
   if(pal) pal.style.display = 'none';
-  _stPalTarget = -1;
+  _stPalTarget = -1; window._stPalTarget = -1;
+};
+
+/* ══ 【삼각형 설정】 색상 버튼 3개 함수 ══
+   - jemvStColorReset : 모든 역본 fontColor 삭제
+   - jemvStColorAuto  : 팔레트 색상을 역본 순서대로 자동 배정
+   - jemvStColorSave  : 현재 색상 설정을 localStorage에 저장 / 로드 시 복원
+*/
+var _JEMV_COLOR_LS = 'jemv-font-colors-v1'; /* localStorage 키 */
+
+/* 저장된 색상 복원 — 역본 로드 후 호출 */
+window.jemvStColorLoad = function(){
+  try{
+    var raw = localStorage.getItem(_JEMV_COLOR_LS);
+    if(!raw) return;
+    var map = JSON.parse(raw); /* { fileKey: color, ... } */
+    var vv = _sv();
+    vv.forEach(function(v){
+      var k = v.fileKey || v.name;
+      if(k && map[k]) v.fontColor = map[k];
+    });
+    _stRebuild();
+    _jemvRebuildTabs();
+    _jemvRender();
+  }catch(e){}
+};
+
+/* ↺ 초기화: 모든 역본 색상 제거 */
+window.jemvStColorReset = function(){
+  var vv = _sv();
+  vv.forEach(function(v){ delete v.fontColor; });
+  _stRebuild();
+  _jemvRebuildTabs();
+  _jemvRender();
+  if(typeof _jemvMoveToast==='function') _jemvMoveToast('색상을 초기화했습니다');
+};
+
+/* 자동: 팔레트 색상을 역본 순서대로 배정 */
+window.jemvStColorAuto = function(){
+  var AUTO_COLORS = [
+    '#c03030','#1a5090','#1a6a40','#6a3090','#c06000',
+    '#207878','#a03060','#507820','#2a3040','#806020',
+    '#2d4a3e','#4a2030','#7a4030','#2a6878','#5a3a88'
+  ];
+  var vv = _sv();
+  vv.forEach(function(v, i){
+    v.fontColor = AUTO_COLORS[i % AUTO_COLORS.length];
+  });
+  _stRebuild();
+  _jemvRebuildTabs();
+  _jemvRender();
+  if(typeof _jemvMoveToast==='function') _jemvMoveToast('색상을 자동 배정했습니다');
+};
+
+/* 저장: 현재 fontColor 설정을 localStorage에 기록 */
+window.jemvStColorSave = function(){
+  try{
+    var vv = _sv();
+    var map = {};
+    vv.forEach(function(v){
+      var k = v.fileKey || v.name;
+      if(k) map[k] = v.fontColor || null;
+    });
+    localStorage.setItem(_JEMV_COLOR_LS, JSON.stringify(map));
+    /* 저장 버튼 시각 피드백 (삼각형 설정 + 헤더 둘 다) */
+    ['jemv-st-color-save-btn','jemv-color-save-btn-hdr'].forEach(function(id){
+      var btn = document.getElementById(id);
+      if(!btn) return;
+      var orig = btn.textContent;
+      btn.textContent = '✓';
+      btn.style.background = '#e0f0e8';
+      btn.style.color = '#1a6a40';
+      btn.style.borderColor = '#90c8a8';
+      setTimeout(function(){
+        btn.textContent = orig;
+        btn.style.background = id==='jemv-st-color-save-btn' ? '#f0f7f3' : '#f0f7f3';
+        btn.style.color = '#2d6a4a';
+        btn.style.borderColor = '#c0d8cc';
+      }, 1400);
+    });
+    if(typeof _jemvMoveToast==='function') _jemvMoveToast('색상 설정을 저장했습니다');
+  }catch(e){
+    if(typeof _jemvMoveToast==='function') _jemvMoveToast('저장 실패 (저장소 오류)');
+  }
 };
 
 /* hex 변환 헬퍼 */
@@ -12741,101 +13338,34 @@ function _stToHex(col){
   return '#'+[m[0],m[1],m[2]].map(function(n){ return (+n).toString(16).padStart(2,'0'); }).join('');
 }
 
-/* 팔레트 외부 클릭 시 닫기 */
+/* 팔레트 외부 클릭/터치 시 닫기 — 모바일에서 열자마자 닫히는 문제 방지 */
+var _palJustOpened = false;
 document.addEventListener('click', function(e){
+  if(window._palJustOpened){ window._palJustOpened=false; return; }
   var pal = document.getElementById('jemv-st-palette');
   if(pal && pal.style.display!=='none' && !pal.contains(e.target)) jemvStPaletteClose();
 });
+document.addEventListener('touchend', function(e){
+  if(window._palJustOpened){ window._palJustOpened=false; return; }
+  var pal = document.getElementById('jemv-st-palette');
+  if(pal && pal.style.display!=='none' && !pal.contains(e.target)) jemvStPaletteClose();
+}, {passive:true});
 
-/* ══ 드래그 정렬 ══ */
-var _stDragSrc = null;
+/* 팔레트를 body 최상단으로 이동 (z-index/overflow 문제 방지) */
+(function(){
+  document.addEventListener('DOMContentLoaded', function(){
+    var pal = document.getElementById('jemv-st-palette');
+    if(pal && pal.parentNode !== document.body) document.body.appendChild(pal);
+  });
+})();
+
+/* ══ 드래그 정렬 — 로직 제거, UI 핸들만 유지 ══ */
+var _stDragging = false;
+window._stDragging = false;
 
 function _stDragSetup(card, handle){
-  /* 마우스 */
-  handle.addEventListener('mousedown', function(e){
-    e.preventDefault();
-    _stStartDrag(card, e.clientY);
-  });
-  /* 터치 */
-  handle.addEventListener('touchstart', function(e){
-    _stStartDrag(card, e.touches[0].clientY);
-  }, {passive:true});
+  /* 이동 로직 없음 */
 }
-
-function _stStartDrag(card, startY){
-  _stDragSrc = card;
-  var list   = document.getElementById('jemv-st-list');
-  if(!list) return;
-
-  var cards  = list.querySelectorAll('.jemv-st-card');
-  var origIdx= parseInt(card.dataset.idx);
-  var cardH  = card.offsetHeight + 5;
-  var listTop= list.getBoundingClientRect().top;
-  var scrollTop = list.scrollTop;
-  var cardTop= card.getBoundingClientRect().top - listTop + scrollTop;
-
-  /* 드래그 중 고스트 */
-  card.classList.add('jemv-st-dragging');
-
-  /* 마우스/터치 이동 */
-  function onMove(cy){
-    var newIdx = Math.round((cy - listTop + list.scrollTop - cardH/2) / cardH);
-    newIdx = Math.max(0, Math.min(_sv().length-1, newIdx));
-    /* 시각적 피드백 */
-    cards.forEach(function(c,i){
-      c.classList.toggle('jemv-st-drag-over', i===newIdx && c!==card);
-    });
-  }
-
-  function onEnd(cy){
-    card.classList.remove('jemv-st-dragging');
-    var vv = _sv();
-    var newIdx = Math.round((cy - listTop + list.scrollTop - cardH/2) / cardH);
-    newIdx = Math.max(0, Math.min(vv.length-1, newIdx));
-
-    if(newIdx !== origIdx){
-      /* _versions 배열 순서 변경 */
-      var moved = vv.splice(origIdx, 1)[0];
-      vv.splice(newIdx, 0, moved);
-      /* 메인 인덱스 보정 */
-      var mi = _smain();
-      if(mi === origIdx) mi = newIdx;
-      else if(origIdx < mi && newIdx >= mi) mi--;
-      else if(origIdx > mi && newIdx <= mi) mi++;
-      if(window._jemvSetMainVerIdx) window._jemvSetMainVerIdx(mi);
-      /* 탭 보정 */
-      var tb = window._jemvGetTab ? window._jemvGetTab() : 'all';
-      if(tb === origIdx) tb = newIdx;
-      else if(typeof tb === 'number'){
-        if(origIdx < tb && newIdx >= tb) tb--;
-        else if(origIdx > tb && newIdx <= tb) tb++;
-      }
-      if(window._jemvSetTab2) window._jemvSetTab2(tb);
-      _jemvRebuildTabs();
-      _jemvRender();
-    }
-
-    /* 정리 */
-    cards.forEach(function(c){ c.classList.remove('jemv-st-drag-over'); });
-    _stRebuild();
-
-    document.removeEventListener('mousemove', mvHandler);
-    document.removeEventListener('mouseup',   upHandler);
-    document.removeEventListener('touchmove', tmHandler);
-    document.removeEventListener('touchend',  teHandler);
-  }
-
-  function mvHandler(e){ onMove(e.clientY); }
-  function upHandler(e){ onEnd(e.clientY); }
-  function tmHandler(e){ onMove(e.touches[0].clientY); }
-  function teHandler(e){ onEnd(e.changedTouches[0].clientY); }
-
-  document.addEventListener('mousemove', mvHandler);
-  document.addEventListener('mouseup',   upHandler);
-  document.addEventListener('touchmove', tmHandler, {passive:true});
-  document.addEventListener('touchend',  teHandler);
-}
-
 })(); /* end 대역 세팅 IIFE */
 
 })(); /* end IIFE */
@@ -13349,9 +13879,9 @@ document.addEventListener('DOMContentLoaded', function() {
 .jbp-handle{width:36px;height:4px;background:#ddd;border-radius:2px;margin:10px auto 0;flex-shrink:0;}
 .jbp-head{padding:13px 18px 0;flex-shrink:0;}
 .jbp-head-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.jbp-title{font-size:15px;font-weight:700;color:#1a1a1a;font-family:inherit;}
-.jbp-close{width:28px;height:28px;border:none;background:#f0ede8;border-radius:50%;cursor:pointer;font-size:14px;color:#555;display:flex;align-items:center;justify-content:center;transition:background .12s;font-family:inherit;}
-.jbp-close:hover{background:#e0dbd4;}
+.jbp-title{font-size:20px;font-weight:800;color:#1a1a1a;font-family:inherit;}
+.jbp-close{width:28px;height:28px;border:none;background:transparent;border-radius:50%;cursor:pointer;font-size:18px;color:#aaa;display:flex;align-items:center;justify-content:center;transition:color .12s;font-family:inherit;}
+.jbp-close:hover{color:#555;background:transparent;}
 /* 탭 */
 .jbp-tabs{display:flex;border-bottom:1.5px solid #f0ede8;position:relative;}
 .jbp-tab{flex:1;padding:9px 0;text-align:center;font-size:14px;font-weight:600;color:#bbb;cursor:pointer;border:none;background:none;transition:color .12s;font-family:inherit;}
@@ -13387,17 +13917,17 @@ document.addEventListener('DOMContentLoaded', function() {
 .jbp-c-rev   .jbp-sec-lbl{color:#843418;} .jbp-c-rev   .jbp-sec-lbl::after{background:#f0d0c0;}
 /* 책 그리드 */
 .jbp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
-.jbp-btn{padding:8px 3px;border:1.5px solid transparent;border-radius:9px;font-size:12.5px;font-weight:500;text-align:center;cursor:pointer;transition:all .13s;line-height:1.2;font-family:inherit;}
+.jbp-btn{padding:8px 3px;border:1.5px solid transparent;border-radius:9px;font-size:15px;font-weight:600;text-align:center;cursor:pointer;transition:all .13s;line-height:1.2;font-family:inherit;}
 .jbp-c-moses .jbp-btn{background:#f3eff9;color:#4a3060;} .jbp-c-moses .jbp-btn:hover{background:#e4d8f4;border-color:#bca8e2;}
 .jbp-c-hist  .jbp-btn{background:#edf6f2;color:#1a4838;} .jbp-c-hist  .jbp-btn:hover{background:#d0e8de;border-color:#88c4ae;}
 .jbp-c-poet  .jbp-btn{background:#fdf1eb;color:#783410;} .jbp-c-poet  .jbp-btn:hover{background:#f4ddd0;border-color:#d8a882;}
 .jbp-c-major .jbp-btn{background:#edf3fc;color:#0e3868;} .jbp-c-major .jbp-btn:hover{background:#d0e4f8;border-color:#84b4e4;}
 .jbp-c-minor .jbp-btn{background:#faf7eb;color:#4c3c14;} .jbp-c-minor .jbp-btn:hover{background:#ece4c0;border-color:#c0b060;}
-.jbp-c-gosp  .jbp-btn{background:#fdf0f0;color:#6c1818;} .jbp-c-gosp  .jbp-btn:hover{background:#f4d0d0;border-color:#d08080;}
-.jbp-c-acts  .jbp-btn{background:#edf3fd;color:#0c3460;} .jbp-c-acts  .jbp-btn:hover{background:#cce0f8;border-color:#74b0e4;}
-.jbp-c-paul  .jbp-btn{background:#f0f9ee;color:#244420;} .jbp-c-paul  .jbp-btn:hover{background:#d0eccc;border-color:#8cc080;}
-.jbp-c-gen   .jbp-btn{background:#fbf0f9;color:#4c1844;} .jbp-c-gen   .jbp-btn:hover{background:#eecce8;border-color:#c080b4;}
-.jbp-c-rev   .jbp-btn{background:#fdf1eb;color:#5c1608;} .jbp-c-rev   .jbp-btn:hover{background:#f4d8c8;border-color:#d08868;}
+.jbp-c-gosp  .jbp-btn{background:#f4f2f2;color:#c01818;} .jbp-c-gosp  .jbp-btn:hover{background:#ece8e8;border-color:#d08080;}
+.jbp-c-acts  .jbp-btn{background:#f2f3f5;color:#1040a0;} .jbp-c-acts  .jbp-btn:hover{background:#e4e8f0;border-color:#7090d0;}
+.jbp-c-paul  .jbp-btn{background:#f2f5f2;color:#1a6020;} .jbp-c-paul  .jbp-btn:hover{background:#e4ece4;border-color:#70a870;}
+.jbp-c-gen   .jbp-btn{background:#f4f2f5;color:#6020a0;} .jbp-c-gen   .jbp-btn:hover{background:#ece4f0;border-color:#a070c8;}
+.jbp-c-rev   .jbp-btn{background:#f5f3f0;color:#a04000;} .jbp-c-rev   .jbp-btn:hover{background:#ede8e0;border-color:#c08040;}
 .jbp-btn.on{font-weight:700;transform:scale(1.04);box-shadow:0 2px 7px rgba(0,0,0,.12);}
 .jbp-c-moses .jbp-btn.on{background:#6b4f8a;color:#fff;border-color:#6b4f8a;}
 .jbp-c-hist  .jbp-btn.on{background:#2a7058;color:#fff;border-color:#2a7058;}
@@ -13413,7 +13943,7 @@ document.addEventListener('DOMContentLoaded', function() {
 .jbp-cv-head{padding:11px 18px 9px;font-size:14px;font-weight:700;color:#1a1a1a;display:flex;align-items:center;gap:7px;font-family:inherit;}
 .jbp-badge{font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;background:#f0ebe4;color:#6b4f3a;}
 .jbp-cv-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:0 14px;}
-.jbp-cv-btn{aspect-ratio:1;border:1.5px solid #ece8e0;border-radius:9px;background:#faf8f4;font-size:12.5px;font-weight:500;color:#2a2a2a;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s;font-family:inherit;}
+.jbp-cv-btn{aspect-ratio:1;border:1.5px solid #ece8e0;border-radius:9px;background:#faf8f4;font-size:19px;font-weight:700;color:#2a2a2a;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s;font-family:inherit;}
 .jbp-cv-btn:hover{background:#f0ebe2;border-color:#c4b490;}
 .jbp-cv-btn.on{background:#8b5c3e;color:#fff;border-color:#8b5c3e;font-weight:700;}
 /* 하단 버튼 */
@@ -13422,6 +13952,41 @@ document.addEventListener('DOMContentLoaded', function() {
 .jbp-go:hover{background:#5a3f2e;}
 .jbp-go:active{transform:scale(.98);}
 .jbp-go:disabled{background:#c4b8b0;cursor:default;transform:none;}
+
+/* ── 큰 글씨 모드 (jbp-large 클래스) ── */
+#jbp-sheet.jbp-large .jbp-btn {
+  font-size:19px; font-weight:700; padding:5px 3px; border-radius:11px; border-width:2px;
+}
+#jbp-sheet.jbp-large .jbp-grid {
+  grid-template-columns:repeat(3,1fr); gap:8px;
+}
+#jbp-sheet.jbp-large .jbp-sec-lbl {
+  font-size:13px; padding:14px 3px 9px;
+}
+#jbp-sheet.jbp-large .jbp-cv-btn {
+  font-size:22px; font-weight:800; border-radius:9px;
+}
+#jbp-sheet.jbp-large .jbp-cv-grid {
+  grid-template-columns:repeat(6,1fr); gap:6px;
+}
+#jbp-sheet.jbp-large .jbp-cv-head {
+  font-size:16px; padding:13px 18px 11px;
+}
+#jbp-sheet.jbp-large .jbp-tab {
+  font-size:16px; padding:11px 0;
+}
+#jbp-sheet.jbp-large .jbp-crumb {
+  font-size:14px;
+}
+#jbp-sheet.jbp-large .jbp-go {
+  font-size:16px; padding:14px;
+}
+#jbp-sheet.jbp-large #jbp-large-btn span:last-child {
+  color:#8b5c3e;
+}
+#jbp-sheet.jbp-large #jbp-large-btn span:first-child {
+  color:#c4a888;
+}
 </style>
 
 <div id="jbp-overlay"></div>
@@ -13430,7 +13995,15 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="jbp-head">
     <div class="jbp-head-top">
       <span class="jbp-title">성경 찾기</span>
-      <button class="jbp-close" id="jbp-close-btn">✕</button>
+      <div style="display:flex;align-items:center;gap:7px;">
+        <!-- 큰 글씨 토글 버튼 -->
+        <button id="jbp-large-btn" onclick="jbpToggleLarge()" title="큰 글씨 / 기본 글씨 전환"
+          style="border:none;background:transparent;cursor:pointer;display:flex;align-items:baseline;gap:3px;padding:4px 6px;border-radius:7px;transition:all .15s;-webkit-tap-highlight-color:transparent;flex-shrink:0;">
+          <span style="font-size:11px;font-weight:600;color:#b0a89a;line-height:1;">가</span>
+          <span style="font-size:18px;font-weight:800;color:#3d2b1f;line-height:1;">가</span>
+        </button>
+        <button class="jbp-close" id="jbp-close-btn">✕</button>
+      </div>
     </div>
     <div class="jbp-tabs" id="jbp-tabs">
       <button class="jbp-tab on" data-t="0">구약</button>
@@ -13588,6 +14161,17 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   overlay.addEventListener('click',closeSheet);
   closeBtn.addEventListener('click',closeSheet);
+
+  /* ── 큰 글씨 토글 ── */
+  var _JBP_LARGE_LS = 'jbp-large-mode';
+  /* 초기 상태: localStorage에서 복원 */
+  (function(){
+    try{ if(localStorage.getItem(_JBP_LARGE_LS)==='1') sheet.classList.add('jbp-large'); }catch(e){}
+  })();
+  window.jbpToggleLarge = function(){
+    var on = sheet.classList.toggle('jbp-large');
+    try{ localStorage.setItem(_JBP_LARGE_LS, on ? '1' : '0'); }catch(e){}
+  };
 
   /* ── 스텝 전환 ── */
   function showStep(name){
@@ -13809,5 +14393,52 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(_bindComm, 50);
   };
 })();
+</script>
+<script>
+/* ── 모바일: ＋역본 이동 + ▼ 탭바 토글 버튼 ── */
+document.addEventListener('DOMContentLoaded', function(){
+  if(window.innerWidth > 768) return;
+
+  var addBtn  = document.getElementById('jemv-add-btn-nav');
+  var syncBtn = document.getElementById('jemv-sync-btn');
+  var tr      = document.getElementById('jemv-title-right');
+  var tabbar  = document.getElementById('jemv-tabbar');
+  if(!addBtn || !syncBtn || !tr || !tabbar) return;
+
+  /* ▼ 토글 버튼 생성 */
+  var toggleBtn = document.createElement('button');
+  toggleBtn.id = 'jemv-tab-toggle-btn';
+  toggleBtn.title = '역본 탭 보기';
+  /* CSS 정삼각형 아래 방향 */
+  var tri = document.createElement('span');
+  tri.id = 'jemv-tab-toggle-tri';
+  tri.style.cssText = [
+    'display:inline-block',
+    'width:0','height:0',
+    'border-left:6px solid transparent',
+    'border-right:6px solid transparent',
+    'border-top:9px solid #5a5450',
+    'transition:transform .2s'
+  ].join(';');
+  toggleBtn.appendChild(tri);
+  toggleBtn.style.cssText = [
+    'border:none','background:transparent',
+    'height:32px','min-height:32px',
+    'padding:0 8px','box-sizing:border-box',
+    'cursor:pointer','flex-shrink:0',
+    '-webkit-tap-highlight-color:transparent','display:inline-flex',
+    'align-items:center','justify-content:center'
+  ].join(';');
+
+  toggleBtn.addEventListener('click', function(){
+    var open = tabbar.classList.toggle('mob-open');
+    tri.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+    toggleBtn.title = open ? '역본 탭 숨기기' : '역본 탭 보기';
+  });
+
+  /* ▼ 버튼을 ＋역본 왼쪽에, ＋역본을 싱크 왼쪽에 삽입 */
+  tr.insertBefore(addBtn, syncBtn);
+  tr.insertBefore(toggleBtn, addBtn);
+});
 </script>
 </html>
