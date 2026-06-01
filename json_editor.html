@@ -9402,8 +9402,6 @@ window.addEventListener('load', function(){
 
   /* 가로모드 전용 요소 숨김 */
   #jemv-horiz-title-badge, #jemv-horiz-actions { display:none!important; }
-  /* 장/절 이동 nav-r2 숨김 (터치 스와이프로 대체) */
-  #jemv-nav-r2 { display:none!important; }
 
   /* ── 타이틀바: 1줄 가로 배치 ── */
   #jemv-titlebar {
@@ -10811,6 +10809,7 @@ window.jemvMaximizeToggle = function(){
 window.jemvOpen = function(){
   var w=_w(); if(!w) return;
   w.classList.add('jemv-show');
+
   if(!_mob()) { var ed=document.getElementById('je-ed-ov'); var edRect=ed?ed.getBoundingClientRect():null; var wW=760; var wH=window.innerHeight-48; w.style.width=wW+'px'; w.style.height=wH+'px'; w.style.top='50%'; w.style.transform='translateY(-50%)'; if(edRect){ w.style.left=(edRect.left-wW-12)+'px'; } else { w.style.left='10px'; } }
   var dv=window._jemvPendingVerse||window._jeDisplayVerse;
   if(dv&&dv.abbr&&_versions.length) _jemvJumpTo(dv.abbr,dv.ch,dv.vs);
@@ -10913,6 +10912,25 @@ function _loadSqlite(buf, offset, name){
           }
         }
       }catch(e4){}
+      /* 중복 역본 체크 — 같은 fileKey가 이미 있으면 메인으로만 설정하고 종료 */
+      var _newKey = short.toUpperCase().replace(/[_\-\s]/g,'');
+      for(var _di=0;_di<_versions.length;_di++){
+        var _dk=(_versions[_di].fileKey||'').toUpperCase().replace(/[_\-\s]/g,'');
+        if(_dk && _newKey && (_dk===_newKey || _dk.indexOf(_newKey)===0 || _newKey.indexOf(_dk)===0)){
+          /* 이미 있음 — 메인 역본으로 지정 후 맨 앞으로 이동 */
+          if(_di!==0){
+            var _dup=_versions.splice(_di,1)[0];
+            _versions.unshift(_dup);
+            if(typeof _tab==='number' && _tab===_di) _tab=0;
+            else if(typeof _tab==='number' && _tab<_di) _tab=_tab+1;
+          }
+          _mainVerIdx=0;
+          _jemvRebuildTabs();
+          _jemvRender();
+          if(_toast) _toast('이미 로드된 역본: '+fullName);
+          return;
+        }
+      }
       var ci = _versions.length % COLORS.length;
       /* 라벨용 약칭 생성: 긴 이름은 자동 축약 */
       function _makeLabel(s){
@@ -10950,48 +10968,7 @@ function _loadSqlite(buf, offset, name){
           _mainVerIdx=0;
         }
       })();
-      /* ================================================
-         역본 정렬 (PC/모바일 공통)
-         파일명 기준 순서:
-         대표: 개역개정
-         서브: 새한글 새번역 바른성경 공동번역 가톨릭성경 200
-               쉬운말 쉬운성경 현대인 우리말 한글킹 킹흠정역
-               KJV표준역 개역개정(한문) 한글개역 현대어
-               바른성경(한문) 가톨릭성경 표준새번역
-         ================================================ */
-      (function(){
-        /* 파일명(short) 기준 순서 — 완전 일치 우선 */
-        var _FILE_ORDER = [
-          '개역개정',
-          '새한글','새번역','바른성경','공동번역','가톨릭성경',
-          '200','쉬운말','쉬운성경','현대인','우리말',
-          '한글킹','킹흠정역','KJV표준역',
-          '개역개정(한문)','한글개역','현대어',
-          '바른성경(한문)','가톨릭성경','표준새번역'
-        ];
-        function _short(v){ return (v.fileKey||''); }
-        function _rank(v){
-          var s = _short(v);
-          var idx = _FILE_ORDER.indexOf(s);
-          if(idx >= 0) return idx;
-          /* 완전 일치 없으면 포함 매칭 */
-          for(var r=0;r<_FILE_ORDER.length;r++){
-            if(s.indexOf(_FILE_ORDER[r])>=0 || _FILE_ORDER[r].indexOf(s)>=0) return r;
-          }
-          return 999;
-        }
-        if(_versions.length === 0) return;
-        /* 개역개정(파일명 정확히 '개역개정')을 gaes로 분리 */
-        var gaes=[], rest=[];
-        for(var i=0;i<_versions.length;i++){
-          if(_short(_versions[i])==='개역개정') gaes.push(_versions[i]);
-          else rest.push(_versions[i]);
-        }
-        rest.sort(function(a,b){ return _rank(a)-_rank(b); });
-        _versions = gaes.concat(rest);
-        _mainVerIdx = 0;
-      })();
-            _jemvRebuildNav();
+      _jemvRebuildNav();
       _jemvRebuildTabs();
       /* 첫 역본이면 창세기 1:1로 */
       if(_versions.length===1 && !_abbr){
