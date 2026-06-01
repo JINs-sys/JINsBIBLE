@@ -693,14 +693,24 @@
 <!-- =====================================================
      ★★★ 창 구분 규칙 (절대 혼동 금지) ★★★
      ─────────────────────────────────────────────────
-     【본창】   = 오른쪽 창. 주석/내용 편집 메인 창.
-                  id: je-ed-ov / je-list-ov / je-edit-ov
-                  주석 작성 시 관련 문구(성경 구절 참조)를 반드시 표기할 것.
-     【다역본창】= 왼쪽 창. 여러 번역본을 비교하는 창.
-                  id: jemv-win (아래 jemv-win 섹션 참고)
+     【본창】     = 처음 열리는 오른쪽 메인 편집 창.
+                    id: je-ed-ov / je-list-ov / je-edit-ov
+                    주석 작성 시 관련 문구(성경 구절 참조)를 반드시 표기할 것.
+
+     【성경창】   = 본창 헤더의 "성경" 버튼(#je-list-bible-btn, #je-multiver-btn)을
+                    눌러 여는 창. = 다역본창과 동일한 창.
+                    → 실제 id: jemv-win
+
+     【다역본창】 = 성경창의 정식 내부 명칭. 여러 번역본을 비교하는 창.
+                    id: jemv-win (아래 jemv-win 섹션 참고)
+                    레이아웃: 세로모드(vertical) / 가로모드(horizontal) 두 가지.
+
+     【대표역본(성경창)】= 다역본창 안에서 ★ 표시된 기준 역본 표시 영역.
+                           CSS class: .jemv-main-block
+                           JS 변수: _mainVerIdx (현재 선택된 대표역본 인덱스)
      ─────────────────────────────────────────────────
      ★ 본창 영역 — 여기 손대면 안됨.
-     ★ 다역본창은 아래 jemv-win 섹션에 있음
+     ★ 다역본창(성경창)은 아래 jemv-win 섹션에 있음
      ===================================================== -->
 <div id="je-ed-ov"><div id="je-list-ov"><div class="je-list-hdr"><div class="je-list-hdr-top"><div style="display:flex;flex-direction:column;gap:2px;"><div class="je-list-ttl">JSON <span id="je-ttl-editor" onclick="_jeGgaTitleClick()" style="cursor:default;user-select:none;transition:color .15s;">편집기</span></div><div class="je-list-sub" id="je-list-sub"><span id="je-hdr-version" style="font-size:0.6rem;color:#b8b2aa;letter-spacing:0.06em;">v1.5.7</span></div></div><div class="je-list-btns"><button id="je-mob-preview-btn" class="je-lbtn" onclick="jeOpenDeviceSettings()" title="모바일 미리보기" style="background:transparent;color:#7a9a8a;border:1.5px solid #c0d8cc;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='transparent'">모바일</button><button id="je-list-bible-btn" class="je-lbtn" onclick="jemvToggle()" title="다역본 성경 열기" style="background:transparent;color:#2d4a3e;border:1.5px solid #c0d8cc;padding:7px 11px;display:inline-flex;align-items:center;gap:5px;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='transparent'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span style="font-size:.78rem;font-weight:700;">성경</span></button><button class="je-lbtn je-lbtn-file" onclick="jePickFile()">파일 열기</button><button class="je-lbtn" id="je-backup-btn" style="display:none;background:#f5f2ec;color:#9a9288;border:1.5px solid #ddd8ce;" onclick="jeExportAll()" title="전체 백업">💾</button><button class="je-lbtn je-lbtn-exp" id="je-exp-btn" style="display:none" onclick="jeExport()">📌 메모 저장</button></div></div></div><div id="je-tab-bar"></div><div id="je-bible-drop"><div id="je-bible-drop-txt" class="je-row-left"><button id="je-new-item-btn" onclick="jeNewItem()" style="border:1.5px solid #a8d4bc;border-radius:8px;background:#f0f7f3;color:#2d4a3e;font-size:0.71rem;font-weight:700;padding:0 10px;height:28px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;" onmouseover="this.style.background='#e0f0e8'" onmouseout="this.style.background='#f0f7f3'">＋ 📌 새 메모</button></div><div class="je-fs-sep"></div><div id="je-bible-dd-wrap"><button id="je-bible-dd-btn" onclick="jeToggleBibleDD(event)" style="border:1.5px solid #c0d8cc;border-radius:8px;background:#fff;color:#2d4a3e;font-size:0.71rem;font-weight:700;padding:0 10px;height:28px;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:5px;" onmouseover="this.style.background='#eef5f1'" onmouseout="this.style.background='#fff'">📂 성경본문<svg id="je-bible-dd-chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5a8a78" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s;flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg></button><div id="je-bible-dd-menu"><div class="je-bdd-header" onclick="_jeGgaHeaderClick(event,false)" style="cursor:default;user-select:none;">역본 불러오기</div><div class="je-bdd-item" onclick="jeBiblePickFile();jeCloseBibleDD()">📂 파일에서 불러오기<span class="je-bdd-badge">직접</span></div><div class="je-bdd-sep"></div><div class="je-bdd-item je-bdd-sample" id="je-sample-btn" onclick="jeSampleBible();jeCloseBibleDD()">▷ 샘플본문(개역한글)</div><div class="je-bdd-sep"></div><div class="je-bdd-item" onclick="document.getElementById('je-jw-inp').click();jeCloseBibleDD()" title="예수님 말씀 별색 JSON 파일 로드">🔴 예수말씀 별색 파일 로드<span class="je-bdd-badge" style="background:#fdeaea;color:#b83232;">jred.json</span></div><div class="je-bdd-item" onclick="window._jwFetchGithub(false);jeCloseBibleDD()" title="GitHub에서 jred.json 자동 로드">🌐 예수말씀 GitHub 로드<span class="je-bdd-badge" style="background:#fdeaea;color:#b83232;">자동</span></div><div class="je-bdd-sep"></div><div class="je-bdd-header" style="cursor:default;user-select:none;">주석 불러오기</div><div class="je-bdd-item" id="je-comm-load-btn" onclick="jeCommPickFile();jeCloseBibleDD()">📖 주석 파일 열기 (.cdb / .aab)<span class="je-bdd-badge" style="background:#e8f2ee;color:#3a7a5a;">여러 개 가능</span></div><div id="je-comm-loaded-lbl" style="font-size:0.65rem;color:#7a8aab;padding:2px 13px 6px;display:none;line-height:1.7;"></div></div></div><div class="je-inline-search"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b0a89e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="je-search" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button onclick="jeClearSearch()">&times;</button></div></div><input type="file" id="je-bible-inp" accept=".txt,.bdb,.aab,.zip"><input type="file" id="je-jw-inp" accept=".json" style="display:none"><input type="file" id="je-comm-inp" accept=".cdb,.aab,.db,.sqlite" multiple style="display:none"><input type="file" id="je-sr-bible-inp" accept=".txt,.bdb,.aab,.zip" style="display:none"><div id="je-ctrl-bar"><div class="je-search-wrap" id="je-search-wrap" style="display:none"><input class="je-search" id="je-search-dup" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button class="je-search-clr" onclick="jeClearSearch()">&times;</button></div><div id="je-filter-sort-row"><div class="je-row-left"><div id="je-sort-wrap"><button id="je-sort-trigger" onclick="jeToggleSortMenu()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><span id="je-sort-label-txt">성경순</span><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></button><div id="je-sort-menu"><button class="je-sort-opt on" data-sort="bible" onclick="jeSetSort('bible')">성경순</button><button class="je-sort-opt" data-sort="recent" onclick="jeSetSort('recent')">최근작성</button><button class="je-sort-opt" data-sort="oldest" onclick="jeSetSort('oldest')">오래된순</button><button class="je-sort-opt" data-sort="modified" onclick="jeSetSort('modified')">최근수정</button><button class="je-sort-opt" data-sort="length" onclick="jeSetSort('length')">글자수↓</button></div></div></div><div class="je-fs-sep"></div><div id="je-filter-fixed" style="display:flex;align-items:center;gap:5px;flex-shrink:0;"></div><div class="je-bfbtn-sep" id="je-filter-book-sep" style="display:none;"></div><div id="je-book-filter-bar" class="je-book-filter-bar"></div></div><div id="je-sort-bar" class="je-sort-bar"></div><div id="je-sr-cat-filter-bar" style="display:none;align-items:center;gap:5px;padding:6px 14px;background:#f5f8f4;border-bottom:1px solid #e8ede6;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-shrink:0;"></div></div><div id="je-drop-ov"><div class="je-drop-box" id="je-drop-box" onclick="jePickFile()"><div style="font-size:2.6rem">&#128194;</div><div class="je-drop-ttl">파일 열기</div><div class="je-drop-sub">JSON · AAB(성경) · CDB(주석) · ZIP</div><div class="je-drop-sub" style="margin-top:4px;font-size:.7rem;color:#c0bab2;">ZIP 안에 여러 파일을 묶어 한번에 로드 가능</div></div></div><div class="je-list-body" id="je-list-body" style="display:none"></div><div id="je-resize-bar-list" title="드래그하여 창 높이 조절"></div><div id="je-list-footer" style="flex-shrink:0;border-top:1px solid #ece8e0;background:#faf9f6;padding:7px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;"><span id="je-list-checksum-val" style="font-size:0.6rem;font-family:'Courier New',monospace;color:#b8b2aa;letter-spacing:0.06em;">—</span><span style="font-size:0.6rem;color:#c0bab2;letter-spacing:0.04em;">JINs Bible JSON Workshop | v1.5.7</span></div></div><div id="je-edit-ov" style="display:none;flex-direction:column;height:100%;overflow:hidden"><div class="je-hdr"><button class="je-btn-back" onclick="jeBackToList()">&#8592; 목록</button><button id="je-content-prev" onclick="jeNavListItem(-1)" title="이전 항목" style="display:none;border:none;background:transparent;color:#9a9288;font-size:1rem;font-weight:900;width:24px;height:24px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:4px;flex-shrink:0;transition:color .12s;" onmouseover="this.style.color='#3a3730'" onmouseout="this.style.color='#9a9288'">◀</button><div class="je-hdr-mid"><div class="je-hdr-ref" id="je-hdr-ref"></div><div class="je-hdr-cnt" id="je-hdr-cnt" onclick="jeSetCharGoal()" title="클릭하여 목표 글자수 설정" style="cursor:pointer;"></div></div><button id="je-content-next" onclick="jeNavListItem(1)" title="다음 항목" style="display:none;border:none;background:transparent;color:#9a9288;font-size:1rem;font-weight:900;width:24px;height:24px;cursor:pointer;line-height:1;-webkit-tap-highlight-color:transparent;border-radius:4px;flex-shrink:0;transition:color .12s;" onmouseover="this.style.color='#3a3730'" onmouseout="this.style.color='#9a9288'">▶</button><span style="width:1px;height:18px;background:#e4ddd0;flex-shrink:0;margin:0 2px;"></span><button id="je-popout-btn" onclick="jePopoutCurrentItem()" title="새 창" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">새 창</button><button onclick="jeDeleteCurrentItem()" title="삭제" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#d04040';this.style.background='transparent';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">삭제</button><button id="je-preview-btn" onclick="jeOpenDeviceSettings()" title="모바일 미리보기" style="display:none;border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="this.style.color='#c0b8b0';this.style.background='transparent';">모바일</button><button id="je-multiver-btn" onclick="jemvToggle()" title="다역본 성경" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="if(window.innerWidth>600){this.style.color='#3a3730';this.style.background='#f0ece4';}" onmouseout="if(window.innerWidth>600&&!this.classList.contains('active')){this.style.color='#c0b8b0';this.style.background='transparent';}">성경</button><button id="je-refcomm-btn" onclick="jeToggleRefComm()" title="참고주석" style="border:none;background:transparent;color:#c0b8b0;font-size:0.76rem;font-weight:600;padding:0 6px;height:28px;line-height:28px;display:inline-flex;align-items:center;cursor:pointer;border-radius:5px;flex-shrink:0;font-family:inherit;transition:color .12s,background .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.color='#3a3730';this.style.background='#f0ece4';" onmouseout="if(!this.classList.contains('active')){this.style.color='#c0b8b0';this.style.background='transparent';}">주석</button><button id="je-edit-btn" onclick="jeToggleEdit()" style="border:1.5px solid #2d4a3e;background:#2d4a3e;color:#fff;font-size:0.76rem;font-weight:700;padding:0 13px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;transition:opacity .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">수정</button><button class="je-btn-save idle" id="je-save-btn" onclick="jeSave()" style="display:none;border:1.5px solid #2d4a3e;background:#2d4a3e;color:#fff;font-size:0.76rem;font-weight:700;padding:0 13px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;-webkit-tap-highlight-color:transparent;">저장</button><button class="je-btn-tempsave" id="je-tempsave-btn" onclick="jeTempSave()" style="display:none;border:1.5px solid #d4cfc6;background:transparent;color:#7a7268;font-size:0.76rem;font-weight:600;padding:0 10px;height:28px;cursor:pointer;border-radius:6px;flex-shrink:0;font-family:inherit;-webkit-tap-highlight-color:transparent;">임시저장</button></div><div id="je-hdr-progress"><div id="je-hdr-progress-fill"></div></div><div id="je-verse-panel"><div id="je-verse-text"></div><div style="display:flex;align-items:center;gap:4px;margin-bottom:5px;flex-wrap:nowrap;min-width:0;width:100%;">
   <div id="je-verse-src" style="display:none;"></div>
@@ -737,7 +747,7 @@
   </div>
 </div></div>
 
-<div id="je-comm-panel"><div id="je-comm-hdr" onclick="jeToggleCommInline()" style="display:flex;align-items:center;justify-content:space-between;padding:5px 14px 5px;background:#eef3ee;border-bottom:1px solid #c8d8c4;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;"><div style="display:flex;align-items:center;gap:5px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7aaa8a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg><span id="je-comm-inline-name-lbl" style="font-size:0.68rem;font-weight:700;color:#3a5448;letter-spacing:0.03em;">주석</span><span id="je-comm-inline-ref-lbl" style="font-size:0.66rem;color:#7a9a88;"></span></div><div style="display:flex;align-items:center;gap:2px;"><div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><text x="3" y="16" font-size="11" font-weight="700" fill="#6a9a88" stroke="none" font-family="serif">A</text><text x="13" y="13" font-size="8" font-weight="700" fill="#6a9a88" stroke="none" font-family="serif">A</text></svg><button onclick="jeCommFontDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="je-comm-inline-fs-val" style="font-size:0.64rem;color:#7a9a88;min-width:16px;text-align:center;font-variant-numeric:tabular-nums;">14</span><button onclick="jeCommFontUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;">+</button></div><div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="8 2 12 5 16 2" stroke-width="1.5"/><polyline points="8 22 12 19 16 22" stroke-width="1.5"/></svg><button onclick="jeCommLhDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="행간 줄이기">−</button><span id="je-comm-lh-val" style="font-size:0.64rem;color:#7a9a88;min-width:14px;text-align:center;font-variant-numeric:tabular-nums;">1.4</span><button onclick="jeCommLhUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="행간 늘리기">+</button></div><div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><line x1="2" y1="4" x2="2" y2="8"/><line x1="22" y1="4" x2="22" y2="8"/><line x1="2" y1="16" x2="2" y2="20"/><line x1="22" y1="16" x2="22" y2="20"/></svg><button onclick="jeCommLsDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="자간 줄이기">−</button><span id="je-comm-ls-val" style="font-size:0.64rem;color:#7a9a88;min-width:14px;text-align:center;font-variant-numeric:tabular-nums;">0</span><button onclick="jeCommLsUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="자간 늘리기">+</button></div><span id="je-comm-inline-arrow" style="font-size:0.64rem;color:#9abba8;transition:transform .2s;display:inline-block;margin-left:3px;">▾</span></div></div><div id="je-comm-inline-nodata" style="font-size:0.79rem;color:#9abba8;padding:7px 16px 9px;background:#f5f8f4;display:none;">(이 절의 주석 없음)</div><div id="je-comm-inline-body" style="overflow-y:auto;max-height:260px;padding:10px 18px 14px;background:#f5f8f4;font-family:'Georgia','Nanum Myeongjo',serif;font-size:14px;line-height:var(--je-comm-lh,1.4);color:#1e3540;word-break:keep-all;letter-spacing:var(--je-comm-ls,0em);display:none;"></div><div id="je-comm-resize-bar" title="드래그하여 높이 조절" style="height:16px;background:transparent;border-top:1px solid #dde8dd;cursor:row-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:none;user-select:none;position:relative;"><div style="width:40px;height:4px;border-radius:3px;background:#a8c8b4;"></div></div></div>
+<div id="je-comm-panel"><div id="je-comm-hdr" onclick="jeToggleCommInline()" style="display:flex;align-items:center;justify-content:space-between;padding:5px 14px 5px;background:#eef3ee;border-bottom:1px solid #c8d8c4;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;"><div style="display:flex;align-items:center;gap:5px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7aaa8a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg><span id="je-comm-inline-name-lbl" style="font-size:0.68rem;font-weight:700;color:#3a5448;letter-spacing:0.03em;">주석</span><span id="je-comm-inline-ref-lbl" style="font-size:0.66rem;color:#7a9a88;"></span></div><div style="display:flex;align-items:center;gap:2px;"><div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><text x="3" y="16" font-size="11" font-weight="700" fill="#6a9a88" stroke="none" font-family="serif">A</text><text x="13" y="13" font-size="8" font-weight="700" fill="#6a9a88" stroke="none" font-family="serif">A</text></svg><button onclick="jeCommFontDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;">−</button><span id="je-comm-inline-fs-val" style="font-size:0.64rem;color:#7a9a88;min-width:16px;text-align:center;font-variant-numeric:tabular-nums;">14</span><button onclick="jeCommFontUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;">+</button></div><div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="8 2 12 5 16 2" stroke-width="1.5"/><polyline points="8 22 12 19 16 22" stroke-width="1.5"/></svg><button onclick="jeCommLhDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="행간 줄이기">−</button><span id="je-comm-lh-val" style="font-size:0.64rem;color:#7a9a88;min-width:14px;text-align:center;font-variant-numeric:tabular-nums;">1.4</span><button onclick="jeCommLhUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="행간 늘리기">+</button></div><div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><line x1="2" y1="4" x2="2" y2="8"/><line x1="22" y1="4" x2="22" y2="8"/><line x1="2" y1="16" x2="2" y2="20"/><line x1="22" y1="16" x2="22" y2="20"/></svg><button onclick="jeCommLsDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="자간 줄이기">−</button><span id="je-comm-ls-val" style="font-size:0.64rem;color:#7a9a88;min-width:14px;text-align:center;font-variant-numeric:tabular-nums;">0</span><button onclick="jeCommLsUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="자간 늘리기">+</button></div><span id="je-comm-inline-arrow" style="font-size:0.64rem;color:#9abba8;transition:transform .2s;display:inline-block;margin-left:3px;">▾</span></div></div><div id="je-comm-inline-nodata" style="font-size:0.79rem;color:#9abba8;padding:7px 16px 9px;background:#f5f8f4;display:none;">(이 절의 주석 없음)</div><div id="je-comm-inline-body" style="overflow-y:auto;max-height:260px;padding:10px 18px 14px;background:#f5f8f4;font-family:'Georgia','Nanum Myeongjo',serif;font-size:14px;line-height:var(--je-comm-lh,1.4);color:#1e3540;word-break:keep-all;letter-spacing:var(--je-comm-ls,0em);display:none;"></div><div class="je-comm-fade"></div><div id="je-comm-resize-bar" title="드래그하여 높이 조절" style="height:16px;background:transparent;border-top:1px solid #dde8dd;cursor:row-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:none;user-select:none;position:relative;"><div style="width:40px;height:4px;border-radius:3px;background:#a8c8b4;"></div></div></div>
 <div id="je-meta-panel">
   <div id="je-meta-toggle" onclick="jeToggleMeta()">
     <span id="je-meta-toggle-label">📋 구절 정보 수정</span>
@@ -2494,10 +2504,11 @@ function jeOnSearch(v){_search=v;_renderList();}
 function jeClearSearch(){_search='';var s=_$('je-search');if(s)s.value='';_renderList();}
 
 /* ──────────────────────────────────────────────────────
+  /* ================================================
    【본창 전용】 편집 관련 함수
-   본창 = 오른쪽 편집 창 (id: je-ed-ov)
-   다역본창(왼쪽, id: jemv-win)과 혼동 금지
-   ────────────────────────────────────────────────────── */
+   본창   = 처음 열리는 메인 편집 창  (id: je-ed-ov)
+   성경창 = "성경" 버튼으로 여는 창   (id: jemv-win) — 여기 손대지 말 것
+   ================================================ */
 
 /* 저장된 태그 → 화면 HTML 변환
    ※ 본창(je-ce) 콘텐츠 렌더링에 사용
@@ -4282,7 +4293,16 @@ function _jeMapGetBookChapter(){
   if(dv && dv.bookName && dv.ch){
     return {book: dv.bookName, chapter: parseInt(dv.ch)||1};
   }
-  /* 2순위: 현재 편집 항목 메타 */
+  /* 2순위: 다역본창(성경창) 현재 절 — 오프라인 지도 로드 시 다역본창에서 버튼 클릭 */
+  var jemvRef = window._jemvCurrentRef;
+  if(jemvRef && jemvRef.abbr){
+    var BN = window._JE_BOOK_NAMES || [];
+    var BNum = window._JE_BOOK_NUM || [];
+    var bi = BNum.indexOf(jemvRef.abbr);
+    var bookName = BN[bi] || null;
+    if(bookName) return {book: bookName, chapter: parseInt(jemvRef.ch)||1};
+  }
+  /* 3순위: 현재 편집 항목 메타 */
   if(_editIdx === null || !_data) return null;
   var item = (_data[_jeTab]||[])[_editIdx];
   if(!item) return null;
@@ -5172,13 +5192,14 @@ function _commUpdToggleBtn() {
   if (mf) mf.style.fontWeight = (_commMode==='float')  ? '800' : '600';
 }
 
-/* ──────────────────────────────────────────────────────
-   주석 렌더링 함수
-   【본창】의 인라인 주석 패널(#je-comm-panel) 또는
-   플로팅 주석 창(#je-comm-win)에 렌더링.
-   ★ 주석 표시 시 관련 문구(성경 구절 참조)를 반드시 표기할 것.
-     예) abbr(책 코드) + ch(장) + vs(절) → 자동 refLbl에 표기됨.
-   ────────────────────────────────────────────────────── */
+/* ================================================
+   【본창 주석】 렌더링 함수
+   본창(je-ed-ov) 안에 표시되는 주석 패널/창.
+     인라인 패널  : #je-comm-panel      (본창 하단 inline 영역)
+     플로팅 창    : #je-comm-win        (별도 플로팅 창)
+   cf. 다역본창 주석(jemv) = #jemv-comm-panel — 별도 IIFE 아래에 있음
+   ★ 절 참조: abbr(책코드) + ch(장) + vs(절) -> refLbl 자동 표기
+   ================================================ */
 /* abbr, ch, vs → 렌더 (모드에 따라 float / inline 대상 선택) */
 function _commRender(abbr, ch, vs) {
   _commCurrentKey = abbr + '|' + ch + '|' + vs;
@@ -5219,9 +5240,9 @@ function _commRender(abbr, ch, vs) {
   }
 }
 
-/* ★ 본창의 현재 표시 절(_jeDisplayVerse) 기준으로 주석 자동 렌더.
-   ★ 관련 성경 구절(abbr/ch/vs)이 주석 창 상단 refLbl에 표기됨.
-   ★ 다역본창(jemv)과 구분: 여기는 본창 기준 절 참조임. */
+/* 【본창 주석】 현재 표시 절(_jeDisplayVerse) 기준으로 자동 렌더.
+   절 참조(abbr/ch/vs)가 상단 refLbl에 표기됨.
+   cf. 다역본창 주석 = _jemvCommRefreshIfOpen() — 아래 별도 IIFE */
 function _commRenderFromDisplayVerse() {
   if (!_commMap) return;
   var dv = (typeof _jeDisplayVerse !== 'undefined') ? _jeDisplayVerse : null;
@@ -5908,7 +5929,7 @@ document.addEventListener('DOMContentLoaded', function() {
    【본창】에서 항목을 새 플로팅 창으로 열 때 사용.
    ★ 창 구분 규칙:
       - 본창(오른쪽, je-ed-ov): 주석/내용 편집 메인
-      - 다역본창(왼쪽, jemv-win): 번역본 비교
+      - 다역본창(성경창, id: jemv-win): 번역본 비교
       - popout: 본창 항목을 별도 플로팅 창으로 분리
    ★ popout 생성 시 refText(성경 구절 참조)가 자동 표기됨.
    ══════════════════════════════════════════════════════ */
@@ -7540,18 +7561,38 @@ document.addEventListener("DOMContentLoaded", function(){
 
 #je-comm-panel{display:none;border-top:1px solid #c8d8c4;margin-top:0;}
 #je-comm-panel.je-cp-show{display:block;}
-#jemv-comm-panel{display:none;border-top:1px solid #c8d8c4;margin-top:0;}
+#jemv-comm-panel{display:none;margin-top:0;}
 #jemv-comm-panel.je-cp-show{display:block;}
 #jemv-comm-body-inner::-webkit-scrollbar{width:4px;}
 #jemv-comm-body-inner::-webkit-scrollbar-track{background:transparent;}
-#jemv-comm-body-inner::-webkit-scrollbar-thumb{background:#b8d8e8;border-radius:3px;}
+#jemv-comm-body-inner::-webkit-scrollbar-thumb{background:transparent;border-radius:3px;transition:background .4s;}
+#jemv-comm-body-inner.jemv-sb-show::-webkit-scrollbar-thumb{background:#a8c8b4;}
 #jemv-comm-body-inner b,#jemv-comm-body-inner strong{font-weight:700;}
 #jemv-comm-body-inner p{margin:0 0 0.6em;}
+/* 다역본창 주석 하단 페이드아웃 (PC/모바일 공통) */
+#jemv-comm-body-inner{padding-bottom:32px!important;}
+.jemv-comm-fade{
+  position:sticky; bottom:0; left:0; right:0;
+  height:32px; margin-top:-32px;
+  background:linear-gradient(to bottom, transparent, #fafcfe);
+  pointer-events:none; display:block;
+}
+#jemv-comm-body-inner[style*="display:none"] + .jemv-comm-fade{ display:none; }
 #je-comm-inline-body::-webkit-scrollbar{width:4px;}
 #je-comm-inline-body::-webkit-scrollbar-track{background:transparent;}
 #je-comm-inline-body::-webkit-scrollbar-thumb{background:#b8d8e8;border-radius:3px;}
 #je-comm-inline-body b,#je-comm-inline-body strong{font-weight:700;}
 #je-comm-inline-body p{margin:0 0 0.6em;}
+/* 하단 페이드아웃 — 글씨 잘림 방지 (PC/모바일 공통) */
+#je-comm-inline-body{padding-bottom:32px!important;position:relative;}
+#je-comm-panel .je-comm-fade{
+  position:sticky; bottom:0; left:0; right:0;
+  height:32px; margin-top:-32px;
+  background:linear-gradient(to bottom, transparent, #f5f8f4);
+  pointer-events:none; flex-shrink:0; display:block;
+}
+/* 주석 바디 닫혔을 때 페이드도 숨김 */
+#je-comm-inline-body[style*="display:none"] + .je-comm-fade{ display:none; }
 </style>
 <!-- 기기 설정 패널 -->
 <div id="je-dv-settings">
@@ -9308,14 +9349,25 @@ window.addEventListener('load', function(){
 </script>
 
 <!-- =====================================================
-     ★★★ 【다역본창】 — id: jemv-win ★★★
+     ★★★ 【다역본창 = 성경창】 — id: jemv-win ★★★
      ─────────────────────────────────────────────────
-     화면 왼쪽에 표시되는 창. 여러 번역본을 비교하는 창.
+     사용자 호칭:
+       - 【성경창】  = 본창 헤더의 "성경" 버튼을 눌러 여는 창 (= 이 창)
+       - 【다역본창】= 동일한 창의 내부 정식 명칭
+     ─────────────────────────────────────────────────
      본창(je-ed-ov)과 구분 필수.
-     - 본창  = 오른쪽, 주석/내용 편집, id: je-ed-ov
-     - 다역본창 = 왼쪽, 번역본 비교,   id: jemv-win  ← 여기
+     - 본창    = 처음 열리는 편집 메인 창,  id: je-ed-ov
+     - 성경창  = "성경" 버튼으로 여는 창,    id: jemv-win  ← 여기
      ─────────────────────────────────────────────────
-     ✝️ 다역본 성경 창
+     레이아웃: 세로모드(vertical, 기본) / 가로모드(horizontal)
+               → .jemv-vert / .jemv-horiz 클래스로 전환
+     ─────────────────────────────────────────────────
+     【대표역본(성경창)】= 다역본창 안의 기준 역본 강조 표시 영역
+       CSS: .jemv-main-block / .jemv-main-text 등
+       JS:  _mainVerIdx — 대표역본 인덱스 (★ 표시 역본)
+            _jemvGetMainVerIdx() / _jemvSetMainVerIdx()
+     ─────────────────────────────────────────────────
+     ✝️ 다역본 성경 창 (성경창)
      ===================================================== -->
 <style>
 /* ── 다역본 창 전체 ── */
@@ -9349,7 +9401,7 @@ window.addEventListener('load', function(){
   #jemv-add-btn-nav { display:inline-flex!important; }
 
   /* 가로모드 전용 요소 숨김 */
-  #jemv-horiz-title-badge, #jemv-horiz-sep1, #jemv-horiz-actions { display:none!important; }
+  #jemv-horiz-title-badge, #jemv-horiz-actions { display:none!important; }
   /* 장/절 이동 nav-r2 숨김 (터치 스와이프로 대체) */
   #jemv-nav-r2 { display:none!important; }
 
@@ -9402,23 +9454,24 @@ window.addEventListener('load', function(){
   }
   /* Aᴬ/행간/자간 div 컨트롤 전부 숨김 */
   #jemv-title-right > div { display:none!important; }
-  /* 싱크·가로 — 모바일에서 표시 */
+  /* 싱크/가로/설정 — 모바일에서도 ghost 스타일 유지 */
   #jemv-sync-btn, #jemv-horiz-btn, #jemv-mob-setting-btn {
     display:inline-flex!important; align-items:center!important; justify-content:center!important;
-    border:1px solid #d0cbc0!important; border-radius:5px!important;
-    background:#f5f2ec!important; color:#3a3730!important;
-    font-size:0.7rem!important; font-weight:700!important;
+    border:none!important; background:transparent!important;
+    color:#8a8480!important;
+    font-size:0.76rem!important; font-weight:600!important;
     height:28px!important; min-height:28px!important; max-height:28px!important;
+    padding:0 6px!important;
     line-height:1!important; box-sizing:border-box!important;
-    white-space:nowrap!important; cursor:pointer!important; overflow:hidden!important;
+    white-space:nowrap!important; cursor:pointer!important;
     flex-shrink:0!important; -webkit-tap-highlight-color:transparent!important;
   }
-  /* 가로 버튼: 이동 버튼과 같은 너비(padding) */
-  #jemv-horiz-btn { padding:0 10px!important; }
+  /* 가로 버튼 */
+  #jemv-horiz-btn { padding:0 6px!important; }
   /* 싱크 버튼 */
-  #jemv-sync-btn { padding:0 7px!important; }
-  /* 설정 버튼: ＋역본 버튼과 같은 너비(padding) */
-  #jemv-mob-setting-btn { padding:0 8px!important; transition:background .12s,color .12s,border-color .12s!important; }
+  #jemv-sync-btn { padding:0 6px!important; }
+  /* 설정 버튼 */
+  #jemv-mob-setting-btn { padding:0 6px!important; transition:color .12s!important; }
   /* PC용 기존 설정버튼(onclick=jemvSettingOpen) 숨김 */
   #jemv-title-right > button[onclick*="jemvSettingOpen"] { display:none!important; }
   /* 닫기 버튼: 타이틀바 우측에 인라인 배치 */
@@ -9449,11 +9502,6 @@ window.addEventListener('load', function(){
     flex:1 1 0!important; min-width:0!important;
     height:28px!important; min-height:28px!important; max-height:28px!important;
     font-size:0.8rem!important; box-sizing:border-box!important;
-  }
-  #jemv-go-btn {
-    flex-shrink:0!important;
-    height:28px!important; min-height:28px!important; max-height:28px!important;
-    font-size:0.8rem!important; padding:0 12px!important; box-sizing:border-box!important;
   }
   /* ＋역본 버튼 */
   #jemv-add-btn-nav {
@@ -9563,6 +9611,7 @@ window.addEventListener('load', function(){
 /* 내비게이션 바 */
 #jemv-nav {
   display:flex; align-items:center; gap:4px;
+  flex-wrap:nowrap; /* 세로모드에서도 한 줄 유지 — 가로모드 복귀 후 줄바꿈 방지 */
   padding:5px 8px; background:#ffffff;
   border-bottom:1px solid #e8e3d8; flex-shrink:0;
 }
@@ -9597,19 +9646,6 @@ window.addEventListener('load', function(){
 #jemv-sel-book { flex:2; min-width:0; }
 #jemv-sel-ch   { flex:1; min-width:0; }
 #jemv-sel-vs   { flex:1; min-width:0; }
-#jemv-go-btn {
-  border:1px solid #c8c0b4; border-radius:5px;
-  background:#e8e3d8; color:#3a3730;
-  font-size:0.72rem; font-weight:700;
-  padding:0 10px; height:28px; cursor:pointer;
-  white-space:nowrap; flex-shrink:0;
-  font-family:inherit; transition:background .12s;
-  -webkit-tap-highlight-color:transparent;
-  box-sizing:border-box;
-  display:inline-flex; align-items:center; justify-content:center;
-  line-height:1; padding-block:0;
-}
-#jemv-go-btn:hover { background:#ddd8ce; }
 #jemv-nav-r2 { display:contents; }
 .jemv-nav-btn {
   border:1px solid #d0cbc0; border-radius:5px;
@@ -9682,7 +9718,6 @@ window.addEventListener('load', function(){
 #jemv-win.jemv-horiz #jemv-sel-vs   { flex:0 0 auto; min-width:44px; max-width:60px; }
 /* 가로모드 nav 전체 높이·색상 통일 */
 #jemv-win.jemv-horiz #jemv-nav select,
-#jemv-win.jemv-horiz #jemv-go-btn,
 #jemv-win.jemv-horiz .jemv-nav-btn,
 #jemv-win.jemv-horiz #jemv-horiz-actions button {
   height:28px !important;
@@ -9691,12 +9726,6 @@ window.addEventListener('load', function(){
   padding-bottom:0 !important;
   line-height:1 !important;
   box-sizing:border-box;
-}
-#jemv-win.jemv-horiz #jemv-go-btn {
-  background:#e8e3d8;
-  font-weight:700;
-  padding-left:10px !important;
-  padding-right:10px !important;
 }
 /* 가로 모드 전용: 타이틀 인라인 뱃지 */
 #jemv-horiz-title-badge {
@@ -9798,6 +9827,11 @@ window.addEventListener('load', function(){
 .jemv-ver-text.jemv-eng {
   font-family:var(--jemv-sub-font,'Georgia',serif); color:#000000;
 }
+/* 히브리어/아람어 역본 — RTL + 폰트 200% (PC/모바일 공통) */
+.jemv-ver-text.jemv-heb {
+  direction:rtl; text-align:right; unicode-bidi:embed;
+  font-size:130%; line-height:1.6;
+}
 
 /* ── 전역(all) 보기: 이미지 스타일 리스트 ── */
 .jemv-all-list {
@@ -9840,6 +9874,11 @@ window.addEventListener('load', function(){
 }
 .jemv-main-text.jemv-eng {
   font-family:var(--jemv-font,'Georgia',serif);
+}
+/* 히브리어/아람어 역본 — RTL + 폰트 200% (PC/모바일 공통) */
+.jemv-main-text.jemv-heb {
+  direction:rtl; text-align:right; unicode-bidi:embed;
+  font-size:130%; line-height:1.6;
 }
 .jemv-main-fn {
   display:block; margin-top:4px; padding-top:3px;
@@ -9960,6 +9999,11 @@ window.addEventListener('load', function(){
 }
 .jemv-all-text.jemv-eng {
   font-family:var(--jemv-sub-font,'Georgia',serif); color:#000000;
+}
+/* 히브리어/아람어 역본 — RTL + 폰트 200% (PC/모바일 공통) */
+.jemv-all-text.jemv-heb {
+  direction:rtl; text-align:right; unicode-bidi:embed;
+  font-size:130%; line-height:1.6;
 }
 .jemv-all-text .jemv-all-hdg {
   display:block; font-weight:700; color:#a84040;
@@ -10094,16 +10138,21 @@ window.addEventListener('load', function(){
   padding:0 !important;
 }
 
+/* 타이틀바 우측 버튼 — ghost 스타일 (PC/모바일 공통 기본)
+   테두리/배경 없음, hover 시 텍스트 색만 변경 */
 #jemv-sync-btn, #jemv-horiz-btn, #jemv-mob-setting-btn {
-  border:1px solid #d0cbc0; border-radius:4px;
-  background:#f0ece4; color:#3a3730;
-  font-size:0.67rem; font-weight:700;
-  padding:0 6px; height:20px;
+  border:none; border-radius:4px;
+  background:transparent; color:#9a9490;
+  font-size:0.76rem; font-weight:600;
+  padding:0 5px; height:20px;
   cursor:pointer; white-space:nowrap;
-  transition:background .12s,color .12s,border-color .12s;
+  transition:color .12s;
   -webkit-tap-highlight-color:transparent;
   display:inline-flex; align-items:center; justify-content:center;
   box-sizing:border-box; line-height:1;
+}
+#jemv-sync-btn:hover, #jemv-horiz-btn:hover, #jemv-mob-setting-btn:hover {
+  color:#2d4a3e;
 }
 
 /* ── 폰트 선택 드롭다운 ── */
@@ -10134,8 +10183,9 @@ window.addEventListener('load', function(){
 .jemv-font-opt.active { color:#2d4a3e; font-weight:700; background:#eef5f1; }
 
 /* ── 가로 보기 모드 ── */
+/* 가로 버튼 active — 텍스트 색으로만 표현 */
 #jemv-horiz-btn.active {
-  background:#1a3a6e; color:#fff; border-color:#1a3a6e;
+  color:#1a3a6e; font-weight:700;
 }
 
 /* 가로 보기: 창 최대화 (리사이즈 가능) */
@@ -10295,6 +10345,11 @@ window.addEventListener('load', function(){
   font-family:var(--jemv-font,'Pretendard Variable','Apple SD Gothic Neo',sans-serif);
 }
 .jemv-hz-txt.jemv-eng { font-family:var(--jemv-font,'Georgia',serif); }
+/* 히브리어/아람어 역본 — RTL + 폰트 200% (PC/모바일 공통) */
+.jemv-hz-txt.jemv-heb {
+  direction:rtl; text-align:right; unicode-bidi:embed;
+  font-size:130%; line-height:1.6;
+}
 .jemv-hz-hdg {
   display:inline; font-weight:700; color:#a84040;
   font-size:0.8em; line-height:1.4; margin-right:0.3em;
@@ -10319,9 +10374,9 @@ window.addEventListener('load', function(){
     <div id="jemv-title-dots"></div>
     <div id="jemv-title-right">
 
-      <button id="jemv-sync-btn" onclick="jemvSyncToggle()" title="본창 구절 연동">🔗 싱크</button>
-      <button id="jemv-horiz-btn" onclick="jemvHorizToggle()" title="가로 보기 (역본별 컬럼)">⇔ 가로</button>
-      <button id="jemv-mob-setting-btn" onclick="jemvMobCfgToggle()" title="설정">⚙ 설정</button>
+      <button id="jemv-sync-btn" onclick="jemvSyncToggle()" title="본창 구절 연동">싱크</button>
+      <button id="jemv-horiz-btn" onclick="jemvHorizToggle()" title="가로 보기 (역본별 컬럼)">가로</button>
+      <button id="jemv-mob-setting-btn" onclick="jemvMobCfgToggle()" title="설정">설정</button>
       <button onclick="jemvClose()" title="닫기" style="border:none;background:transparent;color:#9a9fa8;font-size:1rem;line-height:1;width:22px;height:22px;cursor:pointer;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .12s,color .12s;-webkit-tap-highlight-color:transparent;" onmouseover="this.style.background='#f0e8e8';this.style.color='#c04040'" onmouseout="this.style.background='transparent';this.style.color='#9a9fa8'">✕</button>
     </div>
   </div>
@@ -10330,11 +10385,14 @@ window.addEventListener('load', function(){
   <div id="jemv-nav">
     <!-- 가로 모드 전용: 인라인 타이틀 -->
     <div id="jemv-horiz-title-badge"><span id="jemv-horiz-ref">다역본</span></div>
-    <div class="jemv-nav-div" id="jemv-horiz-sep1"></div>
     <select id="jemv-sel-book" onchange="jemvOnBook()"><option value="">책 선택</option></select>
     <select id="jemv-sel-ch"   onchange="jemvOnCh()"><option value="">장</option></select>
-    <select id="jemv-sel-vs"><option value="">절</option></select>
-    <button id="jemv-go-btn" onclick="jemvGo()">이동</button>
+    <!-- 책/장/절 select — PC/모바일 공통
+         동작: 책 선택 -> 1장 1절 자동, 장 선택 -> 1절 자동, 절 선택 -> 즉시 렌더
+         "이동" 버튼은 삭제됨 (jemvGo 참고) -->
+    <!-- 절 선택 즉시 이동 (onchange) — "이동" 버튼 불필요하여 삭제 -->
+    <!-- PC/모바일 공통: 책->1장 자동, 장->1절 자동, 절->즉시 렌더 -->
+    <select id="jemv-sel-vs" onchange="jemvGo()"><option value="">절</option></select>
     <div id="jemv-nav-r2">
       <button class="jemv-nav-btn" onclick="jemvPrevCh()">◀</button>
       <span id="jemv-ch-lbl"></span>
@@ -10768,9 +10826,7 @@ window.jemvClose = function(){
     _jemvHoriz = false;
     w.classList.remove('jemv-horiz');
     var btn=document.getElementById('jemv-horiz-btn');
-    if(btn){ btn.classList.remove('active'); btn.textContent='⇔ 가로'; }
-    var body=document.getElementById('jemv-body');
-    if(body && body._hzResizeOb){ body._hzResizeOb.disconnect(); body._hzResizeOb=null; }
+    if(btn){ btn.classList.remove('active'); btn.textContent='가로'; }
     var cs=document.getElementById('jemv-hz-col-style'); if(cs) cs.textContent='';
     w.style.overflow='hidden';
     if(!_mob()){
@@ -10857,19 +10913,6 @@ function _loadSqlite(buf, offset, name){
           }
         }
       }catch(e4){}
-      /* 중복 역본 체크 — 같은 fileKey가 이미 있으면 메인으로만 설정하고 종료 */
-      var _newKey = short.toUpperCase().replace(/[_\-\s]/g,'');
-      for(var _di=0;_di<_versions.length;_di++){
-        var _dk=(_versions[_di].fileKey||'').toUpperCase().replace(/[_\-\s]/g,'');
-        if(_dk && _newKey && (_dk===_newKey || _dk.indexOf(_newKey)===0 || _newKey.indexOf(_dk)===0)){
-          /* 이미 있음 — 메인 역본으로만 지정하고 리렌더 */
-          _mainVerIdx=_di;
-          _jemvRebuildTabs();
-          _jemvRender();
-          if(_toast) _toast('이미 로드된 역본: '+fullName);
-          return;
-        }
-      }
       var ci = _versions.length % COLORS.length;
       /* 라벨용 약칭 생성: 긴 이름은 자동 축약 */
       function _makeLabel(s){
@@ -10901,10 +10944,54 @@ function _loadSqlite(buf, offset, name){
         var edKey = edName.replace(/\.[^.]+$/,'').replace(/^.*(\/|\\)/,'').toUpperCase().replace(/[_\-\s]/g,'');
         var newKey = short.toUpperCase().replace(/[_\-\s]/g,'');
         if(edKey && newKey && (edKey===newKey || edKey.indexOf(newKey)===0 || newKey.indexOf(edKey)===0)){
-          _mainVerIdx = _versions.length - 1;
+          /* 대표역본 자동 매칭 — 맨 앞으로 이동 */
+          var _moved=_versions.splice(_versions.length-1,1)[0];
+          _versions.unshift(_moved);
+          _mainVerIdx=0;
         }
       })();
-      _jemvRebuildNav();
+      /* ================================================
+         역본 정렬 (PC/모바일 공통)
+         파일명 기준 순서:
+         대표: 개역개정
+         서브: 새한글 새번역 바른성경 공동번역 가톨릭성경 200
+               쉬운말 쉬운성경 현대인 우리말 한글킹 킹흠정역
+               KJV표준역 개역개정(한문) 한글개역 현대어
+               바른성경(한문) 가톨릭성경 표준새번역
+         ================================================ */
+      (function(){
+        /* 파일명(short) 기준 순서 — 완전 일치 우선 */
+        var _FILE_ORDER = [
+          '개역개정',
+          '새한글','새번역','바른성경','공동번역','가톨릭성경',
+          '200','쉬운말','쉬운성경','현대인','우리말',
+          '한글킹','킹흠정역','KJV표준역',
+          '개역개정(한문)','한글개역','현대어',
+          '바른성경(한문)','가톨릭성경','표준새번역'
+        ];
+        function _short(v){ return (v.fileKey||''); }
+        function _rank(v){
+          var s = _short(v);
+          var idx = _FILE_ORDER.indexOf(s);
+          if(idx >= 0) return idx;
+          /* 완전 일치 없으면 포함 매칭 */
+          for(var r=0;r<_FILE_ORDER.length;r++){
+            if(s.indexOf(_FILE_ORDER[r])>=0 || _FILE_ORDER[r].indexOf(s)>=0) return r;
+          }
+          return 999;
+        }
+        if(_versions.length === 0) return;
+        /* 개역개정(파일명 정확히 '개역개정')을 gaes로 분리 */
+        var gaes=[], rest=[];
+        for(var i=0;i<_versions.length;i++){
+          if(_short(_versions[i])==='개역개정') gaes.push(_versions[i]);
+          else rest.push(_versions[i]);
+        }
+        rest.sort(function(a,b){ return _rank(a)-_rank(b); });
+        _versions = gaes.concat(rest);
+        _mainVerIdx = 0;
+      })();
+            _jemvRebuildNav();
       _jemvRebuildTabs();
       /* 첫 역본이면 창세기 1:1로 */
       if(_versions.length===1 && !_abbr){
@@ -11025,6 +11112,8 @@ function _jemvFillNav(abbr,ch,vs){
   var _hr=document.getElementById('jemv-horiz-ref'); if(_hr) _hr.textContent=_titleTxt;
 }
 
+/* jemvOnBook — 책 선택 시 (PC/모바일 공통)
+   1장 1절로 자동 설정 후 즉시 렌더 */
 window.jemvOnBook = function(){
   var bs=document.getElementById('jemv-sel-book'); if(!bs.value) return;
   _abbr=bs.value; _ch=0; _vs=0;
@@ -11040,6 +11129,8 @@ window.jemvOnBook = function(){
   _jemvFillNav(_abbr,_ch,_vs);
   _jemvRender();
 };
+/* jemvOnCh — 장 선택 시 (PC/모바일 공통)
+   1절로 자동 설정 후 즉시 렌더 */
 window.jemvOnCh = function(){
   var bs=document.getElementById('jemv-sel-book'), cs=document.getElementById('jemv-sel-ch');
   if(!bs.value||!cs.value) return;
@@ -11049,6 +11140,12 @@ window.jemvOnCh = function(){
   _jemvFillNav(_abbr,_ch,_vs);
   _jemvRender();
 };
+/* jemvGo — 절 이동 실행 (PC/모바일 공통)
+   호출: jemv-sel-vs onchange (절 선택 즉시)
+   "이동" 버튼은 삭제됨 — 책/장/절 각 select 변경 시 자동 렌더링:
+     jemvOnBook() : 책 선택 -> 1장 1절로 즉시 렌더
+     jemvOnCh()   : 장 선택 -> 1절로 즉시 렌더
+     jemvGo()     : 절 선택 -> 해당 절 즉시 렌더 */
 window.jemvGo = function(){
   var bs=document.getElementById('jemv-sel-book'),
       cs=document.getElementById('jemv-sel-ch'),
@@ -11154,7 +11251,21 @@ function _jemvRebuildTabs(){
   });
 }
 window.jemvSetMain=function(idx){
-  _mainVerIdx=(idx===_mainVerIdx)?-1:idx; /* 다시 누르면 메인 해제 */
+  if(idx===_mainVerIdx){
+    /* 다시 누르면 메인 해제만 (순서 변경 없음) */
+    _mainVerIdx=-1;
+  } else {
+    /* 대표역본으로 설정 — 맨 앞으로 이동 (PC/모바일 공통) */
+    var moved=_versions.splice(idx,1)[0];
+    _versions.unshift(moved);
+    /* _tab 인덱스 보정 */
+    if(typeof _tab==='number'){
+      if(_tab===idx) _tab=0;
+      else if(_tab<idx) _tab=_tab+1;
+      /* _tab>idx 이면 그대로 */
+    }
+    _mainVerIdx=0;
+  }
   _jemvRebuildTabs();
   _jemvRender();
 };
@@ -11182,9 +11293,19 @@ window._jemvRender = function(){ try{ _jemvRender(); }catch(e){} };
 function _jemvRender(){
   if(_jemvHoriz){ _jemvRenderHoriz(); return; }
   var body=document.getElementById('jemv-body'); if(!body) return;
+  /* 현재 절(_abbr/_ch/_vs)을 window에 항상 동기 반영 — 주석창 첫 진입 버그 방지 */
+  if(_abbr){
+    window._jemvCurrentRef={abbr:_abbr,ch:_ch,vs:_vs};
+    window._jemvCurrentAbbr=_abbr; window._jemvCurrentCh=_ch; window._jemvCurrentVs=_vs;
+  }
+  /* 가로모드 잔상 전체 초기화 (PC/모바일 공통) */
   body.classList.remove('jemv-horiz-body');
-  var _nbEl=document.getElementById('jemv-hz-numbar'); if(_nbEl) _nbEl.classList.remove('nb-show');
+  var _hf=document.getElementById('jemv-hz-hdr-fixed');
+  if(_hf){ _hf.style.display='none'; _hf.innerHTML=''; }
+  if(body._hzResizeOb){ body._hzResizeOb.disconnect(); body._hzResizeOb=null; }
+  body.style.overflowX=''; body.style.overflowY='';
   body.style.gridTemplateColumns='';
+  var _nbEl=document.getElementById('jemv-hz-numbar'); if(_nbEl) _nbEl.classList.remove('nb-show');
   var empty=document.getElementById('jemv-empty');
   if(!_versions.length){
     body.innerHTML=''; if(empty){ empty.style.display=''; body.appendChild(empty); } return;
@@ -11193,6 +11314,8 @@ function _jemvRender(){
 
   var html='';
   var isEng = function(s){ return s && /^[A-Za-z]/.test(s.trim()); };
+  /* 히브리어/아람어 감지: 유니코드 히브리 블록(U+0590-U+05FF, U+FB1D-U+FB4F) */
+  var isHeb = function(s){ return s && /[\u0590-\u05FF\uFB1D-\uFB4F]/.test(s); };
   /* 본문 텍스트 정제: 표제어(<...>) 제거, 각주 블록(【】) 제거, 위첨자 HTML 변환 */
   function _mvClean(raw){
     return raw.replace(/<[^>]+>/g,'').replace(/【\d+\)[\s\S]*?】/g,'').trim();
@@ -11279,7 +11402,7 @@ function _jemvRender(){
       /* ── 박스 우측 상단 절 이동 (★ 대표역본창 ◀1▶ — 삭제됨) ── */
       html+='<div class="jemv-main-body">';
       if(mhdg) html+='<div class="jemv-main-hdg">'+_mvSup(_e(mhdg).replace(/&lt;[^&]*&gt;/g,''))+'</div>';
-      html+='<div class="jemv-main-text'+(isEng(mtext)?' jemv-eng':'')+'" style="color:'+mFontCol+'">'+_mvJwSup(mtext,_abbr,_ch,_vs,mv)+'</div>';
+      html+='<div class="jemv-main-text'+(isHeb(mtext)?' jemv-heb':isEng(mtext)?' jemv-eng':'')+'" style="color:'+mFontCol+'">'+_mvJwSup(mtext,_abbr,_ch,_vs,mv)+'</div>';
       if(mfns.length){
         html+='<div class="jemv-main-fn">† ';
         html+=mfns.map(function(f){ return '<sup style="font-size:0.72em;vertical-align:super;line-height:0;font-style:normal;">'+_e(f.n)+'⁾</sup>'+_e(f.txt); }).join(' · ');
@@ -11319,9 +11442,9 @@ function _jemvRender(){
       /* 탭이름 레이블: 슬롯 없으면 "주석", 있으면 활성 슬롯명 */
       var tabLabel=(slots.length>0&&slots[activeIdx])?slots[activeIdx].name:'주석';
 
-      html+='<div id="jemv-comm-panel" style="display:'+_cpd+';border-top:1px solid #c8d8c4;margin-top:0;">';
+      html+='<div id="jemv-comm-panel" style="display:'+_cpd+';margin-top:0;">';
       /* ── 단일 헤더 (본창과 동일 구조) ── */
-      html+='<div id="jemv-comm-hdr" onclick="jemvCommToggleBody()" style="display:flex;align-items:center;justify-content:space-between;padding:5px 14px 5px;background:#eef3ee;border-bottom:1px solid #c8d8c4;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;">';
+      html+='<div id="jemv-comm-hdr" onclick="jemvCommToggleBody()" style="display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#eef2f7;border-bottom:1px solid #dde4ee;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;">';
       /* 좌측: 아이콘 + 탭이름/ref */
       html+='<div style="display:flex;align-items:center;gap:5px;overflow:hidden;flex:1;min-width:0;">';
       html+='<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#7aaa8a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M2 3h20v14H2z"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>';
@@ -11345,27 +11468,12 @@ function _jemvRender(){
       html+='<div style="display:flex;align-items:center;gap:2px;flex-shrink:0;" onclick="event.stopPropagation()">';
       /* 싱크 버튼 */
       var syncStyle=synced?'background:#2d4a3e;color:#fff;border-color:#2d4a3e;':'background:transparent;color:#6a9a88;border-color:#c0d8c8;';
-      html+='<button id="jemv-comm-sync-btn" onclick="event.stopPropagation();_jemvCommSyncToggle()" title="싱크: 다역본창 현재 절에 자동 연동" style="border:1px solid #c0d8c8;border-radius:4px;'+syncStyle+'font-size:0.6rem;font-weight:700;padding:1px 5px;height:16px;cursor:pointer;white-space:nowrap;transition:all .12s;-webkit-tap-highlight-color:transparent;margin-right:1px;">'+(synced?'🔗ON':'🔗')+'</button>';
-      /* A크기 */
-      html+='<div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;">';
-      html+='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><text x="3" y="16" font-size="11" font-weight="700" fill="#6a9a88" stroke="none" font-family="serif">A</text><text x="13" y="13" font-size="8" font-weight="700" fill="#6a9a88" stroke="none" font-family="serif">A</text></svg>';
-      html+='<button onclick="jemvCommFsDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;">−</button>';
-      html+='<span id="jemv-comm-fs-val" style="font-size:0.64rem;color:#7a9a88;min-width:16px;text-align:center;font-variant-numeric:tabular-nums;">'+_fs+'</span>';
-      html+='<button onclick="jemvCommFsUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;">+</button>';
-      html+='</div>';
-      /* 행간 */
-      html+='<div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;">';
-      html+='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="19" x2="21" y2="19"/><polyline points="8 2 12 5 16 2" stroke-width="1.5"/><polyline points="8 22 12 19 16 22" stroke-width="1.5"/></svg>';
-      html+='<button onclick="jemvCommLhDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="행간 줄이기">−</button>';
-      html+='<span id="jemv-comm-lh-val" style="font-size:0.64rem;color:#7a9a88;min-width:14px;text-align:center;font-variant-numeric:tabular-nums;">'+_lh+'</span>';
-      html+='<button onclick="jemvCommLhUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="행간 늘리기">+</button>';
-      html+='</div>';
-      /* 자간 */
-      html+='<div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:2px;background:#e4ede8;border:1px solid #c0d4c8;border-radius:6px;padding:1px 4px;margin-right:2px;">';
-      html+='<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6a9a88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><line x1="2" y1="4" x2="2" y2="8"/><line x1="22" y1="4" x2="22" y2="8"/><line x1="2" y1="16" x2="2" y2="20"/><line x1="22" y1="16" x2="22" y2="20"/></svg>';
-      html+='<button onclick="jemvCommLsDown()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="자간 줄이기">−</button>';
-      html+='<span id="jemv-comm-ls-val" style="font-size:0.64rem;color:#7a9a88;min-width:14px;text-align:center;font-variant-numeric:tabular-nums;">'+_ls+'</span>';
-      html+='<button onclick="jemvCommLsUp()" style="border:none;background:transparent;color:#5a8a78;font-size:0.68rem;font-weight:700;padding:0 3px;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent;line-height:1;" title="자간 늘리기">+</button>';
+      html+='<button id="jemv-comm-sync-btn" onclick="event.stopPropagation();_jemvCommSyncToggle()" title="싱크: 다역본창 현재 절에 자동 연동" style="border:1px solid #c0d8c8;border-radius:4px;'+syncStyle+'font-size:0.6rem;font-weight:700;padding:1px 5px;height:16px;cursor:pointer;white-space:nowrap;transition:all .12s;-webkit-tap-highlight-color:transparent;margin-right:20px;">'+(synced?'🔗ON':'🔗')+'</button>';
+      /* 폰트크기 */
+      html+='<div onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:6px;margin-right:10px;">';
+      html+='<button onclick="jemvCommFsDown()" style="border:none;background:transparent;color:#3a5448;font-size:0.82rem;font-weight:400;padding:0 4px;cursor:pointer;-webkit-tap-highlight-color:transparent;line-height:1;">−</button>';
+      html+='<span id="jemv-comm-fs-val" style="font-size:0.72rem;font-weight:400;color:#3a5448;min-width:18px;text-align:center;font-variant-numeric:tabular-nums;">'+_fs+'</span>';
+      html+='<button onclick="jemvCommFsUp()" style="border:none;background:transparent;color:#3a5448;font-size:0.82rem;font-weight:400;padding:0 4px;cursor:pointer;-webkit-tap-highlight-color:transparent;line-height:1;">+</button>';
       html+='</div>';
       /* 화살표 + 닫기 */
       html+='<span id="jemv-comm-arrow" style="font-size:0.64rem;color:#9abba8;transition:transform .2s;display:inline-block;margin-left:3px;">'+(bodyOpen?'▾':'▸')+'</span>';
@@ -11375,10 +11483,11 @@ function _jemvRender(){
       /* ── nodata ── */
       html+='<div id="jemv-comm-nodata" style="font-size:0.79rem;color:#9abba8;padding:7px 16px 9px;background:#f5f8f4;display:none;">(이 절의 주석 없음)</div>';
       /* ── 본문 ── */
-      html+='<div id="jemv-comm-body-inner" style="overflow-y:auto;max-height:260px;padding:10px 18px 14px;background:#f5f8f4;font-family:\'Georgia\',\'Nanum Myeongjo\',serif;font-size:'+_fs+'px;line-height:var(--jemv-comm-lh,1.4);color:#1e3540;word-break:keep-all;letter-spacing:var(--jemv-comm-ls,0em);display:none;"></div>';
+      html+='<div id="jemv-comm-body-inner" style="overflow-y:auto;max-height:260px;padding:10px 18px 14px;background:#fafcfe;font-family:\'Georgia\',\'Nanum Myeongjo\',serif;font-size:'+_fs+'px;line-height:var(--jemv-comm-lh,1.4);color:#1e3540;word-break:keep-all;letter-spacing:var(--jemv-comm-ls,0em);display:none;"></div>'
+      +'<div class="jemv-comm-fade"></div>';
       /* ── 리사이즈 바 ── */
-      html+='<div id="jemv-comm-resize-bar" title="드래그하여 높이 조절" style="height:16px;background:transparent;border-top:1px solid #dde8dd;cursor:row-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:none;user-select:none;position:relative;">';
-      html+='<div style="width:40px;height:4px;border-radius:3px;background:#a8c8b4;"></div>';
+      html+='<div id="jemv-comm-resize-bar" title="드래그하여 높이 조절" style="height:10px;background:#fafcfe;border-top:1px solid #dde4ee;cursor:row-resize;display:flex;align-items:center;justify-content:center;flex-shrink:0;touch-action:none;user-select:none;position:relative;">';
+      html+='<div style="width:32px;height:2px;border-radius:2px;background:#a8c8b4;"></div>';
       html+='</div>';
       html+='</div>'; /* end jemv-comm-panel */
       /* CSS: 본창과 동일한 패널 show 규칙 */
@@ -11421,7 +11530,7 @@ function _jemvRender(){
       html+='</span>';
       html+='</div>';
       html+='<div class="jemv-all-bar" style="background:'+col+';opacity:0.5;"></div>';
-      html+='<div class="jemv-all-text'+(isEng(text)?' jemv-eng':'')+'" style="color:'+textCol+';">';
+      html+='<div class="jemv-all-text'+(isHeb(text)?' jemv-heb':isEng(text)?' jemv-eng':'')+'" style="color:'+textCol+';">';
       if(hdg) html+='<span class="jemv-all-hdg">'+_mvSup(_e(hdg).replace(/&lt;[^&]*&gt;/g,''))+'</span>';
       html+=_mvJwSup(text,_abbr,_ch,_vs,v);
       if(fns.length){
@@ -11458,7 +11567,7 @@ function _jemvRender(){
         html+='<div class="jemv-verse-block" id="jemv-vs-'+d.vs+'" style="'+(active?'border-color:#a8d4bc;background:#f0f8f3;':'')+'" onclick="jemvClickVs('+d.vs+')" style="cursor:pointer;">';
         html+='<div class="jemv-ver-name"><span class="jemv-ver-dot jemv-'+v.color+'" style="background:'+vAccent+';opacity:0.5;"></span><span style="color:#4d4d4d;">'+_e(v.label||v.shortName)+'</span> <span style="color:#b8b2aa;font-weight:600;">'+d.vs+'절</span></div>';
         if(hdg) html+='<div style="font-weight:700;color:#a84040;font-size:0.85em;line-height:1.4;margin-bottom:3px;word-break:keep-all;">'+_mvSup(_e(hdg).replace(/&lt;[^&]*&gt;/g,''))+'</div>';
-        html+='<div class="jemv-ver-text'+(isEng(txt)?' jemv-eng':'')+'" style="color:'+vFontColor+';">'+_mvJwSup(txt,_abbr,_ch,d.vs,v)+'</div>';
+        html+='<div class="jemv-ver-text'+(isHeb(txt)?' jemv-heb':isEng(txt)?' jemv-eng':'')+'" style="color:'+vFontColor+';">'+_mvJwSup(txt,_abbr,_ch,d.vs,v)+'</div>';
         if(fns.length){
           html+='<div style="margin-top:4px;padding-top:3px;border-top:1px dashed #e4dfd4;font-size:0.68em;color:#8a8076;font-style:italic;line-height:1.6;">† ';
           html+=fns.map(function(f){ return '<sup style="font-size:0.72em;vertical-align:super;line-height:0;font-style:normal;">'+_e(f.n)+'⁾</sup>'+_e(f.txt); }).join(' · ');
@@ -11692,13 +11801,14 @@ window.jemvClickVs=function(vs){
 var _jemvSynced=false;
 function _jemvSyncUpdateBtn(){
   var btn=document.getElementById('jemv-sync-btn'); if(!btn) return;
+  /* 싱크 active: 텍스트 색으로만 표현 (ghost 스타일 유지) */
   if(_jemvSynced){
-    btn.textContent='🔗 싱크 ON'; btn.style.background='#2d4a3e'; btn.style.color='#fff'; btn.style.borderColor='#2d4a3e';
+    btn.textContent='싱크 ON'; btn.style.color='#2d4a3e'; btn.style.fontWeight='700';
   } else {
-    btn.textContent='🔗 싱크'; btn.style.background='#f0ece4'; btn.style.color='#3a3730'; btn.style.borderColor='#d0cbc0';
+    btn.textContent='싱크'; btn.style.color=''; btn.style.fontWeight='';
   }
   var sb2=document.getElementById('jemv-sync-btn2');
-  if(sb2){ sb2.style.background=_jemvSynced?'#2d4a3e':'#e8e3d8'; sb2.style.color=_jemvSynced?'#fff':'#4a4238'; sb2.style.borderColor=_jemvSynced?'#2d4a3e':'#c8c0b4'; sb2.textContent=_jemvSynced?'🔗 싱크 ON':'🔗 싱크'; }
+  if(sb2){ sb2.style.background=_jemvSynced?'#2d4a3e':'#e8e3d8'; sb2.style.color=_jemvSynced?'#fff':'#4a4238'; sb2.style.borderColor=_jemvSynced?'#2d4a3e':'#c8c0b4'; sb2.textContent=_jemvSynced?'싱크 ON':'싱크'; }
 }
 /* ── 폰트 선택 ── */
 var _jemvFontMap = {
@@ -11848,7 +11958,7 @@ window.jemvHorizToggle = function(){
     w.style.border       = '1px solid #ddd8ce';
     w.style.boxShadow    = '0 8px 40px rgba(0,0,0,.18)';
     w.style.overflow     = 'auto';  /* resize:both 작동 위해 hidden 해제 */
-    if(btn){ btn.classList.add('active'); btn.textContent='✕ 가로닫기'; }
+    if(btn){ btn.classList.add('active'); btn.textContent='가로 ON'; }
     var refEl=document.getElementById('jemv-horiz-ref');
     var titleRef=document.getElementById('jemv-title-ref');
     if(refEl&&titleRef) refEl.textContent=titleRef.textContent;
@@ -11860,8 +11970,16 @@ window.jemvHorizToggle = function(){
     if(sl){ sl.value=_jemvHzColW; } if(vl){ vl.textContent=_jemvHzColW+'px'; }
   } else {
     w.classList.remove('jemv-horiz');
-    if(btn){ btn.classList.remove('active'); btn.textContent='⇔ 가로'; }
-    if(body && body._hzResizeOb){ body._hzResizeOb.disconnect(); body._hzResizeOb=null; }
+    if(btn){ btn.classList.remove('active'); btn.textContent='가로'; }
+    /* 가로모드 잔상 초기화 */
+    var _hf=document.getElementById('jemv-hz-hdr-fixed');
+    if(_hf){ _hf.style.display='none'; _hf.innerHTML=''; }
+    var _hBody=document.getElementById('jemv-body');
+    if(_hBody){
+      if(_hBody._hzResizeOb){ _hBody._hzResizeOb.disconnect(); _hBody._hzResizeOb=null; }
+      _hBody.classList.remove('jemv-horiz-body');
+      _hBody.style.overflowX=''; _hBody.style.overflowY='';
+    }
     /* 컬럼 너비 스타일 초기화 */
     var cs=document.getElementById('jemv-hz-col-style'); if(cs) cs.textContent='';
     if(!_mob()){
@@ -12059,6 +12177,8 @@ function _jemvRenderHoriz(){
   function _esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
   function _sup(t){ return _esc(t).replace(/([¹²³⁴⁵⁶⁷⁸⁹⁰]+⁾)/g,'<sup style="font-size:0.65em;vertical-align:super;line-height:0;color:#7a8aab;">$1</sup>'); }
   function _isEng(s){ return s && /^[A-Za-z]/.test(s.trim()); }
+  /* 히브리어 감지 (가로모드 전용) */
+  function _isHeb(s){ return s && /[\u0590-\u05FF\uFB1D-\uFB4F]/.test(s); }
 
   /* 현재 장 절 목록 */
   var vsSet={};
@@ -12737,9 +12857,14 @@ function _stStartDrag(card, startY){
 </script>
 
 <script>
-/* ══════════════════════════════════════════════════════════════
-   ★ 다역본창(jemv) 인라인 주석 패널 — 독립 슬롯/탭/파일로드/싱크
-   ══════════════════════════════════════════════════════════════ */
+/* ================================================
+   【다역본창 주석(성경창 주석)】 인라인 주석 패널
+   다역본창(jemv-win) 안에 표시되는 주석 패널.
+     패널 : #jemv-comm-panel / #jemv-comm-body-inner
+   cf. 본창 주석 = #je-comm-panel / #je-comm-win — 위 섹션에 있음
+   독립 슬롯/탭/파일로드/싱크 모두 이 IIFE 안에서 관리.
+   본창 _commSlots 와 완전 분리된 별도 상태 변수 사용.
+   ================================================ */
 (function(){
 
 /* ── 독립 상태 변수 (본창 _commSlots 와 완전 분리) ── */
@@ -12972,6 +13097,11 @@ window.jemvCommToggle = function(){
   _open=!_open; window._jemvCommOpen=_open;
   var p=_panel();
   if(_open){
+    /* _currentRef 없으면 다역본창 현재 절 또는 본창 절로 초기화 */
+    if(!_currentRef){
+      var _ref=window._jemvCurrentRef||window._jemvPendingVerse||window._jeDisplayVerse;
+      if(_ref&&_ref.abbr) _currentRef={abbr:_ref.abbr,ch:_ref.ch,vs:_ref.vs};
+    }
     /* 패널 없으면 렌더 후 show, 있으면 직접 show */
     if(!p){ if(typeof window._jemvRender==='function') window._jemvRender(); }
     _showPanel();
@@ -13095,6 +13225,33 @@ window._jemvCommRefreshIfOpen = function(){
   _draw_fromJemvCurrent();
 };
 
+/* ── 다역본창 주석 스크롤바 표시 제어 (PC/모바일 공통)
+   스크롤 중: 표시 / 스크롤 멈추면 2초 후 숨김 / hover 중: 항상 표시 ── */
+(function(){
+  var _t=null;
+  function _getEl(){ return document.getElementById('jemv-comm-body-inner'); }
+  function _show(){ var el=_getEl(); if(el) el.classList.add('jemv-sb-show'); }
+  function _hide(){ var el=_getEl(); if(el) el.classList.remove('jemv-sb-show'); }
+  function _schedHide(){ clearTimeout(_t); _t=setTimeout(_hide, 2000); }
+  document.addEventListener('scroll', function(e){
+    if(e.target && e.target.id==='jemv-comm-body-inner'){
+      _show(); _schedHide();
+    }
+  }, true);
+  document.addEventListener('mouseover', function(e){
+    var el=_getEl();
+    if(el && (e.target===el || el.contains(e.target))){
+      clearTimeout(_t); _show();
+    }
+  }, true);
+  document.addEventListener('mouseout', function(e){
+    var el=_getEl();
+    if(el && (e.target===el || el.contains(e.target))){
+      _schedHide();
+    }
+  }, true);
+})();
+
 })();
 </script>
 
@@ -13174,4 +13331,95 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 </body>
+<script>
+/* ================================================
+   【다역본창】 더블탭 폰트 크기 조절 — 모바일 전용
+   PC dblclick 제외, 모바일 touchend 300ms 2회만 적용
+   - 서브역본 영역 더블탭 → --jemv-sub-fs 조절
+   - 대표역본 영역 더블탭 → jemvFontUp/Down
+   - 주석창 더블탭 → jemvCommFsUp/Down
+   ================================================ */
+(function(){
+
+  function _subFsChange(dir){
+    var b = document.getElementById('jemv-body'); if(!b) return;
+    var cur = parseInt(b.style.getPropertyValue('--jemv-sub-fs')) || 14;
+    b.style.setProperty('--jemv-sub-fs', Math.min(40, Math.max(10, cur + dir)) + 'px');
+  }
+
+  function _isSubVer(el){
+    var node = el;
+    while(node && node.id !== 'jemv-body'){
+      var cn = node.className || '';
+      if(/jemv-ver-text|jemv-all-text|jemv-hz-txt|jemv-ver-block|jemv-all-item/.test(cn)) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  function _bindBody(){
+    var el = document.getElementById('jemv-body');
+    if(!el || el._dblFsBound) return;
+    el._dblFsBound = true;
+    var _lastT=0, _lastTarget=null;
+    el.addEventListener('touchend', function(e){
+      var now = Date.now();
+      var t = e.changedTouches[0];
+      if(now - _lastT < 300){
+        var r = el.getBoundingClientRect();
+        var isLeft = (t.clientX - r.left) < r.width / 2;
+        if(_isSubVer(_lastTarget)){
+          _subFsChange(isLeft ? -1 : 1);
+        } else {
+          if(isLeft) window.jemvFontDown && jemvFontDown();
+          else       window.jemvFontUp   && jemvFontUp();
+        }
+        _lastT = 0;
+      } else {
+        _lastT = now; _lastTarget = e.target;
+      }
+    }, {passive:true});
+  }
+
+  function _bindComm(){
+    var el = document.getElementById('jemv-comm-body-inner');
+    if(!el || el._dblFsBound) return;
+    el._dblFsBound = true;
+    var _lastT=0;
+    el.addEventListener('touchend', function(e){
+      var now = Date.now();
+      var t = e.changedTouches[0];
+      if(now - _lastT < 300){
+        var r = el.getBoundingClientRect();
+        var isLeft = (t.clientX - r.left) < r.width / 2;
+        if(isLeft) window.jemvCommFsDown && jemvCommFsDown();
+        else       window.jemvCommFsUp   && jemvCommFsUp();
+        _lastT = 0;
+      } else {
+        _lastT = now;
+      }
+    }, {passive:true});
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){ _bindBody(); });
+
+  var _origToggle = window.jemvToggle;
+  window.jemvToggle = function(){
+    if(_origToggle) _origToggle.apply(this, arguments);
+    setTimeout(function(){ _bindBody(); _bindComm(); }, 100);
+  };
+
+  var _origCommToggle = window.jemvCommToggle;
+  window.jemvCommToggle = function(){
+    if(_origCommToggle) _origCommToggle.apply(this, arguments);
+    setTimeout(_bindComm, 100);
+  };
+
+  var _origRender = window._jemvRender;
+  window._jemvRender = function(){
+    if(_origRender) _origRender.apply(this, arguments);
+    setTimeout(_bindComm, 50);
+  };
+})();
+</script>
 </html>
