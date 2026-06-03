@@ -2817,6 +2817,7 @@ async function jinLoadFromUrl(){
     let commentaryMode = false;
     let commentaryEntryHadData = false;
     let commentaryWritingData = [];
+    let commentarySourceBytes = null; // 불러온 원본 SQLite bytes (page_size 유지용)
     let currentComType = 'verse';
     let comBook = '', comChapter = 1, comVerse = 1;
     let comBibleIndex = 0;
@@ -6835,7 +6836,8 @@ const SPECIAL_CATEGORIES = [
         try {
             const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
             const buf = await file.arrayBuffer();
-            const db = new SQL.Database(new Uint8Array(buf));
+            const srcBytes = new Uint8Array(buf);
+            const db = new SQL.Database(srcBytes);
             const result = db.exec('SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse');
             db.close();
             if (!result.length) { alert('CDB 파일에서 데이터를 찾을 수 없습니다.'); return; }
@@ -6861,7 +6863,7 @@ const SPECIAL_CATEGORIES = [
                 const key = comItemKey(bookAbbr, startChapter, verseNum, type);
                 loaded.push({ _key: key, bookCode, startChapter, endChapter, verse: verseNum, refer, content, chapterMap: [startChapter] });
             }
-            callback(loaded, file.name.replace(/\.cdb$/i, ''));
+            callback(loaded, file.name.replace(/\.cdb$/i, ''), srcBytes);
         } catch(err) {
             alert('CDB 파일 읽기 오류: ' + err.message);
         }
@@ -6879,8 +6881,13 @@ const SPECIAL_CATEGORIES = [
         try {
             const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
             const rawBuf = await file.arrayBuffer();
-            const db = new SQL.Database(new Uint8Array(rawBuf.slice(8)));
-            const result = db.exec('SELECT book, chapter, verse, btext FROM Bible ORDER BY book, chapter, verse');
+            const _sqliteBytes = new Uint8Array(rawBuf.slice(8));
+            const db = new SQL.Database(_sqliteBytes);
+            const _tbls = db.exec("SELECT name FROM sqlite_master WHERE type='table'");
+            const _tblNames = _tbls.length ? _tbls[0].values.map(r => r[0]) : [];
+            const _tbl = _tblNames.includes('commentary') ? 'commentary' : _tblNames.includes('Bible') ? 'Bible' : null;
+            if (!_tbl) { db.close(); alert('AAB 주석 파일에서 데이터를 찾을 수 없습니다.'); return; }
+            const result = db.exec(`SELECT book, chapter, verse, btext FROM ${_tbl} ORDER BY book, chapter, verse`);
             db.close();
             if (!result.length) { alert('AAB 주석 파일에서 데이터를 찾을 수 없습니다.'); return; }
             const loaded = [];
@@ -6904,7 +6911,7 @@ const SPECIAL_CATEGORIES = [
                 const key = comItemKey(bookAbbr, startChapter, verseNum, type);
                 loaded.push({ _key: key, bookCode, startChapter, endChapter, verse: verseNum, refer, content, chapterMap: [startChapter] });
             }
-            callback(loaded, file.name.replace(/\.aab$/i, ''));
+            callback(loaded, file.name.replace(/\.aab$/i, ''), _sqliteBytes);
         } catch(err) {
             alert('AAB 주석 파일 읽기 오류: ' + err.message);
         }
@@ -7535,12 +7542,13 @@ const SPECIAL_CATEGORIES = [
         reader.readAsText(file, 'UTF-8');
     }
 
-    function applyLoadedCommentary(loaded, nameGuess) {
+    function applyLoadedCommentary(loaded, nameGuess, srcBytes) {
         if (!loaded.length) { alert('불러올 주석 데이터가 없습니다.\nTXT 내보내기로 저장한 파일을 선택해주세요.'); return; }
         if (commentaryWritingData.length > 0) {
             if (!confirm(`기존 작업(${commentaryWritingData.length}개)을 불러온 데이터(${loaded.length}개)로 교체할까요?`)) return;
         }
         commentaryWritingData = loaded;
+        commentarySourceBytes = srcBytes || null;
         if (nameGuess) document.getElementById('com-collection-name').value = nameGuess;
         updateComStatus();
         comLoadCurrent();
@@ -8029,6 +8037,10 @@ const SPECIAL_CATEGORIES = [
     function trimComHtml(html) {
         if (!html) return '';
         html = html.replace(/\r?\n/g, '');
+        // 브라우저 편집 중 삽입된 인라인 스타일 제거
+        html = html.replace(/<span\s+style="[^"]*">([\s\S]*?)<\/span>/gi, (_, inner) => inner);
+        html = html.replace(/\s+style="[^"]*"/gi, '');
+        html = html.replace(/<span\s*>([\s\S]*?)<\/span>/gi, (_, inner) => inner);
         html = html.replace(/<div>\s*<br\s*\/?>\s*<\/div>/gi, '<br>');
         html = html.replace(/<div>([\s\S]*?)<\/div>/gi, (_, inner) => inner ? inner + '<br>' : '<br>');
         let prev;
@@ -8220,31 +8232,56 @@ const SPECIAL_CATEGORIES = [
 
         try {
             const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
-            const db = new SQL.Database();
-
-            db.run(`CREATE TABLE commentary (id INTEGER PRIMARY KEY AUTOINCREMENT, book INTEGER, chapter INTEGER, verse INTEGER, btext TEXT)`);
-            db.run(`CREATE INDEX idx_commentary ON commentary(book, chapter, verse)`);
-            db.run(`CREATE TABLE details (title TEXT, description TEXT, language TEXT)`);
-            db.run(`INSERT INTO details VALUES (?, ?, ?)`, [collectionName, 'JINs Bible 주석', 'ko']);
-
-            const stmt = db.prepare(`INSERT INTO commentary (book, chapter, verse, btext) VALUES (?, ?, ?, ?)`);
-            db.run('BEGIN');
-
             const cleanItems = commentaryWritingData.map(({ _key, ...rest }) => rest);
-            for (const item of cleanItems) {
-                const bookNum = CODE_TO_NUM[item.bookCode];
-                if (!bookNum) { console.warn('책 코드 미인식:', item.bookCode); continue; }
-                const chapter = item.startChapter ?? 0;
-                const verse   = (item.verse !== null && item.verse !== undefined) ? item.verse : 0;
-                stmt.run([bookNum, chapter, verse, item.content || '']);
+            let sqliteBytes, db;
+
+            if (commentarySourceBytes) {
+                // ── 원본 bytes 기반 UPDATE (page_size 유지) ──
+                db = new SQL.Database(commentarySourceBytes);
+                const _tbls = db.exec("SELECT name FROM sqlite_master WHERE type='table'");
+                const _tblNames = _tbls.length ? _tbls[0].values.map(r => r[0]) : [];
+                const _tbl = _tblNames.includes('commentary') ? 'commentary' : _tblNames.includes('Bible') ? 'Bible' : null;
+                if (!_tbl) throw new Error('원본 DB에서 주석 테이블을 찾을 수 없습니다.');
+                // 전체 삭제 후 재삽입 (수정/삭제 반영)
+                db.run(`DELETE FROM ${_tbl}`);
+                const stmt = db.prepare(`INSERT INTO ${_tbl} (book, chapter, verse, btext) VALUES (?, ?, ?, ?)`);
+                db.run('BEGIN');
+                for (const item of cleanItems) {
+                    const bookNum = CODE_TO_NUM[item.bookCode];
+                    if (!bookNum) continue;
+                    const chapter = item.startChapter ?? 0;
+                    const verse   = (item.verse !== null && item.verse !== undefined) ? item.verse : 0;
+                    stmt.run([bookNum, chapter, verse, item.content || '']);
+                }
+                db.run('COMMIT');
+                stmt.free();
+                db.run('VACUUM');
+                sqliteBytes = db.export();
+                db.close();
+            } else {
+                // ── 새 DB 생성 (처음 작성하는 경우) ──
+                db = new SQL.Database();
+                db.run('PRAGMA page_size=1024');
+                db.run('PRAGMA journal_mode=OFF');
+                db.run(`CREATE TABLE commentary (id INTEGER PRIMARY KEY AUTOINCREMENT, book INTEGER, chapter INTEGER, verse INTEGER, btext TEXT)`);
+                db.run(`CREATE INDEX idx_commentary ON commentary(book, chapter, verse)`);
+                db.run(`CREATE TABLE details (title TEXT, description TEXT, language TEXT)`);
+                db.run(`INSERT INTO details VALUES (?, ?, ?)`, [collectionName, 'JINs Bible 주석', 'ko']);
+                const stmt = db.prepare(`INSERT INTO commentary (book, chapter, verse, btext) VALUES (?, ?, ?, ?)`);
+                db.run('BEGIN');
+                for (const item of cleanItems) {
+                    const bookNum = CODE_TO_NUM[item.bookCode];
+                    if (!bookNum) continue;
+                    const chapter = item.startChapter ?? 0;
+                    const verse   = (item.verse !== null && item.verse !== undefined) ? item.verse : 0;
+                    stmt.run([bookNum, chapter, verse, item.content || '']);
+                }
+                db.run('COMMIT');
+                stmt.free();
+                db.run('VACUUM');
+                sqliteBytes = db.export();
+                db.close();
             }
-
-            db.run('COMMIT');
-            stmt.free();
-            db.run('VACUUM');
-
-            const sqliteBytes = db.export();
-            db.close();
 
             const header = new Uint8Array([0x41,0x41,0x42,0x42, 0x01, 0x02, 0x00, 0x00]);
             const aab = new Uint8Array(header.length + sqliteBytes.length);
