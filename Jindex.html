@@ -1325,10 +1325,11 @@
             <select id="save-format" class="nav-select">
                 <option value="txt">TXT</option>
                 <option value="aab">AAB</option>
+                <option value="db">DB</option>
             </select>
             <button class="btn-action" onclick="saveData()">저장</button>
             <button class="btn-action" id="btn-resume" onclick="document.getElementById('resume-input').click()" title="TXT(작업이어하기) · AAB · BDB">이어하기</button>
-            <input type="file" id="resume-input" accept=".txt,.bdb,.aab" style="display:none;">
+            <input type="file" id="resume-input" accept=".txt,.bdb,.aab,.db,.sqlite" style="display:none;">
         </div>
     </div>
 
@@ -1337,11 +1338,11 @@
             <div style="font-size:1.4rem; font-weight:700; color:var(--accent); margin-bottom:6px;">나만의 성경 역본</div>
             <div style="font-size:0.88rem; color:#7a8a80; margin-bottom:14px;">참고할 성경역본을 불러와 나만의 역본을 작성합니다</div>
             <div style="display:inline-flex; align-items:center; gap:6px; padding:8px 18px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem; margin-bottom:1px;">
-                📂 TXT · AAB · BDB · ZIP 드래그드롭 또는 클릭
+                📂 TXT · AAB · BDB · DB · ZIP 드래그드롭 또는 클릭
             </div><br>
             <button class="btn-noref" onclick="event.stopPropagation(); startFreeWrite();">📝 바로 시작</button>
         </div>
-        <input type="file" id="file-input" accept=".txt,.bdb">
+        <input type="file" id="file-input" accept=".txt,.bdb,.db,.sqlite">
     </div>
 
     <!-- 랜딩 액션 카드 -->
@@ -1350,7 +1351,7 @@
             <div class="action-card-icon">📝</div>
             <div class="action-card-title">나만의 주석</div>
             <div class="action-card-desc">성경 본문을 보며 책·장·절 단위<br>주석을 작성하고 AAB로 내보냅니다.</div>
-            <div class="action-card-drop-hint">📂 성경본문 : TXT · AAB · BDB · ZIP(최대 5개)</div>
+            <div class="action-card-drop-hint">📂 성경본문 : TXT · AAB · BDB · DB · ZIP(최대 5개)</div>
             <div class="action-card-drop-hint">📂 주석파일 : CDB (AAB 주석 파일 추가 예정)</div>
 
         </div>
@@ -1358,13 +1359,13 @@
             <div class="action-card-icon">✍️</div>
             <div class="action-card-title">디지털 필사 모드</div>
             <div class="action-card-desc">성경을 보면서 타이핑<br>타이핑 연습</div>
-            <div class="action-card-drop-hint">📂 TXT · AAB · BDB · ZIP 드래그드롭</div>
+            <div class="action-card-drop-hint">📂 TXT · AAB · BDB · DB · ZIP 드래그드롭</div>
         </div>
         <div class="action-card card-edit" onclick="startEditMode()">
             <div class="action-card-icon">✏️</div>
             <div class="action-card-title">편집 모드</div>
             <div class="action-card-desc">1. 표제어 삽입 및 수정<br>2. 역본 내 단어 일괄 변경 및 수정</div>
-            <div class="action-card-drop-hint">📂 TXT · AAB · BDB · ZIP 드래그드롭</div>
+            <div class="action-card-drop-hint">📂 TXT · AAB · BDB · DB · ZIP 드래그드롭</div>
         </div>
     </div>
 
@@ -1482,7 +1483,7 @@
                     <button class="ref-side-btn" id="ref-side-edit-btn" onclick="editRefInline()" title="원문 직접 수정">✏️ 원문 편집</button>
                     <button class="ref-side-btn ref-side-btn-cancel" id="ref-side-cancel-btn" onclick="cancelRefEdit()" title="편집 취소" style="display:none;">✕ 편집 취소</button>
                     <button class="ref-side-btn" onclick="restoreRefOriginal()" title="원문으로 복원">↺ 원문 복원</button>
-                    <input type="file" id="ref-change-input" accept=".txt,.bdb,.aab,.zip" style="display:none;">
+                    <input type="file" id="ref-change-input" accept=".txt,.bdb,.aab,.db,.sqlite,.zip" style="display:none;">
                 </div>
             </div>
             <!-- 참고본문 아래 액션 버튼 -->
@@ -1821,9 +1822,9 @@
             <div style="font-size:1.1rem; font-weight:700; color:var(--accent); margin-bottom:6px;">성경 역본 파일 로드</div>
             <div style="font-size:0.85rem; color:#7a8a80; margin-bottom:10px;">편집할 성경역본을 불러오세요</div>
             <div style="display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem;">
-                📂 AAB · BDB · TXT · ZIP 드래그드롭 또는 클릭
+                📂 AAB · BDB · DB · TXT · ZIP 드래그드롭 또는 클릭
             </div>
-            <input type="file" id="edit-file-input" accept=".bdb,.aab,.txt,.zip" style="display:none;">
+            <input type="file" id="edit-file-input" accept=".bdb,.aab,.db,.sqlite,.txt,.zip" style="display:none;">
         </div>
 
         <!-- 현재 역본 불러오기 버튼 (bibleData가 있을 때만 표시) -->
@@ -3352,6 +3353,13 @@ const SPECIAL_CATEGORIES = [
         } else if (lower.endsWith('.aab')) {
             // 저장본 vs 원본 성경 자동 감지 후 분기
             processAabFile_forResume(file);
+        } else if (lower.endsWith('.db') || lower.endsWith('.sqlite')) {
+            if (bibleData.length > 0) {
+                processBdbFile_forResume(file);
+            } else {
+                currentRawFile = file;
+                processBdbFile(0);
+            }
         } else {
             if (!bibleData.length) {
                 alert('먼저 원본 성경 파일(BDB/AAB/TXT)을 로드해주세요.');
@@ -3419,9 +3427,9 @@ const SPECIAL_CATEGORIES = [
                         expanded.push(f);
                     }
                 }
-                const allowed = ['.txt', '.bdb', '.aab'];
+                const allowed = ['.txt', '.bdb', '.aab', '.db', '.sqlite'];
                 const validFiles = expanded.filter(f => allowed.some(ext => f.name.toLowerCase().endsWith(ext)));
-                if (!validFiles.length) return alert('TXT · BDB · AAB · ZIP 파일만 지원합니다.');
+                if (!validFiles.length) return alert('TXT · BDB · AAB · DB · ZIP 파일만 지원합니다.');
 
                 const loadIntoCommentary = (filesToLoad) => {
                     startCommentaryMode();
@@ -3526,6 +3534,11 @@ const SPECIAL_CATEGORIES = [
             }
             currentRawFile = file; processBdbFile(8); return;
         }
+        if (lower.endsWith('.db') || lower.endsWith('.sqlite')) {
+            /* 일반 SQLite 성경 (.db) — 헤더 없이 바로 로드 */
+            if (bibleData.length > 0) { processBdbFile_forResume(file); return; }
+            currentRawFile = file; processBdbFile(0); return;
+        }
         if (bibleData.length > 0) {
             processResultFile(file);
         } else {
@@ -3535,7 +3548,7 @@ const SPECIAL_CATEGORIES = [
     }
 
     // ── ZIP 압축 파일 처리 ────────────────────────────────────────────
-    const ZIP_SUPPORTED = ['.txt', '.bdb', '.aab'];
+    const ZIP_SUPPORTED = ['.txt', '.bdb', '.aab', '.db', '.sqlite'];
 
     async function processZipFile(zipFile, onFilePicked) {
         let zip;
@@ -3552,7 +3565,7 @@ const SPECIAL_CATEGORIES = [
         });
 
         if (!entries.length) {
-            alert('ZIP 안에 지원 파일(.txt · .bdb · .aab)이 없습니다.'); return;
+            alert('ZIP 안에 지원 파일(.txt · .bdb · .aab · .db)이 없습니다.'); return;
         }
 
         const pick = async ({ name, entry }) => {
@@ -3579,7 +3592,7 @@ const SPECIAL_CATEGORIES = [
                 entries.push({ name, entry });
         });
 
-        if (!entries.length) { alert('ZIP 안에 지원 파일(.txt · .bdb · .aab)이 없습니다.'); return []; }
+        if (!entries.length) { alert('ZIP 안에 지원 파일(.txt · .bdb · .aab · .db)이 없습니다.'); return []; }
 
         const files = await Promise.all(
             entries.map(async ({ name, entry }) => {
@@ -3801,7 +3814,7 @@ const SPECIAL_CATEGORIES = [
                             <strong style="color:var(--accent)">✅ 성경 로드 완료: ${currentRawFile.name}</strong>
                             <p style="font-size:0.8rem;color:#888;margin-top:8px;">이어서 작업하려면 결과 파일(TXT) 또는 성경 파일(AAB·BDB)을 이곳에 드롭하세요.</p>
                         </div>
-                        <input type="file" id="file-input" accept=".txt,.bdb" style="display:none;">`;
+                        <input type="file" id="file-input" accept=".txt,.bdb,.db,.sqlite" style="display:none;">`;
                     dz.ondragover  = e => { e.preventDefault(); dz.classList.add('dragover'); };
                     dz.ondragleave = () => { dz.classList.remove('dragover'); };
                     dz.ondrop      = e => { e.preventDefault(); dz.classList.remove('dragover'); handleFile(e.dataTransfer.files[0]); };
@@ -6106,6 +6119,28 @@ const SPECIAL_CATEGORIES = [
                     setTimeout(() => alert('저장된 파일명에 .txt가 붙어있으면\n파일명에서 .txt 부분을 삭제해 주세요.\n예) MyBIBLE.aab.txt → MyBIBLE.aab'), 500);
                 }
             } catch (e) { alert("AAB 저장 실패"); }
+        } else if (fmt === 'db') {
+            try {
+                const SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.2/${f}` });
+                const db = new SQL.Database();
+                db.run("CREATE TABLE Bible (book INTEGER, chapter INTEGER, verse INTEGER, btext TEXT)");
+                const stmt = db.prepare("INSERT INTO Bible VALUES (?, ?, ?, ?)");
+                typedData.forEach(d => {
+                    const m = d.k.match(/^(.+?)\s+(\d+):(\d+)/);
+                    if (m) { const raw = m[1].trim(); const bIdx = BOOK_NUM.indexOf(ABBR_ALIAS[raw] || raw); if (bIdx > 0) stmt.run([bIdx, parseInt(m[2]), parseInt(m[3]), toAABText(d.t)]); }
+                });
+                stmt.free();
+                const blob = new Blob([db.export()], {type: 'application/octet-stream'});
+                db.close();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileNameBase + ".db";
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+            } catch (e) { alert("DB 저장 실패"); }
         } else if (fmt === 'tsv') {
             const rows = typedData.map(d => {
                 // HTML 태그 제거 함수
@@ -8403,9 +8438,9 @@ const SPECIAL_CATEGORIES = [
             <div style="font-size:1.1rem; font-weight:700; color:var(--accent); margin-bottom:6px;">성경 역본 파일 로드</div>
             <div style="font-size:0.85rem; color:#7a8a80; margin-bottom:10px;">편집할 역본 파일을 불러오세요</div>
             <div style="display:inline-flex; align-items:center; gap:6px; padding:7px 16px; border:1.5px dashed #a8c4b8; border-radius:8px; color:#7aab94; font-size:0.82rem;">
-                📂 AAB · BDB · TXT · ZIP 드래그드롭 또는 클릭
+                📂 AAB · BDB · DB · TXT · ZIP 드래그드롭 또는 클릭
             </div>
-            <input type="file" id="edit-file-input" accept=".bdb,.aab,.txt,.zip" style="display:none;">`;
+            <input type="file" id="edit-file-input" accept=".bdb,.aab,.db,.sqlite,.txt,.zip" style="display:none;">`;
         dz.onclick = () => document.getElementById('edit-file-input').click();
         initEditMode();
         // 카드 비활성화
@@ -9795,7 +9830,7 @@ const SPECIAL_CATEGORIES = [
 
 <div id="je-pin-ov"><div class="je-pin-brand"><div class="je-pin-brand-sub">JINs Bible</div><div class="je-pin-brand-ttl">JSON 편집기</div><div class="je-pin-brand-bar"></div><div class="je-pin-brand-hint">코드 입력</div></div><div class="je-pin-dots" id="je-dots"><div class="je-dot" id="je-d0"></div><div class="je-dot" id="je-d1"></div><div class="je-dot" id="je-d2"></div><div class="je-dot" id="je-d3"></div></div><div class="je-numpad" id="je-numpad"></div></div>
 
-<div id="je-ed-ov"><div id="je-list-ov"><div class="je-list-hdr"><div class="je-list-hdr-top"><div><div class="je-list-ttl">JSON 편집기</div><div class="je-list-sub" id="je-list-sub"></div></div><div class="je-list-btns"><button class="je-lbtn je-lbtn-exp" id="je-exp-btn" style="display:none" onclick="jeExport()">내보내기</button><button class="je-lbtn je-lbtn-file" onclick="jePickFile()">파일 열기</button><button class="je-lbtn je-lbtn-close" onclick="jeHideAll()">닫기</button></div></div></div><div id="je-tab-bar"></div><div id="je-bible-drop" onclick="jeBiblePickFile()"><div id="je-bible-drop-txt">📂 성경역본 불러오기 &nbsp;·&nbsp; TXT · AAB · BDB 드래그드롭 또는 클릭</div></div><input type="file" id="je-bible-inp" accept=".txt,.bdb,.aab,.zip"><div class="je-list-hdr"><div id="je-sort-bar" class="je-sort-bar"><span class="je-sort-label">정렬</span><div class="je-sort-divider"></div><button class="je-sort-btn on" data-sort="bible" onclick="jeSetSort('bible')">성경순</button><button class="je-sort-btn" data-sort="recent" onclick="jeSetSort('recent')">최근작성</button><button class="je-sort-btn" data-sort="oldest" onclick="jeSetSort('oldest')">오래된순</button><button class="je-sort-btn" data-sort="modified" onclick="jeSetSort('modified')">최근수정</button></div><div id="je-book-filter-bar" class="je-book-filter-bar"></div><div class="je-search-wrap" id="je-search-wrap" style="display:none"><input class="je-search" id="je-search" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button class="je-search-clr" onclick="jeClearSearch()">&times;</button></div></div><div id="je-drop-ov"><div class="je-drop-box" id="je-drop-box" onclick="jePickFile()"><div style="font-size:2.6rem">&#128194;</div><div class="je-drop-ttl">JSON 파일 열기</div><div class="je-drop-sub">bible_backup_*.json</div></div></div><div class="je-list-body" id="je-list-body" style="display:none"></div><div id="je-resize-bar-list" title="드래그하여 창 높이 조절"></div></div><div id="je-edit-ov" style="display:none;flex-direction:column;height:100%"><div class="je-hdr"><button class="je-btn-back" onclick="jeBackToList()">&#8592; 목록</button><div class="je-hdr-mid"><div class="je-hdr-ref" id="je-hdr-ref"></div><div class="je-hdr-cnt" id="je-hdr-cnt"></div></div><button class="je-btn-save idle" id="je-save-btn" onclick="jeSave()">저장</button></div><div id="je-verse-panel"><div id="je-verse-text"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><div id="je-verse-src" style="flex:1;font-size:0.78rem;color:#9a9288"></div><div style="display:flex;align-items:center;gap:3px;flex-shrink:0"><button id="je-vp-wrap-btn" onclick="jeToggleVerseWrap()" style="border:none;border-radius:4px;background:transparent;color:#9a9288;font-size:0.7rem;padding:1px 5px;cursor:pointer;transition:all .15s">절별</button><span style="color:#ddd;font-size:0.7rem">|</span><button onclick="jeVerseFontDown()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A-</button><span id="je-vp-fs" style="font-size:0.68rem;color:#b0b0b0;min-width:16px;text-align:center">14</span><button onclick="jeVerseFontUp()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A+</button></div></div></div>
+<div id="je-ed-ov"><div id="je-list-ov"><div class="je-list-hdr"><div class="je-list-hdr-top"><div><div class="je-list-ttl">JSON 편집기</div><div class="je-list-sub" id="je-list-sub"></div></div><div class="je-list-btns"><button class="je-lbtn je-lbtn-exp" id="je-exp-btn" style="display:none" onclick="jeExport()">내보내기</button><button class="je-lbtn je-lbtn-file" onclick="jePickFile()">파일 열기</button><button class="je-lbtn je-lbtn-close" onclick="jeHideAll()">닫기</button></div></div></div><div id="je-tab-bar"></div><div id="je-bible-drop" onclick="jeBiblePickFile()"><div id="je-bible-drop-txt">📂 성경역본 불러오기 &nbsp;·&nbsp; TXT · AAB · BDB 드래그드롭 또는 클릭</div></div><input type="file" id="je-bible-inp" accept=".txt,.bdb,.aab,.db,.sqlite,.zip"><div class="je-list-hdr"><div id="je-sort-bar" class="je-sort-bar"><span class="je-sort-label">정렬</span><div class="je-sort-divider"></div><button class="je-sort-btn on" data-sort="bible" onclick="jeSetSort('bible')">성경순</button><button class="je-sort-btn" data-sort="recent" onclick="jeSetSort('recent')">최근작성</button><button class="je-sort-btn" data-sort="oldest" onclick="jeSetSort('oldest')">오래된순</button><button class="je-sort-btn" data-sort="modified" onclick="jeSetSort('modified')">최근수정</button></div><div id="je-book-filter-bar" class="je-book-filter-bar"></div><div class="je-search-wrap" id="je-search-wrap" style="display:none"><input class="je-search" id="je-search" type="search" placeholder="성경 · 내용 검색..." oninput="jeOnSearch(this.value)"><button class="je-search-clr" onclick="jeClearSearch()">&times;</button></div></div><div id="je-drop-ov"><div class="je-drop-box" id="je-drop-box" onclick="jePickFile()"><div style="font-size:2.6rem">&#128194;</div><div class="je-drop-ttl">JSON 파일 열기</div><div class="je-drop-sub">bible_backup_*.json</div></div></div><div class="je-list-body" id="je-list-body" style="display:none"></div><div id="je-resize-bar-list" title="드래그하여 창 높이 조절"></div></div><div id="je-edit-ov" style="display:none;flex-direction:column;height:100%"><div class="je-hdr"><button class="je-btn-back" onclick="jeBackToList()">&#8592; 목록</button><div class="je-hdr-mid"><div class="je-hdr-ref" id="je-hdr-ref"></div><div class="je-hdr-cnt" id="je-hdr-cnt"></div></div><button class="je-btn-save idle" id="je-save-btn" onclick="jeSave()">저장</button></div><div id="je-verse-panel"><div id="je-verse-text"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px"><div id="je-verse-src" style="flex:1;font-size:0.78rem;color:#9a9288"></div><div style="display:flex;align-items:center;gap:3px;flex-shrink:0"><button id="je-vp-wrap-btn" onclick="jeToggleVerseWrap()" style="border:none;border-radius:4px;background:transparent;color:#9a9288;font-size:0.7rem;padding:1px 5px;cursor:pointer;transition:all .15s">절별</button><span style="color:#ddd;font-size:0.7rem">|</span><button onclick="jeVerseFontDown()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A-</button><span id="je-vp-fs" style="font-size:0.68rem;color:#b0b0b0;min-width:16px;text-align:center">14</span><button onclick="jeVerseFontUp()" style="border:none;background:transparent;color:#9a9288;font-size:0.7rem;font-weight:700;padding:1px 4px;cursor:pointer">A+</button></div></div></div>
 <div id="je-meta-panel">
   <div id="je-meta-toggle" onclick="jeToggleMeta()">
     <span id="je-meta-toggle-label">📋 구절 정보 수정</span>
@@ -9999,7 +10034,7 @@ function _jeHandleBibleFile(file){
           if(entry.dir) return;
           var n=path.split('/').pop();
           if(!n||n.startsWith('.')) return;
-          if(['.txt','.bdb','.aab'].some(function(x){return n.toLowerCase().endsWith(x);})) entries.push({name:n,entry:entry});
+          if(['.txt','.bdb','.aab','.db','.sqlite'].some(function(x){return n.toLowerCase().endsWith(x);})) entries.push({name:n,entry:entry});
         });
         if(!entries.length){_toast('ZIP 안에 지원 파일 없음');return;}
         /* 첫 번째 파일 사용 */
@@ -10016,6 +10051,9 @@ function _jeHandleBibleFile(file){
   }
   if(lower.endsWith('.aab')){
     reader.onload=function(e){_jeLoadSqlite(e.target.result,8,name);}; reader.readAsArrayBuffer(file); return;
+  }
+  if(lower.endsWith('.db')||lower.endsWith('.sqlite')){
+    reader.onload=function(e){_jeLoadSqlite(e.target.result,0,name);}; reader.readAsArrayBuffer(file); return;
   }
   /* TXT */
   reader.onload=function(e){_jeLoadTxt(e.target.result,name);}; reader.readAsArrayBuffer(file);
